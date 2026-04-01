@@ -1,0 +1,325 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ offre.nomOffre }} - Financial Offer Details{% endblock %}
+
+{% block page_intro %}
+<div id="pageintro" class="hoc clear"> 
+    <article>
+        <div class="introtxt">
+            <h2 class="heading"><i class="fa fa-eye"></i> Offer Details</h2>
+            <p>View full information about this financial offer</p>
+        </div>
+    </article>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper row3">
+    <main class="hoc container clear">
+        {{ include('flash_messages.html.twig') }}
+        
+        <div class="detail-wrapper">
+            <div class="detail-card">
+                <div class="offer-header">
+                    <div class="header-content">
+                        <h2>{{ offre.nomOffre }}</h2>
+                        <span class="status-badge {% if offre.statut == 'Active' %}active{% elseif offre.statut == 'En attente' %}pending{% else %}cancelled{% endif %}">
+                            <i class="fa fa-{% if offre.statut == 'Active' %}check-circle{% else %}clock{% endif %}"></i>
+                            {{ offre.statut }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="detail-sections">
+                    <div class="section">
+                        <h4><i class="fa fa-link"></i> Linked Product</h4>
+                        <div class="detail-row">
+                            <div class="detail-field">
+                                <label>Product Name</label>
+                                <p>
+                                    <a href="{{ path('admin_produit_show', {'id': offre.produitFinancier.id}) }}" class="product-link">
+                                        {{ offre.produitFinancier.nomProduit }}
+                                    </a>
+                                </p>
+                            </div>
+                            <div class="detail-field">
+                                <label>Financing Type</label>
+                                <p>{{ offre.produitFinancier.typeFinancement }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h4><i class="fa fa-money"></i> Financial Details</h4>
+                        <div class="detail-row">
+                            <div class="detail-field">
+                                <label>Minimum Amount</label>
+                                <p class="amount">{{ offre.produitFinancier.montantMin|number_format(2, '.', ',') }} <span class="currency">DT</span></p>
+                            </div>
+                            <div class="detail-field">
+                                <label>Maximum Amount</label>
+                                <p class="amount">{{ offre.produitFinancier.montantMax|number_format(2, '.', ',') }} <span class="currency">DT</span></p>
+                            </div>
+                            <div class="detail-field">
+                                <label>Interest Rate</label>
+                                <p class="amount">{{ offre.produitFinancier.tauxInteret }}<span class="percent">%</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if offre.conditions %}
+                    <div class="section">
+                        <h4><i class="fa fa-file-text"></i> Conditions & Terms</h4>
+                        <div class="conditions-box">
+                            <p>{{ offre.conditions }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if offre.produitFinancier.reglesFinancieres %}
+                    <div class="section">
+                        <h4><i class="fa fa-list"></i> Product Financial Rules</h4>
+                        <div class="conditions-box">
+                            <p>{{ offre.produitFinancier.reglesFinancieres }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="actions">
+                    <a href="{{ path('admin_offre_edit', {'id': offre.id}) }}" class="btn btn-primary">
+                        <i class="fa fa-pencil"></i> Edit Offer
+                    </a>
+                    <a href="{{ path('admin_offre_index') }}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+.detail-wrapper {
+    padding: 20px 0;
+}
+
+.detail-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    overflow: hidden;
+}
+
+.offer-header {
+    background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%);
+    padding: 35px 30px;
+    color: white;
+    border-bottom: 4px solid #F4C430;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 20px;
+}
+
+.offer-header h2 {
+    margin: 0;
+    font-size: 2rem;
+    flex: 1;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: capitalize;
+}
+
+.status-badge.active {
+    background: #C8E6C9;
+    color: #1B7E4C;
+}
+
+.status-badge.pending {
+    background: #FFF9C4;
+    color: #F57F17;
+}
+
+.status-badge.cancelled {
+    background: #FFCDD2;
+    color: #C62828;
+}
+
+.detail-sections {
+    padding: 35px 30px;
+}
+
+.section {
+    margin-bottom: 35px;
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+.section h4 {
+    color: #1B7E4C;
+    font-size: 1.1rem;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #F4C430;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.detail-field {
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 4px solid #1B7E4C;
+}
+
+.detail-field label {
+    display: block;
+    font-weight: 600;
+    color: #1B7E4C;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-field p {
+    margin: 0;
+    color: #333;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.detail-field .product-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.detail-field .product-link:hover {
+    text-decoration: underline;
+}
+
+.detail-field .amount {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1B7E4C;
+}
+
+.amount .currency {
+    font-size: 0.8em;
+    margin-left: 4px;
+    color: #666;
+}
+
+.amount .percent {
+    font-size: 0.7em;
+    margin-left: 3px;
+    color: #666;
+}
+
+.conditions-box {
+    background: #f0f8f4;
+    border-left: 4px solid #1B7E4C;
+    padding: 20px;
+    border-radius: 6px;
+    line-height: 1.8;
+}
+
+.conditions-box p {
+    margin: 0;
+    color: #333;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.actions {
+    padding: 25px 30px;
+    background: #f9f9f9;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27,126,76,.3);
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: start;
+    }
+    
+    .offer-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .detail-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

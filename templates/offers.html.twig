@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offres Spéciales - AgriFund{% endblock %}
+
+{% block page_intro %}
+<div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 60px 20px; margin-bottom: 40px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <h1 style="margin: 0 0 20px 0; font-size: 2.5em; font-weight: bold;">🎁 Offres Spéciales & Promotions</h1>
+        <p style="font-size: 1.15em; margin: 0; max-width: 600px;">Profitez de réductions exceptionnelles et d'offres exclusives limitées dans le temps!</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+    <!-- Filter Section -->
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 12px; margin-bottom: 50px;">
+        <h3 style="margin: 0 0 20px 0; color: #1B7E4C;">🔍 Filtrer les Offres</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Statut</label>
+                <select id="filterStatus" onchange="filterOffers()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; cursor: pointer;">
+                    <option value="">Tous les statuts</option>
+                    <option value="Active">Active</option>
+                    <option value="En attente">En attente</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Type de Produit</label>
+                <select id="filterType" onchange="filterOffers()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; cursor: pointer;">
+                    <option value="">Tous les types</option>
+                    <option value="Crédit">Crédit</option>
+                    <option value="Prêt">Prêt</option>
+                    <option value="Leasing">Leasing</option>
+                    <option value="Subvention">Subvention</option>
+                    <option value="Microfinance">Microfinance</option>
+                </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button onclick="resetOfferFilters()" style="padding: 12px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">↻ Réinitialiser</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offers Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 30px; margin-bottom: 60px;" id="offersGrid">
+        {% for offer in offers %}
+        <div class="offer-card" data-status="{{ offer.statut }}" data-type="{{ offer.produitFinancier.typeFinancement }}" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; position: relative;">
+            <!-- Status Badge -->
+            <div style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; background: {% if offer.statut == 'Active' %}#1B7E4C{% else %}#F4C430{% endif %}; color: {% if offer.statut == 'Active' %}white{% else %}#1B7E4C{% endif %}; border-radius: 20px; font-weight: bold; font-size: 0.85em; text-transform: uppercase;">
+                {{ offer.statut }}
+            </div>
+
+            <!-- Card Header - Yellow/Gold -->
+            <div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 25px; padding-top: 40px;">
+                <h3 style="margin: 0; font-size: 1.3em; font-weight: bold;">{{ offer.nomOffre }}</h3>
+            </div>
+
+            <!-- Card Body -->
+            <div style="padding: 25px;">
+                <!-- Product Reference -->
+                {% if offer.produitFinancier %}
+                <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1B7E4C;">
+                    <p style="margin: 0 0 8px 0; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Produit</p>
+                    <p style="margin: 0; color: #1B7E4C; font-weight: bold;">{{ offer.produitFinancier.nomProduit }}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">{{ offer.produitFinancier.typeFinancement }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Conditions -->
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #333; font-size: 0.95em;">📋 Conditions de l'Offre</p>
+                    <p style="margin: 0; color: #666; font-size: 0.95em; line-height: 1.6;">{{ offer.conditions }}</p>
+                </div>
+
+                <!-- Highlights -->
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #F4C430;">
+                    <p style="margin: 0; font-size: 0.9em; color: #666;">✨ <strong>Offre spéciale limitée</strong> — Profitez-en maintenant avant que ce ne soit trop tard!</p>
+                </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div style="padding: 20px; background: #f9f9f9; border-top: 1px solid #e0e0e0; display: flex; gap: 12px;">
+                <a href="{{ path('app_offer_detail', {'id': offer.id}) }}" style="flex: 1; padding: 12px; background: #F4C430; color: #1B7E4C; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; transition: background 0.3s; border: 2px solid #F4C430;">
+                    DÉTAILS
+                </a>
+                <a href="{{ path('app_offer_detail', {'id': offer.id}) }}" style="flex: 1; padding: 12px; background: transparent; color: #F4C430; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; border: 2px solid #F4C430; transition: all 0.3s;">
+                    PROFITER
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- CTA Banner -->
+    <div style="background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; padding: 50px; border-radius: 12px; text-align: center; margin-bottom: 40px;">
+        <h2 style="margin: 0 0 15px 0; font-size: 2em; font-weight: bold;">⏰ Offres à Durée Limitée!</h2>
+        <p style="margin: 0 0 30px 0; font-size: 1.05em; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Ces promotions exceptionnelles ne sont disponibles que pour une période limitée. Ne manquez pas cette chance d'accéder à des financement avantageux!
+        </p>
+        <a href="{{ path('app_products') }}" style="display: inline-block; padding: 15px 40px; background: #F4C430; color: #1B7E4C; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.05em;">
+            Voir Tous les Produits
+        </a>
+    </div>
+</div>
+
+<script>
+function filterOffers() {
+    const status = document.getElementById('filterStatus').value.toLowerCase();
+    const type = document.getElementById('filterType').value.toLowerCase();
+    
+    document.querySelectorAll('.offer-card').forEach(card => {
+        const cardStatus = card.dataset.status.toLowerCase();
+        const cardType = card.dataset.type.toLowerCase();
+        
+        const statusMatch = !status || cardStatus.includes(status);
+        const typeMatch = !type || cardType.includes(type);
+        
+        card.style.display = statusMatch && typeMatch ? '' : 'none';
+    });
+}
+
+function resetOfferFilters() {
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterType').value = '';
+    document.querySelectorAll('.offer-card').forEach(card => card.style.display = '');
+}
+</script>
+{% endblock %}

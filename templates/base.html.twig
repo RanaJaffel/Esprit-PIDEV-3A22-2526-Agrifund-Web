@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Arialogic{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    {% block stylesheets %}
+    <link href="{{ asset('css/layout.css') }}" rel="stylesheet" type="text/css" media="all">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
+    {% endblock %}
+</head>
+<body id="top">
+    {% block header %}
+    <!-- Top Background Image Wrapper -->
+    <div class="bgded" style="background-image:url('{{ asset('images/demo/backgrounds/01.png') }}');"> 
+        <div class="wrapper overlay">
+            <header id="header" class="hoc clear">
+                <nav id="mainav" class="clear"> 
+                    <ul class="clear">
+                        <li class="active"><a href="{{ path('app_index') }}">Home</a></li>
+                        <li><a class="drop" href="#">Pages</a>
+                            <ul>
+                                <li><a href="{{ path('app_gallery') }}">Gallery</a></li>
+                                <li><a href="{{ path('app_full_width') }}">Full Width</a></li>
+                                <li><a href="{{ path('app_sidebar_left') }}">Sidebar Left</a></li>
+                                <li><a href="{{ path('app_sidebar_right') }}">Sidebar Right</a></li>
+                                <li><a href="{{ path('app_basic_grid') }}">Basic Grid</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="{{ path('app_products') }}">Produits</a></li>
+                        <li><a href="{{ path('app_offers') }}">Offres</a></li>
+                        {% if app.user %}
+                        <li><a class="drop" href="#"><i class="fa fa-user-circle"></i> {{ app.user.firstname }}</a>
+                            <ul>
+                                {% if 'ROLE_ADMIN' in app.user.roles %}
+                                <li><a href="{{ path('admin_produit_index') }}"><i class="fa fa-cube"></i> Products</a></li>
+                                <li><a href="{{ path('admin_offre_index') }}"><i class="fa fa-gift"></i> Offers</a></li>
+                                <li class="divider"></li>
+                                {% endif %}
+                                <li><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li><a href="{{ path('app_login') }}"><i class="fa fa-lock"></i> Login</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                <div id="logo"> 
+                    <h1><a href="{{ path('app_index') }}">Agrifund</a></h1>
+                    <p>Agricultural Management System</p>
+                </div>
+            </header>
+        </div>
+        {% block page_intro %}{% endblock %}
+    </div>
+    <!-- End Top Background Image Wrapper -->
+    {% endblock %}
+
+    {% block content %}{% endblock %}
+
+    {% block footer %}
+    <!-- Footer -->
+    <div class="wrapper row4">
+        <footer id="footer" class="hoc clear">
+            <div class="one_quarter first">
+                <h6 class="title">Suspendisse ultricies</h6>
+                <ul class="nospace linklist">
+                    <li><a href="#">Mauris integer finibus</a></li>
+                    <li><a href="#">Cras imperdiet consequat</a></li>
+                    <li><a href="#">Eros nec efficitur sed</a></li>
+                    <li><a href="#">Placerat lacus orci</a></li>
+                </ul>
+            </div>
+            <div class="one_quarter">
+                <h6 class="title">Pellentesque dictumst</h6>
+                <ul class="nospace linklist">
+                    <li><a href="#">Mauris integer finibus</a></li>
+                    <li><a href="#">Cras imperdiet consequat</a></li>
+                    <li><a href="#">Eros nec efficitur sed</a></li>
+                    <li><a href="#">Placerat lacus orci</a></li>
+                </ul>
+            </div>
+            <div class="one_quarter">
+                <h6 class="title">Ultricies malesuada</h6>
+                <ul class="nospace linklist">
+                    <li><a href="#">Mauris integer finibus</a></li>
+                    <li><a href="#">Cras imperdiet consequat</a></li>
+                    <li><a href="#">Eros nec efficitur sed</a></li>
+                    <li><a href="#">Placerat lacus orci</a></li>
+                </ul>
+            </div>
+            <div class="one_quarter">
+                <h6 class="title">Phasellus pretium</h6>
+                <p class="nospace btmspace-30">Morbi sit amet rutrum nunc cras imperdiet consequat eros nec efficitur sed placerat lacus.</p>
+            </div>
+        </footer>
+    </div>
+
+    <div class="wrapper row5">
+        <div id="copyright" class="hoc clear"> 
+            <p><small>Copyright &copy; 2024 - All Rights Reserved</small></p>
+        </div>
+    </div>
+    {% endblock %}
+
+    <!-- Back to top link -->
+    <a id="backtotop" href="#top"><i class="fa fa-chevron-up"></i></a>
+
+    {% block javascripts %}
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.mobilemenu.js') }}"></script>
+    <script src="{{ asset('js/jquery.placeholder.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.backtotop.js') }}"></script>
+    {% endblock %}
+</body>
+</html>

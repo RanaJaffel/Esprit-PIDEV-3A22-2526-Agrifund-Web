@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ page.title }} - Arialogic{% endblock %}
+
+{% block content %}
+<div class="wrapper row3">
+    <main class="hoc container clear">
+        <article class="content">
+            <h1>{{ page.title }}</h1>
+            
+            {% if page.description %}
+            <p class="lead">{{ page.description }}</p>
+            {% endif %}
+            
+            <div class="article-body">
+                {{ page.content|raw }}
+            </div>
+            
+            <footer class="page-footer">
+                <small class="text-muted">
+                    Published on {{ page.createdAt|date('F j, Y') }}
+                    {% if page.updatedAt != page.createdAt %}
+                    | Updated {{ page.updatedAt|date('F j, Y') }}
+                    {% endif %}
+                </small>
+            </footer>
+        </article>
+    </main>
+</div>
+{% endblock %}

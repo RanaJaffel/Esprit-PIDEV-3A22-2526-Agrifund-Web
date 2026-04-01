@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Offres - AgriFund Admin{% endblock %}
+
+{% block page_intro %}
+<div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 60px 20px; margin-bottom: 40px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <h1 style="margin: 0 0 20px 0; font-size: 2.5em; font-weight: bold;">🎁 Gestion des Offres Spéciales</h1>
+        <p style="font-size: 1.15em; margin: 0; max-width: 600px;">Créez et gérez les offres spéciales et promotions pour vos produits</p>
+        <a href="{{ path('admin_offre_new') }}" style="display: inline-block; margin-top: 20px; padding: 12px 30px; background: #1B7E4C; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            + Nouvelle Offre
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+    {{ include('flash_messages.html.twig') }}
+
+    {% if offres|length > 0 %}
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 50px;">
+        <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 30px; border-radius: 12px; border-left: 4px solid #1B7E4C; text-align: center;">
+            <p style="margin: 0 0 10px 0; color: #999; font-size: 0.85em; font-weight: bold; text-transform: uppercase;">Total Offres</p>
+            <p style="margin: 0; font-size: 2.5em; font-weight: bold; color: #1B7E4C;">{{ offres|length }}</p>
+        </div>
+        <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 30px; border-radius: 12px; border-left: 4px solid #1B7E4C; text-align: center;">
+            <p style="margin: 0 0 10px 0; color: #999; font-size: 0.85em; font-weight: bold; text-transform: uppercase;">Offres Actives</p>
+            <p style="margin: 0; font-size: 2.5em; font-weight: bold; color: #1B7E4C;">{{ offres|filter(o => o.statut == 'Active')|length }}</p>
+        </div>
+        <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 30px; border-radius: 12px; border-left: 4px solid #F4C430; text-align: center;">
+            <p style="margin: 0 0 10px 0; color: #999; font-size: 0.85em; font-weight: bold; text-transform: uppercase;">En Attente</p>
+            <p style="margin: 0; font-size: 2.5em; font-weight: bold; color: #F4C430;">{{ offres|filter(o => o.statut != 'Active')|length }}</p>
+        </div>
+    </div>
+
+    <!-- Offers Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 30px;">
+        {% for offre in offres %}
+        <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; position: relative;">
+            <!-- Status Badge -->
+            <div style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; background: {% if offre.statut == 'Active' %}#1B7E4C{% else %}#F4C430{% endif %}; color: {% if offre.statut == 'Active' %}white{% else %}#1B7E4C{% endif %}; border-radius: 20px; font-weight: bold; font-size: 0.85em; text-transform: uppercase; z-index: 10;">
+                {{ offre.statut }}
+            </div>
+
+            <!-- Card Header -->
+            <div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 25px;">
+                <h3 style="margin: 0; font-size: 1.3em; font-weight: bold;">{{ offre.nomOffre }}</h3>
+            </div>
+
+            <!-- Card Body -->
+            <div style="padding: 25px;">
+                <!-- Product Reference -->
+                {% if offre.produitFinancier %}
+                <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1B7E4C;">
+                    <p style="margin: 0 0 8px 0; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Produit Associé</p>
+                    <p style="margin: 0; color: #1B7E4C; font-weight: bold;">{{ offre.produitFinancier.nomProduit }}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">{{ offre.produitFinancier.typeFinancement }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Conditions -->
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #333; font-size: 0.95em;">📋 Conditions</p>
+                    <p style="margin: 0; color: #666; font-size: 0.95em; line-height: 1.6;">{{ offre.conditions|length > 80 ? offre.conditions|slice(0, 80) ~ '...' : offre.conditions }}</p>
+                </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div style="padding: 20px; background: #f9f9f9; border-top: 1px solid #e0e0e0; display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ path('admin_offre_show', {'id': offre.id}) }}" style="flex: 1; min-width: 90px; padding: 10px; background: #1B7E4C; color: white; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.9em;">
+                    👁️ Voir
+                </a>
+                <a href="{{ path('admin_offre_edit', {'id': offre.id}) }}" style="flex: 1; min-width: 90px; padding: 10px; background: #F4C430; color: #1B7E4C; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.9em;">
+                    ✏️ Éditer
+                </a>
+                <form method="post" action="{{ path('admin_offre_delete', {'id': offre.id}) }}" style="flex: 1; min-width: 90px;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette offre?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+                    <button type="submit" style="width: 100%; padding: 10px; background: #e74c3c; color: white; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.9em; border: none; cursor: pointer;">
+                        🗑️ Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div style="background: white; border-radius: 12px; padding: 60px 40px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div style="font-size: 4em; margin-bottom: 20px;">📭</div>
+        <h3 style="margin: 0 0 15px 0; color: #1B7E4C; font-size: 1.8em; font-weight: bold;">Aucune Offre</h3>
+        <p style="margin: 0 0 30px 0; color: #666; font-size: 1.05em;">Créez votre première offre spéciale pour commencer à promouvoir vos produits</p>
+        <a href="{{ path('admin_offre_new') }}" style="display: inline-block; padding: 15px 40px; background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.05em;">
+            + Créer Première Offre
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

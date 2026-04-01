@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produits de Financement - AgriFund{% endblock %}
+
+{% block page_intro %}
+<div style="background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; padding: 60px 20px; margin-bottom: 40px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <h1 style="margin: 0 0 20px 0; font-size: 2.5em; font-weight: bold;">💰 Produits de Financement</h1>
+        <p style="font-size: 1.15em; opacity: 0.95; margin: 0; max-width: 600px;">Explorez nos solutions complètes adaptées à chaque étape de votre développement agricole</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+    <!-- Filter & Search Section -->
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 12px; margin-bottom: 50px;">
+        <h3 style="margin: 0 0 20px 0; color: #1B7E4C;">🔍 Filtrer les Produits</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Type</label>
+                <select id="filterType" onchange="filterProducts()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; cursor: pointer;">
+                    <option value="">Tous les types</option>
+                    <option value="Crédit">Crédit</option>
+                    <option value="Prêt">Prêt</option>
+                    <option value="Leasing">Leasing</option>
+                    <option value="Subvention">Subvention</option>
+                    <option value="Microfinance">Microfinance</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Taux Max (%)</label>
+                <input type="number" id="filterRate" placeholder="Ex: 8" onchange="filterProducts()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em;">
+            </div>
+            <div>
+                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Montant Min (DT)</label>
+                <input type="number" id="filterMinAmount" placeholder="Minimum" onchange="filterProducts()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em;">
+            </div>
+        </div>
+        <button onclick="resetFilters()" style="margin-top: 15px; padding: 10px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">↻ Réinitialiser</button>
+    </div>
+
+    <!-- Products Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 30px; margin-bottom: 60px;" id="productsGrid">
+        {% for product in products %}
+        <div class="product-card" data-type="{{ product.typeFinancement }}" data-rate="{{ product.tauxInteret }}" data-min="{{ product.montantMin }}" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
+            <!-- Card Header -->
+            <div style="background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; padding: 25px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 1.3em; font-weight: bold;">{{ product.nomProduit }}</h3>
+                <p style="margin: 0; font-size: 0.95em; opacity: 0.9; font-weight: 500;">{{ product.typeFinancement }}</p>
+            </div>
+
+            <!-- Card Body -->
+            <div style="padding: 25px;">
+                <!-- Interest Rate -->
+                <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                    <p style="margin: 0 0 5px 0; color: #666; font-size: 0.9em; font-weight: bold; text-transform: uppercase;">Taux d'Intérêt</p>
+                    <p style="margin: 0; font-size: 2.2em; font-weight: bold; color: #1B7E4C;">{{ product.tauxInteret }}<span style="font-size: 0.5em;">%</span></p>
+                </div>
+
+                <!-- Amounts -->
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">Montants:</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 3px solid #1B7E4C;">
+                            <p style="margin: 0 0 5px 0; font-size: 0.85em; color: #999; font-weight: bold;">MIN</p>
+                            <p style="margin: 0; color: #1B7E4C; font-weight: bold;">{{ product.montantMin|number_format(0, ',', ' ') }} DT</p>
+                        </div>
+                        <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 3px solid #1B7E4C;">
+                            <p style="margin: 0 0 5px 0; font-size: 0.85em; color: #999; font-weight: bold;">MAX</p>
+                            <p style="margin: 0; color: #1B7E4C; font-weight: bold;">{{ product.montantMax|number_format(0, ',', ' ') }} DT</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conditions Preview -->
+                {% if product.reglesFinancieres %}
+                <div style="margin-bottom: 20px; padding: 15px; background: #f0f7f4; border-radius: 6px; border-left: 3px solid #1B7E4C;">
+                    <p style="margin: 0 0 8px 0; font-weight: bold; color: #1B7E4C; font-size: 0.9em;">Conditions:</p>
+                    <p style="margin: 0; color: #666; font-size: 0.9em; line-height: 1.5;">{{ product.reglesFinancieres|slice(0, 100) }}{% if product.reglesFinancieres|length > 100 %}...{% endif %}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Card Footer -->
+            <div style="padding: 20px; background: #f9f9f9; border-top: 1px solid #e0e0e0; display: flex; gap: 12px;">
+                <a href="{{ path('app_product_detail', {'id': product.id}) }}" style="flex: 1; padding: 12px; background: #1B7E4C; color: white; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; transition: background 0.3s; border: 2px solid #1B7E4C;">
+                    DÉTAILS
+                </a>
+                <a href="#" style="flex: 1; padding: 12px; background: transparent; color: #1B7E4C; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; border: 2px solid #1B7E4C; transition: all 0.3s;">
+                    DEMANDER
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- CTA Section -->
+    <div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 50px; border-radius: 12px; text-align: center; margin-bottom: 40px;">
+        <h2 style="margin: 0 0 15px 0; font-size: 2em; font-weight: bold;">🌾 Besoin d'un Financement Agricole?</h2>
+        <p style="margin: 0 0 30px 0; font-size: 1.05em; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Nos experts sont prêts à vous aider à trouver la solution idéale pour développer votre exploitation
+        </p>
+        <a href="#" style="display: inline-block; padding: 15px 40px; background: #1B7E4C; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.05em;">
+            Prendre un Rendez-vous
+        </a>
+    </div>
+</div>
+
+<script>
+function filterProducts() {
+    const type = document.getElementById('filterType').value.toLowerCase();
+    const rate = parseFloat(document.getElementById('filterRate').value) || 999;
+    const minAmount = parseFloat(document.getElementById('filterMinAmount').value) || 0;
+    
+    document.querySelectorAll('.product-card').forEach(card => {
+        const cardType = card.dataset.type.toLowerCase();
+        const cardRate = parseFloat(card.dataset.rate);
+        const cardMin = parseFloat(card.dataset.min);
+        
+        const typeMatch = !type || cardType.includes(type);
+        const rateMatch = cardRate <= rate;
+        const amountMatch = cardMin <= minAmount || !minAmount;
+        
+        card.style.display = typeMatch && rateMatch && amountMatch ? '' : 'none';
+    });
+}
+
+function resetFilters() {
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterRate').value = '';
+    document.getElementById('filterMinAmount').value = '';
+    document.querySelectorAll('.product-card').forEach(card => card.style.display = '');
+}
+</script>
+{% endblock %}
