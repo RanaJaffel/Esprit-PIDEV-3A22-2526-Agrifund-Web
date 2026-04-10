@@ -1,0 +1,57 @@
+/* Banque Specific Styles */
+@import './admin.css';
+
+/* Override primary colors for banque */
+.stat-card .icon {
+    background: rgba(225, 179, 35, 0.2);
+    color: var(--jaune-moutarde);
+}
+
+.btn-primary {
+    background: var(--jaune-moutarde);
+    border-color: var(--jaune-moutarde);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--olive);
+    border-color: var(--olive);
+}
+
+.btn-warning {
+    background: var(--jaune-moutarde);
+    border-color: var(--jaune-moutarde);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: var(--olive);
+    border-color: var(--olive);
+}
+
+.section-header {
+    border-bottom-color: var(--jaune-moutarde);
+}
+
+.section-title {
+    color: var(--vert-fonce);
+}
+
+/* Sidebar override for banque */
+.sidebar {
+    background: linear-gradient(180deg, var(--vert-fonce) 0%, var(--olive) 100%);
+}
+
+.sidebar-header {
+    background: var(--vert-tres-fonce);
+}
+
+.menu-item.active a {
+    background: var(--jaune-moutarde);
+    color: var(--vert-tres-fonce);
+}
+
+.menu-item a:hover {
+    background: var(--jaune-moutarde);
+    color: var(--vert-tres-fonce);
+}

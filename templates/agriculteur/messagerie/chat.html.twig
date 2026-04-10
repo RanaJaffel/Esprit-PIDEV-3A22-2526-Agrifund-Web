@@ -1,0 +1,371 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conversation{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('agriculteur') }}
+    {{ encore_entry_link_tags('messagerie-style') }}
+    <style>
+        .chat-header {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-clair) 100%);
+        }
+
+        .message-sent .message-bubble {
+            background: var(--vert-clair);
+            color: var(--vert-tres-fonce);
+        }
+
+        .message-sent .message-meta small {
+            color: rgba(19, 61, 3, 0.7);
+        }
+
+        .message-received .message-bubble {
+            background: #f1f1f1;
+            color: #000;
+        }
+
+        .message-attachments img {
+            border-radius: var(--radius-sm);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_agriculteur.html.twig' %}
+    <div class="main-content">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center">
+                        <a href="{{ path('agriculteur_messagerie_index') }}" class="btn btn-link text-white me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h5 class="mb-0">Conversation #{{ conversation.id }}</h5>
+                            <small>{{ messages|length }} message(s)</small>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-link text-white" title="Rafraîchir" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="messages-area" id="messagesArea" data-conversation-id="{{ conversation.id }}">
+                {% for message in messages %}
+                    {% if not message.estSupprime %}
+                        <div class="message {{ message.expediteur.id == current_user.id ? 'message-sent' : 'message-received' }}" 
+                             data-message-id="{{ message.id }}">
+                            <div class="message-bubble">
+                                <div class="message-content">
+                                    <strong>{{ message.expediteur.nom }} {{ message.expediteur.prenom }}</strong><br>
+                                    {{ message.contenu|nl2br }}
+
+                                    {% if message.piecesJointes|length > 0 %}
+                                        <div class="message-attachments mt-2">
+                                            {% for piece in message.piecesJointes %}
+                                                {% if piece.typeFichier == 'image' %}
+                                                    <a href="{{ asset(piece.cheminFichier) }}" target="_blank" class="d-block mb-2">
+                                                        <img src="{{ asset(piece.cheminFichier) }}" 
+                                                             alt="{{ piece.nomOriginal }}" 
+                                                             style="max-width:100%; max-height:300px;">
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{{ asset(piece.cheminFichier) }}" target="_blank" download>
+                                                        <i class="fas fa-file me-2"></i>{{ piece.nomOriginal }}
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="message-meta">
+                                    <small class="text-muted">
+                                        {{ message.dateEnvoi|date('d/m/Y H:i') }}
+                                        {% if message.isModifie %}
+                                            <i class="fas fa-edit ms-1" title="Modifié"></i>
+                                        {% endif %}
+                                        {% if message.expediteur.id == current_user.id %}
+                                            {% if message.estLu %}
+                                                <i class="fas fa-check-double ms-1 text-success" title="Lu"></i>
+                                            {% else %}
+                                                <i class="fas fa-check ms-1" title="Envoyé"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </small>
+                                    {% if message.expediteur.id == current_user.id %}
+                                        <div class="message-actions">
+                                            <button class="btn btn-sm btn-link text-muted" 
+                                                    onclick="editMessage({{ message.id }}, '{{ message.contenu|escape('js') }}')"
+                                                    title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-link text-danger" 
+                                                    onclick="deleteMessage({{ message.id }})"
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="message-input-area">
+                <form id="messageForm" enctype="multipart/form-data">
+                    <div class="input-group">
+                        <button type="button" class="btn btn-outline-secondary" id="attachButton">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="file" id="fileInput" name="files[]" multiple style="display:none;" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+                        <textarea class="form-control" id="messageInput" name="contenu" placeholder="Tapez votre message..." rows="1"></textarea>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div id="filePreview" class="mt-2"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier le message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="editMessageContent" rows="3"></textarea>
+                <input type="hidden" id="editMessageId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" onclick="saveEditedMessage()">
+                    <i class="fas fa-save me-2"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ encore_entry_script_tags('sidebar') }}
+{{ encore_entry_script_tags('messagerie') }}
+<script>
+const conversationId = {{ conversation.id }};
+const currentUserId = {{ current_user.id }};
+const csrfToken = '{{ csrf_token('delete_message') }}';
+
+const sendMessageRoute = '/agriculteur/messagerie/send/' + conversationId;
+const editMessageRoute = '/agriculteur/messagerie/message/';
+const deleteMessageRoute = '/agriculteur/messagerie/message/';
+const getMessagesRoute = '/agriculteur/messagerie/conversation/' + conversationId + '/messages';
+
+document.addEventListener('DOMContentLoaded', function() {
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    const fileInput = document.getElementById('fileInput');
+    const attachButton = document.getElementById('attachButton');
+
+    scrollToBottom();
+
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    attachButton?.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    fileInput?.addEventListener('change', function() {
+        displayFilePreview(this.files);
+    });
+
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        sendAgriculteurMessage();
+    });
+
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            messageForm.dispatchEvent(new Event('submit'));
+        }
+    });
+
+    setInterval(refreshAgriculteurMessages, 5000);
+});
+
+function sendAgriculteurMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const fileInput = document.getElementById('fileInput');
+    const formData = new FormData();
+    formData.append('contenu', messageInput.value.trim());
+
+    if (fileInput.files.length > 0) {
+        for (let i=0; i<fileInput.files.length; i++){
+            formData.append('files[]', fileInput.files[i]);
+        }
+    }
+
+    if (!messageInput.value.trim() && fileInput.files.length===0) return;
+
+    fetch(sendMessageRoute, {method:'POST', body:formData})
+        .then(r=>r.json())
+        .then(data=>{
+            if(data.success){
+                messageInput.value='';
+                fileInput.value='';
+                document.getElementById('filePreview').innerHTML='';
+                appendMessage(data.message);
+                scrollToBottom();
+            }else{
+                alert('Erreur: '+(data.error||'Erreur inconnue'));
+            }
+        }).catch(e=>console.error(e));
+}
+
+function refreshAgriculteurMessages(){
+    const lastId = getLastMessageId();
+    fetch(getMessagesRoute+'?last_id='+lastId)
+        .then(r=>r.json())
+        .then(messages=>{
+            messages.forEach(m=>appendMessage(m));
+            if(messages.length>0) scrollToBottom();
+        });
+}
+
+function appendMessage(m){
+    const isSent = m.expediteur_id === currentUserId;
+    const div = document.createElement('div');
+    div.className = `message ${isSent?'message-sent':'message-received'}`;
+    div.dataset.messageId = m.id;
+
+    let attachments = '';
+    if(m.pieces_jointes && m.pieces_jointes.length>0){
+        attachments = '<div class="message-attachments mt-2">';
+        m.pieces_jointes.forEach(p=>{
+            if(p.type==='image'){
+                attachments+=`<a href="${p.url}" target="_blank"><img src="${p.url}" style="max-width:100%; max-height:300px;"></a>`;
+            }else{
+                attachments+=`<a href="${p.url}" target="_blank" download><i class="fas fa-file me-2"></i>${p.nom}</a>`;
+            }
+        });
+        attachments+='</div>';
+    }
+
+    div.innerHTML=`
+        <div class="message-bubble">
+            <div class="message-content">
+                <strong>${escapeHtml(m.expediteur_nom)}</strong><br>
+                ${escapeHtml(m.contenu).replace(/\n/g,'<br>')}
+                ${attachments}
+            </div>
+            <div class="message-meta">
+                <small class="text-muted">${formatDate(m.date)}${isSent?'<i class="fas fa-check ms-1"></i>':''}</small>
+                ${isSent?`<div class="message-actions">
+                    <button class="btn btn-sm btn-link text-muted" onclick="editMessage(${m.id},'${escapeHtml(m.contenu)}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-link text-danger" onclick="deleteMessage(${m.id})"><i class="fas fa-trash"></i></button>
+                </div>`:''}
+            </div>
+        </div>
+    `;
+    document.getElementById('messagesArea').appendChild(div);
+}
+
+function getLastMessageId(){
+    const messages=document.querySelectorAll('.message');
+    if(messages.length===0) return 0;
+    return parseInt(messages[messages.length-1].dataset.messageId)||0;
+}
+
+function scrollToBottom(){
+    const messagesArea=document.getElementById('messagesArea');
+    if(messagesArea) messagesArea.scrollTop=messagesArea.scrollHeight;
+}
+
+function escapeHtml(text){
+    const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
+    return text.replace(/[&<>"']/g,m=>map[m]);
+}
+
+function formatDate(dateString){
+    const d=new Date(dateString);
+    return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function displayFilePreview(files){
+    const preview = document.getElementById('filePreview');
+    preview.innerHTML='';
+    for(let i=0;i<files.length;i++){
+        const f=files[i];
+        const item=document.createElement('div');
+        item.innerHTML=`<i class="fas fa-file"></i> ${f.name} (${formatFileSize(f.size)}) <span class="remove-file" onclick="removeFile(${i})">&times;</span>`;
+        preview.appendChild(item);
+    }
+}
+
+function removeFile(index){
+    const fileInput=document.getElementById('fileInput');
+    const dt=new DataTransfer();
+    const files=fileInput.files;
+    for(let i=0;i<files.length;i++){
+        if(i!==index) dt.items.add(files[i]);
+    }
+    fileInput.files=dt.files;
+    displayFilePreview(fileInput.files);
+}
+
+function formatFileSize(bytes){
+    if(bytes===0) return '0 o';
+    const k=1024;
+    const sizes=['o','Ko','Mo','Go'];
+    const i=Math.floor(Math.log(bytes)/Math.log(k));
+    return Math.round(bytes/Math.pow(k,i)*100)/100+' '+sizes[i];
+}
+
+// Édition et suppression
+function editMessage(id,contenu){
+    document.getElementById('editMessageId').value=id;
+    document.getElementById('editMessageContent').value=contenu;
+    new bootstrap.Modal(document.getElementById('editMessageModal')).show();
+}
+
+function saveEditedMessage(){
+    const id=document.getElementById('editMessageId').value;
+    const contenu=document.getElementById('editMessageContent').value;
+    if(!contenu.trim()) return alert('Le message ne peut pas être vide');
+    const fd=new FormData(); fd.append('contenu',contenu);
+    fetch(editMessageRoute+id+'/edit',{method:'POST',body:fd})
+        .then(r=>r.json())
+        .then(d=>{
+            if(d.success){
+                const div=document.querySelector(`[data-message-id="${id}"] .message-content`);
+                div.innerHTML=`<strong>${escapeHtml(d.message.expediteur_nom)}</strong><br>${escapeHtml(d.message.contenu).replace(/\n/g,'<br>')}`;
+                bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
+            }else alert('Erreur lors de la modification');
+        }).catch(e=>console.error(e));
+}
+
+function deleteMessage(id){
+    if(!confirm('Êtes-vous sûr de supprimer ce message ?')) return;
+    const fd=new FormData(); fd.append('_token',csrfToken);
+    fetch(deleteMessageRoute+id+'/delete',{method:'POST',body:fd})
+        .then(r=>r.json())
+        .then(d=>{if(d.success){document.querySelector(`[data-message-id="${id}"]`).remove();}else alert('Erreur');})
+        .catch(e=>console.error(e));
+}
+</script>
+{% endblock %}

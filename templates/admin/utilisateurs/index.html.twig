@@ -1,0 +1,980 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --gris: #848A86;
+            --vert-tres-fonce: #133D03;
+            --jaune-moutarde: #E1B323;
+            --vert-clair: #B2D944;
+            --olive: #9A951F;
+            --vert-olive-fonce: #476C1A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+            min-height: 100vh;
+        }
+
+        /* ==========================================
+           LAYOUT PRINCIPAL
+        ========================================== */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            background: transparent;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* ==========================================
+           HEADER SECTION
+        ========================================== */
+        .main-content > .d-flex.justify-content-between:first-of-type {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 50%, var(--vert-tres-fonce) 100%);
+            padding: 28px 35px;
+            margin: 0 0 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L45 25 L40 40 L35 25 Z' fill='%23B2D944' fill-opacity='0.06'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(178, 217, 68, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type h1 {
+            color: white !important;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type h1 i {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-vif) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            margin-right: 0 !important;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type > div {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ==========================================
+           HEADER BUTTONS
+        ========================================== */
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-success {
+            background: linear-gradient(135deg, var(--vert-clair) 0%, var(--olive) 100%);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 6px 20px rgba(178, 217, 68, 0.35);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(178, 217, 68, 0.45);
+        }
+
+        #mobileSidebarToggle {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            transition: all 0.3s ease;
+        }
+
+        #mobileSidebarToggle:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            transform: scale(1.05);
+        }
+
+        /* ==========================================
+           CONTENT AREA
+        ========================================== */
+        .main-content > *:not(.d-flex.justify-content-between):not(script):not(.modal) {
+            margin-left: 35px;
+            margin-right: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content > *:not(.d-flex.justify-content-between):not(script):not(.modal) {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+        }
+
+        /* ==========================================
+           FILTER SECTION
+        ========================================== */
+        .dashboard-section.mb-4 {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 25px !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-section.mb-4::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--vert-vif), var(--vert-clair), var(--jaune-moutarde));
+        }
+
+        .dashboard-section.mb-4 .form-label {
+            font-weight: 600;
+            color: var(--vert-tres-fonce);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-section.mb-4 .form-label i {
+            color: var(--vert-vif);
+            font-size: 0.9rem;
+        }
+
+        .dashboard-section.mb-4 .form-control,
+        .dashboard-section.mb-4 .form-select {
+            border: 2px solid #e8ecef;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .dashboard-section.mb-4 .form-control:focus,
+        .dashboard-section.mb-4 .form-select:focus {
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 4px rgba(8, 150, 71, 0.1);
+            background: white;
+        }
+
+        .dashboard-section.mb-4 .btn-primary {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(8, 150, 71, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-section.mb-4 .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(8, 150, 71, 0.35);
+        }
+
+        /* ==========================================
+           MAIN TABLE SECTION
+        ========================================== */
+        .dashboard-section:not(.mb-4) {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==========================================
+           TABLE STYLES
+        ========================================== */
+        .table-responsive {
+            padding: 0;
+            margin: 0;
+        }
+
+        .table-custom,
+        .table {
+            margin: 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .table-custom thead,
+        .table thead {
+            background: linear-gradient(90deg, var(--vert-fonce) 0%, var(--vert-foret) 100%);
+        }
+
+        .table-custom thead th,
+        .table thead th {
+            color: white !important;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 18px 20px;
+            border: none !important;
+        }
+
+        .table-custom tbody tr,
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .table-custom tbody tr:last-child,
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table-custom tbody tr:hover,
+        .table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(8, 150, 71, 0.04) 0%, rgba(178, 217, 68, 0.03) 100%);
+        }
+
+        .table-custom tbody td,
+        .table tbody td {
+            padding: 20px;
+            vertical-align: middle;
+            color: var(--vert-tres-fonce);
+            font-size: 0.9rem;
+            border: none !important;
+        }
+
+        /* ==========================================
+           USER CELL
+        ========================================== */
+        .table tbody td .rounded-circle {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .table tbody td .fa-user-circle {
+            font-size: 2.6rem !important;
+            color: var(--vert-vif) !important;
+        }
+
+        /* ==========================================
+           BADGES
+        ========================================== */
+        .badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%) !important;
+            box-shadow: 0 4px 12px rgba(8, 150, 71, 0.25);
+        }
+
+        .badge.bg-warning {
+            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, #c9a020 100%) !important;
+            box-shadow: 0 4px 12px rgba(225, 179, 35, 0.25);
+        }
+
+        /* ==========================================
+           ACTION BUTTONS
+        ========================================== */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-group .btn {
+            border-radius: 10px !important;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-group .btn-outline-primary {
+            border: 2px solid var(--vert-vif);
+            color: var(--vert-vif);
+            background: transparent;
+        }
+
+        .btn-group .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            border-color: var(--vert-vif);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(8, 150, 71, 0.3);
+        }
+
+        .btn-group .btn-outline-danger {
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            background: transparent;
+        }
+
+        .btn-group .btn-outline-danger:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-color: #ef4444;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* ==========================================
+           PAGINATION
+        ========================================== */
+        .dashboard-section:not(.mb-4) > .d-flex.justify-content-center {
+            padding: 25px;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 0.03) 100%);
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .pagination {
+            gap: 8px;
+            margin: 0;
+        }
+
+        .pagination .page-item .page-link {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--vert-tres-fonce);
+            background: #f0f2f5;
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background: var(--vert-clair);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            color: white;
+        }
+
+        /* ==========================================
+           MODAL STYLES - FIX POUR INTERACTIONS
+        ========================================== */
+        .modal {
+            z-index: 1060 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 1055 !important;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.6;
+        }
+
+        .modal.show {
+            z-index: 1100 !important;
+        }
+
+        .modal-dialog {
+            z-index: 1101 !important;
+            pointer-events: auto !important;
+            margin: 1.75rem auto;
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 1102 !important;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 22px 28px;
+            border: none;
+            position: relative;
+            z-index: 1;
+            pointer-events: auto !important;
+        }
+
+        .modal-header .modal-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header .modal-title::before {
+            content: '\f071';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            position: relative;
+            z-index: 10;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px 28px;
+            background: white;
+            position: relative;
+            z-index: 1;
+            pointer-events: auto !important;
+        }
+
+        .modal-body p {
+            margin-bottom: 18px;
+            color: var(--vert-tres-fonce);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .modal-body p strong {
+            color: var(--vert-fonce);
+            font-weight: 700;
+        }
+
+        .modal-body p.text-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%);
+            padding: 16px 20px;
+            border-radius: 14px;
+            border-left: 4px solid #ef4444;
+            color: #b91c1c !important;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-body p.text-danger i {
+            color: #ef4444;
+            font-size: 1.2rem;
+        }
+
+        .modal-footer {
+            padding: 22px 28px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            background: #fafbfc;
+            gap: 15px;
+            display: flex;
+            justify-content: flex-end;
+            position: relative;
+            z-index: 1;
+            pointer-events: auto !important;
+        }
+
+        .modal-footer .btn {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            position: relative;
+            z-index: 10 !important;
+        }
+
+        .modal-footer .btn-secondary {
+            background: #e5e7eb;
+            border: none;
+            color: var(--vert-tres-fonce);
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-footer .btn-secondary:hover {
+            background: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-footer .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-footer .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .modal-footer form {
+            display: inline-block;
+            pointer-events: auto !important;
+        }
+
+        .modal-footer form .btn-danger {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+
+        /* ==========================================
+           FLASH MESSAGES
+        ========================================== */
+        .alert {
+            border-radius: 14px;
+            border: none;
+            padding: 16px 24px;
+            margin: 0 35px 20px 35px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.1) 0%, rgba(178, 217, 68, 0.1) 100%);
+            color: var(--vert-fonce);
+            border-left: 4px solid var(--vert-vif);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            color: #b91c1c;
+            border-left: 4px solid #ef4444;
+        }
+
+        /* ==========================================
+           RESPONSIVE
+        ========================================== */
+        @media (max-width: 768px) {
+            .main-content > .d-flex.justify-content-between:first-of-type {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            .main-content > .d-flex.justify-content-between:first-of-type h1 {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-section.mb-4 {
+                padding: 20px;
+            }
+
+            .modal-dialog {
+                margin: 1rem;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        /* ==========================================
+           ANIMATIONS
+        ========================================== */
+        .table tbody tr {
+            opacity: 0;
+            animation: fadeInRow 0.4s ease-out forwards;
+        }
+
+        .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        .table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        .table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        .table tbody tr:nth-child(6) { animation-delay: 0.3s; }
+        .table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+        .table tbody tr:nth-child(8) { animation-delay: 0.4s; }
+        .table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+        .table tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Modal animation */
+        .modal.fade .modal-dialog {
+            transform: scale(0.9) translateY(-50px);
+            transition: transform 0.3s ease-out;
+        }
+
+        .modal.show .modal-dialog {
+            transform: scale(1) translateY(0);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_admin.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-users me-2"></i>Gestion des utilisateurs
+                </h1>
+                <div>
+                    <a href="{{ path('admin_users_add_admin') }}" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i>Ajouter un admin
+                    </a>
+                    <button class="btn btn-outline-primary d-md-none ms-2" id="mobileSidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            {% include 'components/_flash_messages.html.twig' %}
+            
+            {# Filtres de recherche #}
+            <div class="dashboard-section mb-4">
+                <form method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-search me-1"></i>Rechercher
+                        </label>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="Nom, prénom, email..." 
+                               value="{{ search }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-filter me-1"></i>Type d'utilisateur
+                        </label>
+                        <select name="type" class="form-select">
+                            <option value="">Tous</option>
+                            <option value="admin" {{ type == 'admin' ? 'selected' }}>Administrateurs</option>
+                            <option value="agriculteur" {{ type == 'agriculteur' ? 'selected' }}>Agriculteurs</option>
+                            <option value="banque" {{ type == 'banque' ? 'selected' }}>Banques</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Filtrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            {# Liste des utilisateurs #}
+            <div class="dashboard-section">
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Type</th>
+                                <th>Inscription</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for utilisateur in pagination %}
+                            <tr>
+                                <td>
+                                    {% if utilisateur.photo %}
+                                        <img src="{{ asset(utilisateur.photo) }}" 
+                                             alt="{{ utilisateur.nomComplet }}" 
+                                             class="rounded-circle me-2" 
+                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-2x me-2 text-muted"></i>
+                                    {% endif %}
+                                    <strong>{{ utilisateur.nomComplet }}</strong>
+                                </td>
+                                <td>{{ utilisateur.email }}</td>
+                                <td>{{ utilisateur.tel ?? 'N/A' }}</td>
+                                <td>
+                                    {% if utilisateur.admin %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-user-shield me-1"></i>Admin
+                                        </span>
+                                    {% elseif utilisateur.agriculteur %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-tractor me-1"></i>Agriculteur
+                                        </span>
+                                    {% elseif utilisateur.banque %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-university me-1"></i>Banque
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ utilisateur.dateInscrit|date('d/m/Y') }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('admin_users_edit', {id: utilisateur.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        
+                                        {% if utilisateur.id != app.user.id %}
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger btn-delete-user" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal{{ utilisateur.id }}"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="fas fa-users fa-3x mb-3 d-block"></i>
+                                    Aucun utilisateur trouvé
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {# Pagination #}
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modals de confirmation de suppression - DÉPLACÉS EN DEHORS DU CONTAINER #}
+    {% for utilisateur in pagination %}
+        {% if utilisateur.id != app.user.id %}
+        <div class="modal fade" id="deleteModal{{ utilisateur.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ utilisateur.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel{{ utilisateur.id }}">Confirmer la suppression</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ utilisateur.nomComplet }}</strong> ?</p>
+                        <p class="text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Cette action est irréversible et supprimera toutes les données associées.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </button>
+                        <form method="post" action="{{ path('admin_users_delete', {id: utilisateur.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ utilisateur.id) }}">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile sidebar toggle
+            document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('show');
+            });
+
+            // Fix modal z-index issues
+            document.querySelectorAll('.modal').forEach(function(modal) {
+                // Move modal to body to avoid z-index issues with sidebar
+                document.body.appendChild(modal);
+                
+                modal.addEventListener('shown.bs.modal', function() {
+                    // Ensure modal is on top
+                    this.style.zIndex = '1100';
+                    document.querySelector('.modal-backdrop')?.style.setProperty('z-index', '1099', 'important');
+                    
+                    // Enable pointer events
+                    this.querySelectorAll('.btn, button, form').forEach(function(el) {
+                        el.style.pointerEvents = 'auto';
+                        el.style.cursor = 'pointer';
+                    });
+                });
+
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Clean up backdrop if stuck
+                    document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                        if (!document.querySelector('.modal.show')) {
+                            backdrop.remove();
+                        }
+                    });
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('padding-right');
+                    document.body.style.removeProperty('overflow');
+                });
+            });
+
+            // Prevent modal backdrop click issues
+            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(trigger) {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const targetId = this.getAttribute('data-bs-target');
+                    const modal = document.querySelector(targetId);
+                    
+                    if (modal) {
+                        const bsModal = new bootstrap.Modal(modal, {
+                            backdrop: true,
+                            keyboard: true,
+                            focus: true
+                        });
+                        bsModal.show();
+                    }
+                });
+            });
+
+            // Ensure delete form submission works
+            document.querySelectorAll('.modal-footer form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    // Form submits normally
+                    console.log('Form submitted');
+                });
+                
+                // Make sure button is clickable
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.style.pointerEvents = 'auto';
+                    submitBtn.style.cursor = 'pointer';
+                }
+            });
+        });
+    </script>
+{% endblock %}
