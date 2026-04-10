@@ -1,0 +1,1553 @@
+{# templates/security/login.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - AgriFund{% endblock %}
+
+{% block body_class %}login-page-body{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Cacher le preloader de base.html.twig */
+    #preloader {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body.login-page-body {
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* ==========================================
+       LOADING OVERLAY
+    ========================================== */
+    .login-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0d2818 0%, #1a472a 50%, #2d5a3d 100%);
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .login-loading-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .loading-logo {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #8bc34a 0%, #4caf50 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+        animation: logoPulse 1.5s infinite ease-in-out;
+        box-shadow: 0 20px 60px rgba(139, 195, 74, 0.4);
+    }
+
+    .loading-logo i {
+        font-size: 45px;
+        color: white;
+    }
+
+    @keyframes logoPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(139, 195, 74, 0.4); }
+        50% { transform: scale(1.1); box-shadow: 0 25px 80px rgba(139, 195, 74, 0.6); }
+    }
+
+    .loading-spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .loading-dots {
+        display: flex;
+        gap: 8px;
+    }
+
+    .loading-dot {
+        width: 12px;
+        height: 12px;
+        background: #8bc34a;
+        border-radius: 50%;
+        animation: dotBounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+    .loading-dot:nth-child(3) { animation-delay: 0s; }
+
+    @keyframes dotBounce {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+        40% { transform: scale(1); opacity: 1; }
+    }
+
+    .loading-text {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .loading-subtext {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+
+    /* ==========================================
+       LOGIN UNIVERSE
+    ========================================== */
+    .login-universe {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #0a1628 0%, #1a3a2a 50%, #0d2818 100%);
+        position: relative;
+        overflow: hidden;
+        padding-top: 80px;
+    }
+
+    /* ==========================================
+       STARS
+    ========================================== */
+    .stars-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .star {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 3s infinite ease-in-out;
+    }
+
+    .star.small { width: 2px; height: 2px; }
+    .star.large { width: 4px; height: 4px; }
+
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.3); }
+    }
+
+    /* ==========================================
+       SHOOTING STARS
+    ========================================== */
+    .shooting-star {
+        position: absolute;
+        width: 100px;
+        height: 2px;
+        background: linear-gradient(90deg, white, transparent);
+        border-radius: 50%;
+        animation: shoot 3s infinite linear;
+        opacity: 0;
+    }
+
+    @keyframes shoot {
+        0% { transform: translateX(0) translateY(0); opacity: 1; }
+        70% { opacity: 1; }
+        100% { transform: translateX(-500px) translateY(300px); opacity: 0; }
+    }
+
+    .shooting-star:nth-child(1) { top: 10%; right: 10%; animation-delay: 0s; }
+    .shooting-star:nth-child(2) { top: 20%; right: 20%; animation-delay: 2s; }
+    .shooting-star:nth-child(3) { top: 5%; right: 30%; animation-delay: 4s; }
+
+    /* ==========================================
+       FIREFLIES
+    ========================================== */
+    .fireflies-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .firefly {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: radial-gradient(circle, #fff7a1 0%, #ffd700 50%, transparent 70%);
+        border-radius: 50%;
+        box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700;
+        animation: fireflyFloat 8s infinite ease-in-out;
+    }
+
+    @keyframes fireflyFloat {
+        0%, 100% {
+            transform: translate(0, 0) scale(0.8);
+            opacity: 0;
+        }
+        10% { opacity: 1; }
+        25% { transform: translate(30px, -50px) scale(1); }
+        50% { transform: translate(80px, -20px) scale(0.9); opacity: 0.8; }
+        75% { transform: translate(50px, -80px) scale(1.1); }
+        90% { opacity: 1; }
+    }
+
+    /* ==========================================
+       MOON
+    ========================================== */
+    .moon {
+        position: absolute;
+        top: 80px;
+        right: 10%;
+        width: 90px;
+        height: 90px;
+        background: radial-gradient(circle at 30% 30%, #fffde7 0%, #ffd54f 40%, #ffb300 100%);
+        border-radius: 50%;
+        box-shadow: 
+            0 0 60px rgba(255, 213, 79, 0.6),
+            0 0 120px rgba(255, 213, 79, 0.3),
+            inset -10px -10px 20px rgba(255, 183, 77, 0.3);
+        animation: moonGlow 4s infinite ease-in-out;
+    }
+
+    .moon::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 20px;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 183, 77, 0.4);
+        border-radius: 50%;
+    }
+
+    .moon::after {
+        content: '';
+        position: absolute;
+        top: 40px;
+        left: 50px;
+        width: 12px;
+        height: 12px;
+        background: rgba(255, 183, 77, 0.4);
+        border-radius: 50%;
+    }
+
+    @keyframes moonGlow {
+        0%, 100% { 
+            box-shadow: 0 0 60px rgba(255, 213, 79, 0.6), 0 0 120px rgba(255, 213, 79, 0.3);
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 0 80px rgba(255, 213, 79, 0.8), 0 0 150px rgba(255, 213, 79, 0.4);
+            transform: scale(1.02);
+        }
+    }
+
+    /* ==========================================
+       FALLING LEAVES
+    ========================================== */
+    .leaves-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .leaf {
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238bc34a'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z'/%3E%3C/svg%3E") no-repeat center;
+        background-size: contain;
+        opacity: 0.6;
+        animation: leafFall linear infinite;
+    }
+
+    @keyframes leafFall {
+        0% {
+            transform: translateY(-50px) rotate(0deg) translateX(0);
+            opacity: 0;
+        }
+        10% { opacity: 0.7; }
+        100% {
+            transform: translateY(100vh) rotate(720deg) translateX(100px);
+            opacity: 0;
+        }
+    }
+
+    /* ==========================================
+       LANDSCAPE
+    ========================================== */
+    .landscape {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 280px;
+        z-index: 1;
+    }
+
+    .mountains {
+        position: absolute;
+        bottom: 60px;
+        width: 100%;
+    }
+
+    .mountain {
+        position: absolute;
+        bottom: 0;
+        border-style: solid;
+    }
+
+    .mountain-1 {
+        left: -10%;
+        border-width: 0 220px 180px 220px;
+        border-color: transparent transparent #1a472a transparent;
+    }
+
+    .mountain-2 {
+        left: 15%;
+        border-width: 0 160px 140px 160px;
+        border-color: transparent transparent #2d5a3d transparent;
+    }
+
+    .mountain-3 {
+        right: -10%;
+        border-width: 0 260px 200px 260px;
+        border-color: transparent transparent #1a472a transparent;
+    }
+
+    .mountain-4 {
+        right: 20%;
+        border-width: 0 180px 150px 180px;
+        border-color: transparent transparent #234d35 transparent;
+    }
+
+    .ground {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 70px;
+        background: linear-gradient(180deg, #2d5a3d 0%, #1a472a 100%);
+    }
+
+    /* ==========================================
+       TREES
+    ========================================== */
+    .trees-container {
+        position: absolute;
+        bottom: 55px;
+        width: 100%;
+        z-index: 2;
+    }
+
+    .tree {
+        position: absolute;
+        bottom: 0;
+        animation: treeSway 4s infinite ease-in-out;
+    }
+
+    .tree-trunk {
+        width: 12px;
+        height: 35px;
+        background: linear-gradient(90deg, #4a3728 0%, #6b4423 50%, #4a3728 100%);
+        margin: 0 auto;
+        border-radius: 3px;
+    }
+
+    .tree-leaves {
+        width: 0;
+        height: 0;
+        border-left: 30px solid transparent;
+        border-right: 30px solid transparent;
+        border-bottom: 50px solid #2d7a3a;
+        position: relative;
+        margin-bottom: -10px;
+    }
+
+    .tree-leaves::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: -25px;
+        width: 0;
+        height: 0;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-bottom: 40px solid #3f9e4d;
+    }
+
+    @keyframes treeSway {
+        0%, 100% { transform: rotate(-1deg); }
+        50% { transform: rotate(1deg); }
+    }
+
+    .tree:nth-child(1) { left: 5%; transform: scale(0.8); animation-delay: 0s; }
+    .tree:nth-child(2) { left: 12%; transform: scale(1.1); animation-delay: -1s; }
+    .tree:nth-child(3) { right: 8%; transform: scale(0.9); animation-delay: -2s; }
+    .tree:nth-child(4) { right: 15%; transform: scale(1); animation-delay: -0.5s; }
+
+    /* ==========================================
+       MAIN CONTAINER
+    ========================================== */
+    .login-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* ==========================================
+       GLASS CARD
+    ========================================== */
+    .login-glass {
+        display: flex;
+        max-width: 1050px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        box-shadow: 
+            0 30px 60px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        animation: cardAppear 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(60px) scale(0.95);
+    }
+
+    @keyframes cardAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(60px) scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* ==========================================
+       ILLUSTRATION PANEL
+    ========================================== */
+    .illustration-panel {
+        flex: 1;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(160deg, rgba(139, 195, 74, 0.08) 0%, rgba(63, 158, 77, 0.04) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .illustration-panel::before {
+        content: '';
+        position: absolute;
+        top: -100%;
+        left: -100%;
+        width: 300%;
+        height: 300%;
+        background: radial-gradient(circle, rgba(139, 195, 74, 0.08) 0%, transparent 40%);
+        animation: rotateBg 25s linear infinite;
+    }
+
+    @keyframes rotateBg {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Logo */
+    .logo-container {
+        position: relative;
+        margin-bottom: 35px;
+        animation: logoReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+    }
+
+    @keyframes logoReveal {
+        0% {
+            opacity: 0;
+            transform: scale(0) rotate(-180deg);
+        }
+        60% {
+            transform: scale(1.15) rotate(10deg);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    .logo-circle {
+        width: 130px;
+        height: 130px;
+        background: linear-gradient(135deg, #8bc34a 0%, #4caf50 50%, #2e7d32 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 
+            0 20px 50px rgba(139, 195, 74, 0.5),
+            inset 0 -5px 20px rgba(0, 0, 0, 0.2),
+            inset 0 5px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .logo-circle::before {
+        content: '';
+        position: absolute;
+        top: -12px;
+        left: -12px;
+        right: -12px;
+        bottom: -12px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #ffd700;
+        border-right-color: #ffd700;
+        animation: orbitSpin 3s linear infinite;
+    }
+
+    .logo-circle::after {
+        content: '';
+        position: absolute;
+        top: -22px;
+        left: -22px;
+        right: -22px;
+        bottom: -22px;
+        border-radius: 50%;
+        border: 2px dashed rgba(255, 215, 0, 0.3);
+        animation: orbitSpin 8s linear infinite reverse;
+    }
+
+    @keyframes orbitSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .logo-icon {
+        font-size: 55px;
+        color: white;
+        text-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        animation: iconFloat 3s infinite ease-in-out;
+    }
+
+    @keyframes iconFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .brand-name {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: white;
+        text-align: center;
+        margin-bottom: 8px;
+        text-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        animation: textFadeUp 0.7s ease-out 0.6s forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .brand-tagline {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 1rem;
+        text-align: center;
+        margin-bottom: 45px;
+        animation: textFadeUp 0.7s ease-out 0.75s forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    @keyframes textFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Features */
+    .features {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        width: 100%;
+    }
+
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 20px 22px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: featureSlide 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateX(-40px);
+        cursor: pointer;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.9s; }
+    .feature-card:nth-child(2) { animation-delay: 1.05s; }
+    .feature-card:nth-child(3) { animation-delay: 1.2s; }
+
+    @keyframes featureSlide {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .feature-card:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateX(10px) scale(1.02);
+        border-color: rgba(139, 195, 74, 0.4);
+        box-shadow: 0 10px 40px rgba(139, 195, 74, 0.15);
+    }
+
+    .feature-icon {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: #1a472a;
+        flex-shrink: 0;
+        transition: all 0.4s ease;
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: rotate(360deg) scale(1.1);
+    }
+
+    .feature-text h4 {
+        color: white;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .feature-text p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.82rem;
+        margin: 0;
+    }
+
+    /* ==========================================
+       FORM PANEL
+    ========================================== */
+    .form-panel {
+        flex: 1;
+        padding: 55px 50px;
+        background: rgba(255, 255, 255, 0.98);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .form-header {
+        margin-bottom: 38px;
+        animation: formFadeIn 0.7s ease-out 0.4s forwards;
+        opacity: 0;
+    }
+
+    @keyframes formFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .welcome-text {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a472a;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .welcome-emoji {
+        font-size: 2.2rem;
+        animation: waveHand 2.5s infinite;
+        transform-origin: 70% 70%;
+    }
+
+    @keyframes waveHand {
+        0%, 60%, 100% { transform: rotate(0deg); }
+        10%, 30% { transform: rotate(16deg); }
+        20% { transform: rotate(-8deg); }
+        40% { transform: rotate(-6deg); }
+        50% { transform: rotate(12deg); }
+    }
+
+    .subtitle {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    /* Alerts */
+    .alert {
+        padding: 16px 22px;
+        border-radius: 14px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        animation: alertPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes alertPop {
+        0% { transform: scale(0.9); opacity: 0; }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        border-left: 5px solid #ef4444;
+        color: #991b1b;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left: 5px solid #3f9e4d;
+        color: #155724;
+    }
+
+    /* Form Groups */
+    .input-group {
+        margin-bottom: 28px;
+        animation: inputFadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .input-group:nth-child(1) { animation-delay: 0.55s; }
+    .input-group:nth-child(2) { animation-delay: 0.7s; }
+
+    @keyframes inputFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .input-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #1a472a;
+        font-weight: 600;
+        font-size: 0.92rem;
+        margin-bottom: 12px;
+    }
+
+    .input-label i {
+        color: #3f9e4d;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-group:focus-within .input-label i {
+        transform: scale(1.2);
+        color: #2d7a3a;
+    }
+
+    .input-label .required {
+        color: #ef4444;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 18px 22px;
+        font-size: 1rem;
+        font-family: 'Poppins', sans-serif;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        background: #f9fafb;
+        color: #1a472a;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .input-field::placeholder {
+        color: #9ca3af;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: #3f9e4d;
+        background: white;
+        box-shadow: 0 0 0 5px rgba(63, 158, 77, 0.12), 0 10px 30px rgba(63, 158, 77, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .input-field.error {
+        border-color: #ef4444;
+        animation: inputShake 0.5s ease-out;
+    }
+
+    @keyframes inputShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+    }
+
+    .input-highlight {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #8bc34a, #3f9e4d);
+        border-radius: 0 0 16px 16px;
+        transition: all 0.4s ease;
+        transform: translateX(-50%);
+    }
+
+    .input-field:focus + .input-highlight {
+        width: calc(100% - 4px);
+    }
+
+    /* Options Row */
+    .options-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        animation: inputFadeIn 0.6s ease-out 0.85s forwards;
+        opacity: 0;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+    }
+
+    .custom-checkbox {
+        position: relative;
+        width: 22px;
+        height: 22px;
+    }
+
+    .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 22px;
+        height: 22px;
+        background: #f3f4f6;
+        border: 2px solid #d1d5db;
+        border-radius: 7px;
+        transition: all 0.3s ease;
+    }
+
+    .custom-checkbox input:checked ~ .checkmark {
+        background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 100%);
+        border-color: #3f9e4d;
+        animation: checkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes checkPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.25); }
+        100% { transform: scale(1); }
+    }
+
+    .checkmark::after {
+        content: '';
+        position: absolute;
+        display: none;
+        left: 7px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .custom-checkbox input:checked ~ .checkmark::after {
+        display: block;
+        animation: checkDraw 0.3s ease-out forwards;
+    }
+
+    @keyframes checkDraw {
+        from { height: 0; }
+        to { height: 10px; }
+    }
+
+    .remember-me span {
+        color: #666;
+        font-size: 0.92rem;
+    }
+
+    .forgot-password {
+        color: #3f9e4d;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.92rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .forgot-password::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #3f9e4d, #8bc34a);
+        transition: width 0.3s ease;
+    }
+
+    .forgot-password:hover {
+        color: #2d7a3a;
+    }
+
+    .forgot-password:hover::after {
+        width: 100%;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        width: 100%;
+        padding: 18px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+        color: white;
+        background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 50%, #1a472a 100%);
+        background-size: 200% 200%;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.4s ease;
+        animation: inputFadeIn 0.6s ease-out 1s forwards;
+        opacity: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .submit-btn:hover {
+        background-position: 100% 100%;
+        transform: translateY(-4px);
+        box-shadow: 0 15px 45px rgba(63, 158, 77, 0.45);
+    }
+
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+
+    .submit-btn:active {
+        transform: translateY(-2px);
+    }
+
+    .submit-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.8;
+        transform: none;
+    }
+
+    .submit-btn i,
+    .submit-btn .btn-icon {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .submit-btn:hover i,
+    .submit-btn:hover .btn-icon {
+        transform: translateX(6px);
+    }
+
+    .submit-btn .spinner {
+        width: 22px;
+        height: 22px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Divider */
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin: 38px 0;
+        animation: inputFadeIn 0.6s ease-out 1.15s forwards;
+        opacity: 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+    }
+
+    .divider span {
+        color: #999;
+        font-size: 0.88rem;
+        white-space: nowrap;
+    }
+
+    /* Register Section */
+    .register-section {
+        animation: inputFadeIn 0.6s ease-out 1.3s forwards;
+        opacity: 0;
+    }
+
+    .register-title {
+        text-align: center;
+        color: #1a472a;
+        font-weight: 600;
+        margin-bottom: 22px;
+        font-size: 0.95rem;
+    }
+
+    .register-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .register-btn {
+        padding: 16px 22px;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .register-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.5s ease;
+    }
+
+    .register-btn:hover::before {
+        width: 350px;
+        height: 350px;
+    }
+
+    .btn-farmer {
+        background: linear-gradient(135deg, rgba(139, 195, 74, 0.12) 0%, rgba(139, 195, 74, 0.2) 100%);
+        border: 2px solid #8bc34a;
+        color: #2d7a3a;
+    }
+
+    .btn-farmer:hover {
+        background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%);
+        color: white;
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(139, 195, 74, 0.4);
+        border-color: transparent;
+    }
+
+    .btn-bank {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 193, 7, 0.2) 100%);
+        border: 2px solid #ffc107;
+        color: #856404;
+    }
+
+    .btn-bank:hover {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(255, 193, 7, 0.4);
+        border-color: transparent;
+    }
+
+    .register-btn i {
+        font-size: 1.3rem;
+        transition: transform 0.3s ease;
+    }
+
+    .register-btn:hover i {
+        transform: scale(1.2) rotate(8deg);
+    }
+
+    /* Footer */
+    .form-footer {
+        text-align: center;
+        margin-top: 32px;
+        padding-top: 22px;
+        border-top: 1px solid #f3f4f6;
+        animation: inputFadeIn 0.6s ease-out 1.45s forwards;
+        opacity: 0;
+    }
+
+    .form-footer p {
+        color: #999;
+        font-size: 0.82rem;
+    }
+
+    .form-footer a {
+        color: #3f9e4d;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .form-footer a:hover {
+        color: #2d7a3a;
+        text-decoration: underline;
+    }
+
+    /* ==========================================
+       RESPONSIVE
+    ========================================== */
+    @media (max-width: 900px) {
+        .login-glass {
+            flex-direction: column;
+            max-width: 480px;
+        }
+
+        .illustration-panel {
+            display: none;
+        }
+
+        .form-panel {
+            padding: 45px 35px;
+        }
+
+        .register-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .moon {
+            width: 60px;
+            height: 60px;
+            top: 60px;
+            right: 5%;
+        }
+
+        .options-row {
+            flex-direction: column;
+            gap: 18px;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-panel {
+            padding: 35px 25px;
+        }
+
+        .welcome-text {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'partials/_navbar.html.twig' %}
+
+    <!-- Loading Overlay -->
+    <div class="login-loading-overlay" id="loginLoadingOverlay">
+        <div class="loading-logo">
+            <i class="bi bi-tree-fill"></i>
+        </div>
+        <div class="loading-spinner-container">
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+            <p class="loading-text">Connexion en cours...</p>
+            <p class="loading-subtext">Préparation de votre espace</p>
+        </div>
+    </div>
+
+    <div class="login-universe">
+        <!-- Stars -->
+        <div class="stars-container">
+            {% for i in 1..60 %}
+                <div class="star {% if i % 3 == 0 %}large{% elseif i % 2 == 0 %}small{% endif %}" 
+                     style="top: {{ random(3, 95) }}%; left: {{ random(0, 100) }}%; animation-delay: {{ random(0, 30) / 10 }}s; animation-duration: {{ random(20, 40) / 10 }}s;"></div>
+            {% endfor %}
+        </div>
+
+        <!-- Shooting Stars -->
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+
+        <!-- Fireflies -->
+        <div class="fireflies-container">
+            {% for i in 1..8 %}
+                <div class="firefly" style="top: {{ random(15, 75) }}%; left: {{ random(5, 95) }}%; animation-delay: {{ random(0, 70) / 10 }}s; animation-duration: {{ random(60, 100) / 10 }}s;"></div>
+            {% endfor %}
+        </div>
+
+        <!-- Falling Leaves -->
+        <div class="leaves-container">
+            {% for i in 1..12 %}
+                <div class="leaf" style="left: {{ random(0, 100) }}%; animation-duration: {{ random(12, 22) }}s; animation-delay: {{ random(0, 100) / 10 }}s;"></div>
+            {% endfor %}
+        </div>
+
+        <!-- Moon -->
+        <div class="moon"></div>
+
+        <!-- Landscape -->
+        <div class="landscape">
+            <div class="mountains">
+                <div class="mountain mountain-1"></div>
+                <div class="mountain mountain-2"></div>
+                <div class="mountain mountain-3"></div>
+                <div class="mountain mountain-4"></div>
+            </div>
+            <div class="trees-container">
+                <div class="tree">
+                    <div class="tree-leaves"></div>
+                    <div class="tree-trunk"></div>
+                </div>
+                <div class="tree">
+                    <div class="tree-leaves"></div>
+                    <div class="tree-trunk"></div>
+                </div>
+                <div class="tree">
+                    <div class="tree-leaves"></div>
+                    <div class="tree-trunk"></div>
+                </div>
+                <div class="tree">
+                    <div class="tree-leaves"></div>
+                    <div class="tree-trunk"></div>
+                </div>
+            </div>
+            <div class="ground"></div>
+        </div>
+
+        <!-- Main Container -->
+        <div class="login-container">
+            <div class="login-glass">
+                <!-- Illustration Panel -->
+                <div class="illustration-panel">
+                    <div class="logo-container">
+                        <div class="logo-circle">
+                            <i class="bi bi-tree-fill logo-icon"></i>
+                        </div>
+                    </div>
+                    <h1 class="brand-name">AgriFund</h1>
+                    <p class="brand-tagline">L'avenir de l'agriculture commence ici</p>
+
+                    <div class="features">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Analyses en temps réel</h4>
+                                <p>Suivez vos cultures intelligemment</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Financements adaptés</h4>
+                                <p>Des solutions sur mesure pour vous</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h4>100% Sécurisé</h4>
+                                <p>Vos données sont protégées</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Panel -->
+                <div class="form-panel">
+                    <div class="form-header">
+                        <h2 class="welcome-text">
+                            Bon retour <span class="welcome-emoji">👋</span>
+                        </h2>
+                        <p class="subtitle">Connectez-vous pour continuer l'aventure</p>
+                    </div>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+
+                    <form method="post" action="{{ path('app_login') }}" id="loginForm">
+                        <div class="input-group">
+                            <label class="input-label">
+                                <i class="bi bi-envelope-fill"></i>
+                                Adresse email
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="email"
+                                       class="input-field {% if error %}error{% endif %}"
+                                       name="email"
+                                       value="{{ last_username }}"
+                                       required
+                                       autocomplete="email"
+                                       placeholder="votre@email.com">
+                                <div class="input-highlight"></div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">
+                                <i class="bi bi-lock-fill"></i>
+                                Mot de passe
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="password"
+                                       class="input-field {% if error %}error{% endif %}"
+                                       name="password"
+                                       required
+                                       autocomplete="current-password"
+                                       placeholder="••••••••">
+                                <div class="input-highlight"></div>
+                            </div>
+                        </div>
+
+                        <div class="options-row">
+                            <label class="remember-me">
+                                <div class="custom-checkbox">
+                                    <input type="checkbox" name="_remember_me">
+                                    <span class="checkmark"></span>
+                                </div>
+                                <span>Se souvenir de moi</span>
+                            </label>
+                            <a href="{{ path('app_password_reset_request') }}" class="forgot-password">
+                                <i class="bi bi-key-fill"></i>
+                                Mot de passe oublié ?
+                            </a>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            <span id="btnText">Se connecter</span>
+                            <i class="bi bi-arrow-right-circle-fill btn-icon" id="btnIcon"></i>
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span>Nouveau sur AgriFund ?</span>
+                    </div>
+
+                    <div class="register-section">
+                        <p class="register-title">Créez votre compte gratuitement</p>
+                        <div class="register-buttons">
+                            <a href="{{ path('app_register_agriculteur') }}" class="register-btn btn-farmer">
+                                <i class="bi bi-tree-fill"></i>
+                                <span>Agriculteur</span>
+                            </a>
+                            <a href="{{ path('app_register_banque') }}" class="register-btn btn-bank">
+                                <i class="bi bi-bank2"></i>
+                                <span>Banque</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="form-footer">
+                        <p>
+                            En continuant, vous acceptez nos
+                            <a href="#">CGU</a> et
+                            <a href="#">Politique de confidentialité</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'partials/_footer.html.twig' %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loadingOverlay = document.getElementById('loginLoadingOverlay');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+
+            // Parallax effect on moon
+            document.addEventListener('mousemove', function(e) {
+                const moon = document.querySelector('.moon');
+                if (moon) {
+                    const moveX = (e.clientX - window.innerWidth / 2) * 0.015;
+                    const moveY = (e.clientY - window.innerHeight / 2) * 0.015;
+                    moon.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+                }
+            });
+
+            // Form submit handler
+            loginForm.addEventListener('submit', function(e) {
+                // Show loading overlay
+                loadingOverlay.classList.add('active');
+                
+                // Update button state
+                submitBtn.disabled = true;
+                btnText.textContent = 'Connexion...';
+                btnIcon.className = 'spinner';
+            });
+
+            // Add ripple effect to buttons
+            document.querySelectorAll('.register-btn, .submit-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    if (this.classList.contains('submit-btn') && this.disabled) return;
+                    
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.style.cssText = 'position:absolute;background:rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;left:' + (x - 50) + 'px;top:' + (y - 50) + 'px;transform:scale(0);animation:rippleEffect 0.6s ease-out;pointer-events:none;';
+                    
+                    this.appendChild(ripple);
+                    setTimeout(function() { ripple.remove(); }, 600);
+                });
+            });
+
+            // Input focus animations
+            document.querySelectorAll('.input-field').forEach(function(input) {
+                input.addEventListener('focus', function() {
+                    this.parentElement.parentElement.classList.add('focused');
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.parentElement.classList.remove('focused');
+                });
+            });
+        });
+    </script>
+
+    <style>
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+{% endblock %}

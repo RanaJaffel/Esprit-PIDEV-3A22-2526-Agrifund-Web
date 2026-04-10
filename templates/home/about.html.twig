@@ -1,0 +1,419 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}À propos - AgriFund{% endblock %}
+
+{% block body_class %}about-page{% endblock %}
+
+{% block body %}
+    {% include 'partials/_navbar.html.twig' %}
+
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title dark-background" data-aos="fade" style="background-image: url({{ asset('assets/img/page-title-bg.webp') }});">
+            <div class="container position-relative">
+                <h1>À propos</h1>
+                <p>Découvrez AgriFund, la plateforme innovante qui connecte les agriculteurs tunisiens aux opportunités de financement pour un avenir agricole durable et prospère.</p>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="{{ path('app_home') }}">Accueil</a></li>
+                        <li class="current">À propos</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- About 3 Section -->
+        <section id="about-3" class="about-3 section">
+
+            <div class="container">
+                <div class="row gy-4 justify-content-between align-items-center">
+                    <div class="col-lg-6 order-lg-2 position-relative" data-aos="zoom-out">
+                        <img src="{{ asset('assets/img/img_sq_1.jpg') }}" alt="AgriFund" class="img-fluid">
+                        <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn">
+                            <span class="play"><i class="bi bi-play-fill"></i></span>
+                        </a>
+                    </div>
+                    <div class="col-lg-5 order-lg-1" data-aos="fade-up" data-aos-delay="100">
+                        <h2 class="content-title mb-4">L'agriculture fait vivre nos communautés</h2>
+                        <p class="mb-4">
+                            AgriFund est née d'une vision simple : faciliter l'accès au financement pour les agriculteurs tunisiens. Nous croyons que chaque agriculteur mérite les moyens de développer son exploitation et de contribuer à la sécurité alimentaire de notre pays.
+                        </p>
+                        <p class="mb-4">
+                            Notre plateforme innovante connecte directement les agriculteurs aux institutions financières, éliminant les barrières traditionnelles et accélérant le processus de financement.
+                        </p>
+                        <ul class="list-unstyled list-check">
+                            <li>Accès simplifié au financement agricole</li>
+                            <li>Partenariat avec les banques leaders</li>
+                            <li>Accompagnement personnalisé</li>
+                            <li>Outils de gestion modernes</li>
+                        </ul>
+
+                        <p><a href="{{ path('app_contact') }}" class="btn-cta">Contactez-nous</a></p>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /About 3 Section -->
+
+        <!-- Team Section -->
+        <section class="team-15 team section" id="team">
+            <!-- Section Title -->
+            <div class="container section-title" data-aos="fade-up">
+                <h2>Notre Équipe</h2>
+                <p>Des experts dédiés à votre réussite agricole</p>
+            </div><!-- End Section Title -->
+
+            <div class="content">
+                <div class="container">
+
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="person">
+                                <figure>
+                                    <img src="{{ asset('assets/img/team/team-1.jpg') }}" alt="Ahmed Ben Salah" class="img-fluid">
+                                    <div class="social">
+                                        <a href="#"><span class="bi bi-facebook"></span></a>
+                                        <a href="#"><span class="bi bi-twitter-x"></span></a>
+                                        <a href="#"><span class="bi bi-linkedin"></span></a>
+                                    </div>
+                                </figure>
+                                <div class="person-contents">
+                                    <h3>Ahmed Ben Salah</h3>
+                                    <span class="position">Directeur Général</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="person">
+                                <figure>
+                                    <img src="{{ asset('assets/img/team/team-2.jpg') }}" alt="Sonia Trabelsi" class="img-fluid">
+                                    <div class="social">
+                                        <a href="#"><span class="bi bi-facebook"></span></a>
+                                        <a href="#"><span class="bi bi-twitter-x"></span></a>
+                                        <a href="#"><span class="bi bi-linkedin"></span></a>
+                                    </div>
+                                </figure>
+                                <div class="person-contents">
+                                    <h3>Sonia Trabelsi</h3>
+                                    <span class="position">Responsable Partenariats</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="person">
+                                <figure>
+                                    <img src="{{ asset('assets/img/team/team-3.jpg') }}" alt="Mohamed Khelifi" class="img-fluid">
+                                    <div class="social">
+                                        <a href="#"><span class="bi bi-facebook"></span></a>
+                                        <a href="#"><span class="bi bi-twitter-x"></span></a>
+                                        <a href="#"><span class="bi bi-linkedin"></span></a>
+                                    </div>
+                                </figure>
+                                <div class="person-contents">
+                                    <h3>Mohamed Khelifi</h3>
+                                    <span class="position">Expert Agricole</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="person">
+                                <figure>
+                                    <img src="{{ asset('assets/img/team/team-4.jpg') }}" alt="Fatma Mansouri" class="img-fluid">
+                                    <div class="social">
+                                        <a href="#"><span class="bi bi-facebook"></span></a>
+                                        <a href="#"><span class="bi bi-twitter-x"></span></a>
+                                        <a href="#"><span class="bi bi-linkedin"></span></a>
+                                    </div>
+                                </figure>
+                                <div class="person-contents">
+                                    <h3>Fatma Mansouri</h3>
+                                    <span class="position">Responsable Financier</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </section><!-- /Team Section -->
+
+        <!-- Services Section -->
+        <section id="services" class="services section">
+
+            <!-- Section Title -->
+            <div class="container section-title" data-aos="fade-up">
+                <h2>NOS SERVICES</h2>
+                <p>Des solutions complètes pour l'agriculture moderne</p>
+            </div><!-- End Section Title -->
+            <div class="content">
+                <div class="container">
+                    <div class="row g-0">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">01</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                        <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Financement Agricole</h3>
+                                    <p>
+                                        Accédez à des crédits adaptés à vos besoins agricoles avec des taux compétitifs.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">02</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Suivi des Cultures</h3>
+                                    <p>
+                                        Tableau de bord intelligent pour suivre vos cultures et optimiser vos rendements.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">03</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"/>
+                                        <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Sécurité Garantie</h3>
+                                    <p>
+                                        Vos données sont protégées avec les plus hauts standards de sécurité.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">04</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Réseau Partenaires</h3>
+                                    <p>
+                                        Connectez-vous avec des banques et institutions financières de confiance.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">05</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6ZM6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.82-1.641 1.717-2.753 2.093-3.13Z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Prévisions Météo</h3>
+                                    <p>
+                                        Accédez aux prévisions météorologiques pour planifier vos activités agricoles.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">06</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
+                                        <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Gestion Financière</h3>
+                                    <p>
+                                        Outils de gestion pour suivre vos revenus, dépenses et investissements.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">07</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Support 24/7</h3>
+                                    <p>
+                                        Une équipe dédiée pour vous accompagner à chaque étape de votre projet.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="service-item">
+                                <span class="number">08</span>
+                                <div class="service-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                                    </svg>
+                                </div>
+                                <div class="service-item-content">
+                                    <h3 class="service-heading">Formation</h3>
+                                    <p>
+                                        Ressources et formations pour améliorer vos pratiques agricoles.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /Services Section -->
+
+        <!-- About Section (Why Choose Us) -->
+        <section id="about" class="about section">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            <img src="{{ asset('assets/img/img_long_5.jpg') }}" alt="AgriFund Agriculture" class="img-fluid img-overlap" data-aos="zoom-out">
+                        </div>
+                        <div class="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="100">
+                            <h3 class="content-subtitle text-white opacity-50">Pourquoi nous choisir</h3>
+                            <h2 class="content-title mb-4">
+                                Une plateforme <strong>innovante</strong> pour l'agriculture tunisienne
+                            </h2>
+                            <p class="opacity-50">
+                                AgriFund révolutionne l'accès au financement agricole en Tunisie. Notre mission est de connecter les agriculteurs aux opportunités de financement pour un développement durable.
+                            </p>
+
+                            <div class="row my-5">
+                                <div class="col-lg-12 d-flex align-items-start mb-4">
+                                    <i class="bi bi-lightning-charge me-4 display-6"></i>
+                                    <div>
+                                        <h4 class="m-0 h5 text-white">Processus rapide</h4>
+                                        <p class="text-white opacity-50">Demande de financement simplifiée et réponse rapide sous 48h.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 d-flex align-items-start mb-4">
+                                    <i class="bi bi-heart me-4 display-6"></i>
+                                    <div>
+                                        <h4 class="m-0 h5 text-white">Accompagnement personnalisé</h4>
+                                        <p class="text-white opacity-50">Une équipe dédiée pour vous guider dans votre projet.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 d-flex align-items-start">
+                                    <i class="bi bi-bank me-4 display-6"></i>
+                                    <div>
+                                        <h4 class="m-0 h5 text-white">Partenaires de confiance</h4>
+                                        <p class="text-white opacity-50">Des banques reconnues pour votre sécurité financière.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /About Section -->
+
+        <!-- Stats Section -->
+        <section class="stats-section py-5" style="background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);">
+            <div class="container">
+                <div class="row text-center text-white">
+                    <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="fade-up">
+                        <div class="stat-item">
+                            <i class="bi bi-people display-4 mb-3" style="color: #8bc34a;"></i>
+                            <h2 class="fw-bold mb-0" style="color: #8bc34a;">5000+</h2>
+                            <p class="mb-0 opacity-75">Agriculteurs</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
+                        <div class="stat-item">
+                            <i class="bi bi-bank display-4 mb-3" style="color: #8bc34a;"></i>
+                            <h2 class="fw-bold mb-0" style="color: #8bc34a;">25+</h2>
+                            <p class="mb-0 opacity-75">Banques partenaires</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="stat-item">
+                            <i class="bi bi-cash-coin display-4 mb-3" style="color: #8bc34a;"></i>
+                            <h2 class="fw-bold mb-0" style="color: #8bc34a;">10M+</h2>
+                            <p class="mb-0 opacity-75">TND financés</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="300">
+                        <div class="stat-item">
+                            <i class="bi bi-geo-alt display-4 mb-3" style="color: #8bc34a;"></i>
+                            <h2 class="fw-bold mb-0" style="color: #8bc34a;">24</h2>
+                            <p class="mb-0 opacity-75">Gouvernorats</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /Stats Section -->
+
+        <!-- CTA Section -->
+        <section class="cta-register py-5 text-center" style="background: linear-gradient(135deg, #0d2818 0%, #1a472a 100%);">
+            <div class="container" data-aos="fade-up">
+                <h2 class="text-white mb-3">Prêt à développer votre exploitation ?</h2>
+                <p class="text-white opacity-75 mb-4">Rejoignez des milliers d'agriculteurs qui font confiance à AgriFund.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ path('app_register_agriculteur') }}" class="btn btn-lg px-4 py-2" style="background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%); color: white; border-radius: 30px; font-weight: 600;">
+                        <i class="bi bi-tree me-2"></i> Inscription Agriculteur
+                    </a>
+                    <a href="{{ path('app_register_banque') }}" class="btn btn-lg px-4 py-2" style="background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%); color: white; border-radius: 30px; font-weight: 600;">
+                        <i class="bi bi-bank me-2"></i> Inscription Banque
+                    </a>
+                </div>
+            </div>
+        </section><!-- /CTA Section -->
+
+        <!-- Call To Action Section -->
+        <section id="call-to-action" class="call-to-action section light-background">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <h3>Abonnez-vous à notre newsletter</h3>
+                            <p class="opacity-50">
+                                Recevez les dernières actualités agricoles et nos conseils pour développer votre exploitation.
+                            </p>
+                        </div>
+                        <div class="col-lg-6">
+                            <form action="#" class="form-subscribe">
+                                <div class="form-group d-flex align-items-stretch">
+                                    <input type="email" name="email" class="form-control h-100" placeholder="Votre adresse email">
+                                    <input type="submit" class="btn btn-secondary px-4" value="S'abonner">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /Call To Action Section -->
+
+    </main>
+
+    {% include 'partials/_footer.html.twig' %}
+{% endblock %}

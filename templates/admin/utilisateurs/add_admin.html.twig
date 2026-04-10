@@ -1,0 +1,837 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un administrateur{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --gris: #848A86;
+            --vert-tres-fonce: #133D03;
+            --jaune-moutarde: #E1B323;
+            --vert-clair: #B2D944;
+            --olive: #9A951F;
+            --vert-olive-fonce: #476C1A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+            min-height: 100vh;
+        }
+
+        /* ==========================================
+           LAYOUT PRINCIPAL
+        ========================================== */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            background: transparent;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* ==========================================
+           HEADER SECTION
+        ========================================== */
+        .main-content > .d-flex.justify-content-between:first-of-type {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 50%, var(--vert-tres-fonce) 100%);
+            padding: 28px 35px;
+            margin: 0 0 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L45 25 L40 40 L35 25 Z' fill='%23B2D944' fill-opacity='0.06'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(178, 217, 68, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type h1 {
+            color: white !important;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type h1 i {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-vif) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 8px 20px rgba(178, 217, 68, 0.35);
+            margin-right: 0 !important;
+        }
+
+        /* ==========================================
+           BACK BUTTON
+        ========================================== */
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary i {
+            transition: transform 0.3s ease;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* ==========================================
+           CONTENT AREA
+        ========================================== */
+        .main-content > *:not(.d-flex.justify-content-between):not(script) {
+            margin-left: 35px;
+            margin-right: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content > *:not(.d-flex.justify-content-between):not(script) {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+        }
+
+        /* ==========================================
+           DASHBOARD SECTION - FORM CONTAINER
+        ========================================== */
+        .dashboard-section {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .dashboard-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--vert-vif), var(--vert-clair), var(--jaune-moutarde), var(--vert-vif));
+            background-size: 300% 100%;
+            animation: gradientMove 4s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 300% 0%; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==========================================
+           ALERT INFO BOX
+        ========================================== */
+        .alert-info {
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.08) 0%, rgba(178, 217, 68, 0.08) 100%);
+            border: none;
+            border-left: 4px solid var(--vert-vif);
+            border-radius: 14px;
+            padding: 20px 25px;
+            color: var(--vert-fonce);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(178, 217, 68, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .alert-info i {
+            font-size: 1.4rem;
+            color: var(--vert-vif);
+            background: rgba(8, 150, 71, 0.1);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .alert-info strong {
+            color: var(--vert-fonce);
+            font-weight: 700;
+        }
+
+        /* ==========================================
+           FORM STYLES
+        ========================================== */
+        /* Form Labels */
+        .form-label,
+        label {
+            font-weight: 600;
+            color: var(--vert-tres-fonce);
+            font-size: 0.88rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Inputs */
+        .form-control,
+        .form-select,
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"] {
+            border: 2px solid #e8ecef;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            color: var(--vert-tres-fonce);
+            width: 100%;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 4px rgba(8, 150, 71, 0.12);
+            background: white;
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .form-control::placeholder,
+        input::placeholder {
+            color: #adb5bd;
+        }
+
+        /* Form Groups Spacing */
+        .mb-3 {
+            margin-bottom: 25px !important;
+        }
+
+        .row.mb-3 {
+            margin-bottom: 25px !important;
+        }
+
+        /* ==========================================
+           PASSWORD SECTION DIVIDER
+        ========================================== */
+        hr.my-4 {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(8, 150, 71, 0.2), var(--vert-clair), rgba(8, 150, 71, 0.2), transparent);
+            margin: 35px 0 !important;
+            position: relative;
+        }
+
+        hr.my-4::before {
+            content: '🔐';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 0 20px;
+            font-size: 1.2rem;
+        }
+
+        /* Password Section Title */
+        h5.mb-3 {
+            color: var(--vert-tres-fonce);
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px !important;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.05) 0%, rgba(178, 217, 68, 0.05) 100%);
+            border-radius: 12px;
+            border-left: 4px solid var(--vert-vif);
+        }
+
+        h5.mb-3 i {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(8, 150, 71, 0.25);
+        }
+
+        /* ==========================================
+           SUBMIT BUTTONS
+        ========================================== */
+        .d-grid.gap-2 {
+            gap: 15px !important;
+            margin-top: 35px;
+        }
+
+        .btn-success.btn-lg {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            border: none;
+            border-radius: 14px;
+            padding: 18px 35px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            box-shadow: 0 8px 25px rgba(8, 150, 71, 0.3);
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-success.btn-lg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-success.btn-lg:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(8, 150, 71, 0.4);
+        }
+
+        .btn-success.btn-lg:hover::before {
+            left: 100%;
+        }
+
+        .btn-success.btn-lg i {
+            font-size: 1.2rem;
+            animation: shieldPulse 2s infinite;
+        }
+
+        @keyframes shieldPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Cancel Button */
+        .d-grid .btn-secondary {
+            background: #f0f2f5;
+            border: 2px solid #e2e5e9;
+            color: var(--vert-tres-fonce);
+            border-radius: 14px;
+            padding: 14px 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .d-grid .btn-secondary:hover {
+            background: #e2e5e9;
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+            color: var(--vert-tres-fonce);
+        }
+
+        /* ==========================================
+           FORM VALIDATION STYLES
+        ========================================== */
+        .is-invalid {
+            border-color: #ef4444 !important;
+            background: #fff5f5 !important;
+        }
+
+        .is-invalid:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .invalid-feedback {
+            color: #ef4444;
+            font-size: 0.82rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(239, 68, 68, 0.08);
+            border-radius: 8px;
+        }
+
+        .invalid-feedback::before {
+            content: '\f06a';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+        }
+
+        /* ==========================================
+           FLASH MESSAGES
+        ========================================== */
+        .alert:not(.alert-info) {
+            border-radius: 14px;
+            border: none;
+            padding: 16px 24px;
+            margin: 0 35px 20px 35px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success:not(.alert-info) {
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.1) 0%, rgba(178, 217, 68, 0.1) 100%);
+            color: var(--vert-fonce);
+            border-left: 4px solid var(--vert-vif);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            color: #b91c1c;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-warning:not(.alert-info) {
+            background: linear-gradient(135deg, rgba(225, 179, 35, 0.15) 0%, rgba(225, 179, 35, 0.1) 100%);
+            color: #92750d;
+            border-left: 4px solid var(--jaune-moutarde);
+        }
+
+        /* ==========================================
+           RESPONSIVE ADJUSTMENTS
+        ========================================== */
+        @media (max-width: 768px) {
+            .main-content > .d-flex.justify-content-between:first-of-type {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            .main-content > .d-flex.justify-content-between:first-of-type h1 {
+                font-size: 1.4rem;
+            }
+
+            .main-content > .d-flex.justify-content-between:first-of-type h1 i {
+                width: 42px;
+                height: 42px;
+                font-size: 1.1rem;
+            }
+
+            .dashboard-section {
+                padding: 25px 20px;
+                border-radius: 18px;
+            }
+
+            .alert-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .btn-success.btn-lg {
+                padding: 16px 25px;
+                font-size: 1rem;
+            }
+
+            h5.mb-3 {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+        }
+
+        /* ==========================================
+           ANIMATION ENHANCEMENTS
+        ========================================== */
+        .form-control,
+        .form-select,
+        input {
+            transition: all 0.3s ease;
+        }
+
+        /* Form Row Stagger Animation */
+        .dashboard-section .mb-3,
+        .dashboard-section .row.mb-3,
+        .dashboard-section h5.mb-3,
+        .dashboard-section hr.my-4,
+        .dashboard-section .d-grid {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .dashboard-section .alert-info { animation-delay: 0.1s; }
+        .dashboard-section .row.mb-3:first-of-type { animation-delay: 0.15s; }
+        .dashboard-section .mb-3:nth-of-type(2) { animation-delay: 0.2s; }
+        .dashboard-section .mb-3:nth-of-type(3) { animation-delay: 0.25s; }
+        .dashboard-section hr.my-4 { animation-delay: 0.3s; }
+        .dashboard-section h5.mb-3 { animation-delay: 0.35s; }
+        .dashboard-section .mb-3:nth-of-type(4) { animation-delay: 0.4s; }
+        .dashboard-section .mb-3:nth-of-type(5) { animation-delay: 0.45s; }
+        .dashboard-section .d-grid { animation-delay: 0.5s; }
+
+        /* ==========================================
+           HOVER EFFECTS
+        ========================================== */
+        .dashboard-section:hover {
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Input Icon Enhancement */
+        .mb-3 {
+            position: relative;
+        }
+
+        /* ==========================================
+           PASSWORD STRENGTH INDICATOR (Optional)
+        ========================================== */
+        .password-strength {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .password-strength .bar {
+            flex: 1;
+            height: 4px;
+            background: #e8ecef;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .password-strength .bar.active.weak { background: #ef4444; }
+        .password-strength .bar.active.medium { background: var(--jaune-moutarde); }
+        .password-strength .bar.active.strong { background: var(--vert-vif); }
+
+        /* ==========================================
+           ADMIN BADGE DECORATION
+        ========================================== */
+        .dashboard-section::after {
+            content: '👑';
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 2.5rem;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           CUSTOM SCROLLBAR
+        ========================================== */
+        .main-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: var(--vert-vif);
+            border-radius: 4px;
+        }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: var(--vert-fonce);
+        }
+
+        /* ==========================================
+           FORM GROUP FOCUS STATE
+        ========================================== */
+        .mb-3:has(.form-control:focus),
+        .col-md-6:has(.form-control:focus) {
+            position: relative;
+        }
+
+        .mb-3:has(.form-control:focus)::before,
+        .col-md-6:has(.form-control:focus)::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--vert-vif), var(--vert-clair));
+            border-radius: 2px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+            to {
+                height: 100%;
+                opacity: 1;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_admin.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Ajouter un administrateur
+                </h1>
+                <a href="{{ path('admin_users_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+            
+            {% include 'components/_flash_messages.html.twig' %}
+            
+            <div class="dashboard-section">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <div>
+                                <strong>Information:</strong> Vous êtes sur le point de créer un nouveau compte administrateur avec des privilèges complets sur la plateforme.
+                            </div>
+                        </div>
+                        
+                        {{ form_start(form) }}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form_row(form.nom) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.prenom) }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.email) }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.tel) }}
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h5 class="mb-3">
+                                <i class="fas fa-lock me-2"></i>Mot de passe
+                            </h5>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.plainPassword.first) }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.plainPassword.second) }}
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-user-shield me-2"></i>Créer l'administrateur
+                                </button>
+                                <a href="{{ path('admin_users_index') }}" class="btn btn-secondary">
+                                    Annuler
+                                </a>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password strength indicator
+            const passwordInput = document.querySelector('input[type="password"]');
+            if (passwordInput) {
+                // Create strength meter
+                const strengthMeter = document.createElement('div');
+                strengthMeter.className = 'password-strength';
+                strengthMeter.innerHTML = `
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                `;
+                
+                passwordInput.parentElement.appendChild(strengthMeter);
+                
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    const bars = strengthMeter.querySelectorAll('.bar');
+                    let strength = 0;
+                    
+                    if (password.length >= 6) strength++;
+                    if (password.length >= 10) strength++;
+                    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
+                    if (/\d/.test(password)) strength++;
+                    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+                    
+                    bars.forEach((bar, index) => {
+                        bar.classList.remove('active', 'weak', 'medium', 'strong');
+                        if (index < Math.min(strength, 4)) {
+                            bar.classList.add('active');
+                            if (strength <= 2) bar.classList.add('weak');
+                            else if (strength <= 3) bar.classList.add('medium');
+                            else bar.classList.add('strong');
+                        }
+                    });
+                });
+            }
+
+            // Add focus animation to form groups
+            document.querySelectorAll('.form-control, .form-select').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.closest('.mb-3, [class*="col-"]')?.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.closest('.mb-3, [class*="col-"]')?.classList.remove('focused');
+                });
+            });
+
+            // Button click ripple effect
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+        });
+
+        // Add ripple animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+{% endblock %}
