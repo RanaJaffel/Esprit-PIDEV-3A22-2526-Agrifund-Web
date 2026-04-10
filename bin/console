@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
+    throw new LogicException('Symfony is not installed. Run "composer require symfony/framework-bundle" or download the skeleton.');
+}
+
+require_once dirname(__DIR__).'/vendor/autoload.php';
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\ErrorHandler\Debug;
+
+if (!class_exists(Application::class)) {
+    throw new LogicException('You cannot use the symfony console without the FrameworkBundle. Run "composer require symfony/framework-bundle".');
+}
+
+$input = new ArgvInput();
+if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
+    putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_env = $env);
+}
+
+if ($input->hasParameterOption('--no-debug', true)) {
+    putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = '0');
+}
+
+require dirname(__DIR__).'/config/bootstrap.php';
+
+$kernel = new Kernel($_SERVER['APP_ENV'] ?? 'dev', (bool) ($_SERVER['APP_DEBUG'] ?? true));
+$application = new Application($kernel);
+$application->run($input);
