@@ -7,18 +7,22 @@
         "dev-server": "encore dev-server",
         "dev": "encore dev",
         "watch": "encore dev --watch",
-        "build": "encore production --progress"
+        "build": "encore production --progress",
+        "sync:assets": "node scripts/sync-assets.js",
+        "postinstall": "npm run build && npm run sync:assets"
     },
     "devDependencies": {
         "@babel/core": "^7.17.0",
         "@babel/plugin-proposal-class-properties": "^7.16.7",
         "@babel/preset-env": "^7.16.11",
         "@symfony/webpack-encore": "^6.0.0",
+        "autoprefixer": "^10.4.27",
         "babel-loader": "^8.0.0",
         "core-js": "^3.23.0",
         "css-loader": "^6.7.1",
         "file-loader": "^6.2.0",
         "mini-css-extract-plugin": "^2.6.0",
+        "postcss": "^8.5.9",
         "postcss-loader": "^8.2.1",
         "sass": "^1.99.0",
         "sass-loader": "^16.0.7",
@@ -29,7 +33,11 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.1.1",
         "@popperjs/core": "^2.11.8",
-        "bootstrap": "^5.3.0",
-        "jquery": "^3.6.0"
+        "aos": "^2.3.4",
+        "bootstrap": "^5.3.8",
+        "bootstrap-icons": "^1.13.1",
+        "glightbox": "^3.3.1",
+        "jquery": "^3.6.0",
+        "swiper": "^12.1.3"
     }
 }

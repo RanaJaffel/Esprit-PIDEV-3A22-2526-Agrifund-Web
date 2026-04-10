@@ -1,6 +1,15 @@
 // Main application JavaScript
 import './bootstrap';
+import 'bootstrap';
+import 'aos/dist/aos.css';
+import 'swiper/css';
+import 'glightbox/dist/css/glightbox.css';
 
+import AOS from 'aos';
+import Swiper from 'swiper';
+import GLightbox from 'glightbox';
+
+AOS.init();
 // Global utilities
 window.showNotification = showNotification;
 window.confirmAction = confirmAction;

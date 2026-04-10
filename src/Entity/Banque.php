@@ -9,7 +9,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: BanqueRepository::class)]
 #[ORM\Table(name: 'banque')]
-#[UniqueEntity(fields: ['codebanque'], message: 'Ce code banque est déjà utilisé')]
+#[UniqueEntity(
+    fields: ['codebanque'], 
+    message: 'Ce code banque est déjà utilisé'
+)]
 class Banque
 {
     #[ORM\Id]
@@ -17,8 +20,17 @@ class Banque
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'banque', targetEntity: Utilisateur::class, cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'utilisateur_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\OneToOne(
+        inversedBy: 'banque', 
+        targetEntity: Utilisateur::class, 
+        cascade: ['persist']
+    )]
+    #[ORM\JoinColumn(
+        name: 'utilisateur_id', 
+        referencedColumnName: 'id', 
+        nullable: false, 
+        onDelete: 'CASCADE'
+    )]
     private ?Utilisateur $utilisateur = null;
 
     #[ORM\Column(length: 50, unique: true)]
@@ -26,15 +38,18 @@ class Banque
     #[Assert\Length(max: 50)]
     private ?string $codebanque = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    // ✅ name ajouté
+    #[ORM\Column(name: 'addresseSiege', length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $addresseSiege = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    // ✅ name ajouté
+    #[ORM\Column(name: 'representantLegal', length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $representantLegal = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    // ✅ name ajouté
+    #[ORM\Column(name: 'adresseAgence', length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $adresseAgence = null;
 
@@ -45,10 +60,12 @@ class Banque
     #[Assert\Url(message: 'URL invalide')]
     private ?string $siteweb = null;
 
-    #[ORM\Column(length: 50)]
+    // ✅ name ajouté
+    #[ORM\Column(name: 'statusCompte', length: 50)]
     private string $statusCompte = 'en_attente';
 
-    #[ORM\Column(type: 'boolean')]
+    // ✅ name ajouté
+    #[ORM\Column(name: 'compteVerfiee', type: 'boolean')]
     private bool $compteVerfiee = false;
 
     public function getId(): ?int
