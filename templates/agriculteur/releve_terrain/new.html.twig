@@ -3,41 +3,66 @@
 
 {% block title %}Ajouter une mesure manuelle{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/releve-terrain-pages-pro.css') }}">
+{% endblock %}
+
+{% block hide_preloader %}{% endblock %}
+
 {% block body %}
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h3 class="mb-1">Ajouter une mesure manuelle</h3>
-      <div class="text-muted">Projet #{{ idproject }}</div>
-    </div>
-    <a class="btn btn-outline-secondary" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">Retour</a>
-  </div>
+<div class="iot-page releve-terrain-agri-pro releve-terrain-pages-pro">
+  <div class="container py-4">
 
-  {{ include('_partials/_flashes.html.twig') }}
-
-  <div class="card shadow-sm border-0">
-    <div class="card-body">
-      {{ form_start(form) }}
-        <div class="row g-3">
-          <div class="col-md-6">{{ form_row(form.idCapteur) }}</div>
-          <div class="col-md-6">{{ form_row(form.typeMesure) }}</div>
-          <div class="col-md-4">{{ form_row(form.valeurMesuree) }}</div>
-          <div class="col-md-4">{{ form_row(form.unite) }}</div>
-          <div class="col-md-4">{{ form_row(form.dateHeure) }}</div>
-
-          {% if form.qualite is defined %}
-            <div class="col-md-4">{{ form_row(form.qualite) }}</div>
-          {% endif %}
-          {% if form.note is defined %}
-            <div class="col-12">{{ form_row(form.note) }}</div>
-          {% endif %}
-
-          <div class="col-12">
-            <button class="btn btn-primary w-100">Enregistrer</button>
-          </div>
+    <div class="iot-hero hero-agri reveal mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="iot-hero-title mb-0"><i class="fas fa-plus me-2"></i> Mesure manuelle</h2>
+          <div class="iot-hero-sub">Projet #{{ idproject }} — utilisée si capteur en panne (source = MANUEL).</div>
         </div>
-      {{ form_end(form) }}
+        <a class="btn btn-light btn-iot" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
+          <i class="fas fa-arrow-left me-2"></i> Retour
+        </a>
+      </div>
     </div>
+
+    {{ include('_partials/_flashes.html.twig') }}
+
+    <div class="form-panel reveal">
+      <div class="form-head">
+        <span><i class="fas fa-pen-to-square me-2 text-success"></i> Formulaire</span>
+        <span class="text-muted small">MANUEL</span>
+      </div>
+
+      <div class="form-body">
+        <div class="hint mb-3">
+          <i class="fas fa-info-circle me-1"></i>
+          Les mesures SIMULATEUR sont verrouillées. Tu peux seulement les <b>annoter</b>. Les mesures MANUELLES sont modifiables/supprimables.
+        </div>
+
+        {{ form_start(form) }}
+          <div class="row g-3">
+            <div class="col-md-6">{{ form_row(form.idCapteur) }}</div>
+            <div class="col-md-6">{{ form_row(form.typeMesure) }}</div>
+            <div class="col-md-4">{{ form_row(form.valeurMesuree) }}</div>
+            <div class="col-md-4">{{ form_row(form.unite) }}</div>
+            <div class="col-md-4">{{ form_row(form.dateHeure) }}</div>
+
+            {% if form.qualite is defined %}
+              <div class="col-md-4">{{ form_row(form.qualite) }}</div>
+            {% endif %}
+            {% if form.note is defined %}
+              <div class="col-12">{{ form_row(form.note) }}</div>
+            {% endif %}
+
+            <div class="col-12 d-grid">
+              <button class="btn btn-success btn-iot btn-lg">Enregistrer</button>
+            </div>
+          </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+
   </div>
 </div>
 {% endblock %}
