@@ -28,17 +28,29 @@
     <!-- Main CSS File -->
     <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet">
 
+    {# ==========================
+       AgriFund IoT Theme (global)
+       Place ces fichiers dans public/ui/
+       ========================== #}
+    <link rel="stylesheet" href="{{ asset('ui/agrifund-iot.css') }}">
+    {# Si tu n'as pas créé ce fichier, commente la ligne suivante #}
+    <link rel="stylesheet" href="{{ asset('ui/agrifund-iot-admin.css') }}">
+
     {% block stylesheets %}{% endblock %}
 </head>
+
 <body class="{% block body_class %}index-page{% endblock %}">
 
     {% block body %}{% endblock %}
 
     <!-- Scroll Top -->
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
 
-    <!-- Preloader - Seulement pour les pages publiques -->
-    {% if block('hide_preloader') is not defined %}
+    <!-- Preloader (désactivable) -->
+    {% block hide_preloader %}{% endblock %}
+    {% if block('hide_preloader') is empty %}
         <div id="preloader"></div>
     {% endif %}
 
@@ -51,6 +63,11 @@
 
     <!-- Main JS File -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
+
+    {# ==========================
+       AgriFund IoT JS (reveal animations)
+       ========================== #}
+    <script defer src="{{ asset('ui/agrifund-iot.js') }}"></script>
 
     <!-- Force hide preloader after 2 seconds -->
     <script>
@@ -67,14 +84,12 @@
                 }
             }
 
-            // Hide when DOM is ready
             if (document.readyState === 'complete') {
                 hidePreloader();
             } else {
                 window.addEventListener('load', hidePreloader);
             }
 
-            // Fallback: force hide after 2 seconds max
             setTimeout(hidePreloader, 2000);
         })();
     </script>

@@ -1,0 +1,347 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dashboard IoT — Projet #{{ idproject }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
+{% endblock %}
+
+{% block hide_preloader %}{% endblock %}
+
+{# ===============================
+   Préparation des datasets Chart.js
+   =============================== #}
+
+{# 1) Mesures récentes : datasets par type (time series) #}
+{% set typesSeen = [] %}
+{% for m in dernieresMesures|default([]) %}
+  {% if m.typeMesure not in typesSeen %}
+    {% set typesSeen = typesSeen|merge([m.typeMesure]) %}
+  {% endif %}
+{% endfor %}
+
+{% set measureDatasets = [] %}
+{% for t in typesSeen %}
+  {% set points = [] %}
+  {% for m in (dernieresMesures|default([]))|reverse %}
+    {% if m.typeMesure == t %}
+      {% set points = points|merge([{
+        'x': m.dateHeure|date('Y-m-d H:i:s'),
+        'y': m.valeurMesuree
+      }]) %}
+    {% endif %}
+  {% endfor %}
+
+  {# couleurs par type (simple + lisible) #}
+  {% set color = '#089647' %}
+  {% if 'TEMP' in t or 'Temp' in t %}{% set color = '#ef4444' %}{% endif %}
+  {% if 'HUMIDITE' in t or 'Humid' in t %}{% set color = '#0ea5e9' %}{% endif %}
+  {% if 'PH' in t or 'pH' in t %}{% set color = '#a855f7' %}{% endif %}
+  {% if 'PLUI' in t or 'PLUV' in t or 'Pluv' in t %}{% set color = '#22c55e' %}{% endif %}
+  {% if 'VENT' in t or 'Vent' in t %}{% set color = '#f59e0b' %}{% endif %}
+  {% if 'LUMIN' in t or 'Lum' in t %}{% set color = '#eab308' %}{% endif %}
+
+  {% set measureDatasets = measureDatasets|merge([{
+    'label': t,
+    'data': points,
+    'borderColor': color,
+    'backgroundColor': color,
+    'tension': 0.25,
+    'pointRadius': 2,
+    'borderWidth': 2
+  }]) %}
+{% endfor %}
+
+{# 2) Rapport du jour : bar chart #}
+{% set reportLabels = [] %}
+{% set reportAvg = [] %}
+{% set reportMin = [] %}
+{% set reportMax = [] %}
+
+{% for r in rapportsJour|default([]) %}
+  {% set reportLabels = reportLabels|merge([r.typeMesure]) %}
+  {% set reportAvg = reportAvg|merge([r.moyenne]) %}
+  {% set reportMin = reportMin|merge([r.min]) %}
+  {% set reportMax = reportMax|merge([r.max]) %}
+{% endfor %}
+
+{% block body %}
+<div class="iot-page dashboard-pro">
+  <div class="container-fluid py-4">
+
+    {# HERO #}
+    <div class="iot-hero hero-dash reveal mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-chart-area me-2"></i>
+            Dashboard IoT — Projet #{{ idproject }}
+          </h2>
+          <div class="iot-hero-sub">Surveillance terrain : mesures récentes, rapport journalier, synthèse hebdo.</div>
+        </div>
+
+        <div class="quick-actions">
+          <a class="qa" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
+            <i class="fas fa-wave-square"></i> Relevés bruts
+          </a>
+          <a class="qa" href="{{ path('agriculteur_rapport_journalier', {idproject: idproject, date: 'now'|date('Y-m-d')}) }}">
+            <i class="fas fa-chart-bar"></i> Rapport journalier
+          </a>
+          <a class="qa" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
+            <i class="fas fa-calendar-week"></i> Relevé hebdo
+          </a>
+          <a class="qa" href="{{ path('capteur_index') }}">
+            <i class="fas fa-satellite-dish"></i> Mes capteurs
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {# KPI #}
+    {% set nbCapteurs = capteurs|length %}
+    {% set nbMesures = dernieresMesures|length %}
+    {% set nbTypes = rapportsJour|length %}
+    {% set cond = releveHebdo ? releveHebdo.conditionDominante : 'N/A' %}
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Capteurs du projet</div>
+            <div class="fs-2 fw-bold">{{ nbCapteurs }}</div>
+            <div class="text-muted small">actifs/inactifs</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Mesures récentes</div>
+            <div class="fs-2 fw-bold text-success">{{ nbMesures }}</div>
+            <div class="text-muted small">dernières entrées</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Types mesurés (jour)</div>
+            <div class="fs-2 fw-bold text-warning">{{ nbTypes }}</div>
+            <div class="text-muted small">rapport journalier</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Condition dominante (hebdo)</div>
+            <div class="fs-5 fw-bold">
+              <span class="chip">
+                <span class="{{ cond == 'NORMAL' ? 'dot active' : 'dot bad' }}"></span>
+                {{ cond }}
+              </span>
+            </div>
+            <div class="text-muted small">synthèse 7 jours</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+
+      {# Graphe mesures #}
+      <div class="col-12 col-xl-8 reveal">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-chart-line text-success me-2"></i> Mesures récentes (par type)</span>
+            <span class="text-muted small">mise à jour 15 min</span>
+          </div>
+          <div class="panel-b">
+            {% if dernieresMesures|length > 0 %}
+              <canvas id="chartMesures" height="110"></canvas>
+            {% else %}
+              <div class="alert alert-light border mb-0">Aucune mesure disponible. Lance le simulateur.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Col droite : capteurs + hebdo #}
+      <div class="col-12 col-xl-4 reveal">
+        <div class="panel mb-3">
+          <div class="panel-h">
+            <span><i class="fas fa-satellite-dish me-2"></i> Capteurs du projet</span>
+            <span class="text-muted small">{{ capteurs|length }}</span>
+          </div>
+          <div class="panel-b p-0">
+            <div class="list-group list-group-flush">
+              {% for c in capteurs %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <span class="small fw-semibold">{{ c.typeCapteur }} — {{ c.localisation }}</span>
+                  <span class="chip">
+                    <span class="{{ c.statut == 'ACTIF' ? 'dot active' : 'dot bad' }}"></span>
+                    {{ c.statut }}
+                  </span>
+                </div>
+              {% else %}
+                <div class="list-group-item text-muted text-center">Aucun capteur</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-calendar-week me-2"></i> Synthèse hebdomadaire</span>
+            <span class="text-muted small">AI Ready</span>
+          </div>
+          <div class="panel-b text-center">
+            {% if releveHebdo %}
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="fs-4 fw-bold">{{ releveHebdo.tempMoyenne }}°C</div>
+                  <div class="text-muted small">Température</div>
+                </div>
+                <div class="col-6">
+                  <div class="fs-4 fw-bold">{{ releveHebdo.humiditeMoyenne }}%</div>
+                  <div class="text-muted small">Humidité sol</div>
+                </div>
+              </div>
+              <hr>
+              <span class="chip justify-content-center">
+                <span class="{{ releveHebdo.conditionDominante == 'NORMAL' ? 'dot active' : 'dot bad' }}"></span>
+                {{ releveHebdo.conditionDominante }}
+              </span>
+              <div class="text-muted small mt-2">{{ releveHebdo.nbMesuresTotal }} mesures (7 jours)</div>
+              <div class="d-grid mt-3">
+                <a class="btn btn-outline-success btn-iot" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
+                  Voir l’historique hebdo
+                </a>
+              </div>
+            {% else %}
+              <div class="text-muted">Aucune synthèse hebdo.</div>
+              <div class="small text-muted">Génère-la depuis “Relevé hebdo”.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Rapport du jour + graphe #}
+      <div class="col-12 reveal">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-chart-bar text-warning me-2"></i> Rapport journalier (aujourd’hui)</span>
+            <span class="text-muted small">{{ "now"|date('d/m/Y') }}</span>
+          </div>
+          <div class="panel-b">
+            {% if rapportsJour|length > 0 %}
+              <div class="row g-3">
+                <div class="col-12 col-xl-6">
+                  <canvas id="chartRapportJour" height="120"></canvas>
+                </div>
+                <div class="col-12 col-xl-6">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Type</th>
+                          <th>Moy</th>
+                          <th>Min</th>
+                          <th>Max</th>
+                          <th>Nb</th>
+                          <th>Cond</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for r in rapportsJour %}
+                          {% set cond = r.conditionDominante %}
+                          {% set badge = 'success' %}
+                          {% if cond starts with 'ALERTE' %}{% set badge = 'danger' %}{% endif %}
+                          {% if cond != 'NORMAL' and not (cond starts with 'ALERTE') %}{% set badge = 'warning' %}{% endif %}
+
+                          <tr>
+                            <td class="fw-semibold">{{ r.typeMesure }}</td>
+                            <td>{{ r.moyenne }}</td>
+                            <td>{{ r.min }}</td>
+                            <td>{{ r.max }}</td>
+                            <td>{{ r.nbMesures }}</td>
+                            <td><span class="badge bg-{{ badge }}">{{ cond }}</span></td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <div class="alert alert-light border mb-0">
+                Rapport pas encore généré aujourd’hui. Va sur “Rapport journalier” et clique “Générer”.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    // === Chart Mesures ===
+    const datasets = {{ measureDatasets|json_encode|raw }};
+    const canMes = document.getElementById('chartMesures');
+    if (canMes && datasets.length > 0) {
+      new Chart(canMes, {
+        type: 'line',
+        data: { datasets },
+        options: {
+          parsing: false,
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            x: {
+              type: 'time',
+              time: { tooltipFormat: 'yyyy-MM-dd HH:mm', displayFormats: { hour: 'HH:mm', day: 'dd/MM' } }
+            }
+          }
+        }
+      });
+    }
+
+    // === Chart Rapport Jour ===
+    const canR = document.getElementById('chartRapportJour');
+    if (canR) {
+      const labels = {{ reportLabels|json_encode|raw }};
+      const avg = {{ reportAvg|json_encode|raw }};
+      const minv = {{ reportMin|json_encode|raw }};
+      const maxv = {{ reportMax|json_encode|raw }};
+
+      if (labels.length > 0) {
+        new Chart(canR, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Moyenne', data: avg, borderWidth: 1 },
+              { label: 'Min', data: minv, borderWidth: 1 },
+              { label: 'Max', data: maxv, borderWidth: 1 }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        });
+      }
+    }
+  </script>
+{% endblock %}

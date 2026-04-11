@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Modifier une mesure{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-1">Modifier une mesure manuelle</h3>
+      <div class="text-muted">Relevé #{{ releve.idReleve }} — Projet #{{ releve.idproject }}</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ path('agriculteur_releve_terrain', {idproject: releve.idproject}) }}">Retour</a>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      {{ form_start(form) }}
+        <div class="row g-3">
+          <div class="col-md-6">{{ form_row(form.idCapteur) }}</div>
+          <div class="col-md-6">{{ form_row(form.typeMesure) }}</div>
+          <div class="col-md-4">{{ form_row(form.valeurMesuree) }}</div>
+          <div class="col-md-4">{{ form_row(form.unite) }}</div>
+          <div class="col-md-4">{{ form_row(form.dateHeure) }}</div>
+
+          {% if form.qualite is defined %}
+            <div class="col-md-4">{{ form_row(form.qualite) }}</div>
+          {% endif %}
+          {% if form.note is defined %}
+            <div class="col-12">{{ form_row(form.note) }}</div>
+          {% endif %}
+
+          <div class="col-12">
+            <button class="btn btn-warning w-100">Mettre à jour</button>
+          </div>
+        </div>
+      {{ form_end(form) }}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base.html.twig' %}
+{% form_theme generateForm 'bootstrap_5_layout.html.twig' %}
+
+{# =========================
+   Variables globales Chart.js (visibles body + javascripts)
+   ========================= #}
+{% set chartLabels = [] %}
+{% set chartTemp = [] %}
+{% set chartHum = [] %}
+
+{% for h in (items|default([]))|reverse %}
+  {% set chartLabels = chartLabels|merge([ h.dateDebut|date('Y-m-d') ~ ' → ' ~ h.dateFin|date('Y-m-d') ]) %}
+  {% set chartTemp = chartTemp|merge([ h.tempMoyenne ?? 0 ]) %}
+  {% set chartHum = chartHum|merge([ h.humiditeMoyenne ?? 0 ]) %}
+{% endfor %}
+
+{% block title %}Relevés hebdomadaires — Projet {{ idproject }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+  <div class="p-4 rounded-4 mb-4 text-white"
+       style="background: linear-gradient(135deg,#095032,#089647);">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h3 class="mb-1">Relevé hebdomadaire</h3>
+        <div class="opacity-75">Projet #{{ idproject }} — Synthèse 7 jours (à envoyer au Module 5 / IA)</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ path('agriculteur_releve_hebdo_home') }}">Changer projet</a>
+        <a class="btn btn-outline-light" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">Données brutes</a>
+      </div>
+    </div>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  {# KPI #}
+  {% set total = items|length %}
+  {% set alerts = 0 %}
+  {% for x in items|default([]) %}
+    {% if x.conditionDominante is defined and x.conditionDominante != 'NORMAL' %}
+      {% set alerts = alerts + 1 %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Relevés disponibles</div>
+          <div class="fs-2 fw-bold">{{ total }}</div>
+          <div class="text-muted small">historique (limité)</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Alertes (condition ≠ NORMAL)</div>
+          <div class="fs-2 fw-bold text-danger">{{ alerts }}</div>
+          <div class="text-muted small">sur la liste</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Usage IA</div>
+          <div class="fw-semibold">AI Ready</div>
+          <div class="text-muted small">Temp/Humidité + Condition + Nb mesures</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    {# Col gauche : génération #}
+    <div class="col-12 col-xl-4">
+
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+          <i class="fas fa-sync-alt text-primary"></i>
+          Générer un relevé hebdomadaire
+        </div>
+        <div class="card-body">
+          {{ form_start(generateForm) }}
+            {# en agriculteur, weekStart seulement #}
+            {{ form_row(generateForm.weekStart) }}
+            <button class="btn btn-success w-100">Générer synthèse 7 jours</button>
+          {{ form_end(generateForm) }}
+
+          <div class="small text-muted mt-2">
+            Calcul auto depuis <b>rapport_journalier</b> (pas depuis le brut).
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+          <i class="fas fa-info-circle"></i>
+          Conseil
+        </div>
+        <div class="card-body">
+          <div class="text-muted small mb-0">
+            Pour une semaine complète, choisis le <b>lundi</b> comme date de début.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# Col droite : graphe + tableau #}
+    <div class="col-12 col-xl-8">
+
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-chart-line text-success me-1"></i> Tendances (Temp & Humidité)</span>
+          <span class="text-muted small">par semaine</span>
+        </div>
+        <div class="card-body">
+          {% if items|length > 0 %}
+            <canvas id="chartHebdoAgri" height="110"></canvas>
+          {% else %}
+            <div class="alert alert-light border mb-0">
+              Aucun relevé hebdomadaire. Clique sur <b>Générer</b>.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold">Historique des relevés hebdomadaires</div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Semaine</th>
+                <th>Temp moy</th>
+                <th>Hum sol moy</th>
+                <th>Mesures total</th>
+                <th>Condition</th>
+                <th>Généré le</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for h in items %}
+              {% set cond = h.conditionDominante ?? 'NORMAL' %}
+              {% set badge = 'success' %}
+              {% if cond starts with 'ALERTE' %}{% set badge = 'danger' %}{% endif %}
+              {% if cond != 'NORMAL' and not (cond starts with 'ALERTE') %}{% set badge = 'warning' %}{% endif %}
+
+              <tr>
+                <td class="text-nowrap">{{ h.dateDebut|date('d/m/Y') }} → {{ h.dateFin|date('d/m/Y') }}</td>
+                <td class="fw-semibold">{{ h.tempMoyenne }} °C</td>
+                <td class="fw-semibold">{{ h.humiditeMoyenne }} %</td>
+                <td>{{ h.nbMesuresTotal }}</td>
+                <td><span class="badge bg-{{ badge }}">{{ cond }}</span></td>
+                <td class="text-muted">{{ h.dateGeneration ? h.dateGeneration|date('d/m/Y H:i') : '-' }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  Aucun relevé hebdomadaire disponible.
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  {% if items|length > 0 %}
+  <script>
+    const canvas = document.getElementById('chartHebdoAgri');
+    if (canvas) {
+      const labels = {{ chartLabels|json_encode|raw }};
+      const temp = {{ chartTemp|json_encode|raw }};
+      const hum = {{ chartHum|json_encode|raw }};
+
+      new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Temp moyenne (°C)',
+              data: temp,
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 2
+            },
+            {
+              label: 'Humidité sol moyenne (%)',
+              data: hum,
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  </script>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ReleveHebdomadaire{% endblock %}
+
+{% block body %}
+    <h1>ReleveHebdomadaire</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>IdReleveHebdo</th>
+                <td>{{ releve_hebdomadaire.idReleveHebdo }}</td>
+            </tr>
+            <tr>
+                <th>Idproject</th>
+                <td>{{ releve_hebdomadaire.idproject }}</td>
+            </tr>
+            <tr>
+                <th>DateDebut</th>
+                <td>{{ releve_hebdomadaire.dateDebut ? releve_hebdomadaire.dateDebut|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DateFin</th>
+                <td>{{ releve_hebdomadaire.dateFin ? releve_hebdomadaire.dateFin|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>TempMoyenne</th>
+                <td>{{ releve_hebdomadaire.tempMoyenne }}</td>
+            </tr>
+            <tr>
+                <th>HumiditeMoyenne</th>
+                <td>{{ releve_hebdomadaire.humiditeMoyenne }}</td>
+            </tr>
+            <tr>
+                <th>ConditionDominante</th>
+                <td>{{ releve_hebdomadaire.conditionDominante }}</td>
+            </tr>
+            <tr>
+                <th>NbMesuresTotal</th>
+                <td>{{ releve_hebdomadaire.nbMesuresTotal }}</td>
+            </tr>
+            <tr>
+                <th>DateGeneration</th>
+                <td>{{ releve_hebdomadaire.dateGeneration ? releve_hebdomadaire.dateGeneration|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_releve_hebdomadaire_index') }}">back to list</a>
+
+    <a href="{{ path('app_releve_hebdomadaire_edit', {'idReleveHebdo': releve_hebdomadaire.idReleveHebdo}) }}">edit</a>
+
+    {{ include('releve_hebdomadaire/_delete_form.html.twig') }}
+{% endblock %}

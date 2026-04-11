@@ -1,0 +1,221 @@
+{% extends 'base.html.twig' %}
+{% form_theme generateForm 'bootstrap_5_layout.html.twig' %}
+
+{# =========================
+   ✅ Variables globales (visibles dans body + javascripts)
+   ========================= #}
+{% set labels = [] %}
+{% set moyennes = [] %}
+{% set mins = [] %}
+{% set maxs = [] %}
+
+{% for r in rapports|default([]) %}
+  {% set labels = labels|merge([ r.typeMesure ~ ' (#' ~ r.idCapteur ~ ')' ]) %}
+  {% set moyennes = moyennes|merge([ r.moyenne ]) %}
+  {% set mins = mins|merge([ r.min ]) %}
+  {% set maxs = maxs|merge([ r.max ]) %}
+{% endfor %}
+
+{% block title %}Rapport journalier — Projet {{ idproject }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+  <div class="p-4 rounded-4 mb-4 text-white"
+       style="background: linear-gradient(135deg,#0B3D0B,#089647);">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h3 class="mb-1">Rapport journalier</h3>
+        <div class="opacity-75">Projet #{{ idproject }} — Date : {{ date|date('d/m/Y') }}</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ path('agriculteur_rapport_journalier_home') }}">Changer projet</a>
+        <a class="btn btn-outline-light"
+           href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
+          Voir relevés bruts
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  {# KPI #}
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Lignes du rapport</div>
+          <div class="fs-2 fw-bold">{{ stats.total }}</div>
+          <div class="text-muted small">Type × capteur</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Alertes</div>
+          <div class="fs-2 fw-bold text-danger">{{ stats.alerts }}</div>
+          <div class="text-muted small">Condition ≠ NORMAL</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Types détectés</div>
+          <div class="fs-2 fw-bold text-success">{{ stats.types }}</div>
+          <div class="text-muted small">Sur le projet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    {# Col gauche #}
+    <div class="col-12 col-xl-4">
+
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+          <i class="fas fa-magic text-primary"></i>
+          Générer / Regénérer
+        </div>
+        <div class="card-body">
+          {{ form_start(generateForm) }}
+            {{ form_row(generateForm.date) }}
+            <button class="btn btn-primary w-100">Générer</button>
+          {{ form_end(generateForm) }}
+          <div class="small text-muted mt-2">
+            Calcul depuis <b>releve_terrain</b> (données brutes).
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+          <i class="fas fa-filter text-dark"></i>
+          Filtrer l’affichage
+        </div>
+        <div class="card-body">
+          <form method="get">
+            <div class="mb-3">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" name="date" value="{{ date|date('Y-m-d') }}">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Type de mesure</label>
+              <select name="type" class="form-select">
+                <option value="">Tous</option>
+                {% for t in types %}
+                  <option value="{{ t }}" {{ t == typeMesure ? 'selected' : '' }}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <button class="btn btn-dark w-100">Appliquer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    {# Col droite : Graphe + tableau #}
+    <div class="col-12 col-xl-8">
+
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-chart-column text-success me-1"></i> Vue synthétique</span>
+          <span class="text-muted small">Moyenne / Min / Max</span>
+        </div>
+        <div class="card-body">
+          {% if rapports|length > 0 %}
+            <canvas id="chartRapport" height="110"></canvas>
+          {% else %}
+            <div class="alert alert-light border mb-0">
+              Aucun rapport pour cette date. Clique sur <b>Générer</b>.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold">Détails du rapport</div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Type</th>
+                <th>Capteur</th>
+                <th>Moyenne</th>
+                <th>Min</th>
+                <th>Max</th>
+                <th>Nb mesures</th>
+                <th>Condition</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for r in rapports %}
+              {% set cond = r.conditionDominante %}
+              {% set badge = 'success' %}
+              {% if cond starts with 'ALERTE' %}{% set badge = 'danger' %}{% endif %}
+              {% if cond != 'NORMAL' and not (cond starts with 'ALERTE') %}{% set badge = 'warning' %}{% endif %}
+
+              <tr>
+                <td class="fw-semibold">{{ r.typeMesure }}</td>
+                <td>#{{ r.idCapteur }}</td>
+                <td>{{ r.moyenne }}</td>
+                <td>{{ r.min }}</td>
+                <td>{{ r.max }}</td>
+                <td>{{ r.nbMesures }}</td>
+                <td><span class="badge bg-{{ badge }}">{{ cond }}</span></td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">
+                  Aucun rapport disponible. Clique sur “Générer”.
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  {% if rapports|length > 0 %}
+  <script>
+    const canvas = document.getElementById('chartRapport');
+    if (canvas) {
+      const labels = {{ labels|json_encode|raw }};
+      const moy = {{ moyennes|json_encode|raw }};
+      const mins = {{ mins|json_encode|raw }};
+      const maxs = {{ maxs|json_encode|raw }};
+
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Moyenne', data: moy, borderWidth: 1 },
+            { label: 'Min', data: mins, borderWidth: 1 },
+            { label: 'Max', data: maxs, borderWidth: 1 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  </script>
+  {% endif %}
+{% endblock %}

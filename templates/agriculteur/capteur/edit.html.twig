@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+{% block title %}Modifier Capteur{% endblock %}
+{% block hide_preloader %}{% endblock %}
+
+{% block body %}
+<div class="iot-page capteur-agri-pro">
+  <div class="container py-4">
+
+    <div class="iot-hero hero-agri reveal mb-4">
+      <h2 class="iot-hero-title mb-0"><i class="fas fa-pen me-2"></i>Modifier Capteur #{{ capteur.idCapteur }}</h2>
+      <div class="iot-hero-sub">{{ capteur.typeCapteur }} — {{ capteur.localisation }}</div>
+    </div>
+
+    <div class="iot-card reveal">
+      <div class="iot-card-header">Mise à jour</div>
+      <div class="iot-card-body">
+        {{ form_start(form) }}
+          <div class="row g-3">
+            <div class="col-md-6">{{ form_row(form.typeCapteur) }}</div>
+            <div class="col-md-6">{{ form_row(form.statut) }}</div>
+            <div class="col-md-6">{{ form_row(form.modele) }}</div>
+            <div class="col-md-6">{{ form_row(form.localisation) }}</div>
+
+            <div class="col-12 d-flex gap-2 mt-2">
+              {{ form_widget(form.enregistrer, {'attr': {'class': 'btn btn-warning btn-iot w-100'}}) }}
+              <a href="{{ path('capteur_index') }}" class="btn btn-outline-secondary btn-iot w-100">Annuler</a>
+            </div>
+          </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

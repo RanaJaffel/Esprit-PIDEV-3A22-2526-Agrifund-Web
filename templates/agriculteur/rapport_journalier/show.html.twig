@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RapportJournalier{% endblock %}
+
+{% block body %}
+    <h1>RapportJournalier</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>IdRapport</th>
+                <td>{{ rapport_journalier.idRapport }}</td>
+            </tr>
+            <tr>
+                <th>DateRapport</th>
+                <td>{{ rapport_journalier.dateRapport ? rapport_journalier.dateRapport|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>TypeMesure</th>
+                <td>{{ rapport_journalier.typeMesure }}</td>
+            </tr>
+            <tr>
+                <th>Moyenne</th>
+                <td>{{ rapport_journalier.moyenne }}</td>
+            </tr>
+            <tr>
+                <th>Min</th>
+                <td>{{ rapport_journalier.min }}</td>
+            </tr>
+            <tr>
+                <th>Max</th>
+                <td>{{ rapport_journalier.max }}</td>
+            </tr>
+            <tr>
+                <th>NbMesures</th>
+                <td>{{ rapport_journalier.nbMesures }}</td>
+            </tr>
+            <tr>
+                <th>ConditionDominante</th>
+                <td>{{ rapport_journalier.conditionDominante }}</td>
+            </tr>
+            <tr>
+                <th>IdCapteur</th>
+                <td>{{ rapport_journalier.idCapteur }}</td>
+            </tr>
+            <tr>
+                <th>Idproject</th>
+                <td>{{ rapport_journalier.idproject }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_rapport_journalier_index') }}">back to list</a>
+
+    <a href="{{ path('app_rapport_journalier_edit', {'idRapport': rapport_journalier.idRapport}) }}">edit</a>
+
+    {{ include('rapport_journalier/_delete_form.html.twig') }}
+{% endblock %}

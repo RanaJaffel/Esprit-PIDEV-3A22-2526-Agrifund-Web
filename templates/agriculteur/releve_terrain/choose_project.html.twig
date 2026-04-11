@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir un projet - Relevés terrain{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-1">Relevés terrain</h3>
+      <div class="text-muted">Choisissez un projet pour consulter les mesures IoT</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ path('agriculteur_dashboard') }}">Retour</a>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  <div class="row g-3">
+    {% for pid in projects %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div style="
+                width:46px;height:46px;border-radius:14px;
+                background:linear-gradient(135deg,#B2D944,#089647);
+                display:flex;align-items:center;justify-content:center;color:white;">
+                <i class="fas fa-seedling"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold">Projet #{{ pid }}</div>
+                <div class="text-muted small">Accès aux mesures + graphiques</div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-3">
+              <a class="btn btn-success"
+                 href="{{ path('agriculteur_releve_terrain', {idproject: pid}) }}">
+                Ouvrir les relevés
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
