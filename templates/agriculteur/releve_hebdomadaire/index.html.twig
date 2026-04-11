@@ -1,8 +1,17 @@
 {% extends 'base.html.twig' %}
 {% form_theme generateForm 'bootstrap_5_layout.html.twig' %}
 
+{% block title %}Relevés hebdomadaires — Projet {{ idproject }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/releve-hebdo-agri-pro.css') }}">
+{% endblock %}
+
+{% block hide_preloader %}{% endblock %}
+
 {# =========================
-   Variables globales Chart.js (visibles body + javascripts)
+   Data Chart.js
    ========================= #}
 {% set chartLabels = [] %}
 {% set chartTemp = [] %}
@@ -14,208 +23,252 @@
   {% set chartHum = chartHum|merge([ h.humiditeMoyenne ?? 0 ]) %}
 {% endfor %}
 
-{% block title %}Relevés hebdomadaires — Projet {{ idproject }}{% endblock %}
+{# KPI #}
+{% set total = items|length %}
+{% set normalCount = 0 %}
+{% set alertCount = 0 %}
+{% for x in items|default([]) %}
+  {% set c = x.conditionDominante ?? 'NORMAL' %}
+  {% if c == 'NORMAL' %}
+    {% set normalCount = normalCount + 1 %}
+  {% else %}
+    {% set alertCount = alertCount + 1 %}
+  {% endif %}
+{% endfor %}
+
+{% set latest = items|default([])|first %}
 
 {% block body %}
-<div class="container-fluid py-4">
+<div class="iot-page releve-hebdo-agri-pro">
+  <div class="container-fluid py-4">
 
-  <div class="p-4 rounded-4 mb-4 text-white"
-       style="background: linear-gradient(135deg,#095032,#089647);">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-      <div>
-        <h3 class="mb-1">Relevé hebdomadaire</h3>
-        <div class="opacity-75">Projet #{{ idproject }} — Synthèse 7 jours (à envoyer au Module 5 / IA)</div>
-      </div>
-      <div class="d-flex gap-2">
-        <a class="btn btn-light" href="{{ path('agriculteur_releve_hebdo_home') }}">Changer projet</a>
-        <a class="btn btn-outline-light" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">Données brutes</a>
+    {# HERO #}
+    <div class="iot-hero hero-agri reveal mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-calendar-week me-2"></i>
+            Relevé hebdomadaire — Projet #{{ idproject }}
+          </h2>
+          <div class="iot-hero-sub">
+            Synthèse 7 jours <b>AI Ready</b> (temp/humidité/condition/nb mesures) — utilisée par le Module 5.
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-light btn-iot" href="{{ path('agriculteur_releve_hebdo_home') }}">
+            <i class="fas fa-layer-group me-2"></i> Projets
+          </a>
+          <a class="btn btn-outline-light btn-iot" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
+            <i class="fas fa-wave-square me-2"></i> Données brutes
+          </a>
+        </div>
       </div>
     </div>
-  </div>
 
-  {{ include('_partials/_flashes.html.twig') }}
+    {{ include('_partials/_flashes.html.twig') }}
 
-  {# KPI #}
-  {% set total = items|length %}
-  {% set alerts = 0 %}
-  {% for x in items|default([]) %}
-    {% if x.conditionDominante is defined and x.conditionDominante != 'NORMAL' %}
-      {% set alerts = alerts + 1 %}
-    {% endif %}
-  {% endfor %}
-
-  <div class="row g-3 mb-4">
-    <div class="col-12 col-md-4">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
+    {# KPI #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro"><div class="panel-b">
           <div class="text-muted small">Relevés disponibles</div>
-          <div class="fs-2 fw-bold">{{ total }}</div>
-          <div class="text-muted small">historique (limité)</div>
-        </div>
+          <div class="fs-2 fw-bold" data-countup="{{ total }}">0</div>
+          <div class="text-muted small">historique</div>
+        </div></div>
       </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <div class="text-muted small">Alertes (condition ≠ NORMAL)</div>
-          <div class="fs-2 fw-bold text-danger">{{ alerts }}</div>
-          <div class="text-muted small">sur la liste</div>
-        </div>
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">NORMAL</div>
+          <div class="fs-2 fw-bold text-success" data-countup="{{ normalCount }}">0</div>
+          <div class="text-muted small">semaines stables</div>
+        </div></div>
       </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <div class="text-muted small">Usage IA</div>
-          <div class="fw-semibold">AI Ready</div>
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">Alertes</div>
+          <div class="fs-2 fw-bold text-danger" data-countup="{{ alertCount }}">0</div>
+          <div class="text-muted small">condition ≠ NORMAL</div>
+        </div></div>
+      </div>
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">AI Ready</div>
+          <div class="fw-bold">Features</div>
           <div class="text-muted small">Temp/Humidité + Condition + Nb mesures</div>
-        </div>
+        </div></div>
       </div>
     </div>
-  </div>
 
-  <div class="row g-3">
+    <div class="row g-3">
 
-    {# Col gauche : génération #}
-    <div class="col-12 col-xl-4">
+      {# LEFT: generate + donut + latest #}
+      <div class="col-12 col-xl-4">
 
-      <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
-          <i class="fas fa-sync-alt text-primary"></i>
-          Générer un relevé hebdomadaire
-        </div>
-        <div class="card-body">
-          {{ form_start(generateForm) }}
-            {# en agriculteur, weekStart seulement #}
-            {{ form_row(generateForm.weekStart) }}
-            <button class="btn btn-success w-100">Générer synthèse 7 jours</button>
-          {{ form_end(generateForm) }}
-
-          <div class="small text-muted mt-2">
-            Calcul auto depuis <b>rapport_journalier</b> (pas depuis le brut).
+        <div class="panel reveal mb-3">
+          <div class="panel-h">
+            <span><i class="fas fa-sync-alt text-success me-2"></i> Générer</span>
+            <span class="text-muted small">7 jours</span>
           </div>
-        </div>
-      </div>
-
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
-          <i class="fas fa-info-circle"></i>
-          Conseil
-        </div>
-        <div class="card-body">
-          <div class="text-muted small mb-0">
-            Pour une semaine complète, choisis le <b>lundi</b> comme date de début.
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    {# Col droite : graphe + tableau #}
-    <div class="col-12 col-xl-8">
-
-      <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-chart-line text-success me-1"></i> Tendances (Temp & Humidité)</span>
-          <span class="text-muted small">par semaine</span>
-        </div>
-        <div class="card-body">
-          {% if items|length > 0 %}
-            <canvas id="chartHebdoAgri" height="110"></canvas>
-          {% else %}
-            <div class="alert alert-light border mb-0">
-              Aucun relevé hebdomadaire. Clique sur <b>Générer</b>.
+          <div class="panel-b">
+            {{ form_start(generateForm) }}
+              {{ form_row(generateForm.weekStart) }}
+              <button class="btn btn-success btn-iot w-100">Générer synthèse 7 jours</button>
+            {{ form_end(generateForm) }}
+            <div class="text-muted small mt-2">
+              Calcul depuis <b>rapport_journalier</b> (stable et IA-friendly).
             </div>
-          {% endif %}
+          </div>
         </div>
+
+        <div class="chart-wrap reveal mb-3">
+          <div class="chart-head">
+            <span><i class="fas fa-bullseye me-2"></i> NORMAL vs ALERTES</span>
+            <span class="text-muted small">qualité terrain</span>
+          </div>
+          <div class="chart-body">
+            <canvas id="donutHebdo" height="160"></canvas>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <span class="chip"><span class="dot ok"></span> NORMAL: {{ normalCount }}</span>
+              <span class="chip"><span class="dot bad"></span> ALERTES: {{ alertCount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel reveal">
+          <div class="panel-h">
+            <span><i class="fas fa-brain text-primary me-2"></i> Dernière semaine</span>
+            <span class="text-muted small">insight</span>
+          </div>
+          <div class="panel-b">
+            {% if latest %}
+              {% set c = latest.conditionDominante ?? 'NORMAL' %}
+              <div class="text-muted small">{{ latest.dateDebut|date('d/m/Y') }} → {{ latest.dateFin|date('d/m/Y') }}</div>
+              <div class="mt-2">
+                <span class="chip">
+                  <span class="{{ c == 'NORMAL' ? 'dot ok' : 'dot bad' }}"></span>
+                  {{ c }}
+                </span>
+              </div>
+
+              <div class="mt-3">
+                <div class="metric-pill"><span>Temp moyenne</span><b>{{ latest.tempMoyenne }} °C</b></div>
+                <div class="metric-pill mt-2"><span>Humidité sol</span><b>{{ latest.humiditeMoyenne }} %</b></div>
+                <div class="metric-pill mt-2"><span>Mesures</span><b>{{ latest.nbMesuresTotal }}</b></div>
+              </div>
+            {% else %}
+              <div class="text-muted">Aucune donnée. Génère un relevé.</div>
+            {% endif %}
+          </div>
+        </div>
+
       </div>
 
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-white fw-semibold">Historique des relevés hebdomadaires</div>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Semaine</th>
-                <th>Temp moy</th>
-                <th>Hum sol moy</th>
-                <th>Mesures total</th>
-                <th>Condition</th>
-                <th>Généré le</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for h in items %}
-              {% set cond = h.conditionDominante ?? 'NORMAL' %}
-              {% set badge = 'success' %}
-              {% if cond starts with 'ALERTE' %}{% set badge = 'danger' %}{% endif %}
-              {% if cond != 'NORMAL' and not (cond starts with 'ALERTE') %}{% set badge = 'warning' %}{% endif %}
+      {# RIGHT: chart + timeline cards #}
+      <div class="col-12 col-xl-8">
 
-              <tr>
-                <td class="text-nowrap">{{ h.dateDebut|date('d/m/Y') }} → {{ h.dateFin|date('d/m/Y') }}</td>
-                <td class="fw-semibold">{{ h.tempMoyenne }} °C</td>
-                <td class="fw-semibold">{{ h.humiditeMoyenne }} %</td>
-                <td>{{ h.nbMesuresTotal }}</td>
-                <td><span class="badge bg-{{ badge }}">{{ cond }}</span></td>
-                <td class="text-muted">{{ h.dateGeneration ? h.dateGeneration|date('d/m/Y H:i') : '-' }}</td>
-              </tr>
+        <div class="chart-wrap reveal mb-3">
+          <div class="chart-head">
+            <span><i class="fas fa-chart-line text-success me-2"></i> Tendances</span>
+            <span class="text-muted small">Temp & Humidité</span>
+          </div>
+          <div class="chart-body">
+            {% if items|length > 0 %}
+              <canvas id="chartHebdoAgri" height="120"></canvas>
             {% else %}
-              <tr>
-                <td colspan="6" class="text-center text-muted py-4">
-                  Aucun relevé hebdomadaire disponible.
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+              <div class="alert alert-light border mb-0">
+                Aucun relevé hebdomadaire. Clique sur <b>Générer</b>.
+              </div>
+            {% endif %}
+          </div>
         </div>
+
+        <div class="panel reveal">
+          <div class="panel-h">
+            <span><i class="fas fa-layer-group me-2"></i> Timeline hebdomadaire</span>
+            <span class="text-muted small">cards premium</span>
+          </div>
+          <div class="panel-b">
+            <div class="hebdo-timeline">
+              {% for h in items %}
+                {% set cond = h.conditionDominante ?? 'NORMAL' %}
+                {% set isOk = (cond == 'NORMAL') %}
+                <div class="hebdo-card">
+                  <div class="hebdo-inner">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <div>
+                        <div class="fw-bold">Semaine</div>
+                        <div class="text-muted small">{{ h.dateDebut|date('d/m/Y') }} → {{ h.dateFin|date('d/m/Y') }}</div>
+                      </div>
+                      <span class="chip">
+                        <span class="{{ isOk ? 'dot ok' : 'dot bad' }}"></span>
+                        {{ cond }}
+                      </span>
+                    </div>
+
+                    <div class="hebdo-metrics">
+                      <div class="metric-pill"><span>Temp moyenne</span><b>{{ h.tempMoyenne }} °C</b></div>
+                      <div class="metric-pill"><span>Humidité sol</span><b>{{ h.humiditeMoyenne }} %</b></div>
+                      <div class="metric-pill"><span>Mesures</span><b>{{ h.nbMesuresTotal }}</b></div>
+                      <div class="metric-pill"><span>Généré</span><b>{{ h.dateGeneration ? h.dateGeneration|date('d/m H:i') : '-' }}</b></div>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="text-center text-muted py-4">Aucun relevé hebdomadaire disponible.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
-  </div>
 
+  </div>
 </div>
 {% endblock %}
 
 {% block javascripts %}
   {{ parent() }}
+  <script defer src="{{ asset('ui/releve-hebdo-agri-pro.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  {% if items|length > 0 %}
   <script>
-    const canvas = document.getElementById('chartHebdoAgri');
-    if (canvas) {
+    // Line chart
+    const can = document.getElementById('chartHebdoAgri');
+    if (can) {
       const labels = {{ chartLabels|json_encode|raw }};
       const temp = {{ chartTemp|json_encode|raw }};
       const hum = {{ chartHum|json_encode|raw }};
 
-      new Chart(canvas, {
+      new Chart(can, {
         type: 'line',
         data: {
           labels,
           datasets: [
-            {
-              label: 'Temp moyenne (°C)',
-              data: temp,
-              borderWidth: 2,
-              tension: 0.25,
-              pointRadius: 2
-            },
-            {
-              label: 'Humidité sol moyenne (%)',
-              data: hum,
-              borderWidth: 2,
-              tension: 0.25,
-              pointRadius: 2
-            }
+            { label: 'Temp moyenne (°C)', data: temp, borderWidth: 2, tension: 0.25, pointRadius: 2 },
+            { label: 'Humidité sol moyenne (%)', data: hum, borderWidth: 2, tension: 0.25, pointRadius: 2 }
           ]
         },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } }
-        }
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    // Donut NORMAL vs ALERTES
+    const donut = document.getElementById('donutHebdo');
+    if (donut) {
+      new Chart(donut, {
+        type: 'doughnut',
+        data: {
+          labels: ['NORMAL', 'ALERTES'],
+          datasets: [{
+            data: [{{ normalCount }}, {{ alertCount }}],
+            backgroundColor: ['#089647', '#ef4444'],
+            borderWidth: 0
+          }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
       });
     }
   </script>
-  {% endif %}
 {% endblock %}

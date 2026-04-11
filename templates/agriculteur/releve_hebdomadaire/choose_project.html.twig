@@ -2,52 +2,83 @@
 
 {% block title %}Relevés hebdomadaires — Choisir projet{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  {# On réutilise le CSS premium des pages choose_project #}
+  <link rel="stylesheet" href="{{ asset('ui/releve-terrain-pages-pro.css') }}">
+{% endblock %}
+
+{% block hide_preloader %}{% endblock %}
+
 {% block body %}
-<div class="container py-4">
+<div class="iot-page releve-hebdo-agri-pro releve-terrain-pages-pro">
+  <div class="container py-4">
 
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <div>
-      <h3 class="mb-1">Relevés hebdomadaires</h3>
-      <div class="text-muted">Sélectionne un projet pour consulter / générer la synthèse 7 jours (AI Ready).</div>
+    {# HERO #}
+    <div class="iot-hero hero-agri reveal mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-calendar-week me-2"></i>
+            Relevés hebdomadaires
+          </h2>
+          <div class="iot-hero-sub">
+            Sélectionne un projet pour consulter / générer la synthèse 7 jours (AI Ready).
+          </div>
+        </div>
+
+        <a class="btn btn-light btn-iot" href="{{ path('agriculteur_dashboard') }}">
+          <i class="fas fa-arrow-left me-2"></i> Retour
+        </a>
+      </div>
     </div>
-    <a class="btn btn-outline-secondary" href="{{ path('agriculteur_dashboard') }}">Retour</a>
-  </div>
 
-  {{ include('_partials/_flashes.html.twig') }}
+    {{ include('_partials/_flashes.html.twig') }}
 
-  <div class="row g-3">
-    {% for pid in projects %}
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-3">
-              <div class="rounded-4 d-flex align-items-center justify-content-center"
-                   style="width:48px;height:48px;background:linear-gradient(135deg,#B2D944,#089647);color:#fff;">
-                <i class="fas fa-calendar-week"></i>
+    <div class="row g-3">
+      {% for pid in projects %}
+        <div class="col-12 col-md-6 col-xl-4 reveal">
+          <div class="project-card h-100">
+            <div class="project-inner h-100 d-flex flex-column">
+
+              <div class="d-flex align-items-center gap-3">
+                <div class="project-icon">
+                  <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-bold">Projet #{{ pid }}</div>
+                  <div class="text-muted small">Temp/Humidité + Condition + Nb mesures (7 jours)</div>
+                </div>
               </div>
-              <div class="flex-grow-1">
-                <div class="fw-semibold">Projet #{{ pid }}</div>
-                <div class="text-muted small">Synthèse 7 jours (temp/humidité + condition)</div>
-              </div>
-            </div>
 
-            <div class="d-grid mt-3">
-              <a class="btn btn-success"
-                 href="{{ path('agriculteur_releve_hebdo', {idproject: pid}) }}">
-                Ouvrir
-              </a>
+              <div class="mt-3 d-grid">
+                <a class="btn btn-success btn-iot"
+                   href="{{ path('agriculteur_releve_hebdo', {idproject: pid}) }}">
+                  <i class="fas fa-folder-open me-2"></i> Ouvrir
+                </a>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <span class="badge rounded-pill text-bg-light">
+                  <i class="fas fa-brain me-1"></i> AI Ready
+                </span>
+                <span class="badge rounded-pill text-bg-light">
+                  <i class="fas fa-clock me-1"></i> 7 jours
+                </span>
+              </div>
+
             </div>
           </div>
         </div>
-      </div>
-    {% else %}
-      <div class="col-12">
-        <div class="alert alert-light border mb-0">
-          Aucun projet disponible.
+      {% else %}
+        <div class="col-12 reveal">
+          <div class="alert alert-light border mb-0">
+            Aucun projet disponible.
+          </div>
         </div>
-      </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
 
+  </div>
 </div>
 {% endblock %}
