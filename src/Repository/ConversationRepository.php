@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Conversation;
+use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -33,6 +34,7 @@ class ConversationRepository extends ServiceEntityRepository
     public function findUserConversations(int $userId): array
     {
         return $this->createQueryBuilder('c')
+            ->leftJoin('c.messages', 'm')
             ->where('c.utilisateur1Id = :userId OR c.utilisateur2Id = :userId')
             ->setParameter('userId', $userId)
             ->orderBy('c.derniereActivite', 'DESC')
@@ -43,10 +45,7 @@ class ConversationRepository extends ServiceEntityRepository
     public function findConversationBetweenUsers(int $user1Id, int $user2Id): ?Conversation
     {
         return $this->createQueryBuilder('c')
-            ->where(
-                '(c.utilisateur1Id = :user1 AND c.utilisateur2Id = :user2) OR 
-                 (c.utilisateur1Id = :user2 AND c.utilisateur2Id = :user1)'
-            )
+            ->where('(c.utilisateur1Id = :user1 AND c.utilisateur2Id = :user2) OR (c.utilisateur1Id = :user2 AND c.utilisateur2Id = :user1)')
             ->setParameter('user1', $user1Id)
             ->setParameter('user2', $user2Id)
             ->getQuery()
@@ -57,11 +56,13 @@ class ConversationRepository extends ServiceEntityRepository
     {
         $conversations = $this->findUserConversations($userId);
         $count = 0;
+
         foreach ($conversations as $conversation) {
             if ($conversation->hasUnreadMessages($userId)) {
                 $count++;
             }
         }
+
         return $count;
     }
 
@@ -69,5 +70,15 @@ class ConversationRepository extends ServiceEntityRepository
     {
         $conversation->setDerniereActivite(new \DateTime());
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Récupère l'utilisateur complet par son ID
+     */
+    public function getUserById(int $userId): ?Utilisateur
+    {
+        return $this->getEntityManager()
+            ->getRepository(Utilisateur::class)
+            ->find($userId);
     }
 }

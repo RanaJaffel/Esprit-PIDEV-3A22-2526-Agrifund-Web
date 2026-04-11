@@ -7,151 +7,171 @@
     {{ encore_entry_link_tags('agriculteur') }}
     {{ encore_entry_link_tags('messagerie-style') }}
     <style>
-        .conversations-list { max-height: 75vh; overflow-y: auto; }
+        .conversations-list {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
         .conversation-item {
             padding: 15px;
             border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background var(--transition-fast);
             text-decoration: none;
             color: inherit;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: background 0.2s;
+            display: block;
         }
-        .conversation-item:hover { background: rgba(178,217,68,0.05); }
+        
+        .conversation-item:hover {
+            background: rgba(178, 217, 68, 0.05);
+        }
+        
         .conversation-item.unread {
-            background: rgba(178,217,68,0.1);
+            background: rgba(178, 217, 68, 0.1);
             border-left: 4px solid var(--vert-clair);
         }
-        .conversation-info { flex: 1; min-width: 0; }
-        .conversation-name { font-weight: 600; color: var(--vert-fonce); margin-bottom: 3px; }
+        
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .conversation-info {
+            flex: 1;
+        }
+        
+        .conversation-name {
+            font-weight: 600;
+            color: var(--vert-fonce);
+            margin-bottom: 5px;
+        }
+        
         .conversation-preview {
-            color: #6c757d;
-            font-size: 0.875rem;
+            color: var(--gris);
+            font-size: 0.9rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .conversation-time { font-size: 0.8rem; color: #6c757d; white-space: nowrap; }
+        
+        .conversation-time {
+            font-size: 0.85rem;
+            color: var(--gris);
+        }
+        
         .conversation-badge {
             background: var(--vert-clair);
             color: var(--vert-tres-fonce);
             border-radius: 50%;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
-        }
-        .user-avatar-small {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
         }
     </style>
 {% endblock %}
 
 {% block body %}
-<div class="dashboard-container">
-    {% include 'components/_sidebar_agriculteur.html.twig' %}
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0">
-                <i class="fas fa-envelope me-2"></i>Messagerie
-                {% if messages_non_lus > 0 %}
-                    <span class="badge bg-danger ms-2">{{ messages_non_lus }}</span>
-                {% endif %}
-            </h1>
-            <a href="{{ path('agriculteur_messagerie_new') }}" class="btn btn-success">
-                <i class="fas fa-plus me-2"></i>Nouvelle conversation
-            </a>
-        </div>
-
-        {% include 'components/_flash_messages.html.twig' %}
-
-        <div class="dashboard-section">
-            {% if conversations_data|length > 0 %}
-                <div class="conversations-list">
-                    {% for item in conversations_data %}
-                        {% set conversation = item.conversation %}
-                        {% set otherUser = item.otherUser %}
-                        {% set unreadCount = item.unreadCount %}
-                        {% set lastMessage = item.lastMessage %}
-
-                        <a href="{{ path('agriculteur_messagerie_chat', {id: conversation.id}) }}"
-                           class="conversation-item {{ unreadCount > 0 ? 'unread' : '' }}">
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_agriculteur.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>Messagerie
+                    {% if messages_non_lus > 0 %}
+                        <span class="badge bg-danger">{{ messages_non_lus }}</span>
+                    {% endif %}
+                </h1>
+                <a href="{{ path('agriculteur_messagerie_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Nouvelle conversation
+                </a>
+            </div>
+            
+            {% include 'components/_flash_messages.html.twig' %}
+            
+            <div class="dashboard-section">
+                {% if conversationsData|length > 0 %}
+                    <div class="conversations-list">
+                        {% for data in conversationsData %}
+                            {% set conversation = data.conversation %}
+                            {% set otherUser = data.otherUser %}
+                            {% set lastMessage = data.lastMessage %}
+                            {% set unreadCount = data.unreadCount %}
                             
-                            <div class="flex-shrink-0">
-                                {% if otherUser and otherUser.photo %}
-                                    <img src="{{ asset(otherUser.photo) }}" alt="" class="user-avatar-small">
-                                {% elseif otherUser and otherUser.banque and otherUser.banque.logo %}
-                                    <img src="{{ asset(otherUser.banque.logo) }}" alt="" class="user-avatar-small">
-                                {% else %}
-                                    <div class="user-avatar-small bg-secondary d-flex align-items-center justify-content-center">
-                                        <i class="fas fa-user text-white"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="conversation-info">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="conversation-name">
-                                        {% if otherUser %}
-                                            {% if otherUser.banque %}{{ otherUser.nom }}
-                                            {% else %}{{ otherUser.nomComplet }}
-                                            {% endif %}
-                                        {% else %}
-                                            Utilisateur #{{ conversation.getOtherUserId(current_user.id) }}
-                                        {% endif %}
-                                    </span>
-                                    {% if otherUser %}
-                                        {% if otherUser.admin %}
-                                            <span class="badge bg-danger" style="font-size:0.7rem;">Admin</span>
-                                        {% elseif otherUser.banque %}
-                                            <span class="badge bg-warning" style="font-size:0.7rem;">Banque</span>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                                <div class="conversation-preview">
-                                    {% if lastMessage %}
-                                        {% if lastMessage.aPieceJointe and lastMessage.contenu is empty %}
-                                            <i class="fas fa-paperclip me-1"></i>Pièce jointe
-                                        {% else %}
-                                            {% if lastMessage.aPieceJointe %}<i class="fas fa-paperclip me-1"></i>{% endif %}
-                                            {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0,50) ~ '...' : lastMessage.contenu }}
-                                        {% endif %}
+                            <a href="{{ path('agriculteur_messagerie_chat', {id: conversation.id}) }}" 
+                               class="conversation-item d-flex align-items-center {{ unreadCount > 0 ? 'unread' : '' }}">
+                                <div>
+                                    {% if otherUser.photo %}
+                                        <img src="{{ asset(otherUser.photo) }}" 
+                                             alt="{{ otherUser.nomComplet }}" 
+                                             class="conversation-avatar">
+                                    {% elseif otherUser.banque and otherUser.banque.logo %}
+                                        <img src="{{ asset(otherUser.banque.logo) }}" 
+                                             alt="{{ otherUser.nom }}" 
+                                             class="conversation-avatar">
                                     {% else %}
-                                        <em>Aucun message</em>
+                                        <i class="fas fa-user-circle fa-3x text-muted"></i>
                                     {% endif %}
                                 </div>
-                            </div>
-
-                            <div class="d-flex flex-column align-items-end gap-1">
-                                <span class="conversation-time">{{ conversation.derniereActivite|date('d/m/Y H:i') }}</span>
-                                {% if unreadCount > 0 %}
-                                    <span class="conversation-badge">{{ unreadCount }}</span>
-                                {% endif %}
-                            </div>
+                                
+                                <div class="conversation-info ms-3">
+                                    <div class="conversation-name">
+                                        {% if otherUser.banque %}
+                                            {{ otherUser.nom }}
+                                        {% else %}
+                                            {{ otherUser.nomComplet }}
+                                        {% endif %}
+                                        {% if otherUser.admin %}
+                                            <span class="badge bg-danger ms-2">Admin</span>
+                                        {% elseif otherUser.banque %}
+                                            <span class="badge bg-warning ms-2">Banque</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="conversation-preview">
+                                        {% if lastMessage %}
+                                            {% if lastMessage.aPieceJointe %}
+                                                <i class="fas fa-paperclip me-1"></i>
+                                            {% endif %}
+                                            {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0, 50) ~ '...' : lastMessage.contenu }}
+                                        {% else %}
+                                            <em>Aucun message</em>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <div class="conversation-time">
+                                        {{ conversation.derniereActivite|date('d/m/Y H:i') }}
+                                    </div>
+                                    {% if unreadCount > 0 %}
+                                        <div class="conversation-badge mt-2 ms-auto">
+                                            {{ unreadCount }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-envelope fa-5x mb-3 d-block"></i>
+                        <h5>Aucune conversation</h5>
+                        <p>Commencez une nouvelle conversation pour communiquer avec les administrateurs et les banques.</p>
+                        <a href="{{ path('agriculteur_messagerie_new') }}" class="btn btn-success mt-3">
+                            <i class="fas fa-plus me-2"></i>Nouvelle conversation
                         </a>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center text-muted py-5">
-                    <i class="fas fa-envelope-open fa-5x mb-3 d-block opacity-25"></i>
-                    <h5>Aucune conversation</h5>
-                    <p>Commencez une nouvelle conversation avec un administrateur ou une banque.</p>
-                    <a href="{{ path('agriculteur_messagerie_new') }}" class="btn btn-success mt-2">
-                        <i class="fas fa-plus me-2"></i>Nouvelle conversation
-                    </a>
-                </div>
-            {% endif %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block javascripts %}

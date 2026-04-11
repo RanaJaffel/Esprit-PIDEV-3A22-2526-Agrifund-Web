@@ -28,6 +28,7 @@ Encore
     .addStyleEntry('banque', './assets/css/banque.css')
     .addStyleEntry('messagerie-style', './assets/css/messagerie.css')
     .addStyleEntry('sidebar-style', './assets/css/sidebar.css')
+    .addStyleEntry('messagerie-style', './assets/styles/messagerie-style.css')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

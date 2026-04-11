@@ -1,184 +1,572 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Conversation{% endblock %}
+{% block title %}Conversation avec {{ other_user.nomComplet }}{% endblock %}
 
 {% block stylesheets %}
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('banque') }}
     {{ encore_entry_link_tags('messagerie-style') }}
-    <style>
-        .chat-header { background: linear-gradient(135deg, #c49a00, #e1b323); }
-        .message-sent .message-bubble { background: #c49a00; }
-    </style>
 {% endblock %}
 
 {% block body %}
-<div class="dashboard-container">
-    {% include 'components/_sidebar_banque.html.twig' %}
-    <div class="main-content p-0">
-        <div class="chat-container">
-
-            <div class="chat-header">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-3">
-                        <a href="{{ path('banque_messagerie_index') }}" class="text-white text-decoration-none">
-                            <i class="fas fa-arrow-left fa-lg"></i>
-                        </a>
-                        <div class="d-flex align-items-center gap-2">
-                            {% if other_user %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_banque.html.twig' %}
+        
+        <div class="main-content">
+            <div class="chat-container">
+                {# Chat Header #}
+                <div class="chat-header">
+                    <div class="d-flex align-items-center justify-content-between w-100">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ path('banque_messagerie_index') }}" class="btn btn-link text-white me-3">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                            <div class="d-flex align-items-center">
                                 {% if other_user.photo %}
-                                    <img src="{{ asset(other_user.photo) }}" alt=""
-                                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.5);">
+                                    <img src="{{ asset(other_user.photo) }}" 
+                                         alt="{{ other_user.nomComplet }}" 
+                                         class="rounded-circle me-3"
+                                         style="width: 40px; height: 40px; object-fit: cover;">
                                 {% else %}
-                                    <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
-                                        <i class="fas fa-user text-white"></i>
-                                    </div>
+                                    <i class="fas fa-user-circle fa-2x text-white me-3"></i>
                                 {% endif %}
                                 <div>
-                                    <div class="fw-bold text-white">{{ other_user.nomComplet }}</div>
-                                    <small class="text-white opacity-75">
-                                        {% if other_user.admin %}Administrateur
-                                        {% elseif other_user.agriculteur %}Agriculteur{% if other_user.agriculteur.adresseferme %} · {{ other_user.agriculteur.adresseferme }}{% endif %}
+                                    <h5 class="mb-0">{{ other_user.nomComplet }}</h5>
+                                    <small>
+                                        {% if other_user.admin %}
+                                            <span class="badge bg-light text-danger">Admin</span>
+                                        {% elseif other_user.agriculteur %}
+                                            <span class="badge bg-light text-success">Agriculteur</span>
                                         {% endif %}
+                                        • {{ messages|length }} message(s)
                                     </small>
                                 </div>
-                            {% else %}
-                                <div class="fw-bold text-white">Conversation #{{ conversation.id }}</div>
-                            {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-link text-white" title="Rafraîchir" onclick="window.location.reload()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                         </div>
                     </div>
-                    <small class="text-white opacity-75">{{ messages|length }} message(s)</small>
+                </div>
+                
+                {# Messages Area #}
+                <div class="messages-area" id="messagesArea" data-conversation-id="{{ conversation.id }}">
+                    {% for message in messages %}
+                        {% if not message.estSupprime %}
+                        <div class="message {{ message.expediteur.id == current_user.id ? 'message-sent' : 'message-received' }}" 
+                             data-message-id="{{ message.id }}">
+                            <div class="message-bubble">
+                                <div class="message-content">
+                                    {{ message.contenu|nl2br }}
+                                    
+                                    {# Pièces jointes #}
+                                    {% if message.piecesJointes|length > 0 %}
+                                        <div class="message-attachments mt-2">
+                                            {% for piece in message.piecesJointes %}
+                                                {% if piece.typeFichier == 'image' %}
+                                                    <a href="{{ asset(piece.cheminFichier) }}" target="_blank" data-lightbox="message-{{ message.id }}">
+                                                        <img src="{{ asset(piece.cheminFichier) }}" 
+                                                             alt="{{ piece.nomOriginal }}"
+                                                             class="attachment-image"
+                                                             style="max-width: 300px; max-height: 300px; border-radius: 8px; cursor: pointer;">
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{{ asset(piece.cheminFichier) }}" 
+                                                       class="attachment-file d-block mt-2 p-2 bg-light rounded"
+                                                       target="_blank"
+                                                       download>
+                                                        <i class="fas fa-file me-2"></i>{{ piece.nomOriginal }}
+                                                        <small class="text-muted ms-2">({{ piece.tailleFormatee }})</small>
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="message-meta">
+                                    <small class="text-muted">
+                                        {{ message.dateEnvoi|date('d/m/Y H:i') }}
+                                        {% if message.isModifie %}
+                                            <i class="fas fa-edit ms-1" title="Modifié le {{ message.dateModification|date('d/m/Y H:i') }}"></i>
+                                        {% endif %}
+                                        {% if message.expediteur.id == current_user.id %}
+                                            {% if message.estLu %}
+                                                <i class="fas fa-check-double ms-1 text-warning" title="Lu"></i>
+                                            {% else %}
+                                                <i class="fas fa-check ms-1" title="Envoyé"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </small>
+                                    
+                                    {# Actions sur le message #}
+                                    {% if message.expediteur.id == current_user.id %}
+                                        <div class="message-actions">
+                                            <button class="btn btn-sm btn-link text-muted" 
+                                                    onclick="editMessage({{ message.id }}, '{{ message.contenu|escape('js') }}')"
+                                                    title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-link text-danger" 
+                                                    onclick="deleteMessage({{ message.id }})"
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {# Message Input #}
+                <div class="message-input-area">
+                    <form id="messageForm" enctype="multipart/form-data">
+                        <div id="filePreviewTop" class="mb-2"></div>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-secondary" id="attachButton" title="Joindre un fichier">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <input type="file" 
+                                   id="fileInput" 
+                                   name="files[]" 
+                                   multiple 
+                                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+                                   style="display: none;">
+                            <textarea class="form-control" 
+                                      id="messageInput" 
+                                      name="contenu"
+                                      placeholder="Tapez votre message... (Shift+Entrée pour un saut de ligne)"
+                                      rows="1"></textarea>
+                            <button type="submit" class="btn btn-warning" id="sendButton">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="messages-area" id="messagesArea">
-                {% for message in messages %}
-                    {% if not message.estSupprime %}
-                    <div class="message {{ message.expediteur.id == current_user.id ? 'message-sent' : 'message-received' }}"
-                         data-message-id="{{ message.id }}">
-                        <div class="message-bubble">
-                            <div class="message-content">
-                                {% if message.expediteur.id != current_user.id %}
-                                    <div class="sender-name">{{ message.expediteur.nomComplet }}</div>
-                                {% endif %}
-                                <div class="message-text">{{ message.contenu|nl2br }}</div>
-                                {% if message.piecesJointes|length > 0 %}
-                                    <div class="message-attachments">
-                                        {% for pj in message.piecesJointes %}
-                                            {% if pj.typeFichier == 'image' %}
-                                                <div class="mt-1">
-                                                    <a href="{{ asset(pj.cheminFichier) }}" target="_blank">
-                                                        <img src="{{ asset(pj.cheminFichier) }}"
-                                                             alt="{{ pj.nomOriginal }}"
-                                                             style="max-width:200px;max-height:200px;border-radius:8px;display:block;">
-                                                    </a>
-                                                </div>
-                                            {% else %}
-                                                <div class="mt-1">
-                                                    <a href="{{ asset(pj.cheminFichier) }}" target="_blank" download
-                                                       class="d-inline-flex align-items-center gap-1 p-2 bg-white rounded border text-decoration-none text-dark">
-                                                        <i class="fas fa-file text-primary"></i>
-                                                        <span>{{ pj.nomOriginal }}</span>
-                                                        <small class="text-muted">({{ pj.tailleFormatee }})</small>
-                                                    </a>
-                                                </div>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="message-footer">
-                                <small class="message-time">
-                                    {{ message.dateEnvoi|date('d/m/Y H:i') }}
-                                    {% if message.isModifie %}
-                                        <i class="fas fa-pencil-alt ms-1" style="font-size:0.65rem;" title="Modifié"></i>
-                                    {% endif %}
-                                    {% if message.expediteur.id == current_user.id %}
-                                        {% if message.estLu %}
-                                            <i class="fas fa-check-double text-white ms-1" title="Lu"></i>
-                                        {% else %}
-                                            <i class="fas fa-check ms-1 opacity-75" title="Envoyé"></i>
-                                        {% endif %}
-                                    {% endif %}
-                                </small>
-                                {% if message.expediteur.id == current_user.id %}
-                                    <div class="message-actions">
-                                        <button class="btn btn-sm btn-link p-0 text-white-50"
-                                                onclick="openEditModal({{ message.id }}, this)" title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-link p-0 text-danger"
-                                                onclick="confirmDelete({{ message.id }})" title="Supprimer">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            <div class="message-input-area">
-                <div id="filePreview" class="mb-2 d-flex flex-wrap gap-1"></div>
-                <form id="messageForm">
-                    <div class="d-flex align-items-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" id="attachButton">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <input type="file" id="fileInput" name="files[]" multiple
-                               accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display:none;">
-                        <textarea class="form-control" id="messageInput"
-                                  placeholder="Tapez votre message..." rows="1"
-                                  style="border-radius:25px;resize:none;"></textarea>
-                        <button type="submit" class="btn btn-warning" id="sendButton">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </form>
+        </div>
+    </div>
+    
+    {# Modal d'édition #}
+    <div class="modal fade" id="editMessageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier le message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="editMessageContent" rows="4"></textarea>
+                    <input type="hidden" id="editMessageId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-warning" onclick="saveEditedMessage()">
+                        <i class="fas fa-save me-2"></i>Enregistrer
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="editMessageModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Modifier le message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <textarea class="form-control" id="editMessageContent" rows="4"></textarea>
-                <input type="hidden" id="editMessageId">
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-warning" onclick="saveEditedMessage()">
-                    <i class="fas fa-save me-1"></i>Enregistrer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
-    {{ encore_entry_script_tags('messagerie') }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <script>
-        window.MESSAGERIE_CURRENT_USER_ID = {{ current_user.id }};
-        window.MESSAGERIE_SEND_ROUTE      = '{{ path('banque_messagerie_send', {conversationId: conversation.id}) }}';
-        window.MESSAGERIE_GET_ROUTE       = '{{ path('banque_messagerie_get_messages', {id: conversation.id}) }}';
-        window.MESSAGERIE_EDIT_ROUTE      = '/banque/messagerie/message/';
-        window.MESSAGERIE_DELETE_ROUTE    = '/banque/messagerie/message/';
-        window.MESSAGERIE_CSRF_TOKEN      = '{{ csrf_token('delete_message') }}';
+        const conversationId = {{ conversation.id }};
+        const currentUserId = {{ current_user.id }};
+        const csrfToken = '{{ csrf_token('delete_message') }}';
+        
+        const sendMessageRoute = '{{ path('banque_messagerie_send', {conversationId: conversation.id}) }}';
+        const editMessageRoute = '/banque/messagerie/message/';
+        const deleteMessageRoute = '/banque/messagerie/message/';
+        const getMessagesRoute = '{{ path('banque_messagerie_get_messages', {id: conversation.id}) }}';
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+            const fileInput = document.getElementById('fileInput');
+            const attachButton = document.getElementById('attachButton');
+            const sendButton = document.getElementById('sendButton');
+            
             scrollToBottom();
-            initSendMessage(window.MESSAGERIE_SEND_ROUTE, window.MESSAGERIE_CURRENT_USER_ID);
-            initRefresh(window.MESSAGERIE_GET_ROUTE, window.MESSAGERIE_CURRENT_USER_ID);
+            
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+            });
+            
+            attachButton.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function() {
+                displayFilePreview(this.files);
+            });
+            
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                sendMessage();
+            });
+            
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    messageForm.dispatchEvent(new Event('submit'));
+                }
+            });
+            
+            setInterval(refreshMessages, 5000);
         });
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const fileInput = document.getElementById('fileInput');
+            const sendButton = document.getElementById('sendButton');
+            
+            const formData = new FormData();
+            formData.append('contenu', messageInput.value.trim());
+            
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('files[]', fileInput.files[i]);
+                }
+            }
+            
+            if (!messageInput.value.trim() && fileInput.files.length === 0) {
+                return;
+            }
+            
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            fetch(sendMessageRoute, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                    fileInput.value = '';
+                    document.getElementById('filePreviewTop').innerHTML = '';
+                    
+                    appendMessage(data.message);
+                    scrollToBottom();
+                } else {
+                    alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de l\'envoi du message');
+            })
+            .finally(() => {
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            });
+        }
+
+        function refreshMessages() {
+            const messagesArea = document.getElementById('messagesArea');
+            if (!messagesArea) return;
+            
+            const lastMessageId = getLastMessageId();
+            
+            fetch(getMessagesRoute + '?last_id=' + lastMessageId)
+                .then(response => response.json())
+                .then(messages => {
+                    messages.forEach(message => {
+                        appendMessage(message);
+                    });
+                    if (messages.length > 0) {
+                        scrollToBottom();
+                    }
+                })
+                .catch(error => console.error('Error refreshing messages:', error));
+        }
+
+        function appendMessage(messageData) {
+            const messagesArea = document.getElementById('messagesArea');
+            const isSent = messageData.expediteur_id === currentUserId;
+            
+            if (document.querySelector(`[data-message-id="${messageData.id}"]`)) {
+                return;
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
+            messageDiv.dataset.messageId = messageData.id;
+            
+            let attachmentsHtml = '';
+            if (messageData.pieces_jointes && messageData.pieces_jointes.length > 0) {
+                attachmentsHtml = '<div class="message-attachments mt-2">';
+                messageData.pieces_jointes.forEach(piece => {
+                    if (piece.type === 'image') {
+                        attachmentsHtml += `
+                            <a href="${piece.url}" target="_blank" data-lightbox="message-${messageData.id}">
+                                <img src="${piece.url}" alt="${escapeHtml(piece.nom)}" 
+                                     class="attachment-image" 
+                                     style="max-width: 300px; max-height: 300px; border-radius: 8px; cursor: pointer;">
+                            </a>
+                        `;
+                    } else {
+                        attachmentsHtml += `
+                            <a href="${piece.url}" class="attachment-file d-block mt-2 p-2 bg-light rounded" 
+                               target="_blank" download>
+                                <i class="fas fa-file me-2"></i>${escapeHtml(piece.nom)}
+                                <small class="text-muted ms-2">(${piece.taille})</small>
+                            </a>
+                        `;
+                    }
+                });
+                attachmentsHtml += '</div>';
+            }
+            
+            const readStatus = isSent ? 
+                (messageData.est_lu ? '<i class="fas fa-check-double ms-1 text-warning" title="Lu"></i>' : '<i class="fas fa-check ms-1" title="Envoyé"></i>') 
+                : '';
+            
+            const modifiedIcon = messageData.est_modifie ? '<i class="fas fa-edit ms-1" title="Modifié"></i>' : '';
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="message-content">
+                        ${escapeHtml(messageData.contenu).replace(/\n/g, '<br>')}
+                        ${attachmentsHtml}
+                    </div>
+                    <div class="message-meta">
+                        <small class="text-muted">
+                            ${formatDate(messageData.date)}
+                            ${modifiedIcon}
+                            ${readStatus}
+                        </small>
+                        ${isSent ? `
+                            <div class="message-actions">
+                                <button class="btn btn-sm btn-link text-muted" 
+                                        onclick="editMessage(${messageData.id}, '${escapeHtml(messageData.contenu).replace(/'/g, "\\'")}')"
+                                        title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-link text-danger" 
+                                        onclick="deleteMessage(${messageData.id})"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            messagesArea.appendChild(messageDiv);
+        }
+
+        function editMessage(messageId, content) {
+            document.getElementById('editMessageId').value = messageId;
+            document.getElementById('editMessageContent').value = content;
+            
+            const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
+            modal.show();
+        }
+
+        function saveEditedMessage() {
+            const messageId = document.getElementById('editMessageId').value;
+            const content = document.getElementById('editMessageContent').value;
+            
+            if (!content.trim()) {
+                alert('Le message ne peut pas être vide');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('contenu', content);
+            
+            fetch(editMessageRoute + messageId + '/edit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+                    const contentDiv = messageDiv.querySelector('.message-content');
+                    contentDiv.innerHTML = escapeHtml(data.message.contenu).replace(/\n/g, '<br>');
+                    
+                    const metaDiv = messageDiv.querySelector('.message-meta small');
+                    if (!metaDiv.querySelector('.fa-edit')) {
+                        metaDiv.innerHTML += ' <i class="fas fa-edit ms-1" title="Modifié"></i>';
+                    }
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
+                } else {
+                    alert('Erreur lors de la modification');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la modification');
+            });
+        }
+
+        function deleteMessage(messageId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('_token', csrfToken + messageId);
+            
+            fetch(deleteMessageRoute + messageId + '/delete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+                    messageDiv.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => messageDiv.remove(), 300);
+                } else {
+                    alert('Erreur lors de la suppression');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la suppression');
+            });
+        }
+
+        function displayFilePreview(files) {
+            const preview = document.getElementById('filePreviewTop');
+            preview.innerHTML = '';
+            
+            if (files.length === 0) return;
+            
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'file-preview-container d-flex flex-wrap gap-2 p-2 bg-light rounded';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const previewItem = document.createElement('div');
+                previewItem.className = 'file-preview-item d-flex align-items-center gap-2 p-2 bg-white rounded border';
+                
+                let icon = 'fa-file';
+                if (file.type.startsWith('image/')) icon = 'fa-file-image';
+                else if (file.type.startsWith('video/')) icon = 'fa-file-video';
+                else if (file.type.startsWith('audio/')) icon = 'fa-file-audio';
+                else if (file.type.includes('pdf')) icon = 'fa-file-pdf';
+                else if (file.type.includes('word')) icon = 'fa-file-word';
+                else if (file.type.includes('excel') || file.type.includes('spreadsheet')) icon = 'fa-file-excel';
+                
+                previewItem.innerHTML = `
+                    <i class="fas ${icon} text-warning"></i>
+                    <span class="file-name text-truncate" style="max-width: 150px;">${escapeHtml(file.name)}</span>
+                    <span class="text-muted small">(${formatFileSize(file.size)})</span>
+                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="removeFile(${i})" title="Retirer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                previewContainer.appendChild(previewItem);
+            }
+            
+            preview.appendChild(previewContainer);
+        }
+
+        function removeFile(index) {
+            const fileInput = document.getElementById('fileInput');
+            const dt = new DataTransfer();
+            const files = fileInput.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(files[i]);
+                }
+            }
+            
+            fileInput.files = dt.files;
+            displayFilePreview(fileInput.files);
+        }
+
+        function getLastMessageId() {
+            const messages = document.querySelectorAll('.message');
+            if (messages.length === 0) return 0;
+            
+            const lastMessage = messages[messages.length - 1];
+            return parseInt(lastMessage.dataset.messageId) || 0;
+        }
+
+        function scrollToBottom() {
+            const messagesArea = document.getElementById('messagesArea');
+            if (messagesArea) {
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'À l\'instant';
+            
+            if (diff < 3600000) {
+                const minutes = Math.floor(diff / 60000);
+                return minutes + ' min';
+            }
+            
+            if (date.toDateString() === now.toDateString()) {
+                return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (date.toDateString() === yesterday.toDateString()) {
+                return 'Hier ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 o';
+            const k = 1024;
+            const sizes = ['o', 'Ko', 'Mo', 'Go'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 {% endblock %}

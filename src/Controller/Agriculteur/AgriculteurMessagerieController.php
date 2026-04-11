@@ -20,40 +20,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_AGRICULTEUR')]
 class AgriculteurMessagerieController extends AbstractController
 {
-    private function handleFileUpload($file, Message $message): PieceJointe
-    {
-        $extension = $file->guessExtension();
-        $mimeType = $file->getMimeType();
-
-        $typeFichier = 'autre';
-        if (str_starts_with($mimeType, 'image/')) $typeFichier = 'image';
-        elseif (str_starts_with($mimeType, 'video/')) $typeFichier = 'video';
-        elseif (str_starts_with($mimeType, 'audio/')) $typeFichier = 'audio';
-        elseif (in_array($extension, ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'])) $typeFichier = 'document';
-
-        $newFilename = 'msg_' . uniqid() . '_' . date('Ymd_His') . '.' . $extension;
-        $subDir = ($typeFichier === 'image') ? 'images' : 'files';
-        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/messagerie/' . $subDir . '/';
-
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        $file->move($uploadDir, $newFilename);
-
-        $pieceJointe = new PieceJointe();
-        $pieceJointe->setMessage($message);
-        $pieceJointe->setTypeFichier($typeFichier);
-        $pieceJointe->setNomOriginal($file->getClientOriginalName());
-        $pieceJointe->setNomStockage($newFilename);
-        $pieceJointe->setCheminFichier('uploads/messagerie/' . $subDir . '/' . $newFilename);
-        $pieceJointe->setTailleOctets($file->getSize());
-        $pieceJointe->setExtension($extension);
-        $pieceJointe->setMimeType($mimeType);
-
-        return $pieceJointe;
-    }
-
     #[Route('/', name: 'agriculteur_messagerie_index')]
     public function index(
         ConversationRepository $conversationRepository,
@@ -62,22 +28,24 @@ class AgriculteurMessagerieController extends AbstractController
     ): Response {
         $currentUser = $this->getUser();
         $conversations = $conversationRepository->findUserConversations($currentUser->getId());
-        $messagesNonLus = $messageRepository->countAllUnreadMessages($currentUser->getId());
-
+        
         $conversationsData = [];
         foreach ($conversations as $conversation) {
             $otherUserId = $conversation->getOtherUserId($currentUser->getId());
             $otherUser = $utilisateurRepository->find($otherUserId);
+            
             $conversationsData[] = [
                 'conversation' => $conversation,
                 'otherUser' => $otherUser,
-                'unreadCount' => $conversation->getUnreadMessagesCount($currentUser->getId()),
                 'lastMessage' => $conversation->getLastMessage(),
+                'unreadCount' => $conversation->getUnreadMessagesCount($currentUser->getId())
             ];
         }
+        
+        $messagesNonLus = $messageRepository->countAllUnreadMessages($currentUser->getId());
 
         return $this->render('agriculteur/messagerie/conversations.html.twig', [
-            'conversations_data' => $conversationsData,
+            'conversationsData' => $conversationsData,
             'current_user' => $currentUser,
             'messages_non_lus' => $messagesNonLus,
         ]);
@@ -102,7 +70,7 @@ class AgriculteurMessagerieController extends AbstractController
     ): Response {
         $currentUser = $this->getUser();
 
-        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() &&
+        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             $this->addFlash('error', 'Accès non autorisé à cette conversation.');
             return $this->redirectToRoute('agriculteur_messagerie_index');
@@ -141,10 +109,17 @@ class AgriculteurMessagerieController extends AbstractController
             return $this->redirectToRoute('agriculteur_messagerie_index');
         }
 
-        $conversation = $conversationRepository->findOrCreateConversation(
+        $conversation = $conversationRepository->findConversationBetweenUsers(
             $currentUser->getId(),
             $otherUser->getId()
         );
+
+        if (!$conversation) {
+            $conversation = $conversationRepository->findOrCreateConversation(
+                $currentUser->getId(),
+                $otherUser->getId()
+            );
+        }
 
         return $this->redirectToRoute('agriculteur_messagerie_chat', ['id' => $conversation->getId()]);
     }
@@ -157,24 +132,18 @@ class AgriculteurMessagerieController extends AbstractController
         EntityManagerInterface $em
     ): JsonResponse {
         $conversation = $conversationRepository->find($conversationId);
-
-        if (!$conversation) {
-            return new JsonResponse(['error' => 'Conversation non trouvée'], 404);
-        }
+        if (!$conversation) return new JsonResponse(['error' => 'Conversation non trouvée'], 404);
 
         $currentUser = $this->getUser();
-
-        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() &&
+        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
         }
 
-        $contenu = trim($request->request->get('contenu', ''));
+        $contenu = $request->request->get('contenu');
         $files = $request->files->get('files', []);
-        if (!is_array($files)) $files = [$files];
-        $files = array_filter($files);
 
-        if (empty($contenu) && empty($files)) {
+        if (empty(trim($contenu ?? '')) && empty($files)) {
             return new JsonResponse(['error' => 'Message vide'], 400);
         }
 
@@ -183,18 +152,43 @@ class AgriculteurMessagerieController extends AbstractController
         $message->setExpediteur($currentUser);
         $message->setContenu($contenu ?: '');
 
-        $em->persist($message);
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $pieceJointe = new PieceJointe();
+                $extension = $file->guessExtension();
+                $mimeType = $file->getMimeType();
 
-        foreach ($files as $file) {
-            try {
-                $pieceJointe = $this->handleFileUpload($file, $message);
-                $message->addPieceJointe($pieceJointe);
-                $em->persist($pieceJointe);
-            } catch (\Exception $e) {
-                return new JsonResponse(['error' => 'Erreur upload: ' . $e->getMessage()], 500);
+                $typeFichier = 'autre';
+                if (str_starts_with($mimeType, 'image/')) $typeFichier = 'image';
+                elseif (str_starts_with($mimeType, 'video/')) $typeFichier = 'video';
+                elseif (str_starts_with($mimeType, 'audio/')) $typeFichier = 'audio';
+                elseif (in_array($extension, ['pdf','doc','docx','xls','xlsx','txt'])) $typeFichier = 'document';
+
+                $newFilename = 'msg_'.uniqid().'_'.$typeFichier.'_'.date('Ymd_His').'.'.$extension;
+                $uploadDir = $this->getParameter('kernel.project_dir').'/public/uploads/messagerie/';
+                $uploadDir .= $typeFichier === 'image' ? 'images/' : 'files/';
+
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+                try {
+                    $file->move($uploadDir, $newFilename);
+                    $pieceJointe->setMessage($message);
+                    $pieceJointe->setTypeFichier($typeFichier);
+                    $pieceJointe->setNomOriginal($file->getClientOriginalName());
+                    $pieceJointe->setNomStockage($newFilename);
+                    $pieceJointe->setCheminFichier(str_replace($this->getParameter('kernel.project_dir').'/public/', '', $uploadDir.$newFilename));
+                    $pieceJointe->setTailleOctets($file->getSize());
+                    $pieceJointe->setExtension($extension);
+                    $pieceJointe->setMimeType($mimeType);
+                    $message->addPieceJointe($pieceJointe);
+                    $em->persist($pieceJointe);
+                } catch (\Exception $e) {
+                    return new JsonResponse(['error'=>'Erreur lors de l\'upload: '.$e->getMessage()],500);
+                }
             }
         }
 
+        $em->persist($message);
         $conversation->setDerniereActivite(new \DateTime());
         $em->flush();
 
@@ -206,15 +200,13 @@ class AgriculteurMessagerieController extends AbstractController
                 'date' => $message->getDateEnvoi()->format('Y-m-d H:i:s'),
                 'expediteur_id' => $message->getExpediteur()->getId(),
                 'expediteur_nom' => $message->getExpediteur()->getNomComplet(),
-                'est_lu' => false,
-                'est_modifie' => false,
-                'pieces_jointes' => array_map(function ($pj) {
+                'pieces_jointes' => array_map(function($pj){
                     return [
-                        'id' => $pj->getId(),
-                        'nom' => $pj->getNomOriginal(),
-                        'type' => $pj->getTypeFichier(),
-                        'url' => '/' . $pj->getCheminFichier(),
-                        'taille' => $pj->getTailleFormatee(),
+                        'id'=>$pj->getId(),
+                        'nom'=>$pj->getNomOriginal(),
+                        'type'=>$pj->getTypeFichier(),
+                        'url'=>'/'.$pj->getCheminFichier(),
+                        'taille'=>$pj->getTailleFormatee(),
                     ];
                 }, $message->getPiecesJointes()->toArray()),
             ]
@@ -222,21 +214,16 @@ class AgriculteurMessagerieController extends AbstractController
     }
 
     #[Route('/message/{id}/edit', name: 'agriculteur_messagerie_edit', methods: ['POST'])]
-    public function editMessage(
-        Message $message,
-        Request $request,
-        EntityManagerInterface $em
-    ): JsonResponse {
+    public function editMessage(Message $message, Request $request, EntityManagerInterface $em): JsonResponse
+    {
         $currentUser = $this->getUser();
-
         if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
-            return new JsonResponse(['error' => 'Non autorisé'], 403);
+            return new JsonResponse(['error'=>'Non autorisé'],403);
         }
 
-        $nouveauContenu = trim($request->request->get('contenu', ''));
-
-        if (empty($nouveauContenu)) {
-            return new JsonResponse(['error' => 'Le message ne peut pas être vide'], 400);
+        $nouveauContenu = $request->request->get('contenu');
+        if (empty(trim($nouveauContenu ?? ''))) {
+            return new JsonResponse(['error'=>'Le message ne peut pas être vide'],400);
         }
 
         $message->setContenu($nouveauContenu);
@@ -244,42 +231,31 @@ class AgriculteurMessagerieController extends AbstractController
         $em->flush();
 
         return new JsonResponse([
-            'success' => true,
-            'message' => [
-                'id' => $message->getId(),
-                'contenu' => $message->getContenu(),
-                'date_modification' => $message->getDateModification()->format('Y-m-d H:i:s'),
+            'success'=>true,
+            'message'=>[
+                'id'=>$message->getId(),
+                'contenu'=>$message->getContenu(),
+                'date_modification'=>$message->getDateModification()->format('Y-m-d H:i:s'),
             ]
         ]);
     }
 
     #[Route('/message/{id}/delete', name: 'agriculteur_messagerie_delete', methods: ['POST'])]
-    public function deleteMessage(
-        Message $message,
-        Request $request,
-        EntityManagerInterface $em
-    ): JsonResponse {
+    public function deleteMessage(Message $message, Request $request, EntityManagerInterface $em): JsonResponse
+    {
         $currentUser = $this->getUser();
-
         if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
-            return new JsonResponse(['error' => 'Non autorisé'], 403);
+            return new JsonResponse(['error'=>'Non autorisé'],403);
         }
-
-        if (!$this->isCsrfTokenValid('delete_message', $request->request->get('_token'))) {
-            return new JsonResponse(['error' => 'Token CSRF invalide'], 403);
+        
+        if (!$this->isCsrfTokenValid('delete_message'.$message->getId(),$request->request->get('_token'))) {
+            return new JsonResponse(['error'=>'Token CSRF invalide'],403);
         }
 
         $message->setEstSupprime(true);
         $em->flush();
 
-        return new JsonResponse(['success' => true]);
-    }
-
-    #[Route('/messages/unread-count', name: 'agriculteur_messagerie_unread_count', methods: ['GET'])]
-    public function unreadCount(MessageRepository $messageRepository): JsonResponse
-    {
-        $count = $messageRepository->countAllUnreadMessages($this->getUser()->getId());
-        return new JsonResponse(['count' => $count]);
+        return new JsonResponse(['success'=>true]);
     }
 
     #[Route('/conversation/{id}/messages', name: 'agriculteur_messagerie_get_messages', methods: ['GET'])]
@@ -289,36 +265,30 @@ class AgriculteurMessagerieController extends AbstractController
         Request $request
     ): JsonResponse {
         $currentUser = $this->getUser();
-
-        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() &&
+        
+        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
         }
 
-        $lastMessageId = (int) $request->query->get('last_id', 0);
-
+        $lastMessageId = $request->query->get('last_id', 0);
+        
         $qb = $messageRepository->createQueryBuilder('m')
-            ->leftJoin('m.piecesJointes', 'pj')
-            ->addSelect('pj')
             ->where('m.conversation = :conversation')
             ->andWhere('m.estSupprime = :deleted')
             ->setParameter('conversation', $conversation)
             ->setParameter('deleted', false);
-
+        
         if ($lastMessageId > 0) {
             $qb->andWhere('m.id > :lastId')
                 ->setParameter('lastId', $lastMessageId);
         }
-
+        
         $messages = $qb->orderBy('m.dateEnvoi', 'ASC')
             ->getQuery()
             ->getResult();
 
-        if (!empty($messages)) {
-            $messageRepository->markAsRead($conversation, $currentUser->getId());
-        }
-
-        $data = array_map(function ($message) {
+        $data = array_map(function($message) {
             return [
                 'id' => $message->getId(),
                 'contenu' => $message->getContenu(),
@@ -327,7 +297,7 @@ class AgriculteurMessagerieController extends AbstractController
                 'expediteur_nom' => $message->getExpediteur()->getNomComplet(),
                 'est_lu' => $message->isEstLu(),
                 'est_modifie' => $message->isModifie(),
-                'pieces_jointes' => array_map(function ($pj) {
+                'pieces_jointes' => array_map(function($pj) {
                     return [
                         'id' => $pj->getId(),
                         'nom' => $pj->getNomOriginal(),

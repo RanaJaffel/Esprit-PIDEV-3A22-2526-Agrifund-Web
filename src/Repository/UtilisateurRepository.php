@@ -123,31 +123,30 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     /**
      * Trouve les utilisateurs pour la messagerie (admins et banques pour agriculteur)
      */
-     public function findAvailableForMessaging(Utilisateur $currentUser): array
-    {
-        $qb = $this->createQueryBuilder('u')
-            ->where('u.id != :currentId')
-            ->setParameter('currentId', $currentUser->getId());
+    public function findAvailableForMessaging(Utilisateur $currentUser): array
+{
+    $qb = $this->createQueryBuilder('u')
+        ->leftJoin('u.admin', 'a')
+        ->leftJoin('u.agriculteur', 'ag')
+        ->leftJoin('u.banque', 'b')
+        ->where('u.id != :currentId')
+        ->setParameter('currentId', $currentUser->getId());
 
-        // Admin peut communiquer avec tout le monde
-        if ($currentUser->getAdmin()) {
-            // pas de filtre supplémentaire
-        }
-        // Banque peut communiquer avec admins et agriculteurs
-        elseif ($currentUser->getBanque()) {
-            $qb->leftJoin('u.admin', 'a')
-               ->leftJoin('u.agriculteur', 'ag')
-               ->andWhere('a.id IS NOT NULL OR ag.id IS NOT NULL');
-        }
-        // Agriculteur peut communiquer avec admins et banques
-        elseif ($currentUser->getAgriculteur()) {
-            $qb->leftJoin('u.admin', 'a')
-               ->leftJoin('u.banque', 'b')
-               ->andWhere('a.id IS NOT NULL OR b.id IS NOT NULL');
-        }
-
-        return $qb->orderBy('u.nom', 'ASC')
-            ->getQuery()
-            ->getResult();
+    // Admin peut parler à tout le monde
+    if ($currentUser->getAdmin()) {
+        // aucune restriction
     }
+    // Banque peut parler aux admins et agriculteurs
+    elseif ($currentUser->getBanque()) {
+        $qb->andWhere('a.id IS NOT NULL OR ag.id IS NOT NULL');
+    }
+    // Agriculteur peut parler aux admins et banques
+    elseif ($currentUser->getAgriculteur()) {
+        $qb->andWhere('a.id IS NOT NULL OR b.id IS NOT NULL');
+    }
+
+    return $qb->orderBy('u.nom', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
 }
