@@ -123,27 +123,30 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     /**
      * Trouve les utilisateurs pour la messagerie (admins et banques pour agriculteur)
      */
-    public function findAvailableForMessaging(Utilisateur $currentUser): array
+     public function findAvailableForMessaging(Utilisateur $currentUser): array
     {
         $qb = $this->createQueryBuilder('u')
-            ->leftJoin('u.admin', 'a')
-            ->leftJoin('u.agriculteur', 'ag')
-            ->leftJoin('u.banque', 'b')
             ->where('u.id != :currentId')
             ->setParameter('currentId', $currentUser->getId());
 
-        // Si agriculteur : peut parler aux admins et banques
-        if ($currentUser->getAgriculteur()) {
-            $qb->andWhere('a.id IS NOT NULL OR b.id IS NOT NULL');
+        // Admin peut communiquer avec tout le monde
+        if ($currentUser->getAdmin()) {
+            // pas de filtre supplémentaire
         }
-        // Si banque : peut parler aux admins et agriculteurs
+        // Banque peut communiquer avec admins et agriculteurs
         elseif ($currentUser->getBanque()) {
-            $qb->andWhere('a.id IS NOT NULL OR ag.id IS NOT NULL');
+            $qb->leftJoin('u.admin', 'a')
+               ->leftJoin('u.agriculteur', 'ag')
+               ->andWhere('a.id IS NOT NULL OR ag.id IS NOT NULL');
         }
-        // Si admin : peut parler à tout le monde (pas de restriction)
+        // Agriculteur peut communiquer avec admins et banques
+        elseif ($currentUser->getAgriculteur()) {
+            $qb->leftJoin('u.admin', 'a')
+               ->leftJoin('u.banque', 'b')
+               ->andWhere('a.id IS NOT NULL OR b.id IS NOT NULL');
+        }
 
         return $qb->orderBy('u.nom', 'ASC')
-            ->addOrderBy('u.prenom', 'ASC')
             ->getQuery()
             ->getResult();
     }
