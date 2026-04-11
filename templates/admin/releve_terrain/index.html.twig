@@ -1,28 +1,120 @@
 {% extends 'base.html.twig' %}
+{% block title %}Admin — Relevés terrain{% endblock %}
 
-{% block title %}Admin - Relevés terrain{% endblock %}
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/releve-terrain-admin-pro.css') }}">
+{% endblock %}
+
+{% block hide_preloader %}{% endblock %}
+
+{# ======= Insights + Chart Data ======= #}
+{% set total = mesures|length %}
+{% set suspects = 0 %}
+{% set erreurs = 0 %}
+{% set simu = 0 %}
+
+{% for m in mesures|default([]) %}
+  {% set q = m.qualite ?? 'OK' %}
+  {% if q == 'SUSPECT' %}{% set suspects = suspects + 1 %}{% endif %}
+  {% if q == 'ERREUR_CAPTEUR' %}{% set erreurs = erreurs + 1 %}{% endif %}
+  {% if m.sourceDonnee == 'SIMULATEUR' %}{% set simu = simu + 1 %}{% endif %}
+{% endfor %}
+
+{# Chart (sur le type sélectionné, sinon sur tout) #}
+{% set chartLabels = [] %}
+{% set chartData = [] %}
+
+{% for m in (mesures|default([]))|reverse %}
+  {% if typeMesure is empty or m.typeMesure == typeMesure %}
+    {% set chartLabels = chartLabels|merge([ m.dateHeure|date('H:i') ]) %}
+    {% set chartData = chartData|merge([ m.valeurMesuree ]) %}
+  {% endif %}
+{% endfor %}
 
 {% block body %}
-<div class="container-fluid py-4">
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-    <div>
-      <h3 class="mb-1">Admin — Relevés Terrain</h3>
-      <div class="text-muted">Supervision globale (tous projets)</div>
+<div class="iot-page admin-skin releve-terrain-admin-pro">
+  <div class="container-fluid py-4">
+
+    {# HERO #}
+    <div class="iot-hero hero-admin reveal mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-wave-square me-2"></i>
+            Admin — Relevés Terrain (Brut)
+          </h2>
+          <div class="iot-hero-sub">
+            Supervision globale (purge automatique <b>7 jours</b>) + qualité des données.
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="iot-pill">
+            <span class="iot-dot"></span>
+            <span class="fw-semibold">Live</span>
+            <span class="opacity-75 small">15 min</span>
+          </span>
+          <a class="btn btn-light btn-iot" href="{{ path('admin_dashboard') }}">
+            <i class="fas fa-chart-line me-2"></i> Dashboard
+          </a>
+        </div>
+      </div>
     </div>
-  </div>
 
-  {{ include('_partials/_flashes.html.twig') }}
+    {{ include('_partials/_flashes.html.twig') }}
 
-  <div class="card shadow-sm border-0 mb-3">
-    <div class="card-body">
+    {# KPI #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Mesures affichées</div>
+            <div class="fs-2 fw-bold" data-countup="{{ total }}">0</div>
+            <div class="text-muted small">selon filtres</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">SIMULATEUR</div>
+            <div class="fs-2 fw-bold text-primary" data-countup="{{ simu }}">0</div>
+            <div class="text-muted small">source principale</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Suspects</div>
+            <div class="fs-2 fw-bold text-warning" data-countup="{{ suspects }}">0</div>
+            <div class="text-muted small">à vérifier</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3 reveal">
+        <div class="panel kpi-pro">
+          <div class="panel-b">
+            <div class="text-muted small">Erreurs capteur</div>
+            <div class="fs-2 fw-bold text-danger" data-countup="{{ erreurs }}">0</div>
+            <div class="text-muted small">exclues des rapports</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Toolbar filtres #}
+    <div class="iot-toolbar reveal p-3 mb-3">
       <form method="get" class="row g-2 align-items-end">
         <div class="col-12 col-md-3">
           <label class="form-label">ID Projet</label>
-          <input type="number" class="form-control" name="projet" value="{{ idproject }}" placeholder="ex: 1">
+          <input type="number" class="form-control toolbar-input" name="projet"
+                 value="{{ idproject }}" placeholder="ex: 1">
         </div>
         <div class="col-12 col-md-3">
           <label class="form-label">Type</label>
-          <select class="form-select" name="type">
+          <select class="form-select toolbar-input" name="type">
             <option value="">Tous</option>
             {% for t in types %}
               <option value="{{ t }}" {{ (t == typeMesure) ? 'selected' : '' }}>{{ t }}</option>
@@ -30,66 +122,135 @@
           </select>
         </div>
         <div class="col-12 col-md-6 text-md-end">
-          <button class="btn btn-dark">Filtrer</button>
-          <a class="btn btn-outline-secondary" href="{{ path('admin_releve_terrain') }}">Reset</a>
+          <button class="btn btn-dark btn-iot">Filtrer</button>
+          <a class="btn btn-outline-secondary btn-iot" href="{{ path('admin_releve_terrain') }}">Reset</a>
         </div>
       </form>
+      <div class="small text-muted mt-2">
+        Tip: marquer une mesure <b>ERREUR_CAPTEUR</b> côté agriculteur exclut les calculs de rapport.
+      </div>
     </div>
-  </div>
 
-  <div class="card shadow-sm border-0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>Date</th>
-            <th>Projet</th>
-            <th>Capteur</th>
-            <th>Type</th>
-            <th>Valeur</th>
-            <th>Source</th>
-            <th>Qualité</th>
-            <th style="width:140px;">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for m in mesures %}
-          {% set source = m.sourceDonnee %}
-          {% set sourceClass = (source == 'SIMULATEUR') ? 'info' : 'secondary' %}
-          {% set q = m.qualite ?? 'OK' %}
-          {% set qClass = (q == 'OK') ? 'success' : (q == 'SUSPECT' ? 'warning' : 'danger') %}
+    <div class="row g-3">
 
-          <tr>
-            <td class="text-nowrap">{{ m.dateHeure|date('d/m/Y H:i') }}</td>
-            <td>#{{ m.idproject }}</td>
-            <td>#{{ m.idCapteur }}</td>
-            <td>{{ m.typeMesure }}</td>
-            <td class="fw-semibold">{{ m.valeurMesuree }} {{ m.unite }}</td>
-            <td><span class="badge bg-{{ sourceClass }}">{{ source }}</span></td>
-            <td>
-              <span class="badge bg-{{ qClass }}">{{ q }}</span>
-              {% if m.note %}
-                <div class="text-muted small">{{ m.note }}</div>
-              {% endif %}
-            </td>
-            <td>
-              <form method="post"
-                    action="{{ path('admin_releve_terrain_delete', {id: m.idReleve}) }}"
-                    onsubmit="return confirm('Supprimer ce relevé ?');">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ m.idReleve) }}">
-                <button class="btn btn-sm btn-outline-danger w-100">Supprimer</button>
-              </form>
-            </td>
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="8" class="text-center text-muted py-4">Aucune donnée.</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+      {# Chart preview #}
+      <div class="col-12 col-xl-5 reveal">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-chart-line text-success me-2"></i> Aperçu</span>
+            <span class="text-muted small">
+              {% if typeMesure %}{{ typeMesure }}{% else %}Tous types{% endif %}
+            </span>
+          </div>
+          <div class="panel-b">
+            {% if chartData|length > 0 %}
+              <canvas id="chartReleveAdmin" height="140"></canvas>
+            {% else %}
+              <div class="alert alert-light border mb-0">Aucun point à afficher.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Timeline cards #}
+      <div class="col-12 col-xl-7 reveal">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-layer-group me-2"></i> Timeline des mesures</span>
+            <span class="text-muted small">cards premium</span>
+          </div>
+          <div class="panel-b">
+            <div class="rt-timeline">
+              {% for m in mesures %}
+                {% set q = m.qualite ?? 'OK' %}
+                {% set dot = 'dot ok' %}
+                {% if q == 'SUSPECT' %}{% set dot = 'dot warn' %}{% endif %}
+                {% if q == 'ERREUR_CAPTEUR' %}{% set dot = 'dot bad' %}{% endif %}
+
+                <div class="rt-card">
+                  <div class="rt-inner">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <div>
+                        <div class="fw-bold">Projet #{{ m.idproject }} · Capteur #{{ m.idCapteur }}</div>
+                        <div class="text-muted small">
+                          {{ m.dateHeure|date('d/m/Y H:i') }} — {{ m.typeMesure }}
+                        </div>
+                      </div>
+                      <span class="chip">
+                        <span class="{{ dot }}"></span>
+                        {{ q }}
+                      </span>
+                    </div>
+
+                    <div class="rt-metrics">
+                      <div class="metric-pill"><span>Valeur</span><b>{{ m.valeurMesuree }} {{ m.unite }}</b></div>
+                      <div class="metric-pill"><span>Source</span><b>{{ m.sourceDonnee }}</b></div>
+                    </div>
+
+                    {% if m.note %}
+                      <div class="rt-note">
+                        <i class="fas fa-comment-dots me-1"></i>
+                        {{ m.note }}
+                      </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-end mt-3">
+                      <form method="post"
+                            action="{{ path('admin_releve_terrain_delete', {id: m.idReleve}) }}"
+                            onsubmit="return confirm('Supprimer ce relevé ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ m.idReleve) }}">
+                        <button class="btn btn-outline-danger btn-iot">
+                          <i class="fas fa-trash me-1"></i> Supprimer
+                        </button>
+                      </form>
+                    </div>
+
+                  </div>
+                </div>
+              {% else %}
+                <div class="text-center text-muted py-4">Aucune donnée.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
 
+  </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script defer src="{{ asset('ui/releve-terrain-admin-pro.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  {% if chartData|length > 0 %}
+  <script>
+    const canvas = document.getElementById('chartReleveAdmin');
+    if (canvas) {
+      const labels = {{ chartLabels|json_encode|raw }};
+      const data = {{ chartData|json_encode|raw }};
+
+      new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Valeurs',
+            data,
+            borderWidth: 2,
+            tension: 0.25,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  </script>
+  {% endif %}
 {% endblock %}
