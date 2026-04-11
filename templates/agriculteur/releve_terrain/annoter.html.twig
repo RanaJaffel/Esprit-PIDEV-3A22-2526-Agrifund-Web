@@ -3,49 +3,114 @@
 
 {% block title %}Annoter une mesure{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/releve-terrain-annoter-pro.css') }}">
+{% endblock %}
+
+{% block hide_preloader %}{% endblock %}
+
 {% block body %}
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h3 class="mb-1">Annoter / Signaler une mesure</h3>
-      <div class="text-muted">
-        Relevé #{{ releve.idReleve }} — Source: <b>{{ releve.sourceDonnee }}</b> — Projet #{{ releve.idproject }}
+<div class="iot-page annoter-pro">
+  <div class="container py-4">
+
+    {# HERO #}
+    <div class="annoter-hero reveal mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="mb-1 fw-bold">
+            <i class="fas fa-pen-to-square me-2"></i>
+            Annoter / Signaler une mesure
+          </h2>
+          <div class="opacity-75">
+            Relevé #{{ releve.idReleve }} — Projet #{{ releve.idproject }}
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="chip">
+            <span class="dot lock"></span>
+            Source : {{ releve.sourceDonnee }}
+          </span>
+
+          <a class="btn btn-light btn-iot"
+             href="{{ path('agriculteur_releve_terrain', {idproject: releve.idproject}) }}">
+            <i class="fas fa-arrow-left me-2"></i> Retour
+          </a>
+        </div>
       </div>
     </div>
-    <a class="btn btn-outline-secondary" href="{{ path('agriculteur_releve_terrain', {idproject: releve.idproject}) }}">Retour</a>
-  </div>
 
-  {{ include('_partials/_flashes.html.twig') }}
+    {{ include('_partials/_flashes.html.twig') }}
 
-  <div class="row g-3">
-    <div class="col-12 col-lg-5">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-white fw-semibold">Détail de la mesure</div>
-        <div class="card-body">
-          <div class="mb-2"><span class="text-muted">Date :</span> <b>{{ releve.dateHeure|date('d/m/Y H:i') }}</b></div>
-          <div class="mb-2"><span class="text-muted">Type :</span> <b>{{ releve.typeMesure }}</b></div>
-          <div class="mb-2"><span class="text-muted">Valeur :</span> <b>{{ releve.valeurMesuree }} {{ releve.unite }}</b></div>
-          <div class="mb-2"><span class="text-muted">Capteur :</span> <b>#{{ releve.idCapteur }}</b></div>
-          <hr>
-          <div class="small text-muted">
-            Rappel : la valeur d’une mesure SIMULATEUR est verrouillée. Tu peux seulement annoter la qualité + ajouter une note.
+    <div class="row g-3">
+      {# Détail #}
+      <div class="col-12 col-lg-5 reveal">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-circle-info me-2 text-success"></i> Détail de la mesure</span>
+            <span class="text-muted small">Lecture seule</span>
+          </div>
+          <div class="panel-b">
+            <div class="meta-grid">
+              <div class="meta-pill">
+                <span>Date</span>
+                <b>{{ releve.dateHeure|date('d/m/Y H:i') }}</b>
+              </div>
+              <div class="meta-pill">
+                <span>Capteur</span>
+                <b>#{{ releve.idCapteur }}</b>
+              </div>
+              <div class="meta-pill">
+                <span>Type</span>
+                <b>{{ releve.typeMesure }}</b>
+              </div>
+              <div class="meta-pill">
+                <span>Valeur</span>
+                <b>{{ releve.valeurMesuree }} {{ releve.unite }}</b>
+              </div>
+            </div>
+
+            <div class="hint mt-3">
+              <i class="fas fa-lock me-1"></i>
+              Rappel : une mesure <b>SIMULATEUR</b> est verrouillée. Tu peux uniquement changer <b>Qualité</b> + <b>Note</b>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Form annotation #}
+      <div class="col-12 col-lg-7 reveal">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-pen me-2 text-warning"></i> Annotation</span>
+            <span class="text-muted small">Qualité + Note</span>
+          </div>
+          <div class="panel-b">
+            {{ form_start(form) }}
+              <div class="row g-3">
+                <div class="col-12">
+                  {{ form_row(form.qualite) }}
+                </div>
+                <div class="col-12">
+                  {{ form_row(form.note) }}
+                </div>
+                <div class="col-12 d-grid">
+                  <button class="btn btn-success btn-iot btn-lg">
+                    <i class="fas fa-check me-2"></i> Enregistrer l’annotation
+                  </button>
+                </div>
+              </div>
+            {{ form_end(form) }}
+
+            <div class="text-muted small mt-3">
+              Astuce : marque <b>ERREUR_CAPTEUR</b> si tu penses que la valeur est fausse (elle sera ignorée dans les rapports).
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-lg-7">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-white fw-semibold">Annotation</div>
-        <div class="card-body">
-          {{ form_start(form) }}
-            {{ form_row(form.qualite) }}
-            {{ form_row(form.note) }}
-            <button class="btn btn-primary w-100">Enregistrer l’annotation</button>
-          {{ form_end(form) }}
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}
