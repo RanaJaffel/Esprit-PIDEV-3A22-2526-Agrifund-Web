@@ -8,28 +8,46 @@
 
 {% block hide_preloader %}{% endblock %}
 
-{# ======= Insights + Chart Data ======= #}
+{# ===== KPI counts ===== #}
 {% set total = mesures|length %}
 {% set suspects = 0 %}
 {% set erreurs = 0 %}
+{% set ok = 0 %}
 {% set simu = 0 %}
 
 {% for m in mesures|default([]) %}
   {% set q = m.qualite ?? 'OK' %}
+  {% if q == 'OK' %}{% set ok = ok + 1 %}{% endif %}
   {% if q == 'SUSPECT' %}{% set suspects = suspects + 1 %}{% endif %}
   {% if q == 'ERREUR_CAPTEUR' %}{% set erreurs = erreurs + 1 %}{% endif %}
   {% if m.sourceDonnee == 'SIMULATEUR' %}{% set simu = simu + 1 %}{% endif %}
 {% endfor %}
 
-{# Chart (sur le type sélectionné, sinon sur tout) #}
-{% set chartLabels = [] %}
-{% set chartData = [] %}
-
-{% for m in (mesures|default([]))|reverse %}
-  {% if typeMesure is empty or m.typeMesure == typeMesure %}
-    {% set chartLabels = chartLabels|merge([ m.dateHeure|date('H:i') ]) %}
-    {% set chartData = chartData|merge([ m.valeurMesuree ]) %}
+{# ===== Types disponibles dans la liste affichée (pour select JS) ===== #}
+{% set graphTypes = [] %}
+{% for m in mesures|default([]) %}
+  {% if m.typeMesure not in graphTypes %}
+    {% set graphTypes = graphTypes|merge([m.typeMesure]) %}
   {% endif %}
+{% endfor %}
+
+{# ===== Payload JS : pour chaque type => labels + values ===== #}
+{% set chartPayload = [] %}
+{% for t in graphTypes %}
+  {% set labels = [] %}
+  {% set values = [] %}
+  {% for m in (mesures|default([]))|reverse %}
+    {% if m.typeMesure == t %}
+      {# label riche = date + heure pour éviter doublons #}
+      {% set labels = labels|merge([ m.dateHeure|date('d/m H:i') ]) %}
+      {% set values = values|merge([ m.valeurMesuree ]) %}
+    {% endif %}
+  {% endfor %}
+  {% set chartPayload = chartPayload|merge([{
+    'type': t,
+    'labels': labels,
+    'values': values
+  }]) %}
 {% endfor %}
 
 {% block body %}
@@ -45,7 +63,7 @@
             Admin — Relevés Terrain (Brut)
           </h2>
           <div class="iot-hero-sub">
-            Supervision globale (purge automatique <b>7 jours</b>) + qualité des données.
+            Supervision globale (purge <b>7 jours</b>) + contrôle qualité + aperçu graphique.
           </div>
         </div>
 
@@ -67,44 +85,36 @@
     {# KPI #}
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">Mesures affichées</div>
-            <div class="fs-2 fw-bold" data-countup="{{ total }}">0</div>
-            <div class="text-muted small">selon filtres</div>
-          </div>
-        </div>
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">Mesures affichées</div>
+          <div class="fs-2 fw-bold" data-countup="{{ total }}">0</div>
+          <div class="text-muted small">selon filtres</div>
+        </div></div>
       </div>
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">SIMULATEUR</div>
-            <div class="fs-2 fw-bold text-primary" data-countup="{{ simu }}">0</div>
-            <div class="text-muted small">source principale</div>
-          </div>
-        </div>
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">SIMULATEUR</div>
+          <div class="fs-2 fw-bold text-primary" data-countup="{{ simu }}">0</div>
+          <div class="text-muted small">source</div>
+        </div></div>
       </div>
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">Suspects</div>
-            <div class="fs-2 fw-bold text-warning" data-countup="{{ suspects }}">0</div>
-            <div class="text-muted small">à vérifier</div>
-          </div>
-        </div>
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">Suspects</div>
+          <div class="fs-2 fw-bold text-warning" data-countup="{{ suspects }}">0</div>
+          <div class="text-muted small">à vérifier</div>
+        </div></div>
       </div>
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">Erreurs capteur</div>
-            <div class="fs-2 fw-bold text-danger" data-countup="{{ erreurs }}">0</div>
-            <div class="text-muted small">exclues des rapports</div>
-          </div>
-        </div>
+        <div class="panel kpi-pro"><div class="panel-b">
+          <div class="text-muted small">Erreurs capteur</div>
+          <div class="fs-2 fw-bold text-danger" data-countup="{{ erreurs }}">0</div>
+          <div class="text-muted small">exclues rapports</div>
+        </div></div>
       </div>
     </div>
 
-    {# Toolbar filtres #}
+    {# Toolbar filtres GET #}
     <div class="iot-toolbar reveal p-3 mb-3">
       <form method="get" class="row g-2 align-items-end">
         <div class="col-12 col-md-3">
@@ -113,7 +123,7 @@
                  value="{{ idproject }}" placeholder="ex: 1">
         </div>
         <div class="col-12 col-md-3">
-          <label class="form-label">Type</label>
+          <label class="form-label">Type (filtre)</label>
           <select class="form-select toolbar-input" name="type">
             <option value="">Tous</option>
             {% for t in types %}
@@ -127,33 +137,60 @@
         </div>
       </form>
       <div class="small text-muted mt-2">
-        Tip: marquer une mesure <b>ERREUR_CAPTEUR</b> côté agriculteur exclut les calculs de rapport.
+        Le graphe ci‑dessous utilise les mesures actuellement affichées.
       </div>
     </div>
 
     <div class="row g-3">
 
-      {# Chart preview #}
-      <div class="col-12 col-xl-5 reveal">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-line text-success me-2"></i> Aperçu</span>
-            <span class="text-muted small">
-              {% if typeMesure %}{{ typeMesure }}{% else %}Tous types{% endif %}
-            </span>
+      {# GRAPHE principal (line chart) #}
+      <div class="col-12 col-xl-8 reveal">
+        <div class="chart-wrap">
+          <div class="chart-head">
+            <span><i class="fas fa-chart-line text-success me-2"></i> Aperçu graphique</span>
+            <div class="d-flex gap-2 align-items-center">
+              <span class="text-muted small">Type :</span>
+              <select id="chartTypeSelect" class="form-select form-select-sm" style="width:260px">
+                {% for t in graphTypes %}
+                  <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
-          <div class="panel-b">
-            {% if chartData|length > 0 %}
-              <canvas id="chartReleveAdmin" height="140"></canvas>
+
+          <div class="chart-body">
+            {% if total > 0 and graphTypes|length > 0 %}
+              <canvas id="chartReleveAdmin" height="120"></canvas>
+              <div class="text-muted small mt-2">
+                Points disponibles (type sélectionné) : <span id="chartCount">—</span>
+              </div>
             {% else %}
-              <div class="alert alert-light border mb-0">Aucun point à afficher.</div>
+              <div class="alert alert-light border mb-0">Aucune mesure à afficher.</div>
             {% endif %}
           </div>
         </div>
       </div>
 
-      {# Timeline cards #}
-      <div class="col-12 col-xl-7 reveal">
+      {# Donut Qualité #}
+      <div class="col-12 col-xl-4 reveal">
+        <div class="chart-wrap">
+          <div class="chart-head">
+            <span><i class="fas fa-bullseye me-2"></i> Qualité des données</span>
+            <span class="text-muted small">OK / SUSPECT / ERREUR</span>
+          </div>
+          <div class="chart-body">
+            <canvas id="chartQualite" height="160"></canvas>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <span class="chip"><span class="dot ok"></span> OK: {{ ok }}</span>
+              <span class="chip"><span class="dot warn"></span> SUSPECT: {{ suspects }}</span>
+              <span class="chip"><span class="dot bad"></span> ERREUR: {{ erreurs }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Timeline cards premium (ton bloc existant) #}
+      <div class="col-12 reveal">
         <div class="panel">
           <div class="panel-h">
             <span><i class="fas fa-layer-group me-2"></i> Timeline des mesures</span>
@@ -226,20 +263,41 @@
   <script defer src="{{ asset('ui/releve-terrain-admin-pro.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  {% if chartData|length > 0 %}
   <script>
-    const canvas = document.getElementById('chartReleveAdmin');
-    if (canvas) {
-      const labels = {{ chartLabels|json_encode|raw }};
-      const data = {{ chartData|json_encode|raw }};
+    const payload = {{ chartPayload|json_encode|raw }};
 
-      new Chart(canvas, {
+    function buildGradient(ctx, color1, color2){
+      const g = ctx.createLinearGradient(0,0,0,220);
+      g.addColorStop(0, color1);
+      g.addColorStop(1, color2);
+      return g;
+    }
+
+    // ==== Chart principal (changeable par type) ====
+    const canvasMain = document.getElementById('chartReleveAdmin');
+    let mainChart = null;
+
+    function renderMain(type){
+      const item = payload.find(p => p.type === type);
+      if(!item) return;
+
+      document.getElementById('chartCount').textContent = item.values.length;
+
+      const ctx = canvasMain.getContext('2d');
+      const fill = buildGradient(ctx, 'rgba(8,150,71,.28)', 'rgba(8,150,71,0)');
+
+      if(mainChart) mainChart.destroy();
+
+      mainChart = new Chart(canvasMain, {
         type: 'line',
         data: {
-          labels,
+          labels: item.labels,
           datasets: [{
-            label: 'Valeurs',
-            data,
+            label: type,
+            data: item.values,
+            borderColor: '#089647',
+            backgroundColor: fill,
+            fill: true,
             borderWidth: 2,
             tension: 0.25,
             pointRadius: 2
@@ -251,6 +309,31 @@
         }
       });
     }
+
+    const select = document.getElementById('chartTypeSelect');
+    if(canvasMain && select && payload.length > 0){
+      renderMain(select.value);
+      select.addEventListener('change', () => renderMain(select.value));
+    }
+
+    // ==== Donut qualité ====
+    const donut = document.getElementById('chartQualite');
+    if(donut){
+      new Chart(donut, {
+        type: 'doughnut',
+        data: {
+          labels: ['OK', 'SUSPECT', 'ERREUR_CAPTEUR'],
+          datasets: [{
+            data: [{{ ok }}, {{ suspects }}, {{ erreurs }}],
+            backgroundColor: ['#089647', '#f59e0b', '#ef4444'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          plugins: { legend: { position: 'bottom' } },
+          cutout: '70%'
+        }
+      });
+    }
   </script>
-  {% endif %}
 {% endblock %}
