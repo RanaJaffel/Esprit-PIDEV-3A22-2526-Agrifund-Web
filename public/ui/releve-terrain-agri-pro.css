@@ -1,0 +1,188 @@
+/* ===== Relevé Terrain Agri Pro ===== */
+
+.releve-terrain-agri-pro .iot-hero.hero-agri{
+  background: linear-gradient(120deg, #0b3d0b, #089647, #0f5c0f, #b2d944);
+  background-size: 320% 320%;
+  animation: heroFlow 10s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 22px 60px rgba(0,0,0,.16);
+}
+@keyframes heroFlow{
+  0%{ background-position: 0% 50%;}
+  50%{ background-position: 100% 50%;}
+  100%{ background-position: 0% 50%;}
+}
+
+.releve-terrain-agri-pro .panel{
+  background: rgba(255,255,255,.80);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.10);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+.releve-terrain-agri-pro .panel-h{
+  padding: 14px 16px;
+  background: rgba(255,255,255,.70);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-weight: 900;
+}
+.releve-terrain-agri-pro .panel-b{ padding:16px; }
+
+.releve-terrain-agri-pro .kpi-pro{
+  position: relative;
+  overflow:hidden;
+  border-radius: 18px;
+}
+.releve-terrain-agri-pro .kpi-pro::before{
+  content:"";
+  position:absolute; left:0; top:0; right:0; height:4px;
+  background: linear-gradient(90deg, #b2d944, #089647);
+}
+.releve-terrain-agri-pro .kpi-pro::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(178,217,68,.18), transparent);
+  transform: translateX(-120%);
+  animation: shimmer 3.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes shimmer{
+  0%{ transform: translateX(-120%); }
+  60%{ transform: translateX(120%); }
+  100%{ transform: translateX(120%); }
+}
+
+.releve-terrain-agri-pro .iot-toolbar{
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+  backdrop-filter: blur(10px);
+}
+.releve-terrain-agri-pro .toolbar-input{
+  border-radius: 14px !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  background: rgba(255,255,255,.92) !important;
+}
+
+/* Chart box */
+.releve-terrain-agri-pro .chart-wrap{
+  background: rgba(255,255,255,.85);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.10);
+  overflow: hidden;
+}
+.releve-terrain-agri-pro .chart-head{
+  padding: 14px 16px;
+  background: rgba(255,255,255,.70);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  font-weight: 900;
+}
+.releve-terrain-agri-pro .chart-body{ padding: 16px; }
+
+/* Chip qualité */
+.releve-terrain-agri-pro .chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.72);
+}
+.releve-terrain-agri-pro .dot{ width:8px;height:8px;border-radius:50%; background:#9ca3af; }
+.releve-terrain-agri-pro .dot.ok{
+  background:#b2d944;
+  box-shadow: 0 0 0 0 rgba(178,217,68,.55);
+  animation: pulse 1.8s infinite;
+}
+.releve-terrain-agri-pro .dot.warn{
+  background:#f59e0b;
+  box-shadow: 0 0 0 0 rgba(245,158,11,.35);
+  animation: pulseWarn 1.8s infinite;
+}
+.releve-terrain-agri-pro .dot.bad{
+  background:#ef4444;
+  box-shadow: 0 0 0 0 rgba(239,68,68,.35);
+  animation: pulseRed 1.8s infinite;
+}
+@keyframes pulseWarn{
+  0%{ box-shadow:0 0 0 0 rgba(245,158,11,.35); }
+  70%{ box-shadow:0 0 0 10px rgba(245,158,11,0); }
+  100%{ box-shadow:0 0 0 0 rgba(245,158,11,0); }
+}
+@keyframes pulseRed{
+  0%{ box-shadow:0 0 0 0 rgba(239,68,68,.35); }
+  70%{ box-shadow:0 0 0 10px rgba(239,68,68,0); }
+  100%{ box-shadow:0 0 0 0 rgba(239,68,68,0); }
+}
+
+/* Timeline cards premium */
+.rt-timeline{ display:grid; gap:12px; }
+.rt-card{
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 12px 26px rgba(0,0,0,.10);
+  background: rgba(255,255,255,.82);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.rt-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 20px 48px rgba(0,0,0,.14);
+}
+.rt-card::before{
+  content:"";
+  position:absolute; inset:-2px;
+  background: linear-gradient(120deg, rgba(178,217,68,.85), rgba(8,150,71,.75), rgba(225,179,35,.55));
+  background-size: 200% 200%;
+  animation: borderFlow 6s ease-in-out infinite;
+  opacity: .40;
+}
+@keyframes borderFlow{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+.rt-inner{
+  position: relative;
+  background: rgba(255,255,255,.90);
+  margin: 2px;
+  border-radius: 16px;
+  padding: 12px;
+}
+.rt-metrics{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top: 10px;
+}
+.metric-pill{
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(178,217,68,.10);
+  border: 1px solid rgba(8,150,71,.10);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size: .86rem;
+  color: rgba(0,0,0,.65);
+}
+.rt-note{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.03);
+  border: 1px dashed rgba(0,0,0,.10);
+  color: rgba(0,0,0,.65);
+  font-size: .88rem;
+}
