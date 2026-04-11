@@ -26,15 +26,15 @@ class Banque
     #[Assert\Length(max: 50)]
     private ?string $codebanque = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: "addresseSiege", length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $addresseSiege = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: "representantLegal", length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $representantLegal = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: "adresseAgence", length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $adresseAgence = null;
 
@@ -45,10 +45,10 @@ class Banque
     #[Assert\Url(message: 'URL invalide')]
     private ?string $siteweb = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(name: "statusCompte", length: 50)]
     private string $statusCompte = 'en_attente';
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(name: "compteVerfiee", type: 'boolean')]
     private bool $compteVerfiee = false;
 
     public function getId(): ?int

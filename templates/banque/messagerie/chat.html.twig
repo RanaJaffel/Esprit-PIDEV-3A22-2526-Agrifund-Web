@@ -7,507 +7,178 @@
     {{ encore_entry_link_tags('banque') }}
     {{ encore_entry_link_tags('messagerie-style') }}
     <style>
-        /* Override chat header color for banque */
-        .chat-header {
-            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--olive) 100%);
-        }
-        
-        /* Override sent message color for banque */
-        .message-sent .message-bubble {
-            background: var(--jaune-moutarde);
-            color: white;
-        }
+        .chat-header { background: linear-gradient(135deg, #c49a00, #e1b323); }
+        .message-sent .message-bubble { background: #c49a00; }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="dashboard-container">
-        {% include 'components/_sidebar_banque.html.twig' %}
-        
-        <div class="main-content">
-            <div class="chat-container">
-                {# Chat Header #}
-                <div class="chat-header">
-                    <div class="d-flex align-items-center">
-                        <a href="{{ path('banque_messagerie_index') }}" class="btn btn-link text-white me-3">
-                            <i class="fas fa-arrow-left"></i>
+<div class="dashboard-container">
+    {% include 'components/_sidebar_banque.html.twig' %}
+    <div class="main-content p-0">
+        <div class="chat-container">
+
+            <div class="chat-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{{ path('banque_messagerie_index') }}" class="text-white text-decoration-none">
+                            <i class="fas fa-arrow-left fa-lg"></i>
                         </a>
-                        <div>
-                            <h5 class="mb-0">Conversation #{{ conversation.id }}</h5>
-                            <small>{{ messages|length }} message(s)</small>
-                        </div>
-                    </div>
-                </div>
-                
-                {# Messages Area #}
-                <div class="messages-area" id="messagesArea" data-conversation-id="{{ conversation.id }}">
-                    {% for message in messages %}
-                        {% if not message.estSupprime %}
-                        <div class="message {{ message.expediteur.id == current_user.id ? 'message-sent' : 'message-received' }}" 
-                             data-message-id="{{ message.id }}">
-                            <div class="message-bubble">
-                                <div class="message-content">
-                                    {{ message.contenu|nl2br }}
-                                    
-                                    {# Pièces jointes #}
-                                    {% if message.piecesJointes|length > 0 %}
-                                        <div class="message-attachments mt-2">
-                                            {% for piece in message.piecesJointes %}
-                                                {% if piece.typeFichier == 'image' %}
-                                                    <a href="{{ asset(piece.cheminFichier) }}" target="_blank">
-                                                        <img src="{{ asset(piece.cheminFichier) }}" 
-                                                             alt="{{ piece.nomOriginal }}"
-                                                             class="attachment-image">
-                                                    </a>
-                                                {% else %}
-                                                    <a href="{{ asset(piece.cheminFichier) }}" 
-                                                       class="attachment-file"
-                                                       target="_blank">
-                                                        <i class="fas fa-file me-2"></i>{{ piece.nomOriginal }}
-                                                        <small class="text-muted">({{ piece.tailleFormatee }})</small>
-                                                    </a>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="message-meta">
-                                    <small class="text-muted">
-                                        {{ message.dateEnvoi|date('d/m/Y H:i') }}
-                                        {% if message.isModifie %}
-                                            <i class="fas fa-edit ms-1" title="Modifié"></i>
-                                        {% endif %}
-                                        {% if message.expediteur.id == current_user.id %}
-                                            {% if message.estLu %}
-                                                <i class="fas fa-check-double ms-1 text-primary" title="Lu"></i>
-                                            {% else %}
-                                                <i class="fas fa-check ms-1" title="Envoyé"></i>
-                                            {% endif %}
+                        <div class="d-flex align-items-center gap-2">
+                            {% if other_user %}
+                                {% if other_user.photo %}
+                                    <img src="{{ asset(other_user.photo) }}" alt=""
+                                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.5);">
+                                {% else %}
+                                    <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold text-white">{{ other_user.nomComplet }}</div>
+                                    <small class="text-white opacity-75">
+                                        {% if other_user.admin %}Administrateur
+                                        {% elseif other_user.agriculteur %}Agriculteur{% if other_user.agriculteur.adresseferme %} · {{ other_user.agriculteur.adresseferme }}{% endif %}
                                         {% endif %}
                                     </small>
-                                    
-                                    {# Actions sur le message #}
-                                    {% if message.expediteur.id == current_user.id %}
-                                        <div class="message-actions">
-                                            <button class="btn btn-sm btn-link text-muted" 
-                                                    onclick="editMessage({{ message.id }}, '{{ message.contenu|escape('js') }}')"
-                                                    title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-link text-danger" 
-                                                    onclick="deleteMessage({{ message.id }})"
-                                                    title="Supprimer">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    {% endif %}
                                 </div>
+                            {% else %}
+                                <div class="fw-bold text-white">Conversation #{{ conversation.id }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <small class="text-white opacity-75">{{ messages|length }} message(s)</small>
+                </div>
+            </div>
+
+            <div class="messages-area" id="messagesArea">
+                {% for message in messages %}
+                    {% if not message.estSupprime %}
+                    <div class="message {{ message.expediteur.id == current_user.id ? 'message-sent' : 'message-received' }}"
+                         data-message-id="{{ message.id }}">
+                        <div class="message-bubble">
+                            <div class="message-content">
+                                {% if message.expediteur.id != current_user.id %}
+                                    <div class="sender-name">{{ message.expediteur.nomComplet }}</div>
+                                {% endif %}
+                                <div class="message-text">{{ message.contenu|nl2br }}</div>
+                                {% if message.piecesJointes|length > 0 %}
+                                    <div class="message-attachments">
+                                        {% for pj in message.piecesJointes %}
+                                            {% if pj.typeFichier == 'image' %}
+                                                <div class="mt-1">
+                                                    <a href="{{ asset(pj.cheminFichier) }}" target="_blank">
+                                                        <img src="{{ asset(pj.cheminFichier) }}"
+                                                             alt="{{ pj.nomOriginal }}"
+                                                             style="max-width:200px;max-height:200px;border-radius:8px;display:block;">
+                                                    </a>
+                                                </div>
+                                            {% else %}
+                                                <div class="mt-1">
+                                                    <a href="{{ asset(pj.cheminFichier) }}" target="_blank" download
+                                                       class="d-inline-flex align-items-center gap-1 p-2 bg-white rounded border text-decoration-none text-dark">
+                                                        <i class="fas fa-file text-primary"></i>
+                                                        <span>{{ pj.nomOriginal }}</span>
+                                                        <small class="text-muted">({{ pj.tailleFormatee }})</small>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="message-footer">
+                                <small class="message-time">
+                                    {{ message.dateEnvoi|date('d/m/Y H:i') }}
+                                    {% if message.isModifie %}
+                                        <i class="fas fa-pencil-alt ms-1" style="font-size:0.65rem;" title="Modifié"></i>
+                                    {% endif %}
+                                    {% if message.expediteur.id == current_user.id %}
+                                        {% if message.estLu %}
+                                            <i class="fas fa-check-double text-white ms-1" title="Lu"></i>
+                                        {% else %}
+                                            <i class="fas fa-check ms-1 opacity-75" title="Envoyé"></i>
+                                        {% endif %}
+                                    {% endif %}
+                                </small>
+                                {% if message.expediteur.id == current_user.id %}
+                                    <div class="message-actions">
+                                        <button class="btn btn-sm btn-link p-0 text-white-50"
+                                                onclick="openEditModal({{ message.id }}, this)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-link p-0 text-danger"
+                                                onclick="confirmDelete({{ message.id }})" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                
-                {# Message Input #}
-                <div class="message-input-area">
-                    <form id="messageForm" enctype="multipart/form-data">
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-secondary" id="attachButton">
-                                <i class="fas fa-paperclip"></i>
-                            </button>
-                            <input type="file" 
-                                   id="fileInput" 
-                                   name="files[]" 
-                                   multiple 
-                                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                                   style="display: none;">
-                            <textarea class="form-control" 
-                                      id="messageInput" 
-                                      name="contenu"
-                                      placeholder="Tapez votre message..."
-                                      rows="1"></textarea>
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                        <div id="filePreview" class="mt-2"></div>
-                    </form>
-                </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="message-input-area">
+                <div id="filePreview" class="mb-2 d-flex flex-wrap gap-1"></div>
+                <form id="messageForm">
+                    <div class="d-flex align-items-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="attachButton">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="file" id="fileInput" name="files[]" multiple
+                               accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display:none;">
+                        <textarea class="form-control" id="messageInput"
+                                  placeholder="Tapez votre message..." rows="1"
+                                  style="border-radius:25px;resize:none;"></textarea>
+                        <button type="submit" class="btn btn-warning" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    
-    {# Modal d'édition #}
-    <div class="modal fade" id="editMessageModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Modifier le message</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <textarea class="form-control" id="editMessageContent" rows="3"></textarea>
-                    <input type="hidden" id="editMessageId">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-warning" onclick="saveEditedMessage()">
-                        <i class="fas fa-save me-2"></i>Enregistrer
-                    </button>
-                </div>
+</div>
+
+<div class="modal fade" id="editMessageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Modifier le message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="editMessageContent" rows="4"></textarea>
+                <input type="hidden" id="editMessageId">
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" onclick="saveEditedMessage()">
+                    <i class="fas fa-save me-1"></i>Enregistrer
+                </button>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
     {{ encore_entry_script_tags('messagerie') }}
     <script>
-        const conversationId = {{ conversation.id }};
-        const currentUserId = {{ current_user.id }};
-        const csrfToken = '{{ csrf_token('delete_message') }}';
-        
-        // Override routes for banque
-        const sendMessageRoute = '/banque/messagerie/send/' + conversationId;
-        const editMessageRoute = '/banque/messagerie/message/';
-        const deleteMessageRoute = '/banque/messagerie/message/';
-        const getMessagesRoute = '/banque/messagerie/conversation/' + conversationId + '/messages';
-        
-        // Custom implementation for banque
-        document.addEventListener('DOMContentLoaded', function() {
-            const messageForm = document.getElementById('messageForm');
-            const messageInput = document.getElementById('messageInput');
-            const fileInput = document.getElementById('fileInput');
-            const attachButton = document.getElementById('attachButton');
-            const messagesArea = document.getElementById('messagesArea');
-            
-            if (!messageForm) return;
-            
-            // Scroll to bottom on load
+        window.MESSAGERIE_CURRENT_USER_ID = {{ current_user.id }};
+        window.MESSAGERIE_SEND_ROUTE      = '{{ path('banque_messagerie_send', {conversationId: conversation.id}) }}';
+        window.MESSAGERIE_GET_ROUTE       = '{{ path('banque_messagerie_get_messages', {id: conversation.id}) }}';
+        window.MESSAGERIE_EDIT_ROUTE      = '/banque/messagerie/message/';
+        window.MESSAGERIE_DELETE_ROUTE    = '/banque/messagerie/message/';
+        window.MESSAGERIE_CSRF_TOKEN      = '{{ csrf_token('delete_message') }}';
+
+        document.addEventListener('DOMContentLoaded', function () {
             scrollToBottom();
-            
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-            
-            // Handle attach button
-            attachButton?.addEventListener('click', function() {
-                fileInput.click();
-            });
-            
-            // Handle file selection
-            fileInput?.addEventListener('change', function() {
-                displayFilePreview(this.files);
-            });
-            
-            // Handle form submission
-            messageForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                sendBanqueMessage();
-            });
-            
-            // Send message on Enter
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    messageForm.dispatchEvent(new Event('submit'));
-                }
-            });
-            
-            // Auto-refresh messages
-            setInterval(refreshBanqueMessages, 5000);
+            initSendMessage(window.MESSAGERIE_SEND_ROUTE, window.MESSAGERIE_CURRENT_USER_ID);
+            initRefresh(window.MESSAGERIE_GET_ROUTE, window.MESSAGERIE_CURRENT_USER_ID);
         });
-        
-        function sendBanqueMessage() {
-            const form = document.getElementById('messageForm');
-            const messageInput = document.getElementById('messageInput');
-            const fileInput = document.getElementById('fileInput');
-            
-            const formData = new FormData();
-            formData.append('contenu', messageInput.value.trim());
-            
-            if (fileInput.files.length > 0) {
-                for (let i = 0; i < fileInput.files.length; i++) {
-                    formData.append('files[]', fileInput.files[i]);
-                }
-            }
-            
-            if (!messageInput.value.trim() && fileInput.files.length === 0) {
-                return;
-            }
-            
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            
-            fetch(sendMessageRoute, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    messageInput.value = '';
-                    messageInput.style.height = 'auto';
-                    fileInput.value = '';
-                    document.getElementById('filePreview').innerHTML = '';
-                    
-                    appendMessage(data.message);
-                    scrollToBottom();
-                } else {
-                    alert('Erreur lors de l\'envoi du message: ' + (data.error || 'Erreur inconnue'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erreur lors de l\'envoi du message');
-            })
-            .finally(() => {
-                submitButton.disabled = false;
-            });
-        }
-        
-        function refreshBanqueMessages() {
-            const messagesArea = document.getElementById('messagesArea');
-            if (!messagesArea) return;
-            
-            const lastMessageId = getLastMessageId();
-            
-            fetch(getMessagesRoute + '?last_id=' + lastMessageId)
-                .then(response => response.json())
-                .then(messages => {
-                    messages.forEach(message => {
-                        appendMessage(message);
-                    });
-                    if (messages.length > 0) {
-                        scrollToBottom();
-                    }
-                })
-                .catch(error => console.error('Error refreshing messages:', error));
-        }
-        
-        function editMessage(messageId, content) {
-            document.getElementById('editMessageId').value = messageId;
-            document.getElementById('editMessageContent').value = content;
-            
-            const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
-            modal.show();
-        }
-        
-        function saveEditedMessage() {
-            const messageId = document.getElementById('editMessageId').value;
-            const content = document.getElementById('editMessageContent').value;
-            
-            if (!content.trim()) {
-                alert('Le message ne peut pas être vide');
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('contenu', content);
-            
-            fetch(editMessageRoute + messageId + '/edit', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
-                    const contentDiv = messageDiv.querySelector('.message-content');
-                    contentDiv.innerHTML = escapeHtml(data.message.contenu).replace(/\n/g, '<br>');
-                    
-                    const metaDiv = messageDiv.querySelector('.message-meta small');
-                    if (!metaDiv.querySelector('.fa-edit')) {
-                        metaDiv.innerHTML += ' <i class="fas fa-edit ms-1" title="Modifié"></i>';
-                    }
-                    
-                    bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
-                } else {
-                    alert('Erreur lors de la modification');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erreur lors de la modification');
-            });
-        }
-        
-        function deleteMessage(messageId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('_token', csrfToken);
-            
-            fetch(deleteMessageRoute + messageId + '/delete', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
-                    messageDiv.style.animation = 'fadeOut 0.3s ease';
-                    setTimeout(() => messageDiv.remove(), 300);
-                } else {
-                    alert('Erreur lors de la suppression');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erreur lors de la suppression');
-            });
-        }
-        
-        function appendMessage(messageData) {
-            const messagesArea = document.getElementById('messagesArea');
-            const isSent = messageData.expediteur_id === currentUserId;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
-            messageDiv.dataset.messageId = messageData.id;
-            
-            let attachmentsHtml = '';
-            if (messageData.pieces_jointes && messageData.pieces_jointes.length > 0) {
-                attachmentsHtml = '<div class="message-attachments mt-2">';
-                messageData.pieces_jointes.forEach(piece => {
-                    if (piece.type === 'image') {
-                        attachmentsHtml += `
-                            <a href="${piece.url}" target="_blank">
-                                <img src="${piece.url}" alt="${piece.nom}" class="attachment-image">
-                            </a>
-                        `;
-                    } else {
-                        attachmentsHtml += `
-                            <a href="${piece.url}" class="attachment-file" target="_blank">
-                                <i class="fas fa-file me-2"></i>${piece.nom}
-                            </a>
-                        `;
-                    }
-                });
-                attachmentsHtml += '</div>';
-            }
-            
-            messageDiv.innerHTML = `
-                <div class="message-bubble">
-                    <div class="message-content">
-                        ${escapeHtml(messageData.contenu).replace(/\n/g, '<br>')}
-                        ${attachmentsHtml}
-                    </div>
-                    <div class="message-meta">
-                        <small class="text-muted">
-                            ${formatDate(messageData.date)}
-                            ${isSent ? '<i class="fas fa-check ms-1"></i>' : ''}
-                        </small>
-                        ${isSent ? `
-                            <div class="message-actions">
-                                <button class="btn btn-sm btn-link text-muted" 
-                                        onclick="editMessage(${messageData.id}, '${escapeHtml(messageData.contenu)}')"
-                                        title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-link text-danger" 
-                                        onclick="deleteMessage(${messageData.id})"
-                                        title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            
-            messagesArea.appendChild(messageDiv);
-        }
-        
-        function displayFilePreview(files) {
-            const preview = document.getElementById('filePreview');
-            preview.innerHTML = '';
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const previewItem = document.createElement('div');
-                previewItem.className = 'file-preview-item';
-                previewItem.innerHTML = `
-                    <i class="fas fa-file"></i>
-                    <span>${file.name}</span>
-                    <span class="text-muted">(${formatFileSize(file.size)})</span>
-                    <span class="remove-file" onclick="removeFile(${i})">&times;</span>
-                `;
-                preview.appendChild(previewItem);
-            }
-        }
-        
-        function removeFile(index) {
-            const fileInput = document.getElementById('fileInput');
-            const dt = new DataTransfer();
-            const files = fileInput.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                if (i !== index) {
-                    dt.items.add(files[i]);
-                }
-            }
-            
-            fileInput.files = dt.files;
-            displayFilePreview(fileInput.files);
-        }
-        
-        function getLastMessageId() {
-            const messages = document.querySelectorAll('.message');
-            if (messages.length === 0) return 0;
-            
-            const lastMessage = messages[messages.length - 1];
-            return parseInt(lastMessage.dataset.messageId) || 0;
-        }
-        
-        function scrollToBottom() {
-            const messagesArea = document.getElementById('messagesArea');
-            if (messagesArea) {
-                messagesArea.scrollTop = messagesArea.scrollHeight;
-            }
-        }
-        
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-        
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const diff = now - date;
-            
-            if (diff < 60000) return 'À l\'instant';
-            if (diff < 3600000) return Math.floor(diff / 60000) + ' min';
-            if (diff < 86400000) return Math.floor(diff / 3600000) + ' h';
-            
-            return date.toLocaleDateString('fr-FR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-        
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 o';
-            const k = 1024;
-            const sizes = ['o', 'Ko', 'Mo', 'Go'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-        }
     </script>
 {% endblock %}
