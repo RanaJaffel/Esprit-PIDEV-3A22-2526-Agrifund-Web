@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New ReleveHebdomadaire{% endblock %}
+
+{% block body %}
+    <h1>Create new ReleveHebdomadaire</h1>
+
+    {{ include('releve_hebdomadaire/_form.html.twig') }}
+
+    <a href="{{ path('app_releve_hebdomadaire_index') }}">back to list</a>
+{% endblock %}

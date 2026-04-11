@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit ReleveHebdomadaire{% endblock %}
+
+{% block body %}
+    <h1>Edit ReleveHebdomadaire</h1>
+
+    {{ include('releve_hebdomadaire/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_releve_hebdomadaire_index') }}">back to list</a>
+
+    {{ include('releve_hebdomadaire/_delete_form.html.twig') }}
+{% endblock %}

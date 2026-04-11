@@ -1,0 +1,226 @@
+{% extends 'base.html.twig' %}
+{% form_theme generateForm 'bootstrap_5_layout.html.twig' %}
+
+{# =========================
+   ✅ Variables globales (visibles dans body + javascripts)
+   ========================= #}
+{% set labels = [] %}
+{% set moyennes = [] %}
+
+{% for r in rapports|default([]) %}
+  {% set labels = labels|merge([ (r.dateRapport|date('Y-m-d')) ~ ' P' ~ r.idproject ~ ' ' ~ r.typeMesure ~ ' (#' ~ r.idCapteur ~ ')' ]) %}
+  {% set moyennes = moyennes|merge([ r.moyenne ]) %}
+{% endfor %}
+
+{% block title %}Admin — Rapports journaliers{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+  <div class="p-4 rounded-4 mb-4 text-white"
+       style="background: linear-gradient(135deg,#0A1F0A,#0F5C0F);">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h3 class="mb-1">Admin — Rapports journaliers</h3>
+        <div class="opacity-75">Supervision globale + génération manuelle</div>
+      </div>
+      <a class="btn btn-outline-light" href="{{ path('admin_dashboard') }}">Tableau de bord</a>
+    </div>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  {# KPI #}
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Lignes affichées</div>
+          <div class="fs-2 fw-bold">{{ stats.total }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Projets couverts</div>
+          <div class="fs-2 fw-bold">{{ stats.projects }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Alertes</div>
+          <div class="fs-2 fw-bold text-danger">{{ stats.alerts }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Types</div>
+          <div class="fs-2 fw-bold text-success">{{ stats.types }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    {# Col gauche : Génération + filtres #}
+    <div class="col-12 col-xl-4">
+
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+          <i class="fas fa-gear text-primary"></i>
+          Générer un rapport (Admin)
+        </div>
+        <div class="card-body">
+          {{ form_start(generateForm) }}
+            {# Si ton form est fusionné (for_admin=true), ce champ existe #}
+            {% if generateForm.idproject is defined %}
+              {{ form_row(generateForm.idproject) }}
+            {% endif %}
+            {{ form_row(generateForm.date) }}
+            <button class="btn btn-primary w-100">Générer</button>
+          {{ form_end(generateForm) }}
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold d-flex align-items-center gap-2">
+          <i class="fas fa-filter"></i>
+          Filtres
+        </div>
+        <div class="card-body">
+          <form method="get" class="row g-2">
+            <div class="col-12">
+              <label class="form-label">ID Projet</label>
+              <input type="number" class="form-control" name="projet"
+                     value="{{ idproject ?? '' }}" placeholder="ex: 1">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Type</label>
+              <select name="type" class="form-select">
+                <option value="">Tous</option>
+                {% for t in types %}
+                  <option value="{{ t }}" {{ t == typeMesure ? 'selected' : '' }}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" name="date"
+                     value="{{ date ? date|date('Y-m-d') : '' }}">
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-dark w-100">Appliquer</button>
+              <a class="btn btn-outline-secondary w-100 mt-2"
+                 href="{{ path('admin_rapport_journalier') }}">Reset</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    {# Col droite : graphe + tableau #}
+    <div class="col-12 col-xl-8">
+
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-chart-line text-success me-1"></i> Moyennes (aperçu)</span>
+          <span class="text-muted small">Vue rapide</span>
+        </div>
+        <div class="card-body">
+          {% if rapports|length > 0 %}
+            <canvas id="chartAdmin" height="110"></canvas>
+          {% else %}
+            <div class="alert alert-light border mb-0">Aucune donnée selon les filtres.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold">Détails (liste globale)</div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Projet</th>
+                <th>Capteur</th>
+                <th>Type</th>
+                <th>Moy</th>
+                <th>Min</th>
+                <th>Max</th>
+                <th>Nb</th>
+                <th>Cond</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for r in rapports %}
+              {% set cond = r.conditionDominante %}
+              {% set badge = 'success' %}
+              {% if cond starts with 'ALERTE' %}{% set badge = 'danger' %}{% endif %}
+
+              <tr>
+                <td class="text-nowrap">{{ r.dateRapport|date('d/m/Y') }}</td>
+                <td>#{{ r.idproject }}</td>
+                <td>#{{ r.idCapteur }}</td>
+                <td>{{ r.typeMesure }}</td>
+                <td class="fw-semibold">{{ r.moyenne }}</td>
+                <td>{{ r.min }}</td>
+                <td>{{ r.max }}</td>
+                <td>{{ r.nbMesures }}</td>
+                <td><span class="badge bg-{{ badge }}">{{ cond }}</span></td>
+              </tr>
+            {% else %}
+              <tr><td colspan="9" class="text-center text-muted py-4">Aucun rapport.</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  {% if rapports|length > 0 %}
+  <script>
+    const canvas = document.getElementById('chartAdmin');
+    if (canvas) {
+      const labels = {{ labels|json_encode|raw }};
+      const data = {{ moyennes|json_encode|raw }};
+
+      new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Moyennes',
+            data,
+            borderWidth: 2,
+            tension: 0.25,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  </script>
+  {% endif %}
+{% endblock %}

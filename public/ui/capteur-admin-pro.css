@@ -1,0 +1,295 @@
+/* ========= Capteur Admin Pro ========= */
+.capteur-admin-pro .iot-hero.hero-admin{
+  background: linear-gradient(120deg, #062a10, #089647, #0f5c0f, #b2d944);
+  background-size: 320% 320%;
+  animation: heroFlow 10s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 22px 60px rgba(0,0,0,.18);
+}
+
+@keyframes heroFlow{
+  0%{ background-position: 0% 50%;}
+  50%{ background-position: 100% 50%;}
+  100%{ background-position: 0% 50%;}
+}
+
+.capteur-admin-pro .hero-badge{
+  display:inline-flex; align-items:center; gap:10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(10px);
+}
+
+.capteur-admin-pro .hero-badge i{
+  width:34px; height:34px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius: 12px;
+  background: rgba(255,255,255,.14);
+}
+
+.capteur-admin-pro .kpi-pro{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.capteur-admin-pro .kpi-pro::before{
+  content:"";
+  position:absolute; left:0; top:0; right:0; height:4px;
+  background: linear-gradient(90deg, #b2d944, #089647);
+}
+.capteur-admin-pro .kpi-pro::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(178,217,68,.18), transparent);
+  transform: translateX(-120%);
+  animation: shimmer 3.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes shimmer{
+  0%{ transform: translateX(-120%); }
+  60%{ transform: translateX(120%); }
+  100%{ transform: translateX(120%); }
+}
+
+/* Toolbar glass */
+.capteur-admin-pro .iot-toolbar{
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+  backdrop-filter: blur(10px);
+}
+
+.capteur-admin-pro .toolbar-input{
+  border-radius: 14px !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  background: rgba(255,255,255,.9) !important;
+}
+
+.capteur-admin-pro .chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.72);
+}
+
+.capteur-admin-pro .chip .dot{
+  width:8px; height:8px; border-radius:50%;
+  background:#9ca3af;
+}
+.capteur-admin-pro .dot.active{
+  background:#b2d944;
+  box-shadow: 0 0 0 0 rgba(178,217,68,.55);
+  animation: pulse 1.8s infinite;
+}
+.capteur-admin-pro .dot.bad{
+  background:#ef4444;
+  box-shadow: 0 0 0 0 rgba(239,68,68,.35);
+  animation: pulseRed 1.8s infinite;
+}
+@keyframes pulseRed{
+  0%{ box-shadow:0 0 0 0 rgba(239,68,68,.35); }
+  70%{ box-shadow:0 0 0 10px rgba(239,68,68,0); }
+  100%{ box-shadow:0 0 0 0 rgba(239,68,68,0); }
+}
+
+/* Table premium */
+.capteur-admin-pro .iot-table thead th{
+  background: rgba(255,255,255,.70);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.capteur-admin-pro .iot-table tbody tr{
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.capteur-admin-pro .iot-table tbody tr:hover{
+  background: rgba(178,217,68,.14) !important;
+  transform: translateY(-1px);
+}
+
+.capteur-admin-pro .actions .btn{
+  border-radius: 14px;
+}
+/* ========= Command Board (cards au lieu de table) ========= */
+
+.board-grid{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1199px){
+  .board-grid{ grid-template-columns: 1fr; }
+}
+
+.board-col{
+  grid-column: span 4;
+  border-radius: 20px;
+  background: rgba(255,255,255,.70);
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 14px 34px rgba(0,0,0,.10);
+  overflow: hidden;
+}
+
+@media (max-width: 1199px){
+  .board-col{ grid-column: span 12; }
+}
+
+.board-col-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 14px 14px;
+  background: rgba(255,255,255,.75);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  backdrop-filter: blur(10px);
+}
+
+.board-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+.board-title .badge{
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.board-body{
+  padding: 12px;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.board-body::-webkit-scrollbar{ width: 6px; }
+.board-body::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.12); border-radius: 999px; }
+
+/* Carte capteur premium */
+.sensor-card{
+  position: relative;
+  border-radius: 18px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 12px 26px rgba(0,0,0,.10);
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.sensor-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 20px 48px rgba(0,0,0,.14);
+}
+
+/* Border gradient animée (effet premium) */
+.sensor-card::before{
+  content:"";
+  position:absolute;
+  inset: -2px;
+  background: linear-gradient(120deg, rgba(178,217,68,.8), rgba(8,150,71,.75), rgba(225,179,35,.6));
+  background-size: 200% 200%;
+  animation: borderFlow 6s ease-in-out infinite;
+  z-index: 0;
+  opacity: .45;
+}
+
+@keyframes borderFlow{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+
+/* contenu au-dessus du border */
+.sensor-inner{
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,.88);
+  margin: 2px;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+/* header carte */
+.sensor-h{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.sensor-left{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.sensor-ic{
+  width:44px; height:44px;
+  border-radius: 14px;
+  display:flex; align-items:center; justify-content:center;
+  color:white;
+  background: linear-gradient(135deg,#b2d944,#089647);
+  box-shadow: 0 14px 26px rgba(8,150,71,.22);
+  flex: 0 0 auto;
+}
+
+.sensor-name{
+  margin:0;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.sensor-sub{
+  font-size: .82rem;
+  color: rgba(0,0,0,.55);
+}
+
+.sensor-meta{
+  margin-top: 10px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:8px;
+  font-size: .82rem;
+  color: rgba(0,0,0,.62);
+}
+
+.meta-pill{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  background: rgba(178,217,68,.10);
+  border: 1px solid rgba(8,150,71,.10);
+}
+
+.sensor-actions{
+  display:flex;
+  gap:8px;
+  margin-top: 12px;
+}
+.sensor-actions .btn{
+  border-radius: 14px;
+}
+
+/* mini “signal bars” */
+.signal{
+  display:flex; gap:3px; align-items:flex-end;
+}
+.signal span{
+  width: 4px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.15);
+}
+.signal .on{ background: rgba(8,150,71,.85); }
+.signal span:nth-child(1){ height: 6px;}
+.signal span:nth-child(2){ height: 10px;}
+.signal span:nth-child(3){ height: 14px;}
+.signal span:nth-child(4){ height: 18px;}

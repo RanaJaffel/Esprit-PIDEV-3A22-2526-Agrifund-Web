@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Relevés terrain - Projet {{ idproject }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-1">Relevés Terrain</h3>
+      <div class="text-muted">Projet #{{ idproject }} — Suivi IoT (brut + annotations)</div>
+    </div>
+
+    <div class="d-flex gap-2 mt-2 mt-md-0">
+      <a class="btn btn-primary" href="{{ path('agriculteur_releve_terrain_new', {idproject: idproject}) }}">
+        Ajouter mesure manuelle
+      </a>
+      <a class="btn btn-outline-secondary" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
+        Réinitialiser filtres
+      </a>
+    </div>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  {# ====== Stats rapides ====== #}
+  {% set total = mesures|length %}
+  {% set lastDate = total > 0 ? mesures[0].dateHeure : null %}
+  {% set anomalies = 0 %}
+  {% for m in mesures %}
+    {% if m.qualite is defined and m.qualite != 'OK' %}
+      {% set anomalies = anomalies + 1 %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Total mesures affichées</div>
+          <div class="fs-3 fw-semibold">{{ total }}</div>
+          <div class="small text-muted">Selon filtres actuels</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Dernière mesure</div>
+          <div class="fs-5 fw-semibold">
+            {% if lastDate %}{{ lastDate|date('d/m/Y H:i') }}{% else %}—{% endif %}
+          </div>
+          <div class="small text-muted">Horodatage</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-muted small">Anomalies / Signalements</div>
+          <div class="fs-3 fw-semibold">{{ anomalies }}</div>
+          <div class="small text-muted">Qualité ≠ OK</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ====== Filtres ====== #}
+  <div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Type de mesure</label>
+          <select name="type" class="form-select">
+            <option value="">Tous les types</option>
+            {% for t in types %}
+              <option value="{{ t }}" {{ (t == typeMesure) ? 'selected' : '' }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="text-muted small">
+            Astuce : choisir un type active le graphe (plus lisible).
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4 text-md-end">
+          <button class="btn btn-dark">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# ====== Graphe Chart.js ====== #}
+  {% set chartLabels = [] %}
+  {% set chartData = [] %}
+  {% set chartUnit = '' %}
+
+  {% if typeMesure %}
+    {% for m in mesures|reverse %}
+      {% if m.typeMesure == typeMesure %}
+        {% set chartLabels = chartLabels|merge([m.dateHeure|date('Y-m-d H:i')]) %}
+        {% set chartData = chartData|merge([m.valeurMesuree]) %}
+        {% if chartUnit == '' %}
+          {% set chartUnit = m.unite %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div>
+        <div class="fw-semibold">Graphe</div>
+        <div class="text-muted small">
+          {% if typeMesure %}
+            {{ typeMesure }} ({{ chartUnit }})
+          {% else %}
+            Choisis un type de mesure pour afficher le graphe
+          {% endif %}
+        </div>
+      </div>
+      <div class="text-muted small">
+        Données : dernières mesures affichées
+      </div>
+    </div>
+    <div class="card-body">
+      {% if typeMesure and chartData|length > 0 %}
+        <canvas id="iotChart" height="80"></canvas>
+      {% else %}
+        <div class="alert alert-light border mb-0">
+          Aucun point à afficher. Sélectionne un <b>Type de mesure</b> dans le filtre.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ====== Tableau ====== #}
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div class="fw-semibold">Historique des mesures</div>
+      <div class="text-muted small">Affichage trié : plus récent → plus ancien</div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Valeur</th>
+            <th>Source</th>
+            <th>Qualité</th>
+            <th style="width: 260px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for mesure in mesures %}
+          {% set source = mesure.sourceDonnee %}
+          {% set sourceClass = (source == 'SIMULATEUR') ? 'info' : 'secondary' %}
+
+          {% set q = mesure.qualite ?? 'OK' %}
+          {% set qClass = (q == 'OK') ? 'success' : (q == 'SUSPECT' ? 'warning' : 'danger') %}
+
+          <tr>
+            <td class="text-nowrap">{{ mesure.dateHeure|date('d/m/Y H:i') }}</td>
+            <td>{{ mesure.typeMesure }}</td>
+            <td class="fw-semibold">{{ mesure.valeurMesuree }} {{ mesure.unite }}</td>
+            <td>
+              <span class="badge bg-{{ sourceClass }}">{{ source }}</span>
+            </td>
+            <td>
+              <span class="badge bg-{{ qClass }}">{{ q }}</span>
+              {% if mesure.note %}
+                <div class="text-muted small mt-1">{{ mesure.note }}</div>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{{ path('agriculteur_releve_terrain_annoter', {id: mesure.idReleve}) }}">
+                  Annoter
+                </a>
+
+                {% if mesure.sourceDonnee == 'MANUEL' %}
+                  <a class="btn btn-sm btn-outline-warning"
+                     href="{{ path('agriculteur_releve_terrain_edit', {id: mesure.idReleve}) }}">
+                    Modifier
+                  </a>
+
+                  <form method="post"
+                        action="{{ path('agriculteur_releve_terrain_delete', {id: mesure.idReleve}) }}"
+                        onsubmit="return confirm('Supprimer cette mesure manuelle ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ mesure.idReleve) }}">
+                    <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+                  </form>
+                {% else %}
+                  <span class="text-muted small align-self-center">Verrouillé (simulateur)</span>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              Aucune mesure trouvée pour ce projet.
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  {% if typeMesure and chartData|length > 0 %}
+  <script>
+    const labels = {{ chartLabels|json_encode|raw }};
+    const data = {{ chartData|json_encode|raw }};
+
+    const ctx = document.getElementById('iotChart');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "{{ typeMesure }} ({{ chartUnit }})",
+          data: data,
+          borderWidth: 2,
+          tension: 0.25,
+          pointRadius: 2,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true }
+        },
+        scales: {
+          x: { ticks: { maxRotation: 0 } }
+        }
+      }
+    });
+  </script>
+  {% endif %}
+{% endblock %}

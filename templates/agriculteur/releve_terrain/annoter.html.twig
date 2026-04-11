@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Annoter une mesure{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-1">Annoter / Signaler une mesure</h3>
+      <div class="text-muted">
+        Relevé #{{ releve.idReleve }} — Source: <b>{{ releve.sourceDonnee }}</b> — Projet #{{ releve.idproject }}
+      </div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ path('agriculteur_releve_terrain', {idproject: releve.idproject}) }}">Retour</a>
+  </div>
+
+  {{ include('_partials/_flashes.html.twig') }}
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold">Détail de la mesure</div>
+        <div class="card-body">
+          <div class="mb-2"><span class="text-muted">Date :</span> <b>{{ releve.dateHeure|date('d/m/Y H:i') }}</b></div>
+          <div class="mb-2"><span class="text-muted">Type :</span> <b>{{ releve.typeMesure }}</b></div>
+          <div class="mb-2"><span class="text-muted">Valeur :</span> <b>{{ releve.valeurMesuree }} {{ releve.unite }}</b></div>
+          <div class="mb-2"><span class="text-muted">Capteur :</span> <b>#{{ releve.idCapteur }}</b></div>
+          <hr>
+          <div class="small text-muted">
+            Rappel : la valeur d’une mesure SIMULATEUR est verrouillée. Tu peux seulement annoter la qualité + ajouter une note.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white fw-semibold">Annotation</div>
+        <div class="card-body">
+          {{ form_start(form) }}
+            {{ form_row(form.qualite) }}
+            {{ form_row(form.note) }}
+            <button class="btn btn-primary w-100">Enregistrer l’annotation</button>
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ReleveTerrain{% endblock %}
+
+{% block body %}
+    <h1>ReleveTerrain</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>IdReleve</th>
+                <td>{{ releve_terrain.idReleve }}</td>
+            </tr>
+            <tr>
+                <th>TypeMesure</th>
+                <td>{{ releve_terrain.typeMesure }}</td>
+            </tr>
+            <tr>
+                <th>ValeurMesuree</th>
+                <td>{{ releve_terrain.valeurMesuree }}</td>
+            </tr>
+            <tr>
+                <th>Unite</th>
+                <td>{{ releve_terrain.unite }}</td>
+            </tr>
+            <tr>
+                <th>DateHeure</th>
+                <td>{{ releve_terrain.dateHeure ? releve_terrain.dateHeure|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>IdCapteur</th>
+                <td>{{ releve_terrain.idCapteur }}</td>
+            </tr>
+            <tr>
+                <th>Idproject</th>
+                <td>{{ releve_terrain.idproject }}</td>
+            </tr>
+            <tr>
+                <th>SourceDonnee</th>
+                <td>{{ releve_terrain.sourceDonnee }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_releve_terrain_index') }}">back to list</a>
+
+    <a href="{{ path('app_releve_terrain_edit', {'idReleve': releve_terrain.idReleve}) }}">edit</a>
+
+    {{ include('releve_terrain/_delete_form.html.twig') }}
+{% endblock %}
