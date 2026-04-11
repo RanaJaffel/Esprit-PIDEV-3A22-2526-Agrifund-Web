@@ -38,39 +38,37 @@ class RegisterController extends AbstractController
 
         $utilisateur = new Utilisateur();
         $agriculteur = new Agriculteur();
+        
+        // IMPORTANT : Établir la relation des DEUX côtés
         $utilisateur->setAgriculteur($agriculteur);
+        $agriculteur->setUtilisateur($utilisateur);
         
         $form = $this->createForm(AgriculteurRegistrationType::class, $utilisateur);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                // Récupération du mot de passe depuis le formulaire (champ non mappé)
-                $plainPassword = $form->get('plainPassword')->getData();
-                
-                // Hash du mot de passe
-                $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
-                $utilisateur->setPassword($hashedPassword);
+            // NE PAS utiliser try/catch pendant le debug
+            $plainPassword = $form->get('plainPassword')->getData();
+            
+            $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
+            $utilisateur->setPassword($hashedPassword);
 
-                // L'agriculteur est déjà associé via le formulaire
-                $agriculteur = $utilisateur->getAgriculteur();
-                $agriculteur->setUtilisateur($utilisateur);
-                
-                // Statut par défaut
-                $agriculteur->setStatuscompte('en_attente');
-                $agriculteur->setCompteverifie(false);
+            // Re-assurer la relation (au cas où le formulaire l'aurait modifiée)
+            $agriculteur = $utilisateur->getAgriculteur();
+            $agriculteur->setUtilisateur($utilisateur);
+            
+            // Statut par défaut
+            $agriculteur->setStatuscompte('en_attente');
+            $agriculteur->setCompteverifie(false);
 
-                // Sauvegarde
-                $em->persist($utilisateur);
-                $em->flush();
+            // Persister les DEUX entités explicitement
+            $em->persist($utilisateur);
+            $em->persist($agriculteur);
+            $em->flush();
 
-                $this->addFlash('success', 'Inscription réussie ! Votre compte est en attente de validation par un administrateur.');
-                
-                return $this->redirectToRoute('app_login');
-                
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
-            }
+            $this->addFlash('success', 'Inscription réussie ! Votre compte est en attente de validation.');
+            
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('security/register_agriculteur.html.twig', [
@@ -90,42 +88,40 @@ class RegisterController extends AbstractController
 
         $utilisateur = new Utilisateur();
         $banque = new Banque();
+        
+        // IMPORTANT : Établir la relation des DEUX côtés
         $utilisateur->setBanque($banque);
+        $banque->setUtilisateur($utilisateur);
         
         $form = $this->createForm(BanqueRegistrationType::class, $utilisateur);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                // Récupération du mot de passe depuis le formulaire (champ non mappé)
-                $plainPassword = $form->get('plainPassword')->getData();
-                
-                // Hash du mot de passe
-                $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
-                $utilisateur->setPassword($hashedPassword);
+            // NE PAS utiliser try/catch pendant le debug
+            $plainPassword = $form->get('plainPassword')->getData();
+            
+            $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
+            $utilisateur->setPassword($hashedPassword);
 
-                // La banque est déjà associée via le formulaire
-                $banque = $utilisateur->getBanque();
-                $banque->setUtilisateur($utilisateur);
-                
-                // Convertir le code banque en majuscules
-                $banque->setCodebanque(strtoupper($banque->getCodebanque()));
-                
-                // Statut par défaut
-                $banque->setStatusCompte('en_attente');
-                $banque->setCompteVerfiee(false);
+            // Re-assurer la relation
+            $banque = $utilisateur->getBanque();
+            $banque->setUtilisateur($utilisateur);
+            
+            // Convertir le code banque en majuscules
+            $banque->setCodebanque(strtoupper($banque->getCodebanque()));
+            
+            // Statut par défaut
+            $banque->setStatusCompte('en_attente');
+            $banque->setCompteVerfiee(false);
 
-                // Sauvegarde
-                $em->persist($utilisateur);
-                $em->flush();
+            // Persister les DEUX entités explicitement
+            $em->persist($utilisateur);
+            $em->persist($banque);
+            $em->flush();
 
-                $this->addFlash('success', 'Inscription réussie ! Votre compte est en attente de validation par un administrateur.');
-                
-                return $this->redirectToRoute('app_login');
-                
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
-            }
+            $this->addFlash('success', 'Inscription réussie ! Votre compte est en attente de validation.');
+            
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('security/register_banque.html.twig', [
