@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur Gestion Utilisateurs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #089647 0%, #B2D944 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        
+        .email-header .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .email-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .email-header p {
+            margin-top: 10px;
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .email-body {
+            padding: 40px 30px;
+            color: #333333;
+        }
+        
+        .greeting {
+            font-size: 24px;
+            color: #076A39;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .email-body p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #555555;
+        }
+        
+        .user-info-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 4px solid #089647;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        
+        .user-info-box h3 {
+            color: #076A39;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .user-info-box p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+        
+        .user-info-box strong {
+            color: #076A39;
+            display: inline-block;
+            width: 150px;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .role-admin {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .role-agriculteur {
+            background: #B2D944;
+            color: #133D03;
+        }
+        
+        .role-banque {
+            background: #E1B323;
+            color: white;
+        }
+        
+        .features-section {
+            margin: 30px 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            border-color: #089647;
+            transform: translateY(-2px);
+        }
+        
+        .feature-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card h4 {
+            color: #076A39;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            font-size: 13px;
+            color: #666666;
+            margin: 0;
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #089647 0%, #076A39 100%);
+            color: white !important;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(8, 150, 71, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(8, 150, 71, 0.4);
+        }
+        
+        .next-steps {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .next-steps h3 {
+            color: #076A39;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .next-steps ol {
+            margin-left: 20px;
+            color: #555555;
+        }
+        
+        .next-steps li {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .next-steps li strong {
+            color: #076A39;
+        }
+        
+        .status-box {
+            background: #fff3cd;
+            border-left: 4px solid #E1B323;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        
+        .status-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .status-box p {
+            color: #856404;
+            margin: 5px 0;
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #089647, transparent);
+            margin: 30px 0;
+        }
+        
+        .support-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .support-box h3 {
+            color: #076A39;
+            margin-bottom: 10px;
+        }
+        
+        .support-box p {
+            margin: 5px 0;
+        }
+        
+        .support-box a {
+            color: #089647;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .email-footer {
+            background: #133D03;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .email-footer p {
+            margin: 5px 0;
+            color: #ffffff;
+        }
+        
+        .email-footer a {
+            color: #B2D944;
+            text-decoration: none;
+        }
+        
+        .social-links {
+            margin-top: 15px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 24px;
+            color: #B2D944;
+            text-decoration: none;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .email-body {
+                padding: 20px 15px;
+            }
+            
+            .email-header h1 {
+                font-size: 26px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .greeting {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="icon">🎉</div>
+            <h1>Bienvenue !</h1>
+            <p>Votre compte a été créé avec succès</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="email-body">
+            <div class="greeting">
+                Bonjour {{ utilisateur.prenom }} {{ utilisateur.nom }} ! 👋
+            </div>
+            
+            <p>Nous sommes ravis de vous accueillir sur <strong>Gestion Utilisateurs</strong>, votre plateforme de gestion agricole et bancaire.</p>
+            
+            <p>Votre inscription a été réalisée avec succès le <strong>{{ "now"|date('d/m/Y à H:i') }}</strong>.</p>
+            
+            <!-- User Info -->
+            <div class="user-info-box">
+                <h3>📋 Vos informations de compte</h3>
+                <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+                <p><strong>Nom complet :</strong> {{ utilisateur.prenom }} {{ utilisateur.nom }}</p>
+                <p><strong>Téléphone :</strong> {{ utilisateur.tel ?? 'Non renseigné' }}</p>
+                <p>
+                    <strong>Type de compte :</strong>
+                    {% if utilisateur.admin %}
+                        <span class="role-badge role-admin">👨‍💼 Administrateur</span>
+                    {% elseif utilisateur.agriculteur %}
+                        <span class="role-badge role-agriculteur">🌾 Agriculteur</span>
+                    {% elseif utilisateur.banque %}
+                        <span class="role-badge role-banque">🏦 Banque</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <!-- Status for Agriculteur/Banque -->
+            {% if utilisateur.agriculteur or utilisateur.banque %}
+            <div class="status-box">
+                <h3>⏳ Statut de votre compte</h3>
+                <p><strong>Votre compte est actuellement en attente de vérification</strong></p>
+                <p>Un administrateur examinera votre demande dans les plus brefs délais.</p>
+                <p>Vous recevrez un email dès que votre compte sera validé.</p>
+            </div>
+            {% endif %}
+            
+            <!-- Features -->
+            <div class="features-section">
+                <h3 style="color: #076A39; font-size: 20px; margin-bottom: 15px;">
+                    ✨ Fonctionnalités disponibles
+                </h3>
+                
+                <div class="features-grid">
+                    {% if utilisateur.admin %}
+                        <div class="feature-card">
+                            <div class="icon">👥</div>
+                            <h4>Gestion des utilisateurs</h4>
+                            <p>Gérez tous les comptes</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">✅</div>
+                            <h4>Validation</h4>
+                            <p>Vérifiez les comptes et documents</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📊</div>
+                            <h4>Statistiques</h4>
+                            <p>Tableaux de bord complets</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">💬</div>
+                            <h4>Messagerie</h4>
+                            <p>Communication avec tous</p>
+                        </div>
+                    {% elseif utilisateur.agriculteur %}
+                        <div class="feature-card">
+                            <div class="icon">🌾</div>
+                            <h4>Gestion exploitation</h4>
+                            <p>Gérez votre ferme</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📄</div>
+                            <h4>Documents</h4>
+                            <p>Uploadez vos certificats</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">💬</div>
+                            <h4>Messagerie</h4>
+                            <p>Contactez admins et banques</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📊</div>
+                            <h4>Tableau de bord</h4>
+                            <p>Suivez vos activités</p>
+                        </div>
+                    {% elseif utilisateur.banque %}
+                        <div class="feature-card">
+                            <div class="icon">🏦</div>
+                            <h4>Gestion services</h4>
+                            <p>Gérez vos services bancaires</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📄</div>
+                            <h4>Documents</h4>
+                            <p>Uploadez vos certifications</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">💬</div>
+                            <h4>Messagerie</h4>
+                            <p>Contactez admins et agriculteurs</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📊</div>
+                            <h4>Tableau de bord</h4>
+                            <p>Suivez vos activités</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Next Steps -->
+            <div class="next-steps">
+                <h3>🚀 Prochaines étapes</h3>
+                <ol>
+                    <li><strong>Connectez-vous</strong> à votre compte avec votre email et mot de passe</li>
+                    {% if utilisateur.agriculteur or utilisateur.banque %}
+                    <li><strong>Complétez votre profil</strong> avec toutes les informations nécessaires</li>
+                    <li><strong>Uploadez vos documents</strong> pour la vérification de votre compte</li>
+                    <li><strong>Attendez la validation</strong> de votre compte par un administrateur</li>
+                    {% else %}
+                    <li><strong>Explorez le tableau de bord</strong> et découvrez toutes les fonctionnalités</li>
+                    <li><strong>Complétez votre profil</strong> avec une photo et vos informations</li>
+                    <li><strong>Commencez à utiliser</strong> la plateforme</li>
+                    {% endif %}
+                </ol>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- CTA Button -->
+            <div class="button-container">
+                <a href="{{ url('app_login') }}" class="cta-button">
+                    🔐 Se connecter maintenant
+                </a>
+            </div>
+            
+            <!-- Support -->
+            <div class="support-box">
+                <h3>💡 Besoin d'aide ?</h3>
+                <p>Notre équipe est là pour vous accompagner</p>
+                <p>📧 Email : <a href="mailto:support@gestion-utilisateurs.com">support@gestion-utilisateurs.com</a></p>
+                <p>📞 Téléphone : +216 XX XXX XXX</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <p><strong>🌾 Gestion Utilisateurs</strong></p>
+            <p>Plateforme de gestion agricole et bancaire</p>
+            
+            <div class="divider" style="background: rgba(178, 217, 68, 0.3); margin: 20px 0;"></div>
+            
+            <div class="social-links">
+                <a href="#" title="Facebook">📘</a>
+                <a href="#" title="Twitter">🐦</a>
+                <a href="#" title="LinkedIn">💼</a>
+                <a href="#" title="Instagram">📷</a>
+            </div>
+            
+            <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
+                © {{ "now"|date('Y') }} Gestion Utilisateurs. Tous droits réservés.
+            </p>
+            <p style="font-size: 12px; opacity: 0.8;">
+                Cet email a été envoyé à {{ utilisateur.email }}
+            </p>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 10px;">
+                Si vous n'avez pas créé ce compte, veuillez ignorer cet email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

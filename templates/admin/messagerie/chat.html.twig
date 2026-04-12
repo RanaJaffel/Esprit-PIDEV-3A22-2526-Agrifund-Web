@@ -1,0 +1,160 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conversation{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    {{ encore_entry_link_tags('messagerie-style') }}
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_admin.html.twig' %}
+        
+        <div class="main-content">
+            <div class="chat-container">
+                {# Chat Header #}
+                <div class="chat-header">
+                    <div class="d-flex align-items-center">
+                        <a href="{{ path('admin_messagerie_index') }}" class="btn btn-link text-white me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h5 class="mb-0">Conversation #{{ conversation.id }}</h5>
+                            <small>{{ messages|length }} message(s)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                {# Messages Area #}
+                <div class="messages-area" id="messagesArea" data-conversation-id="{{ conversation.id }}">
+                    {% for message in messages %}
+                        {% if not message.estSupprime %}
+                        <div class="message {{ message.expediteur.id == current_user.id ? 'message-sent' : 'message-received' }}" 
+                             data-message-id="{{ message.id }}">
+                            <div class="message-bubble">
+                                <div class="message-content">
+                                    {{ message.contenu|nl2br }}
+                                    
+                                    {# Pièces jointes #}
+                                    {% if message.piecesJointes|length > 0 %}
+                                        <div class="message-attachments mt-2">
+                                            {% for piece in message.piecesJointes %}
+                                                {% if piece.typeFichier == 'image' %}
+                                                    <a href="{{ asset(piece.cheminFichier) }}" target="_blank">
+                                                        <img src="{{ asset(piece.cheminFichier) }}" 
+                                                             alt="{{ piece.nomOriginal }}"
+                                                             class="attachment-image">
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{{ asset(piece.cheminFichier) }}" 
+                                                       class="attachment-file"
+                                                       target="_blank">
+                                                        <i class="fas fa-file me-2"></i>{{ piece.nomOriginal }}
+                                                        <small class="text-muted">({{ piece.tailleFormatee }})</small>
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="message-meta">
+                                    <small class="text-muted">
+                                        {{ message.dateEnvoi|date('d/m/Y H:i') }}
+                                        {% if message.isModifie %}
+                                            <i class="fas fa-edit ms-1" title="Modifié"></i>
+                                        {% endif %}
+                                        {% if message.expediteur.id == current_user.id %}
+                                            {% if message.estLu %}
+                                                <i class="fas fa-check-double ms-1 text-primary" title="Lu"></i>
+                                            {% else %}
+                                                <i class="fas fa-check ms-1" title="Envoyé"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </small>
+                                    
+                                    {# Actions sur le message #}
+                                    {% if message.expediteur.id == current_user.id %}
+                                        <div class="message-actions">
+                                            <button class="btn btn-sm btn-link text-muted" 
+                                                    onclick="editMessage({{ message.id }}, '{{ message.contenu|escape('js') }}')"
+                                                    title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-link text-danger" 
+                                                    onclick="deleteMessage({{ message.id }})"
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {# Message Input #}
+                <div class="message-input-area">
+                    <form id="messageForm" enctype="multipart/form-data">
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-secondary" id="attachButton">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <input type="file" 
+                                   id="fileInput" 
+                                   name="files[]" 
+                                   multiple 
+                                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                                   style="display: none;">
+                            <textarea class="form-control" 
+                                      id="messageInput" 
+                                      name="contenu"
+                                      placeholder="Tapez votre message..."
+                                      rows="1"></textarea>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div id="filePreview" class="mt-2"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {# Modal d'édition #}
+    <div class="modal fade" id="editMessageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier le message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="editMessageContent" rows="3"></textarea>
+                    <input type="hidden" id="editMessageId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditedMessage()">
+                        <i class="fas fa-save me-2"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    {{ encore_entry_script_tags('messagerie') }}
+    <script>
+        const conversationId = {{ conversation.id }};
+        const currentUserId = {{ current_user.id }};
+        const csrfToken = '{{ csrf_token('delete_message') }}';
+    </script>
+{% endblock %}
