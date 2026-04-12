@@ -1,0 +1,261 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact - AgriFund{% endblock %}
+
+{% block body_class %}contact-page{% endblock %}
+
+{% block body %}
+    {% include 'partials/_navbar.html.twig' %}
+
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title dark-background" data-aos="fade" style="background-image: url({{ asset('assets/img/page-title-bg.webp') }});">
+            <div class="container position-relative">
+                <h1>Contact</h1>
+                <p>Nous sommes là pour vous aider. N'hésitez pas à nous contacter pour toute question.</p>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="{{ path('app_home') }}">Accueil</a></li>
+                        <li class="current">Contact</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact section">
+
+            <div class="mb-5">
+                <iframe style="width: 100%; height: 400px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3194.5254444444!2d10.1815!3d36.8065!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12fd337f5e7ef543%3A0x7e7ef543e7ef543!2sTunis%2C%20Tunisia!5e0!3m2!1sen!2stn!4v1639943755621" frameborder="0" allowfullscreen=""></iframe>
+            </div><!-- End Google Maps -->
+
+            <div class="container" data-aos="fade">
+
+                <div class="row gy-5 gx-lg-5">
+
+                    <div class="col-lg-4">
+
+                        <div class="info">
+                            <h3>Contactez-nous</h3>
+                            <p>Notre équipe est disponible pour répondre à toutes vos questions concernant nos services de financement agricole et notre plateforme.</p>
+
+                            <div class="info-item d-flex">
+                                <i class="bi bi-geo-alt flex-shrink-0"></i>
+                                <div>
+                                    <h4>Adresse :</h4>
+                                    <p>123 Avenue de l'Agriculture<br>Tunis, Tunisie 1000</p>
+                                </div>
+                            </div><!-- End Info Item -->
+
+                            <div class="info-item d-flex">
+                                <i class="bi bi-envelope flex-shrink-0"></i>
+                                <div>
+                                    <h4>Email :</h4>
+                                    <p>contact@agrifund.tn</p>
+                                </div>
+                            </div><!-- End Info Item -->
+
+                            <div class="info-item d-flex">
+                                <i class="bi bi-phone flex-shrink-0"></i>
+                                <div>
+                                    <h4>Téléphone :</h4>
+                                    <p>+216 71 123 456</p>
+                                </div>
+                            </div><!-- End Info Item -->
+
+                            <div class="info-item d-flex">
+                                <i class="bi bi-clock flex-shrink-0"></i>
+                                <div>
+                                    <h4>Horaires :</h4>
+                                    <p>Lun - Ven : 8h00 - 18h00<br>Sam : 9h00 - 13h00</p>
+                                </div>
+                            </div><!-- End Info Item -->
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-8">
+
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+
+                        <form action="{{ path('app_contact') }}" method="post" role="form" class="php-email-form">
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <input type="text" name="name" class="form-control" id="name" placeholder="Votre nom" required="">
+                                </div>
+                                <div class="col-md-6 form-group mt-3 mt-md-0">
+                                    <input type="email" class="form-control" name="email" id="email" placeholder="Votre email" required="">
+                                </div>
+                            </div>
+                            <div class="form-group mt-3">
+                                <input type="text" class="form-control" name="subject" id="subject" placeholder="Sujet" required="">
+                            </div>
+                            <div class="form-group mt-3">
+                                <textarea class="form-control" name="message" rows="6" placeholder="Votre message" required=""></textarea>
+                            </div>
+                            <div class="my-3">
+                                <div class="loading">Envoi en cours...</div>
+                                <div class="error-message"></div>
+                                <div class="sent-message">Votre message a été envoyé. Merci !</div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit">Envoyer le message</button>
+                            </div>
+                        </form>
+                    </div><!-- End Contact Form -->
+
+                </div>
+
+            </div>
+
+        </section><!-- /Contact Section -->
+
+        <!-- FAQ Section -->
+        <section id="faq" class="faq section light-background">
+            <div class="container section-title" data-aos="fade-up">
+                <h2>Questions Fréquentes</h2>
+                <p>Trouvez rapidement les réponses à vos questions</p>
+            </div>
+
+            <div class="container" data-aos="fade-up">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="accordion" id="faqAccordion">
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Comment puis-je m'inscrire sur AgriFund ?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        L'inscription sur AgriFund est simple et gratuite. Cliquez sur le bouton "S'inscrire" en haut de la page, choisissez votre profil (Agriculteur ou Banque) et remplissez le formulaire d'inscription. Votre compte sera activé après vérification de vos informations.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Quels types de financement sont disponibles ?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        AgriFund propose différents types de financement adaptés aux besoins agricoles : crédits de campagne, crédits d'équipement, crédits d'investissement, et microcrédits. Les conditions varient selon les banques partenaires et votre profil.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Combien de temps prend une demande de financement ?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Le délai de traitement varie selon le type de financement et la banque choisie. En général, vous recevez une réponse préliminaire sous 48 à 72 heures. Le processus complet peut prendre de 1 à 3 semaines selon la complexité du dossier.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Mes données sont-elles sécurisées ?
+                                    </button>
+                                </h2>
+                                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Absolument. AgriFund utilise les technologies de sécurité les plus avancées pour protéger vos données personnelles et financières. Nous sommes conformes aux normes RGPD et nos serveurs sont sécurisés par cryptage SSL.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Comment devenir banque partenaire ?
+                                    </button>
+                                </h2>
+                                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Les institutions financières souhaitant devenir partenaires peuvent s'inscrire via notre formulaire dédié aux banques. Notre équipe vous contactera pour discuter des modalités de partenariat et vous accompagner dans l'intégration à notre plateforme.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /FAQ Section -->
+
+        <!-- CTA Section -->
+        <section class="cta-register py-5 text-center" style="background: linear-gradient(135deg, #0d2818 0%, #1a472a 100%);">
+            <div class="container" data-aos="fade-up">
+                <h2 class="text-white mb-3">Prêt à rejoindre AgriFund ?</h2>
+                <p class="text-white opacity-75 mb-4">Créez votre compte gratuitement et accédez à nos services de financement agricole.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ path('app_register_agriculteur') }}" class="btn btn-lg px-4 py-2" style="background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%); color: white; border-radius: 30px; font-weight: 600;">
+                        <i class="bi bi-tree me-2"></i> Inscription Agriculteur
+                    </a>
+                    <a href="{{ path('app_register_banque') }}" class="btn btn-lg px-4 py-2" style="background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%); color: white; border-radius: 30px; font-weight: 600;">
+                        <i class="bi bi-bank me-2"></i> Inscription Banque
+                    </a>
+                </div>
+            </div>
+        </section><!-- /CTA Section -->
+
+        <!-- Call To Action Section -->
+        <section id="call-to-action" class="call-to-action section light-background">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <h3>Abonnez-vous à notre newsletter</h3>
+                            <p class="opacity-50">
+                                Recevez les dernières actualités agricoles et nos conseils pour développer votre exploitation.
+                            </p>
+                        </div>
+                        <div class="col-lg-6">
+                            <form action="#" class="form-subscribe">
+                                <div class="form-group d-flex align-items-stretch">
+                                    <input type="email" name="email" class="form-control h-100" placeholder="Votre adresse email">
+                                    <input type="submit" class="btn btn-secondary px-4" value="S'abonner">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /Call To Action Section -->
+
+    </main>
+
+    {% include 'partials/_footer.html.twig' %}
+{% endblock %}

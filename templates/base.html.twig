@@ -1,116 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>{% block title %}Arialogic{% endblock %}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    {% block stylesheets %}
-    <link href="{{ asset('css/layout.css') }}" rel="stylesheet" type="text/css" media="all">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
-    {% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgriFund{% endblock %}</title>
+    <meta name="description" content="Plateforme de financement agricole">
+
+    <!-- Favicons -->
+    <link href="{{ asset('assets/img/log.png') }}" rel="icon">
+    <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Marcellus:wght@400&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Vendor CSS Files -->
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet">
+
+    {% block stylesheets %}{% endblock %}
 </head>
-<body id="top">
-    {% block header %}
-    <!-- Top Background Image Wrapper -->
-    <div class="bgded" style="background-image:url('{{ asset('images/demo/backgrounds/01.png') }}');"> 
-        <div class="wrapper overlay">
-            <header id="header" class="hoc clear">
-                <nav id="mainav" class="clear"> 
-                    <ul class="clear">
-                        <li class="active"><a href="{{ path('app_index') }}">Home</a></li>
-                        <li><a class="drop" href="#">Pages</a>
-                            <ul>
-                                <li><a href="{{ path('app_gallery') }}">Gallery</a></li>
-                                <li><a href="{{ path('app_full_width') }}">Full Width</a></li>
-                                <li><a href="{{ path('app_sidebar_left') }}">Sidebar Left</a></li>
-                                <li><a href="{{ path('app_sidebar_right') }}">Sidebar Right</a></li>
-                                <li><a href="{{ path('app_basic_grid') }}">Basic Grid</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="{{ path('app_products') }}">Produits</a></li>
-                        <li><a href="{{ path('app_offers') }}">Offres</a></li>
-                        {% if app.user %}
-                        <li><a class="drop" href="#"><i class="fa fa-user-circle"></i> {{ app.user.firstname }}</a>
-                            <ul>
-                                {% if 'ROLE_ADMIN' in app.user.roles %}
-                                <li><a href="{{ path('admin_produit_index') }}"><i class="fa fa-cube"></i> Products</a></li>
-                                <li><a href="{{ path('admin_offre_index') }}"><i class="fa fa-gift"></i> Offers</a></li>
-                                <li class="divider"></li>
-                                {% endif %}
-                                <li><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
-                            </ul>
-                        </li>
-                        {% else %}
-                        <li><a href="{{ path('app_login') }}"><i class="fa fa-lock"></i> Login</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                <div id="logo"> 
-                    <h1><a href="{{ path('app_index') }}">Agrifund</a></h1>
-                    <p>Agricultural Management System</p>
-                </div>
-            </header>
-        </div>
-        {% block page_intro %}{% endblock %}
-    </div>
-    <!-- End Top Background Image Wrapper -->
-    {% endblock %}
+<body class="{% block body_class %}index-page{% endblock %}">
 
-    {% block content %}{% endblock %}
+    {% block body %}{% endblock %}
 
-    {% block footer %}
-    <!-- Footer -->
-    <div class="wrapper row4">
-        <footer id="footer" class="hoc clear">
-            <div class="one_quarter first">
-                <h6 class="title">Suspendisse ultricies</h6>
-                <ul class="nospace linklist">
-                    <li><a href="#">Mauris integer finibus</a></li>
-                    <li><a href="#">Cras imperdiet consequat</a></li>
-                    <li><a href="#">Eros nec efficitur sed</a></li>
-                    <li><a href="#">Placerat lacus orci</a></li>
-                </ul>
-            </div>
-            <div class="one_quarter">
-                <h6 class="title">Pellentesque dictumst</h6>
-                <ul class="nospace linklist">
-                    <li><a href="#">Mauris integer finibus</a></li>
-                    <li><a href="#">Cras imperdiet consequat</a></li>
-                    <li><a href="#">Eros nec efficitur sed</a></li>
-                    <li><a href="#">Placerat lacus orci</a></li>
-                </ul>
-            </div>
-            <div class="one_quarter">
-                <h6 class="title">Ultricies malesuada</h6>
-                <ul class="nospace linklist">
-                    <li><a href="#">Mauris integer finibus</a></li>
-                    <li><a href="#">Cras imperdiet consequat</a></li>
-                    <li><a href="#">Eros nec efficitur sed</a></li>
-                    <li><a href="#">Placerat lacus orci</a></li>
-                </ul>
-            </div>
-            <div class="one_quarter">
-                <h6 class="title">Phasellus pretium</h6>
-                <p class="nospace btmspace-30">Morbi sit amet rutrum nunc cras imperdiet consequat eros nec efficitur sed placerat lacus.</p>
-            </div>
-        </footer>
-    </div>
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-    <div class="wrapper row5">
-        <div id="copyright" class="hoc clear"> 
-            <p><small>Copyright &copy; 2024 - All Rights Reserved</small></p>
-        </div>
-    </div>
-    {% endblock %}
+    <!-- Preloader - Seulement pour les pages publiques -->
+    {% if block('hide_preloader') is not defined %}
+        <div id="preloader"></div>
+    {% endif %}
 
-    <!-- Back to top link -->
-    <a id="backtotop" href="#top"><i class="fa fa-chevron-up"></i></a>
+    <!-- Vendor JS Files -->
+    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/php-email-form/validate.js') }}"></script>
+    <script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
+    <script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
 
-    {% block javascripts %}
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/jquery.mobilemenu.js') }}"></script>
-    <script src="{{ asset('js/jquery.placeholder.min.js') }}"></script>
-    <script src="{{ asset('js/jquery.backtotop.js') }}"></script>
-    {% endblock %}
+    <!-- Main JS File -->
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+
+    <!-- Force hide preloader after 2 seconds -->
+    <script>
+        (function() {
+            function hidePreloader() {
+                var preloader = document.getElementById('preloader');
+                if (preloader) {
+                    preloader.style.transition = 'opacity 0.3s ease';
+                    preloader.style.opacity = '0';
+                    setTimeout(function() {
+                        preloader.style.display = 'none';
+                        preloader.remove();
+                    }, 300);
+                }
+            }
+
+            // Hide when DOM is ready
+            if (document.readyState === 'complete') {
+                hidePreloader();
+            } else {
+                window.addEventListener('load', hidePreloader);
+            }
+
+            // Fallback: force hide after 2 seconds max
+            setTimeout(hidePreloader, 2000);
+        })();
+    </script>
+
+    {% block javascripts %}{% endblock %}
 </body>
 </html>
