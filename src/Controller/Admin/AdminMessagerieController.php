@@ -154,10 +154,22 @@ class AdminMessagerieController extends AbstractController
 
         if (!empty($files)) {
             foreach ($files as $file) {
+                // Vérifier si le fichier est valide
+                if (!$file->isValid()) {
+                    return new JsonResponse(['error' => 'Fichier invalide'], 400);
+                }
+
                 $pieceJointe = new PieceJointe();
                 
                 $extension = $file->guessExtension();
+                if (!$extension) {
+                    $extension = $file->getClientOriginalExtension();
+                }
+                
                 $mimeType = $file->getMimeType();
+                
+                // Obtenir la taille AVANT de déplacer le fichier
+                $fileSize = $file->getSize();
                 
                 $typeFichier = 'autre';
                 if (str_starts_with($mimeType, 'image/')) {
@@ -191,7 +203,7 @@ class AdminMessagerieController extends AbstractController
                     $pieceJointe->setNomOriginal($file->getClientOriginalName());
                     $pieceJointe->setNomStockage($newFilename);
                     $pieceJointe->setCheminFichier(str_replace($this->getParameter('kernel.project_dir') . '/public/', '', $uploadDir . $newFilename));
-                    $pieceJointe->setTailleOctets($file->getSize());
+                    $pieceJointe->setTailleOctets($fileSize); // Utiliser la taille obtenue AVANT le déplacement
                     $pieceJointe->setExtension($extension);
                     $pieceJointe->setMimeType($mimeType);
                     
@@ -273,7 +285,9 @@ class AdminMessagerieController extends AbstractController
             return new JsonResponse(['error' => 'Non autorisé'], 403);
         }
 
-        if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $request->request->get('_token'))) {
+        // Correction du CSRF token
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $token)) {
             return new JsonResponse(['error' => 'Token CSRF invalide'], 403);
         }
 

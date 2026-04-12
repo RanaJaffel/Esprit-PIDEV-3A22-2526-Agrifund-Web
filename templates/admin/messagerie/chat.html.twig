@@ -183,7 +183,6 @@
     <script>
         const conversationId = {{ conversation.id }};
         const currentUserId = {{ current_user.id }};
-        const csrfToken = '{{ csrf_token('delete_message') }}';
         
         const sendMessageRoute = '{{ path('admin_messagerie_send', {conversationId: conversation.id}) }}';
         const editMessageRoute = '/admin/messagerie/message/';
@@ -440,7 +439,8 @@
             }
             
             const formData = new FormData();
-            formData.append('_token', csrfToken + messageId);
+            const csrfToken = '{{ csrf_token("delete_message") }}' + messageId;
+            formData.append('_token', csrfToken);
             
             fetch(deleteMessageRoute + messageId + '/delete', {
                 method: 'POST',
@@ -453,7 +453,7 @@
                     messageDiv.style.animation = 'fadeOut 0.3s ease';
                     setTimeout(() => messageDiv.remove(), 300);
                 } else {
-                    alert('Erreur lors de la suppression');
+                    alert('Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'));
                 }
             })
             .catch(error => {
