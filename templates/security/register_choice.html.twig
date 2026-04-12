@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Type d'inscription{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-vif) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .choice-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 20px;
+        }
+        
+        .choice-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .choice-header i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .choice-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .choice-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .choice-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .choice-card i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .choice-card.agriculteur i {
+            color: var(--vert-vif);
+        }
+        
+        .choice-card.banque i {
+            color: var(--jaune-moutarde);
+        }
+        
+        .choice-card h3 {
+            margin-bottom: 15px;
+            color: var(--vert-fonce);
+        }
+        
+        .choice-card p {
+            color: var(--gris);
+            margin-bottom: 0;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="choice-container">
+        <div class="choice-header">
+            <i class="fas fa-leaf"></i>
+            <h1>Choisissez votre type de compte</h1>
+            <p>Sélectionnez le type de compte que vous souhaitez créer</p>
+        </div>
+        
+        <div class="choice-cards">
+            <a href="{{ path('app_register_agriculteur') }}" class="choice-card agriculteur">
+                <i class="fas fa-tractor"></i>
+                <h3>Agriculteur</h3>
+                <p>Gérez votre exploitation agricole et vos documents</p>
+            </a>
+            
+            <a href="{{ path('app_register_banque') }}" class="choice-card banque">
+                <i class="fas fa-university"></i>
+                <h3>Banque</h3>
+                <p>Gérez vos services bancaires et collaborations</p>
+            </a>
+        </div>
+        
+        <div class="back-link">
+            <a href="{{ path('app_login') }}">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la connexion
+            </a>
+        </div>
+    </div>
+{% endblock %}

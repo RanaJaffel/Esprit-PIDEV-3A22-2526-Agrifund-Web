@@ -1,0 +1,816 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le document{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('banque') }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --gris: #848A86;
+            --vert-tres-fonce: #133D03;
+            --jaune-moutarde: #E1B323;
+            --jaune-fonce: #c9a020;
+            --vert-clair: #B2D944;
+            --olive: #9A951F;
+            --vert-olive-fonce: #476C1A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+            min-height: 100vh;
+        }
+
+        /* ==========================================
+           LAYOUT
+        ========================================== */
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            background: transparent;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content { margin-left: 0; }
+        }
+
+        /* ==========================================
+           HEADER
+        ========================================== */
+        .main-content > .d-flex.justify-content-between:first-of-type {
+            background: linear-gradient(135deg, var(--vert-olive-fonce) 0%, var(--vert-foret) 50%, var(--vert-tres-fonce) 100%);
+            padding: 28px 35px;
+            margin: 0 0 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 10 L30 10 L30 40 L15 40 Z' fill='%23B2D944' fill-opacity='0.04' rx='2'/%3E%3Cpath d='M18 15 L27 15' stroke='%23B2D944' stroke-opacity='0.06' stroke-width='1'/%3E%3Cpath d='M18 20 L27 20' stroke='%23B2D944' stroke-opacity='0.06' stroke-width='1'/%3E%3Cpath d='M18 25 L27 25' stroke='%23B2D944' stroke-opacity='0.06' stroke-width='1'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type::after {
+            content: '';
+            position: absolute;
+            top: -50%; right: -10%;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(178, 217, 68, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type h1 {
+            color: white !important;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type h1 i {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--olive) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 8px 20px rgba(225, 179, 35, 0.35);
+            margin-right: 0 !important;
+        }
+
+        /* Header Back Button */
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            transform: translateX(-5px);
+        }
+
+        /* ==========================================
+           CONTENT AREA
+        ========================================== */
+        .main-content > .row {
+            margin-left: 35px;
+            margin-right: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content > .row {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+        }
+
+        /* ==========================================
+           DASHBOARD SECTION
+        ========================================== */
+        .dashboard-section {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .dashboard-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--vert-olive-fonce), var(--vert-clair), var(--jaune-moutarde));
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Watermark */
+        .dashboard-section::after {
+            content: '\f044';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            font-size: 8rem;
+            color: var(--jaune-moutarde);
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           ALERTS
+        ========================================== */
+        .alert {
+            border-radius: 14px;
+            border: none;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(225, 179, 35, 0.15) 0%, rgba(225, 179, 35, 0.08) 100%);
+            color: #92750d;
+            border-left: 5px solid var(--jaune-moutarde);
+        }
+
+        .alert-warning i {
+            color: var(--jaune-moutarde);
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .alert-warning strong {
+            color: var(--jaune-fonce);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(71, 108, 26, 0.1) 0%, rgba(178, 217, 68, 0.08) 100%);
+            border: none;
+            border-left: 4px solid var(--vert-olive-fonce);
+            border-radius: 12px;
+            padding: 18px 22px;
+            color: var(--vert-tres-fonce);
+            font-size: 0.95rem;
+            display: block;
+        }
+
+        .alert-info i {
+            color: var(--vert-olive-fonce);
+        }
+
+        .alert-info small {
+            color: var(--gris);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            color: #b91c1c;
+            border-left: 4px solid #ef4444;
+        }
+
+        /* ==========================================
+           FORM STYLING
+        ========================================== */
+        .form-label {
+            font-weight: 600;
+            color: var(--vert-tres-fonce);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            color: var(--vert-tres-fonce);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--vert-olive-fonce);
+            box-shadow: 0 0 0 4px rgba(71, 108, 26, 0.12);
+            background: white;
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-control:hover,
+        .form-select:hover {
+            border-color: var(--vert-clair);
+        }
+
+        /* Input file styling */
+        input[type="file"].form-control {
+            padding: 14px 18px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #fafbfc 0%, #f7fafc 100%);
+            border: 2px dashed #cbd5e0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"].form-control:hover {
+            border-color: var(--vert-olive-fonce);
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 100%);
+        }
+
+        input[type="file"].form-control:focus {
+            border-style: solid;
+            border-color: var(--vert-olive-fonce);
+        }
+
+        input[type="file"].form-control::-webkit-file-upload-button {
+            background: linear-gradient(135deg, var(--vert-olive-fonce) 0%, var(--vert-foret) 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            margin-right: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(71, 108, 26, 0.25);
+        }
+
+        input[type="file"].form-control::-webkit-file-upload-button:hover {
+            background: linear-gradient(135deg, var(--vert-foret) 0%, var(--vert-tres-fonce) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(71, 108, 26, 0.35);
+        }
+
+        /* Form validation states */
+        .form-control.is-invalid {
+            border-color: #e53e3e;
+            background-image: none;
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.12);
+        }
+
+        .invalid-feedback {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .invalid-feedback::before {
+            content: '\f071';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 0.75rem;
+        }
+
+        /* Small text helper */
+        small.text-muted {
+            color: var(--gris) !important;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .text-muted {
+            color: var(--gris) !important;
+        }
+
+        /* ==========================================
+           CURRENT FILE SECTION
+        ========================================== */
+        .mt-3 p.text-muted {
+            font-weight: 600;
+            color: var(--vert-tres-fonce) !important;
+            margin-bottom: 10px;
+        }
+
+        /* ==========================================
+           HR DIVIDER
+        ========================================== */
+        hr.my-4 {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--vert-olive-fonce), var(--jaune-moutarde), var(--vert-olive-fonce), transparent);
+            margin: 35px 0;
+            opacity: 0.3;
+        }
+
+        /* ==========================================
+           ACTION BUTTONS
+        ========================================== */
+        .d-grid.gap-2 {
+            gap: 15px !important;
+        }
+
+        .d-grid .btn-warning.btn-lg {
+            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--olive) 100%) !important;
+            border: none !important;
+            border-radius: 14px;
+            padding: 18px 32px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: white !important;
+            box-shadow: 0 8px 30px rgba(225, 179, 35, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+
+        .d-grid .btn-warning.btn-lg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .d-grid .btn-warning.btn-lg:hover::before {
+            left: 100%;
+        }
+
+        .d-grid .btn-warning.btn-lg:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(225, 179, 35, 0.4);
+        }
+
+        .d-grid .btn-warning.btn-lg:active {
+            transform: translateY(-2px) scale(0.99);
+        }
+
+        .d-grid .btn-warning.btn-lg i {
+            font-size: 1.15rem;
+        }
+
+        .d-grid .btn-outline-secondary {
+            border: 2px solid var(--gris) !important;
+            color: var(--gris) !important;
+            background: transparent !important;
+            border-radius: 14px;
+            padding: 16px 28px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .d-grid .btn-outline-secondary:hover {
+            background: var(--gris) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(132, 138, 134, 0.25);
+        }
+
+        /* ==========================================
+           FORM GROUPS ANIMATION
+        ========================================== */
+        .mb-3, .mb-4 {
+            animation: fadeInField 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .mb-3:nth-child(1) { animation-delay: 0.1s; }
+        .mb-3:nth-child(2) { animation-delay: 0.15s; }
+        .mb-3:nth-child(3) { animation-delay: 0.2s; }
+        .mb-4:nth-child(4) { animation-delay: 0.25s; }
+
+        @keyframes fadeInField {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================
+           FOCUS WITHIN EFFECTS
+        ========================================== */
+        .mb-3:focus-within label,
+        .mb-4:focus-within label {
+            color: var(--vert-olive-fonce);
+        }
+
+        .mb-3:focus-within,
+        .mb-4:focus-within {
+            position: relative;
+        }
+
+        .mb-3:focus-within::before,
+        .mb-4:focus-within::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--vert-olive-fonce), var(--vert-clair));
+            border-radius: 2px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+
+        /* ==========================================
+           RESPONSIVE
+        ========================================== */
+        @media (max-width: 768px) {
+            .main-content > .d-flex.justify-content-between:first-of-type {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            .main-content > .d-flex.justify-content-between:first-of-type h1 {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-section {
+                padding: 25px;
+                border-radius: 18px;
+            }
+
+            .form-control,
+            .form-select {
+                padding: 12px 15px;
+            }
+
+            .d-grid .btn-warning.btn-lg {
+                padding: 15px 24px;
+                font-size: 0.95rem;
+            }
+
+            .alert {
+                padding: 14px 18px;
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        /* ==========================================
+           CUSTOM SCROLLBAR
+        ========================================== */
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-track { background: #f1f1f1; }
+        .main-content::-webkit-scrollbar-thumb {
+            background: var(--vert-olive-fonce);
+            border-radius: 4px;
+        }
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: var(--vert-foret);
+        }
+
+        /* ==========================================
+           DECORATIVE ELEMENTS
+        ========================================== */
+        .dashboard-section > form::before {
+            content: '';
+            position: absolute;
+            top: 80px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(225, 179, 35, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .dashboard-section > form::after {
+            content: '';
+            position: absolute;
+            bottom: 100px;
+            left: -80px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(71, 108, 26, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           SAVE ICON ANIMATION
+        ========================================== */
+        .d-grid .btn-warning.btn-lg i {
+            animation: savePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes savePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .d-grid .btn-warning.btn-lg:hover i {
+            animation: saveBounce 0.5s ease;
+        }
+
+        @keyframes saveBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_banque.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Modifier le Document
+                </h1>
+                <a href="{{ path('banque_documents_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+            
+            {% include 'components/_flash_messages.html.twig' %}
+            
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="dashboard-section">
+                        {% if document.statut == 'rejete' %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Document rejeté:</strong> Vous pouvez modifier et renvoyer ce document pour validation.
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {{ form_start(form) }}
+                            <div class="mb-3">
+                                {{ form_row(form.nom) }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.typeDocument) }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.dateExpiration) }}
+                            </div>
+                            
+                            <div class="mb-4">
+                                {{ form_row(form.file) }}
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Laissez vide pour conserver le fichier actuel
+                                </small>
+                                
+                                <div class="mt-3">
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-paperclip me-1"></i>Fichier actuel:
+                                    </p>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-file-alt me-2"></i>
+                                        <div>
+                                            <strong>{{ document.nom }}</strong>
+                                            <br>
+                                            <small>Envoyé le {{ document.dateUpload|date('d/m/Y à H:i') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-save"></i>Enregistrer les Modifications
+                                </button>
+                                <a href="{{ path('banque_documents_index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile sidebar toggle
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('sidebarOverlay');
+                    if (sidebar) {
+                        sidebar.classList.add('show');
+                        if (overlay) overlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            }
+
+            // Preview file name and size
+            const fileInput = document.querySelector('input[type="file"]');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Remove existing preview
+                        const existingPreview = this.parentElement.querySelector('.file-preview');
+                        if (existingPreview) {
+                            existingPreview.remove();
+                        }
+
+                        // Create new preview
+                        const preview = document.createElement('div');
+                        preview.className = 'alert alert-info mt-3 file-preview';
+                        preview.style.display = 'flex';
+                        preview.style.alignItems = 'center';
+                        preview.style.background = 'linear-gradient(135deg, rgba(8, 150, 71, 0.1) 0%, rgba(178, 217, 68, 0.1) 100%)';
+                        preview.style.borderLeft = '4px solid var(--vert-vif)';
+                        
+                        // Determine file icon based on type
+                        let icon = 'fa-file';
+                        if (file.type.includes('pdf')) icon = 'fa-file-pdf';
+                        else if (file.type.includes('image')) icon = 'fa-file-image';
+                        else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) icon = 'fa-file-word';
+                        
+                        const fileSize = file.size < 1024 * 1024 
+                            ? (file.size / 1024).toFixed(2) + ' Ko'
+                            : (file.size / (1024 * 1024)).toFixed(2) + ' Mo';
+                        
+                        preview.innerHTML = `
+                            <i class="fas ${icon} fa-2x me-3" style="color: var(--vert-vif);"></i>
+                            <div>
+                                <strong>Nouveau fichier: ${file.name}</strong>
+                                <br>
+                                <small>Taille: ${fileSize}</small>
+                            </div>
+                            <i class="fas fa-check-circle ms-auto" style="color: var(--vert-vif); font-size: 1.5rem;"></i>
+                        `;
+                        
+                        this.parentElement.appendChild(preview);
+                    }
+                });
+
+                // Drag and drop effects
+                fileInput.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.borderColor = 'var(--vert-olive-fonce)';
+                    this.style.background = 'linear-gradient(135deg, #f8faf5 0%, #e8f5e9 100%)';
+                });
+
+                fileInput.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.style.borderColor = '#cbd5e0';
+                    this.style.background = 'linear-gradient(135deg, #fafbfc 0%, #f7fafc 100%)';
+                });
+
+                fileInput.addEventListener('drop', function(e) {
+                    this.style.borderColor = '#cbd5e0';
+                    this.style.background = 'linear-gradient(135deg, #fafbfc 0%, #f7fafc 100%)';
+                });
+            }
+
+            // Form input animations
+            document.querySelectorAll('.form-control, .form-select').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateX(5px)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Button ripple effect
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (this.type === 'submit') {
+                        const ripple = document.createElement('span');
+                        const rect = this.getBoundingClientRect();
+                        ripple.style.cssText = `
+                            position: absolute;
+                            background: rgba(255,255,255,0.3);
+                            border-radius: 50%;
+                            width: 100px;
+                            height: 100px;
+                            left: ${e.clientX - rect.left - 50}px;
+                            top: ${e.clientY - rect.top - 50}px;
+                            transform: scale(0);
+                            animation: ripple 0.6s ease-out;
+                            pointer-events: none;
+                        `;
+                        this.style.position = 'relative';
+                        this.style.overflow = 'hidden';
+                        this.appendChild(ripple);
+                        setTimeout(() => ripple.remove(), 600);
+                    }
+                });
+            });
+
+            // Form submission loading state
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enregistrement...';
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = '0.8';
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+    </style>
+{% endblock %}

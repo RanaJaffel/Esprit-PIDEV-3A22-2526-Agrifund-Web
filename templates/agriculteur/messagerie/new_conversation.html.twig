@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle conversation{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('agriculteur') }}
+    <style>
+        .user-list-item {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-list-item:hover {
+            background: rgba(178, 217, 68, 0.05);
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--vert-fonce);
+        }
+        
+        .user-email {
+            color: var(--gris);
+            font-size: 0.9rem;
+        }
+        
+        .user-type-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_agriculteur.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>Nouvelle conversation
+                </h1>
+                <a href="{{ path('agriculteur_messagerie_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Information:</strong> Vous pouvez communiquer avec les administrateurs et les banques.
+                </div>
+                
+                <h5 class="mb-4">Sélectionnez un utilisateur pour démarrer une conversation</h5>
+                
+                {% if available_users|length > 0 %}
+                    <div class="list-group">
+                        {% for user in available_users %}
+                            <a href="{{ path('agriculteur_messagerie_start', {userId: user.id}) }}" 
+                               class="user-list-item list-group-item list-group-item-action">
+                                <div>
+                                    {% if user.photo %}
+                                        <img src="{{ asset(user.photo) }}" 
+                                             alt="{{ user.nomComplet }}" 
+                                             class="user-avatar">
+                                    {% elseif user.banque and user.banque.logo %}
+                                        <img src="{{ asset(user.banque.logo) }}" 
+                                             alt="{{ user.nom }}" 
+                                             class="user-avatar">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-3x text-muted me-3"></i>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="user-info">
+                                    <div class="user-name">
+                                        {% if user.admin or user.agriculteur %}
+                                            {{ user.nomComplet }}
+                                        {% elseif user.banque %}
+                                            {{ user.nom }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                    {% if user.banque and user.banque.codebanque %}
+                                        <small class="text-muted">Code: {{ user.banque.codebanque }}</small>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    {% if user.admin %}
+                                        <span class="badge bg-danger user-type-badge">
+                                            <i class="fas fa-user-shield me-1"></i>Administrateur
+                                        </span>
+                                    {% elseif user.banque %}
+                                        <span class="badge bg-warning user-type-badge">
+                                            <i class="fas fa-university me-1"></i>Banque
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-users fa-5x mb-3 d-block"></i>
+                        <h5>Aucun utilisateur disponible</h5>
+                        <p>Il n'y a actuellement aucun utilisateur avec qui vous pouvez démarrer une conversation.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+{% endblock %}

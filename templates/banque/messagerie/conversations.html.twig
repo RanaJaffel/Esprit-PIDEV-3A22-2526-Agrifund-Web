@@ -1,0 +1,156 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Messagerie{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('banque') }}
+    {{ encore_entry_link_tags('messagerie-style') }}
+    <style>
+        .conversations-list {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .conversation-item {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .conversation-item:hover {
+            background: rgba(225, 179, 35, 0.05);
+        }
+        
+        .conversation-item.unread {
+            background: rgba(225, 179, 35, 0.1);
+            border-left: 4px solid var(--jaune-moutarde);
+        }
+        
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .conversation-info {
+            flex: 1;
+        }
+        
+        .conversation-name {
+            font-weight: 600;
+            color: var(--vert-fonce);
+            margin-bottom: 5px;
+        }
+        
+        .conversation-preview {
+            color: var(--gris);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-time {
+            font-size: 0.85rem;
+            color: var(--gris);
+        }
+        
+        .conversation-badge {
+            background: var(--jaune-moutarde);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_banque.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>Messagerie
+                    {% if messages_non_lus > 0 %}
+                        <span class="badge bg-danger">{{ messages_non_lus }}</span>
+                    {% endif %}
+                </h1>
+                <a href="{{ path('banque_messagerie_new') }}" class="btn btn-warning">
+                    <i class="fas fa-plus me-2"></i>Nouvelle conversation
+                </a>
+            </div>
+            
+            {% include 'components/_flash_messages.html.twig' %}
+            
+            <div class="dashboard-section">
+                {% if conversations|length > 0 %}
+                    <div class="conversations-list">
+                        {% for conversation in conversations %}
+                            {% set otherUserId = conversation.getOtherUserId(current_user.id) %}
+                            {% set lastMessage = conversation.lastMessage %}
+                            {% set unreadCount = conversation.getUnreadMessagesCount(current_user.id) %}
+                            
+                            <a href="{{ path('banque_messagerie_chat', {id: conversation.id}) }}" 
+                               class="conversation-item d-flex align-items-center {{ unreadCount > 0 ? 'unread' : '' }}">
+                                <div>
+                                    <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                </div>
+                                
+                                <div class="conversation-info">
+                                    <div class="conversation-name">
+                                        Conversation #{{ conversation.id }}
+                                    </div>
+                                    <div class="conversation-preview">
+                                        {% if lastMessage %}
+                                            {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0, 50) ~ '...' : lastMessage.contenu }}
+                                        {% else %}
+                                            Aucun message
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <div class="conversation-time">
+                                        {{ conversation.derniereActivite|date('d/m/Y H:i') }}
+                                    </div>
+                                    {% if unreadCount > 0 %}
+                                        <div class="conversation-badge mt-2">
+                                            {{ unreadCount }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-envelope fa-5x mb-3 d-block"></i>
+                        <h5>Aucune conversation</h5>
+                        <p>Commencez une nouvelle conversation pour communiquer avec les utilisateurs.</p>
+                        <a href="{{ path('banque_messagerie_new') }}" class="btn btn-warning mt-3">
+                            <i class="fas fa-plus me-2"></i>Nouvelle conversation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+{% endblock %}
