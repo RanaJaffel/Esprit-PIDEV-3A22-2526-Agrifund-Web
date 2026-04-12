@@ -227,6 +227,8 @@ class AdminMessagerieController extends AbstractController
                 'date' => $message->getDateEnvoi()->format('Y-m-d H:i:s'),
                 'expediteur_id' => $message->getExpediteur()->getId(),
                 'expediteur_nom' => $message->getExpediteur()->getNomComplet(),
+                'est_lu' => $message->isEstLu(),
+                'est_modifie' => false,
                 'pieces_jointes' => array_map(function($pj) {
                     return [
                         'id' => $pj->getId(),
@@ -295,6 +297,22 @@ class AdminMessagerieController extends AbstractController
         $em->flush();
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/message/{id}/csrf-token', name: 'admin_messagerie_csrf_token', methods: ['GET'])]
+    public function getCsrfToken(Message $message): JsonResponse
+    {
+        $currentUser = $this->getUser();
+        
+        if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
+            return new JsonResponse(['error' => 'Non autorisé'], 403);
+        }
+
+        $token = $this->container->get('security.csrf.token_manager')
+            ->getToken('delete_message' . $message->getId())
+            ->getValue();
+
+        return new JsonResponse(['token' => $token]);
     }
 
     #[Route('/messages/unread-count', name: 'admin_messagerie_unread_count', methods: ['GET'])]
