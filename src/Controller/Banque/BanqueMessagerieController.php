@@ -158,10 +158,22 @@ class BanqueMessagerieController extends AbstractController
 
         if (!empty($files)) {
             foreach ($files as $file) {
+                // Vérifier si le fichier est valide
+                if (!$file->isValid()) {
+                    return new JsonResponse(['error' => 'Fichier invalide'], 400);
+                }
+
                 $pieceJointe = new PieceJointe();
                 
                 $extension = $file->guessExtension();
+                if (!$extension) {
+                    $extension = $file->getClientOriginalExtension();
+                }
+                
                 $mimeType = $file->getMimeType();
+                
+                // Obtenir la taille AVANT de déplacer le fichier
+                $fileSize = $file->getSize();
                 
                 $typeFichier = 'autre';
                 if (str_starts_with($mimeType, 'image/')) {
@@ -195,7 +207,7 @@ class BanqueMessagerieController extends AbstractController
                     $pieceJointe->setNomOriginal($file->getClientOriginalName());
                     $pieceJointe->setNomStockage($newFilename);
                     $pieceJointe->setCheminFichier(str_replace($this->getParameter('kernel.project_dir') . '/public/', '', $uploadDir . $newFilename));
-                    $pieceJointe->setTailleOctets($file->getSize());
+                    $pieceJointe->setTailleOctets($fileSize); // Utiliser la taille obtenue AVANT le déplacement
                     $pieceJointe->setExtension($extension);
                     $pieceJointe->setMimeType($mimeType);
                     
@@ -219,6 +231,8 @@ class BanqueMessagerieController extends AbstractController
                 'date' => $message->getDateEnvoi()->format('Y-m-d H:i:s'),
                 'expediteur_id' => $message->getExpediteur()->getId(),
                 'expediteur_nom' => $message->getExpediteur()->getNomComplet(),
+                'est_lu' => $message->isEstLu(),
+                'est_modifie' => false,
                 'pieces_jointes' => array_map(function($pj) {
                     return [
                         'id' => $pj->getId(),
@@ -238,7 +252,9 @@ class BanqueMessagerieController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): JsonResponse {
-        if ($message->getExpediteur()->getId() !== $this->getUser()->getId()) {
+        $currentUser = $this->getUser();
+        
+        if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Non autorisé'], 403);
         }
 
@@ -250,6 +266,7 @@ class BanqueMessagerieController extends AbstractController
 
         $message->setContenu($nouveauContenu);
         $message->setDateModification(new \DateTime());
+        
         $em->flush();
 
         return new JsonResponse([
@@ -268,11 +285,15 @@ class BanqueMessagerieController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): JsonResponse {
-        if ($message->getExpediteur()->getId() !== $this->getUser()->getId()) {
+        $currentUser = $this->getUser();
+        
+        if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Non autorisé'], 403);
         }
 
-        if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $request->request->get('_token'))) {
+        // Correction du CSRF token
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $token)) {
             return new JsonResponse(['error' => 'Token CSRF invalide'], 403);
         }
 
@@ -280,6 +301,22 @@ class BanqueMessagerieController extends AbstractController
         $em->flush();
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/message/{id}/csrf-token', name: 'banque_messagerie_csrf_token', methods: ['GET'])]
+    public function getCsrfToken(Message $message): JsonResponse
+    {
+        $currentUser = $this->getUser();
+        
+        if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
+            return new JsonResponse(['error' => 'Non autorisé'], 403);
+        }
+
+        $token = $this->container->get('security.csrf.token_manager')
+            ->getToken('delete_message' . $message->getId())
+            ->getValue();
+
+        return new JsonResponse(['token' => $token]);
     }
 
     #[Route('/conversation/{id}/messages', name: 'banque_messagerie_get_messages', methods: ['GET'])]

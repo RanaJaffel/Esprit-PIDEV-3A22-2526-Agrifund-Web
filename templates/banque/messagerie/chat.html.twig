@@ -6,6 +6,7 @@
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('banque') }}
     {{ encore_entry_link_tags('messagerie-style') }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -105,7 +106,7 @@
                                     {% if message.expediteur.id == current_user.id %}
                                         <div class="message-actions">
                                             <button class="btn btn-sm btn-link text-muted" 
-                                                    onclick="editMessage({{ message.id }}, '{{ message.contenu|escape('js') }}')"
+                                                    onclick="editMessage({{ message.id }}, {{ message.contenu|json_encode|raw }})"
                                                     title="Modifier">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -181,12 +182,27 @@
     <script>
         const conversationId = {{ conversation.id }};
         const currentUserId = {{ current_user.id }};
-        const csrfToken = '{{ csrf_token('delete_message') }}';
         
         const sendMessageRoute = '{{ path('banque_messagerie_send', {conversationId: conversation.id}) }}';
         const editMessageRoute = '/banque/messagerie/message/';
         const deleteMessageRoute = '/banque/messagerie/message/';
         const getMessagesRoute = '{{ path('banque_messagerie_get_messages', {id: conversation.id}) }}';
+
+        // Stocker les tokens CSRF pour chaque message
+        const csrfTokens = {};
+        {% for message in messages %}
+            {% if message.expediteur.id == current_user.id and not message.estSupprime %}
+                csrfTokens[{{ message.id }}] = '{{ csrf_token('delete_message' ~ message.id) }}';
+            {% endif %}
+        {% endfor %}
+
+        // Fonction pour obtenir ou générer le token CSRF
+        function getCsrfToken(messageId) {
+            if (csrfTokens[messageId]) {
+                return csrfTokens[messageId];
+            }
+            return null;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             const messageForm = document.getElementById('messageForm');
@@ -258,8 +274,12 @@
                     fileInput.value = '';
                     document.getElementById('filePreviewTop').innerHTML = '';
                     
-                    appendMessage(data.message);
-                    scrollToBottom();
+                    // Récupérer le token CSRF pour le nouveau message
+                    fetchCsrfToken(data.message.id).then(token => {
+                        csrfTokens[data.message.id] = token;
+                        appendMessage(data.message);
+                        scrollToBottom();
+                    });
                 } else {
                     alert('Erreur: ' + (data.error || 'Erreur inconnue'));
                 }
@@ -274,6 +294,18 @@
             });
         }
 
+        // Fonction pour récupérer le token CSRF d'un message
+        async function fetchCsrfToken(messageId) {
+            try {
+                const response = await fetch(`/banque/messagerie/message/${messageId}/csrf-token`);
+                const data = await response.json();
+                return data.token;
+            } catch (error) {
+                console.error('Error fetching CSRF token:', error);
+                return null;
+            }
+        }
+
         function refreshMessages() {
             const messagesArea = document.getElementById('messagesArea');
             if (!messagesArea) return;
@@ -284,7 +316,14 @@
                 .then(response => response.json())
                 .then(messages => {
                     messages.forEach(message => {
-                        appendMessage(message);
+                        if (message.expediteur_id === currentUserId) {
+                            fetchCsrfToken(message.id).then(token => {
+                                csrfTokens[message.id] = token;
+                                appendMessage(message);
+                            });
+                        } else {
+                            appendMessage(message);
+                        }
                     });
                     if (messages.length > 0) {
                         scrollToBottom();
@@ -351,7 +390,7 @@
                         ${isSent ? `
                             <div class="message-actions">
                                 <button class="btn btn-sm btn-link text-muted" 
-                                        onclick="editMessage(${messageData.id}, '${escapeHtml(messageData.contenu).replace(/'/g, "\\'")}')"
+                                        onclick="editMessage(${messageData.id}, '${escapeHtml(messageData.contenu).replace(/'/g, "\\'").replace(/\n/g, '\\n')}')"
                                         title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -367,6 +406,14 @@
             `;
             
             messagesArea.appendChild(messageDiv);
+            
+            // Reinitialize lightbox for new images
+            if (typeof lightbox !== 'undefined') {
+                lightbox.option({
+                    'resizeDuration': 200,
+                    'wrapAround': true
+                });
+            }
         }
 
         function editMessage(messageId, content) {
@@ -398,16 +445,27 @@
                 if (data.success) {
                     const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
                     const contentDiv = messageDiv.querySelector('.message-content');
+                    
+                    // Garder les pièces jointes si elles existent
+                    const attachments = contentDiv.querySelector('.message-attachments');
                     contentDiv.innerHTML = escapeHtml(data.message.contenu).replace(/\n/g, '<br>');
+                    if (attachments) {
+                        contentDiv.appendChild(attachments);
+                    }
                     
                     const metaDiv = messageDiv.querySelector('.message-meta small');
                     if (!metaDiv.querySelector('.fa-edit')) {
-                        metaDiv.innerHTML += ' <i class="fas fa-edit ms-1" title="Modifié"></i>';
+                        const checkIcon = metaDiv.querySelector('.fa-check, .fa-check-double');
+                        if (checkIcon) {
+                            checkIcon.insertAdjacentHTML('beforebegin', '<i class="fas fa-edit ms-1" title="Modifié"></i> ');
+                        } else {
+                            metaDiv.innerHTML += ' <i class="fas fa-edit ms-1" title="Modifié"></i>';
+                        }
                     }
                     
                     bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
                 } else {
-                    alert('Erreur lors de la modification');
+                    alert('Erreur lors de la modification: ' + (data.error || 'Erreur inconnue'));
                 }
             })
             .catch(error => {
@@ -421,8 +479,15 @@
                 return;
             }
             
+            const token = getCsrfToken(messageId);
+            
+            if (!token) {
+                alert('Erreur: Token CSRF introuvable');
+                return;
+            }
+            
             const formData = new FormData();
-            formData.append('_token', csrfToken + messageId);
+            formData.append('_token', token);
             
             fetch(deleteMessageRoute + messageId + '/delete', {
                 method: 'POST',
@@ -433,9 +498,12 @@
                 if (data.success) {
                     const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
                     messageDiv.style.animation = 'fadeOut 0.3s ease';
-                    setTimeout(() => messageDiv.remove(), 300);
+                    setTimeout(() => {
+                        messageDiv.remove();
+                        delete csrfTokens[messageId];
+                    }, 300);
                 } else {
-                    alert('Erreur lors de la suppression');
+                    alert('Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'));
                 }
             })
             .catch(error => {
@@ -511,6 +579,7 @@
         }
 
         function escapeHtml(text) {
+            if (!text) return '';
             const map = {
                 '&': '&amp;',
                 '<': '&lt;',
