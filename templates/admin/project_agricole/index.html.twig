@@ -1,0 +1,557 @@
+{% extends 'base.html.twig' %}
+{% block title %}Admin — Gestion des Projets Agricoles{% endblock %}
+
+{% block body %}
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <main class="admin-main">
+
+        {# ══════════════ HEADER ══════════════ #}
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">🌿</div>
+                <div>
+                    <h2 class="header-title">Gestion des Projets Agricoles</h2>
+                    <p class="header-subtitle">Plateforme de financement et suivi des projets <span class="header-badge">ADMIN</span></p>
+                </div>
+            </div>
+            <a href="{{ path('admin_project_agricole_export_pdf') }}" target="_blank" class="btn-export">
+                📄 Exporter PDF
+            </a>
+        </div>
+
+        {# ══════════════ TOOLBAR ══════════════ #}
+        <div class="toolbar">
+            <div class="toolbar-label">
+                <div class="toolbar-title">🌾 Liste des Projets</div>
+                <div class="toolbar-subtitle">Visualisez et gérez tous vos projets agricoles</div>
+            </div>
+
+            <form method="GET" class="toolbar-form" id="filterForm">
+                <div class="search-wrapper">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#9ca3af" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
+                    <input type="text" name="search" value="{{ search }}"
+                           placeholder="Rechercher un projet..."
+                           class="search-input">
+                </div>
+                <button type="submit" class="btn-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#fff" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
+                </button>
+                <select name="statut" class="status-select"
+                        onchange="document.getElementById('filterForm').submit();">
+                    <option value="">Tous les statuts</option>
+                    <option value="En cours" {% if statut == 'En cours' %}selected{% endif %}>⏳ En cours</option>
+                    <option value="Accepté"  {% if statut == 'Accepté'  %}selected{% endif %}>✅ Acceptés</option>
+                    <option value="Refusé"   {% if statut == 'Refusé'   %}selected{% endif %}>❌ Refusé</option>
+                </select>
+            </form>
+
+            <a href="{{ path('admin_project_agricole_new') }}" class="btn-new">
+                + Nouveau Projet
+            </a>
+        </div>
+
+        {# ══════════════ DASHBOARD CARDS ══════════════ #}
+        <div class="section-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#16a34a" viewBox="0 0 16 16"><path d="M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z"/></svg> Tableau de Bord
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#166534" viewBox="0 0 16 16"><path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"/></svg>
+                </div>
+                <div>
+                    <div class="stat-label">Total Projets</div>
+                    <div class="stat-value" style="color:#166534;">{{ totalCount }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#16a34a" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                </div>
+                <div>
+                    <div class="stat-label">Acceptés</div>
+                    <div class="stat-value" style="color:#16a34a;">{{ countApprouve }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fff7ed;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#ea580c" viewBox="0 0 16 16"><path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5"/></svg>
+                </div>
+                <div>
+                    <div class="stat-label">En Cours</div>
+                    <div class="stat-value" style="color:#ea580c;">{{ countEncours }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef2f2;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#dc2626" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/></svg>
+                </div>
+                <div>
+                    <div class="stat-label">Refusés</div>
+                    <div class="stat-value" style="color:#dc2626;">{{ countRefuse }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# ══════════════ PROJECT CARDS ══════════════ #}
+        <div class="section-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#16a34a" viewBox="0 0 16 16"><path d="M2 0a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 5a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 5a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2z"/></svg> Tous les Projets
+        </div>
+
+        {% if projects is empty %}
+            <div class="empty-state">
+                <div style="font-size:4rem;">🌱</div>
+                <p class="mt-3" style="color:#9ca3af;font-size:1.1rem;">Aucun projet trouvé.</p>
+            </div>
+        {% else %}
+            <div class="projects-grid">
+                {% for project in projects %}
+                <div class="project-card">
+                    <div class="project-card-body">
+                        <div class="project-header">
+                            <div class="project-icon">
+                                {% if project.statut == 'Accepté' %}✅
+                                {% elseif project.statut == 'Refusé' %}❌
+                                {% elseif project.statut == 'Terminé' %}🏁
+                                {% else %}⏳{% endif %}
+                            </div>
+                            <div>
+                                <h6 class="project-name">{{ project.nomproject }}</h6>
+                                <span class="project-id">ID: {{ project.idproject }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="status-badge"
+                                  style="background:{% if project.statut == 'Accepté' %}#dcfce7{% elseif project.statut == 'Refusé' %}#fee2e2{% elseif project.statut == 'Terminé' %}#e0f2fe{% else %}#ffedd5{% endif %};
+                                         color:{% if project.statut == 'Accepté' %}#166534{% elseif project.statut == 'Refusé' %}#991b1b{% elseif project.statut == 'Terminé' %}#075985{% else %}#9a3412{% endif %};">
+                                {{ project.statut }}
+                            </span>
+                        </div>
+
+                        <hr class="project-divider">
+
+                        <div class="project-meta">
+                            <div class="meta-row">
+                                <span class="meta-icon">🌿</span>
+                                <span class="meta-label">Surface:</span>
+                                <span class="meta-value">{{ project.surface|number_format(2, ',', '.') }} Ha</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-icon">💰</span>
+                                <span class="meta-label">Budget:</span>
+                                <span class="meta-value">{{ project.budgetdemande|number_format(2, ',', ' ') }} DT</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-icon">📅</span>
+                                <span class="meta-label">Date:</span>
+                                <span class="meta-value">{{ project.datesoumission|date('Y-m-d') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card-footer">
+                        <a href="{{ path('admin_project_agricole_show', {id: project.idproject}) }}"
+                           title="Voir" class="action-btn action-btn--view">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg>
+                        </a>
+                        <a href="{{ path('admin_project_agricole_edit', {id: project.idproject}) }}"
+                           title="Modifier" class="action-btn action-btn--edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg>
+                        </a>
+                        <form method="POST"
+                              action="{{ path('admin_project_agricole_delete', {id: project.idproject}) }}"
+                              onsubmit="return confirm('Supprimer « {{ project.nomproject|e('js') }} » et toutes ses ressources ?');"
+                              style="display:inline;">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('delete_project_' ~ project.idproject) }}">
+                            <button type="submit" title="Supprimer" class="action-btn action-btn--delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {# ══════════════ FOOTER STATS ══════════════ #}
+        <div class="footer-stats">
+            <div class="footer-stat">
+                <span class="footer-stat-label">💰 Budget Total</span>
+                <strong class="footer-stat-value">{{ totalBudget|number_format(2, ',', ' ') }} DT</strong>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-label">🌍 Surface Totale</span>
+                <strong class="footer-stat-value">{{ totalSurface|number_format(2, ',', '.') }} Ha</strong>
+            </div>
+            <div class="footer-stat">
+                <span class="footer-stat-label">📅 Dernière Mise à Jour</span>
+                <strong class="footer-stat-value">{{ "now"|date('d/m/Y') }}</strong>
+            </div>
+        </div>
+
+    </main>
+
+    <style>
+        .admin-main {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #f4f6f4;
+            padding: 2rem 2.5rem;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            background: linear-gradient(135deg, #1a4d1f 0%, #2d7a33 100%);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.8rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,.4);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-icon {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 4px;
+        }
+        .header-subtitle {
+            color: rgba(255,255,255,.7);
+            font-size: .85rem;
+            margin: 0;
+        }
+        .header-badge {
+            background: rgba(255,255,255,.2);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: .7rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .btn-export {
+            background: linear-gradient(135deg,#f59e0b,#d97706);
+            color: #fff;
+            border-radius: 10px;
+            padding: .6rem 1.4rem;
+            font-weight: 700;
+            font-size: .9rem;
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(0,0,0,.3);
+            transition: opacity .2s;
+        }
+        .btn-export:hover { opacity: .88; color: #fff; }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+        .toolbar-label { min-width: 180px; }
+        .toolbar-title  { color: #166534; font-size: 1rem; font-weight: 700; }
+        .toolbar-subtitle { color: #6b7280; font-size: .8rem; }
+
+        .toolbar-form {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            flex: 1;
+            flex-wrap: nowrap;
+        }
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 380px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: .9rem;
+        }
+        .search-input {
+            width: 100%;
+            height: 42px;
+            padding: 0 1rem 0 2.5rem;
+            border-radius: 10px;
+            border: 1.5px solid #2d3748;
+            background: #1a2420;
+            color: #e5e7eb;
+            font-size: .9rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .search-input::placeholder { color: #4b5563; }
+        .search-input:focus { border-color: #4ade80; }
+
+        .btn-search {
+            height: 42px;
+            padding: 0 1rem;
+            border-radius: 10px;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: .95rem;
+            transition: background .2s;
+        }
+        .btn-search:hover { background: #15803d; }
+
+        .status-select {
+            height: 42px;
+            padding: 0 2rem 0 .8rem;
+            border-radius: 10px;
+            border: 1.5px solid #2d3748;
+            background: #1a2420;
+            color: #e5e7eb;
+            font-size: .88rem;
+            cursor: pointer;
+            outline: none;
+            appearance: auto;
+        }
+
+        .btn-new {
+            height: 42px;
+            padding: 0 1.4rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg,#16a34a,#22c55e);
+            color: #fff;
+            font-weight: 700;
+            font-size: .9rem;
+            text-decoration: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 3px 12px rgba(22,163,74,.35);
+            transition: opacity .2s;
+        }
+        .btn-new:hover { opacity: .88; color: #fff; }
+
+        /* ── TOOLBAR inputs light ── */
+        .search-input {
+            width: 100%;
+            height: 42px;
+            padding: 0 1rem 0 2.5rem;
+            border-radius: 10px;
+            border: 1.5px solid #d1d5db;
+            background: #fff;
+            color: #111827;
+            font-size: .9rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .search-input::placeholder { color: #9ca3af; }
+        .search-input:focus { border-color: #16a34a; }
+
+        .status-select {
+            height: 42px;
+            padding: 0 2rem 0 .8rem;
+            border-radius: 10px;
+            border: 1.5px solid #d1d5db;
+            background: #fff;
+            color: #111827;
+            font-size: .88rem;
+            cursor: pointer;
+            outline: none;
+            appearance: auto;
+        }
+
+        /* ── SECTION LABEL ── */
+        .section-label {
+            color: #374151;
+            font-size: .95rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px)  { .stats-grid { grid-template-columns: 1fr; } }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 1.4rem 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.1);
+        }
+        .stat-icon {
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+
+        /* ── PROJECTS GRID ── */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 1200px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 700px)  { .projects-grid { grid-template-columns: 1fr; } }
+
+        .project-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: transform .2s, box-shadow .2s, border-color .2s;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.12);
+            border-color: #86efac;
+        }
+        .project-card-body { padding: 1.4rem; flex: 1; }
+        .project-header {
+            display: flex;
+            align-items: flex-start;
+            gap: .9rem;
+            margin-bottom: 1rem;
+        }
+        .project-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+        .project-name {
+            color: #166534;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 3px;
+        }
+        .project-id { color: #9ca3af; font-size: .78rem; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+
+        .project-divider {
+            border: none;
+            border-top: 1px solid #f0f0f0;
+            margin: .8rem 0;
+        }
+
+        .project-meta { display: flex; flex-direction: column; gap: .5rem; }
+        .meta-row { display: flex; align-items: center; gap: .5rem; font-size: .88rem; }
+        .meta-icon { width: 22px; flex-shrink: 0; }
+        .meta-label { color: #9ca3af; }
+        .meta-value { color: #166534; font-weight: 600; margin-left: auto; }
+
+        .project-card-footer {
+            padding: 1rem 1.4rem 1.4rem;
+            display: flex;
+            gap: .5rem;
+            border-top: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+
+        .action-btn {
+            width: 42px; height: 42px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .95rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: opacity .2s, transform .15s;
+        }
+        .action-btn:hover { opacity: .82; transform: scale(1.07); }
+
+        .action-btn--view   { background: #166534; color: #fff; }
+        .action-btn--edit   { background: #16a34a; color: #fff; }
+        .action-btn--delete { background: #fff; color: #dc2626; border: 2px solid #dc2626; }
+
+        /* ── FOOTER STATS ── */
+        .footer-stats {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 1.2rem 1.8rem;
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+        .footer-stat { display: flex; flex-direction: column; gap: 4px; }
+        .footer-stat-label { color: #6b7280; font-size: .83rem; }
+        .footer-stat-value { color: #166534; font-size: 1rem; font-weight: 700; }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {# No modal JS needed — each card has its own inline form with correct CSRF token #}
+{% endblock %}

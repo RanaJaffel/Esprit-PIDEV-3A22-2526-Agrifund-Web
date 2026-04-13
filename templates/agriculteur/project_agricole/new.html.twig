@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+{% block title %}Soumettre un Projet{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{{ path('agriculteur_project_agricole_index') }}" class="text-white-50">Mes Projets</a></li>
+        <li class="breadcrumb-item active text-white">Nouveau Projet</li>
+    </ol></nav>
+    <h2 class="fw-bold mb-0">
+        <i class="bi bi-plus-circle me-2"></i>Soumettre un Nouveau Projet
+        <span class="badge ms-2" style="background:#A5D6A7;color:#1B5E20;font-size:.7em">AGRICULTEUR</span>
+    </h2>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        {# Statut badge: shown as informational, NOT editable by agriculteur #}
+        <div class="alert d-flex align-items-center gap-3 mb-3 border-0"
+             style="background:linear-gradient(to right,#E8F5E9,#F1F8E9);border-left:4px solid #4CAF50 !important;">
+            <i class="bi bi-info-circle-fill text-success fs-4"></i>
+            <div>
+                Statut initial : <span class="badge px-3 py-2" style="background:linear-gradient(to right,#E1B323,#9A951F);color:#fff;font-size:.95em">📋 En cours</span>
+                <br><small class="text-muted">Le statut sera modifié automatiquement par les décisions financières.</small>
+            </div>
+        </div>
+
+        <div class="card card-agri">
+            <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
+                    <i class="bi bi-file-earmark-plus me-2"></i>Informations du Projet
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    {% include 'agriculteur/project_agricole/_form.html.twig' %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-agri-primary">
+                            <i class="bi bi-send me-1"></i> Soumettre le Projet
+                        </button>
+                        <a href="{{ path('agriculteur_project_agricole_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Annuler
+                        </a>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

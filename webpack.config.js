@@ -26,7 +26,7 @@ Encore
     .addStyleEntry('admin', './assets/css/admin.css')
     .addStyleEntry('agriculteur', './assets/css/agriculteur.css')
     .addStyleEntry('banque', './assets/css/banque.css')
-    .addStyleEntry('messagerie-style', './assets/css/messagerie.css')
+    .addStyleEntry('messagerie-css', './assets/css/messagerie.css')
     .addStyleEntry('sidebar-style', './assets/css/sidebar.css')
     .addStyleEntry('messagerie-style', './assets/styles/messagerie-style.css')
 
