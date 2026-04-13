@@ -1,274 +1,51 @@
 {% extends 'base.html.twig' %}
+{% import 'admin/_form_macros.html.twig' as form_ui %}
 
-{% block title %}Edit Financial Offer - Admin{% endblock %}
+{% block title %}Modifier {{ offre.nomOffre }} | Admin{% endblock %}
 
-{% block page_intro %}
-<div id="pageintro" class="hoc clear"> 
-    <article>
-        <div class="introtxt">
-            <h2 class="heading"><i class="fa fa-pencil"></i> Edit Offer</h2>
-            <p>Update financial offer and promotion details</p>
-        </div>
-    </article>
-</div>
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/admin-forms.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block content %}
-<div class="wrapper row3">
-    <main class="hoc container clear">
-        {{ include('flash_messages.html.twig') }}
-        
-        <div class="form-wrapper">
-            <div class="form-card">
-                <div class="form-header">
-                    <h2><i class="fa fa-edit"></i> Edit Financial Offer</h2>
-                    <p>Update the offer details and terms</p>
-                </div>
+{% block body_class %}admin-form-page{% endblock %}
 
-                {{ form_start(form, {'attr': {'class': 'offer-form'}}) }}
-                
-                <div class="form-section">
-                    <h4>Basic Information</h4>
-                    
-                    <div class="form-group">
-                        {{ form_label(form.nomOffre, 'Offer Name') }}
-                        {{ form_widget(form.nomOffre, {'attr': {'placeholder': 'e.g., Spring Promotion 2026', 'class': 'form-control'}}) }}
-                        {% if form.nomOffre.vars.errors %}
-                            <div class="form-error">
-                                {{ form_errors(form.nomOffre) }}
-                            </div>
-                        {% endif %}
-                    </div>
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
 
-                    <div class="form-group">
-                        {{ form_label(form.produitFinancier, 'Linked Financial Product') }}
-                        {{ form_widget(form.produitFinancier, {'attr': {'class': 'form-control'}}) }}
-                        <small class="form-text">Select which financial product this offer applies to</small>
-                        {% if form.produitFinancier.vars.errors %}
-                            <div class="form-error">
-                                {{ form_errors(form.produitFinancier) }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>Offer Details</h4>
-                    
-                    <div class="form-group">
-                        {{ form_label(form.statut, 'Offer Status') }}
-                        {{ form_widget(form.statut, {'attr': {'class': 'form-control'}}) }}
-                        {% if form.statut.vars.errors %}
-                            <div class="form-error">
-                                {{ form_errors(form.statut) }}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group">
-                        {{ form_label(form.conditions, 'Terms & Conditions') }}
-                        {{ form_widget(form.conditions, {'attr': {'placeholder': 'Describe the offer conditions...', 'rows': 5, 'class': 'form-control'}}) }}
-                        <small class="form-text">Provide the terms, benefits, and any restrictions of this offer</small>
-                        {% if form.conditions.vars.errors %}
-                            <div class="form-error">
-                                {{ form_errors(form.conditions) }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-submit">
-                        <i class="fa fa-check-circle"></i> Update Offer
-                    </button>
-                    <a href="{{ path('admin_offre_index') }}" class="btn btn-secondary">
-                        <i class="fa fa-times"></i> Cancel
-                    </a>
-                </div>
-
-                {{ form_end(form) }}
-            </div>
+    <div class="main-content">
+        <div class="form-hero theme-slate">
+            <a href="{{ path('admin_offre_index') }}" class="back-link"><i class="fas fa-arrow-left"></i> Retour aux offres</a>
+            <h1><i class="fas fa-pen-fancy me-2" style="color: #E1B323;"></i> Modifier l'Offre</h1>
+            <p>Mise à jour des informations de l'offre financière.</p>
         </div>
-    </main>
+
+        <div class="form-card">
+            <div class="edit-badge"><i class="fas fa-edit"></i> Édition : {{ offre.nomOffre }}</div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="section-divider"><span><i class="fas fa-tag me-2"></i>Identité de l'Offre</span></div>
+                {{ form_ui.field(form.nomOffre, "Nom de l'Offre", 'icon-slate', {icon: 'fa-bookmark', attr: {class: 'form-control'}}) }}
+
+                <div class="row">
+                    <div class="col-md-7">
+                        {{ form_ui.field(form.produitFinancier, 'Produit Financier', 'icon-indigo', {icon: 'fa-boxes', attr: {class: 'form-select'}}) }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ form_ui.field(form.statut, 'Statut', 'icon-amber', {icon: 'fa-toggle-on', attr: {class: 'form-select'}}) }}
+                    </div>
+                </div>
+
+                <div class="section-divider"><span><i class="fas fa-file-signature me-2"></i>Conditions</span></div>
+                {{ form_ui.field(form.conditions, 'Conditions & Détails', 'icon-pink', {icon: 'fa-clipboard-list', attr: {class: 'form-control', rows: 6}}) }}
+
+                <button type="submit" class="btn-submit theme-slate">
+                    <i class="fas fa-save me-2"></i> Mettre à jour l'Offre
+                </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
 </div>
-
-<style>
-.form-wrapper {
-    display: flex;
-    justify-content: center;
-    padding: 20px 0;
-}
-
-.form-card {
-    background: white;
-    border-radius: 8px;
-    padding: 35px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08);
-    max-width: 650px;
-    width: 100%;
-}
-
-.form-header {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #F4C430;
-}
-
-.form-header h2 {
-    margin: 0 0 8px 0;
-    color: #1B7E4C;
-    font-size: 1.8rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-header p {
-    margin: 0;
-    color: #666;
-    font-size: 0.95rem;
-}
-
-.form-section {
-    margin-bottom: 30px;
-}
-
-.form-section h4 {
-    color: #1B7E4C;
-    font-size: 1.1rem;
-    margin: 0 0 20px 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-.form-group {
-    margin-bottom: 22px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.95rem;
-}
-
-.form-control, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 2px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.form-control:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: #1B7E4C;
-    box-shadow: 0 0 0 4px rgba(27,126,76,.1);
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.form-text {
-    display: block;
-    margin-top: 6px;
-    color: #999;
-    font-size: 0.85rem;
-    font-style: italic;
-}
-
-.form-error {
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: #ffebee;
-    border-left: 3px solid #D32F2F;
-    border-radius: 3px;
-    color: #C62828;
-    font-size: 0.9rem;
-}
-
-.form-error ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.form-error li {
-    margin: 4px 0;
-}
-
-.form-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 35px;
-    padding-top: 25px;
-    border-top: 2px solid #f0f0f0;
-}
-
-.btn {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-    flex: 1;
-    justify-content: center;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(27,126,76,.3);
-}
-
-.btn-secondary {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.btn-secondary:hover {
-    background: #e0e0e0;
-    transform: translateY(-2px);
-}
-
-.btn-submit {
-    flex: 2;
-}
-
-@media (max-width: 640px) {
-    .form-card {
-        padding: 20px;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-    }
-    
-    .btn-submit {
-        flex: 1;
-    }
-}
-</style>
 {% endblock %}

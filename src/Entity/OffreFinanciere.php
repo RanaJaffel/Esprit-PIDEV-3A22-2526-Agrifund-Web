@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\OffreFinanciereRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OffreFinanciereRepository::class)]
 #[ORM\Table(name: 'offre_financiere')]
+#[ORM\Index(name: 'idx_offre_statut', columns: ['statut'])]
 class OffreFinanciere
 {
     #[ORM\Id]
@@ -15,16 +17,37 @@ class OffreFinanciere
     private ?int $id = null;
 
     #[ORM\Column(name: 'nom_offre', length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de l\'offre est obligatoire.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
+        message: 'Le nom ne doit contenir que des lettres, chiffres, espaces et tirets.'
+    )]
     private ?string $nomOffre = null;
 
     #[ORM\Column(name: 'conditions', type: 'text', nullable: true)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'Les conditions ne peuvent pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $conditions = null;
 
     #[ORM\Column(name: 'statut', length: 50)]
+    #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
+    #[Assert\Choice(
+        choices: ['Active', 'En attente', 'Cancelled'],
+        message: 'Veuillez choisir un statut valide.'
+    )]
     private ?string $statut = null;
 
     #[ORM\ManyToOne(targetEntity: ProduitFinancier::class, inversedBy: 'offres')]
     #[ORM\JoinColumn(name: 'id_produit', referencedColumnName: 'id_produit', nullable: false)]
+    #[Assert\NotNull(message: 'Le produit financier associé est obligatoire.')]
     private ?ProduitFinancier $produitFinancier = null;
 
     public function getId(): ?int

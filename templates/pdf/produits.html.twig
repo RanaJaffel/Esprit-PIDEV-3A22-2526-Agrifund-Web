@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        @page { margin: 0; }
+        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 10px; margin: 0; padding: 0; background: #fff; }
+        
+        /* Layout */
+        .page-container { position: relative; width: 100%; height: 100%; }
+        .content-wrap { padding: 40px; }
+        
+        /* Decorative header */
+        .color-bar-top { height: 10px; background: #076A39; width: 100%; }
+        .hero-section { background: #095032; color: #fff; padding: 30px 40px; }
+        .hero-table { width: 100%; border-collapse: collapse; }
+        .hero-logo { font-size: 32px; font-weight: 900; color: #B2D944; width: 60px; }
+        .hero-text h1 { font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .hero-text p { font-size: 10px; color: #B2D944; margin-top: 5px; text-transform: uppercase; }
+        .hero-meta { text-align: right; font-size: 9px; opacity: 0.8; }
+
+        /* Stats Bar */
+        .stats-stripe { background: #f0f7f4; border-bottom: 2px solid #E1B323; padding: 15px 40px; }
+        .stats-table { width: 100%; border-collapse: collapse; }
+        .stat-item { text-align: center; border-right: 1px solid #d0dfd8; width: 25%; }
+        .stat-item:last-child { border-right: none; }
+        .stat-val { font-size: 18px; font-weight: 900; color: #089647; }
+        .stat-lbl { font-size: 7px; text-transform: uppercase; color: #666; margin-top: 2px; }
+
+        /* Data Table */
+        .main-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .main-table th { background: #076A39; color: #fff; text-align: left; padding: 10px; font-size: 8px; text-transform: uppercase; }
+        .main-table tr { page-break-inside: avoid; }
+        .main-table tr:nth-child(even) { background: #f9fdfb; }
+        
+        .type-badge { padding: 2px 8px; border-radius: 4px; font-size: 7px; font-weight: 700; text-transform: uppercase; }
+        .badge-credit { background: #e8f5e9; color: #2e7d32; }
+        .badge-pret { background: #e3f2fd; color: #1565c0; }
+        .badge-leasing { background: #fff3e0; color: #ef6c00; }
+        .badge-sub { background: #f3e5f5; color: #7b1fa2; }
+        
+        /* The "Cachet" (Stamp) */
+        .authenticity-zone { margin-top: 40px; }
+        .stamp-box { width: 130px; height: 130px; border: 4px double #089647; border-radius: 50%; position: relative; text-align: center; display: inline-block; }
+        .stamp-inner { padding-top: 25px; }
+        .stamp-txt-top { font-size: 7px; text-transform: uppercase; color: #089647; font-weight: 800; }
+        .stamp-txt-mid { font-size: 14px; color: #076A39; font-weight: 900; margin: 4px 0; }
+        .stamp-txt-bot { font-size: 6px; color: #089647; opacity: 0.7; }
+
+        /* Signatures */
+        .signature-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        .sig-cell { width: 50%; text-align: center; }
+        .sig-line { width: 180px; border-bottom: 1px solid #333; margin: 40px auto 10px auto; }
+        .sig-label { font-size: 9px; font-weight: 700; }
+        .sig-sub { font-size: 8px; color: #666; font-style: italic; }
+
+        /* QR & Footer */
+        .footer { position: fixed; bottom: 0; width: 100%; padding: 20px 40px; background: #fafafa; border-top: 1px solid #eee; }
+        .footer-table { width: 100%; border-collapse: collapse; }
+        .footer-info { font-size: 8px; color: #888; }
+        .qr-placeholder { width: 40px; height: 40px; border: 1px solid #ccc; text-align: center; line-height: 40px; font-size: 6px; }
+
+        .watermark { position: fixed; top: 30%; left: 10%; font-size: 90px; color: #f0f0f0; transform: rotate(-45deg); z-index: -1; font-weight: 900; }
+    </style>
+</head>
+<body>
+    <div class="watermark">OFFICIEL</div>
+
+    <div class="color-bar-top"></div>
+    
+    <div style="position: absolute; top: 0; right: 40px; width: 60px; height: 35px; background: #E1B323; text-align: center; color: #fff; font-size: 6px; padding-top: 5px; border-radius: 0 0 5px 5px; font-weight: 800;">
+        VÉRIFIÉ<br>DIGITAL
+    </div>
+
+    <div class="hero-section">
+        <table class="hero-table">
+            <tr>
+                <td class="hero-logo">AF</td>
+                <td class="hero-text">
+                    <h1>AgriFund Catalog</h1>
+                    <p>Produits Financiers & Solutions d'Investissement</p>
+                </td>
+                <td class="hero-meta">
+                    REF: PRD-{{ date|date('Ymd-His') }}<br>
+                    Édité le {{ date|date('d/m/Y H:i') }}<br>
+                    Tunis, Tunisie
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="stats-stripe">
+        <table class="stats-table">
+            <tr>
+                <td class="stat-item">
+                    <div class="stat-val">{{ stats.totalProduits }}</div>
+                    <div class="stat-lbl">Nombre total de produits</div>
+                </td>
+                <td class="stat-item">
+                    <div class="stat-val">{{ stats.avgTaux }}%</div>
+                    <div class="stat-lbl">Taux d'intérêt moyen</div>
+                </td>
+                <td class="stat-item">
+                    <div class="stat-val">{{ stats.maxMontant|number_format(0, ',', ' ') }}</div>
+                    <div class="stat-lbl">Financement Max (DT)</div>
+                </td>
+                <td class="stat-item">
+                    <div class="stat-val">{{ (stats.avgMontantMax)|number_format(0, ',', ' ') }}</div>
+                    <div class="stat-lbl">Moyenne de financement</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin: 20px 40px; padding: 10px; border: 1px dashed #089647; font-size: 8px; color: #089647; background: #f0fdf4; text-align: center;">
+        Ce document est une extraction officielle du système AgriFund. Signature numérique ID: {{ date|date('U') }}-{{ "now"|date("v") }}
+    </div>
+
+    <div class="content-wrap">
+        <h2 style="font-size: 14px; color: #076A39; border-left: 4px solid #B2D944; padding-left: 10px; margin-bottom: 20px;">
+            Récapitulatif des Produits Disponibles
+        </h2>
+
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th>Désignation</th>
+                    <th>Type</th>
+                    <th>Taux</th>
+                    <th>Min (DT)</th>
+                    <th>Max (DT)</th>
+                    <th>Règles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in produits %}
+                <tr>
+                    <td style="font-weight: 700; color: #076A39;">{{ p.nomProduit }}</td>
+                    <td>
+                        <span class="type-badge badge-{{ p.typeFinancement|lower == 'crédit' ? 'credit' : (p.typeFinancement|lower == 'prêt' ? 'pret' : (p.typeFinancement|lower == 'leasing' ? 'leasing' : 'sub')) }}">
+                            {{ p.typeFinancement }}
+                        </span>
+                    </td>
+                    <td style="font-weight: 700;">{{ p.tauxInteret }}%</td>
+                    <td>{{ p.montantMin|number_format(0, ',', ' ') }}</td>
+                    <td style="font-weight: 700; color: #089647;">{{ p.montantMax|number_format(0, ',', ' ') }}</td>
+                    <td style="font-size: 7px; color: #777; width: 30%;">{{ p.reglesFinancieres|slice(0, 80) }}...</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+        <div class="footer" style="padding: 20px 40px; background: #fafafa; border-top: 1px solid #eee; margin-top: 30px;">
+            <table class="footer-table">
+                <tr>
+                    <td class="footer-info">
+                        AgriFund S.A. — Avenue Habib Bourguiba, Tunis<br>
+                        www.agrifund.tn — contact@agrifund.tn — +216 71 000 000
+                    </td>
+                    <td style="width: 50px;">
+                        <div style="width: 40px; height: 40px; border: 1px solid #ccc; text-align: center; line-height: 40px; font-size: 6px;">VERIFY</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+</body>
+</html>

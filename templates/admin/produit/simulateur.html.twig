@@ -1,0 +1,292 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Simulateur de Crédit | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --jaune-moutarde: #E1B323;
+            --vert-clair: #B2D944;
+        }
+
+        .dashboard-container { display: flex; min-height: 100vh; background: linear-gradient(135deg, #f8faf5, #e8f5e9); }
+        .main-content { flex: 1; margin-left: 280px; padding: 0; }
+        .section-header-custom { background: linear-gradient(135deg, var(--vert-fonce), var(--vert-foret), #133D03); padding: 28px 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .dashboard-section { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 8px 32px rgba(8,150,71,0.08); margin: -20px 35px 30px 35px; border: 1px solid rgba(255,255,255,0.6); position: relative; z-index: 10; }
+
+        .simulator-form { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.04); }
+        .form-label-custom { font-weight: 700; color: #2b3531; font-size: 0.9rem; margin-bottom: 8px; }
+        .form-control-custom { border-radius: 12px; border: 2px solid #e9ecef; padding: 12px 16px; font-size: 0.95rem; transition: all 0.3s; }
+        .form-control-custom:focus { border-color: var(--vert-vif); box-shadow: 0 0 0 3px rgba(8,150,71,0.1); }
+
+        .btn-simulate { background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce)); color: white; border: none; border-radius: 14px; padding: 14px 30px; font-weight: 700; font-size: 1rem; transition: all 0.3s; width: 100%; }
+        .btn-simulate:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(8,150,71,0.3); }
+
+        /* Result cards */
+        .result-card { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); transition: all 0.3s; animation: slideUp 0.5s ease-out; }
+        .result-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(8,150,71,0.12); }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--vert-fonce); line-height: 1; }
+        .result-label { font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .result-highlight { background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce)); color: white; }
+        .result-highlight .result-value { color: white; font-size: 2.5rem; }
+        .result-highlight .result-label { color: rgba(255,255,255,0.8); }
+
+        /* Table */
+        .amort-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .amort-table thead th { background: var(--vert-fonce); color: white; padding: 12px 16px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .amort-table thead th:first-child { border-radius: 12px 0 0 0; }
+        .amort-table thead th:last-child { border-radius: 0 12px 0 0; }
+        .amort-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+        .amort-table tbody tr:hover { background: #f8faf5; }
+        .amort-table tbody tr:last-child td:first-child { border-radius: 0 0 0 12px; }
+        .amort-table tbody tr:last-child td:last-child { border-radius: 0 0 12px 0; }
+
+        /* Progress bar */
+        .ratio-bar { height: 12px; border-radius: 6px; background: #e9ecef; overflow: hidden; }
+        .ratio-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(135deg, var(--vert-clair), var(--vert-vif)); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 991.98px) { .main-content { margin-left: 0; } .dashboard-section { margin: -10px 15px 20px 15px; } }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center section-header-custom mb-4">
+            <h1 class="mb-0 text-white">
+                <i class="fas fa-calculator me-3" style="color: var(--vert-clair);"></i>Simulateur de Crédit
+            </h1>
+            <a href="{{ path('admin_produit_index') }}" class="btn btn-outline-light rounded-3 px-4">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="row g-4">
+                {# FORM #}
+                <div class="col-lg-5">
+                    <div class="simulator-form">
+                        <h4 class="fw-bold mb-4" style="color: var(--vert-fonce);">
+                            <i class="fas fa-sliders-h me-2"></i>Paramètres
+                        </h4>
+                        <form method="post" id="simulatorForm">
+                            <div class="mb-4">
+                                <label class="form-label-custom">Produit Financier (optionnel)</label>
+                                <select name="produit_id" class="form-select form-control-custom" id="produitSelect">
+                                    <option value="0">— Taux personnalisé —</option>
+                                    {% for p in produits %}
+                                        <option value="{{ p.id }}"
+                                                data-taux="{{ p.tauxInteret }}"
+                                                data-min="{{ p.montantMin }}"
+                                                data-max="{{ p.montantMax }}"
+                                                {{ produitSelectionne and produitSelectionne.id == p.id ? 'selected' : '' }}>
+                                            {{ p.nomProduit }} ({{ p.tauxInteret }}%)
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label-custom">Type de Client</label>
+                                <div class="d-flex gap-3 mt-2">
+                                    <div class="form-check custom-radio">
+                                        <input class="form-check-input" type="radio" name="type_client" id="clientAgriculteur" value="agriculture" {{ typeClient|default('agriculture') == 'agriculture' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="clientAgriculteur">
+                                            <i class="fas fa-tractor me-1 text-success"></i> Agriculteur
+                                        </label>
+                                    </div>
+                                    <div class="form-check custom-radio">
+                                        <input class="form-check-input" type="radio" name="type_client" id="clientBanque" value="banque" {{ typeClient|default('') == 'banque' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="clientBanque">
+                                            <i class="fas fa-university me-1 text-primary"></i> Institution / Banque
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label-custom">Montant du prêt (DT)</label>
+                                <input type="number" name="montant" class="form-control form-control-custom" id="montantInput"
+                                       placeholder="Ex: 50 000" min="100" step="100"
+                                       value="{{ simulation ? simulation.montant : '' }}" required>
+                                <small id="montantHint" class="text-muted mt-1 d-block" style="display:none;"></small>
+                            </div>
+                            <div class="mb-4" id="tauxGroup">
+                                <label class="form-label-custom">Taux d'intérêt annuel (%)</label>
+                                <input type="number" name="taux" class="form-control form-control-custom" id="tauxInput"
+                                       placeholder="Ex: 7.5" min="0" max="100" step="0.1"
+                                       value="{{ simulation ? simulation.tauxAnnuel : '' }}">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label-custom">Durée (mois)</label>
+                                <input type="range" name="duree" class="form-range" id="dureeRange"
+                                       min="6" max="360" step="6" value="{{ simulation ? simulation.dureeMois : 60 }}">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">6 mois</small>
+                                    <strong id="dureeValue" style="color: var(--vert-vif);">{{ simulation ? simulation.dureeMois : 60 }} mois</strong>
+                                    <small class="text-muted">30 ans</small>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-simulate">
+                                <i class="fas fa-calculator me-2"></i>Calculer la Simulation
+                            </button>
+                            {% if simulation and simulation.error is not defined %}
+                                <button type="submit" formaction="{{ path('admin_produit_simulateur_pdf') }}" class="btn-simulate mt-3" style="background: linear-gradient(135deg, #c62828, #b71c1c);">
+                                    <i class="fas fa-file-pdf me-2"></i>Télécharger en PDF
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+
+                {# RESULTS #}
+                <div class="col-lg-7">
+                    {% if simulation and simulation.error is not defined %}
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <div class="result-card result-highlight text-center p-4">
+                                    <div class="result-label mb-2">Mensualité</div>
+                                    <div class="result-value">{{ simulation.mensualite|number_format(2, ',', ' ') }} <small style="font-size: 1rem;">DT</small></div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="result-card text-center">
+                                    <div class="result-label mb-1">Coût Total</div>
+                                    <div class="result-value" style="font-size: 1.3rem;">{{ simulation.coutTotal|number_format(2, ',', ' ') }}</div>
+                                    <small class="text-muted">DT</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="result-card text-center">
+                                    <div class="result-label mb-1">Total Intérêts</div>
+                                    <div class="result-value" style="font-size: 1.3rem; color: #e65100;">{{ simulation.totalInterets|number_format(2, ',', ' ') }}</div>
+                                    <small class="text-muted">DT</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="result-card text-center">
+                                    <div class="result-label mb-1">Ratio Intérêts</div>
+                                    <div class="result-value" style="font-size: 1.3rem;">{{ simulation.ratioInterets }}%</div>
+                                    <div class="ratio-bar mt-2">
+                                        <div class="ratio-bar-fill" style="width: {{ min(simulation.ratioInterets, 100) }}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Tableau d'amortissement #}
+                        <div class="result-card">
+                            <h5 class="fw-bold mb-3" style="color: var(--vert-fonce);">
+                                <i class="fas fa-table me-2"></i>Tableau d'Amortissement
+                                <small class="text-muted fw-normal">({{ simulation.tableau|length > 12 ? '12 premières' : simulation.tableau|length }} lignes)</small>
+                            </h5>
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="amort-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mois</th>
+                                            <th>Mensualité</th>
+                                            <th>Capital</th>
+                                            <th>Intérêt</th>
+                                            <th>Restant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in simulation.tableau|slice(0, 12) %}
+                                            <tr>
+                                                <td class="fw-bold">#{{ row.mois }}</td>
+                                                <td>{{ row.mensualite|number_format(2, ',', ' ') }}</td>
+                                                <td style="color: var(--vert-vif); font-weight: 600;">{{ row.capital|number_format(2, ',', ' ') }}</td>
+                                                <td style="color: #e65100;">{{ row.interet|number_format(2, ',', ' ') }}</td>
+                                                <td class="fw-bold">{{ row.capitalRestant|number_format(2, ',', ' ') }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if simulation.tableau|length > 12 %}
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">... {{ simulation.tableau|length - 12 }} lignes supplémentaires</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% elseif simulation and simulation.error is defined %}
+                        <div class="alert alert-danger rounded-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ simulation.error }}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div style="font-size: 5rem; color: #e8f0ed;" class="mb-3">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h4 class="text-muted fw-bold">Lancez une simulation</h4>
+                            <p class="text-muted">Remplissez les paramètres et cliquez sur "Calculer" pour obtenir votre tableau d'amortissement détaillé.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const produitSelect = document.getElementById('produitSelect');
+            const tauxInput = document.getElementById('tauxInput');
+            const tauxGroup = document.getElementById('tauxGroup');
+            const montantInput = document.getElementById('montantInput');
+            const montantHint = document.getElementById('montantHint');
+            const dureeRange = document.getElementById('dureeRange');
+            const dureeValue = document.getElementById('dureeValue');
+
+            // Update duration display
+            dureeRange.addEventListener('input', function () {
+                const mois = this.value;
+                if (mois >= 12) {
+                    const annees = Math.floor(mois / 12);
+                    const resteMois = mois % 12;
+                    dureeValue.textContent = annees + ' an' + (annees > 1 ? 's' : '') +
+                        (resteMois > 0 ? ' et ' + resteMois + ' mois' : '');
+                } else {
+                    dureeValue.textContent = mois + ' mois';
+                }
+            });
+
+            // Product selection auto-fills
+            produitSelect.addEventListener('change', function () {
+                const selected = this.options[this.selectedIndex];
+                if (this.value !== '0') {
+                    const taux = selected.dataset.taux;
+                    const min = selected.dataset.min;
+                    const max = selected.dataset.max;
+                    tauxInput.value = taux;
+                    tauxInput.readOnly = true;
+                    tauxGroup.style.opacity = '0.6';
+                    montantHint.style.display = 'block';
+                    montantHint.textContent = 'Montant autorisé : ' +
+                        parseFloat(min).toLocaleString('fr-FR') + ' DT — ' +
+                        parseFloat(max).toLocaleString('fr-FR') + ' DT';
+                } else {
+                    tauxInput.readOnly = false;
+                    tauxInput.value = '';
+                    tauxGroup.style.opacity = '1';
+                    montantHint.style.display = 'none';
+                }
+            });
+
+            // Trigger on load if product is selected
+            if (produitSelect.value !== '0') {
+                produitSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+{% endblock %}

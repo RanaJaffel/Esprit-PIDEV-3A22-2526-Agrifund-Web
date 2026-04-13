@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        @page { margin: 0; }
+        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 10px; margin: 0; padding: 0; background: #fff; }
+        
+        .color-bar-top { height: 10px; background: #E1B323; width: 100%; }
+        .hero-section { background: #076A39; color: #fff; padding: 30px 40px; }
+        .hero-table { width: 100%; border-collapse: collapse; }
+        .hero-logo { font-size: 32px; font-weight: 900; color: #E1B323; width: 60px; }
+        .hero-text h1 { font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .hero-text p { font-size: 10px; color: #B2D944; margin-top: 5px; text-transform: uppercase; }
+        .hero-meta { text-align: right; font-size: 9px; opacity: 0.8; }
+
+        .stats-stripe { background: #fff9e6; border-bottom: 2px solid #076A39; padding: 15px 40px; }
+        .stats-table { width: 100%; border-collapse: collapse; }
+        .stat-item { text-align: center; border-right: 1px solid #ffecb3; width: 25%; }
+        .stat-item:last-child { border-right: none; }
+        .stat-val { font-size: 18px; font-weight: 900; color: #856404; }
+        .stat-lbl { font-size: 7px; text-transform: uppercase; color: #666; margin-top: 2px; }
+
+        .content-wrap { padding: 40px; }
+        .main-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .main-table th { background: #095032; color: #fff; text-align: left; padding: 10px; font-size: 8px; text-transform: uppercase; }
+        .main-table tr { page-break-inside: avoid; }
+        .main-table tr:nth-child(even) { background: #fdfcf9; }
+        
+        .status-pill { padding: 2px 8px; border-radius: 4px; font-size: 7px; font-weight: 800; text-transform: uppercase; }
+        .pill-active { background: #e8f5e9; color: #2e7d32; }
+        .pill-pending { background: #fff3cd; color: #856404; }
+        .pill-cancelled { background: #f8d7da; color: #721c24; }
+
+        .stamp-box { width: 130px; height: 130px; border: 4px double #E1B323; border-radius: 50%; position: relative; text-align: center; display: inline-block; margin-top: 40px; }
+        .stamp-inner { padding-top: 25px; }
+        .stamp-txt-top { font-size: 7px; text-transform: uppercase; color: #856404; font-weight: 800; }
+        .stamp-txt-mid { font-size: 14px; color: #076A39; font-weight: 900; margin: 4px 0; }
+        .stamp-txt-bot { font-size: 6px; color: #856404; opacity: 0.7; }
+
+        .signature-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        .sig-cell { width: 50%; text-align: center; }
+        .sig-line { width: 180px; border-bottom: 1px solid #333; margin: 40px auto 10px auto; }
+        .sig-label { font-size: 9px; font-weight: 700; }
+
+        .footer { position: fixed; bottom: 0; width: 100%; padding: 20px 40px; background: #fafafa; border-top: 1px solid #eee; }
+        .watermark { position: fixed; top: 30%; left: 10%; font-size: 90px; color: #f0f0f0; transform: rotate(-45deg); z-index: -1; font-weight: 900; }
+    </style>
+</head>
+<body>
+    <div class="watermark">AGRIFUND</div>
+    <div class="color-bar-top"></div>
+    
+    <div style="position: absolute; top: 0; right: 40px; width: 60px; height: 35px; background: #076A39; text-align: center; color: #fff; font-size: 6px; padding-top: 5px; border-radius: 0 0 5px 5px; font-weight: 800;">
+        VÉRIFIÉ<br>DOC
+    </div>
+
+    <div class="hero-section">
+        <table class="hero-table">
+            <tr>
+                <td class="hero-logo">AF</td>
+                <td class="hero-text">
+                    <h1>Offres Financières</h1>
+                    <p>Suivi et Performance des Campagnes</p>
+                </td>
+                <td class="hero-meta">
+                    REF: OFR-{{ date|date('Ymd-His') }}<br>
+                    Édité le {{ date|date('d/m/Y H:i') }}<br>
+                    CONFIDENTIEL
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="stats-stripe">
+        <table class="stats-table">
+            <tr>
+                <td class="stat-item"><div class="stat-val">{{ stats.total }}</div><div class="stat-lbl">Total Offres</div></td>
+                <td class="stat-item"><div class="stat-val">{{ stats.active }}</div><div class="stat-lbl">Offres Actives</div></td>
+                <td class="stat-item"><div class="stat-val">{{ stats.tauxActivation }}%</div><div class="stat-lbl">Taux d'Activation</div></td>
+                <td class="stat-item"><div class="stat-val">{{ stats.enAttente }}</div><div class="stat-lbl">Dossiers en attente</div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin: 15px 40px; padding: 8px; border: 1px dashed #E1B323; font-size: 8px; color: #856404; background: #fffdf4; text-align: center;">
+        Certificat d'authenticité - AgriFund. ID Verrou: {{ date|date('U') }}-OFR
+    </div>
+
+    <div class="content-wrap">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th>Nom de l'offre</th>
+                    <th>Produit Support</th>
+                    <th>Taux</th>
+                    <th>Statut</th>
+                    <th>Date de création</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in offres %}
+                <tr>
+                    <td style="font-weight: 700;">{{ o.nomOffre }}</td>
+                    <td>{{ o.produitFinancier ? o.produitFinancier.nomProduit : 'N/A' }}</td>
+                    <td style="font-weight: 700; color: #089647;">{{ o.produitFinancier ? o.produitFinancier.tauxInteret ~ '%' : '-' }}</td>
+                    <td>
+                        <span class="status-pill pill-{{ o.statut|lower|replace({' ': ''}) == 'active' ? 'active' : (o.statut|lower|replace({' ': ''}) == 'enattente' ? 'pending' : 'cancelled') }}">
+                            {{ o.statut }}
+                        </span>
+                    </td>
+                    <td style="font-size: 8px;">{{ date|date('d/m/Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <div style="font-size: 8px; color: #888; text-align: center;">
+            Document généré officiellement par le système AgriFund v4.6. Toute modification invalide le certificat.
+        </div>
+    </div>
+</body>
+</html>

@@ -1,325 +1,204 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ offre.nomOffre }} - Financial Offer Details{% endblock %}
+{% block title %}Détails de l'Offre | Admin{% endblock %}
 
-{% block page_intro %}
-<div id="pageintro" class="hoc clear"> 
-    <article>
-        <div class="introtxt">
-            <h2 class="heading"><i class="fa fa-eye"></i> Offer Details</h2>
-            <p>View full information about this financial offer</p>
-        </div>
-    </article>
-</div>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --jaune-moutarde: #E1B323;
+            --gris-bg: #f8faf5;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--gris-bg) 0%, #e8f5e9 100%);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .show-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(8, 150, 71, 0.08);
+            border: 1px solid rgba(8, 150, 71, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .show-header {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, #095032 100%);
+            color: white;
+            padding: 40px;
+            position: relative;
+        }
+
+        .show-header::after {
+            content: '';
+            position: absolute;
+            right: 0; bottom: 0;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: translate(30%, 30%);
+            pointer-events: none;
+        }
+
+        .type-badge {
+            background: var(--jaune-moutarde);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(225, 179, 35, 0.3);
+        }
+        
+        .status-badge {
+            margin-left: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-actif, .status-active { background: #e8f5e9; color: var(--vert-vif); border: 1px solid #c8e6c9; }
+        .status-inactif, .status-inactive { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .status-attente, .status-pending { background: #fef9c3; color: #ca8a04; border: 1px solid #fef08a; }
+
+        .detail-row {
+            padding: 20px 40px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            width: 250px;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            flex: 1;
+            font-size: 1.05rem;
+            color: #2b3531;
+            font-weight: 500;
+        }
+
+        .highlight-value {
+            color: var(--vert-vif);
+            font-weight: 800;
+            font-size: 1.2rem;
+            background: #e8f5e9;
+            padding: 4px 12px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .actions-bar {
+            background: #f8faf5;
+            padding: 25px 40px;
+            display: flex;
+            gap: 15px;
+            border-top: 1px solid #e8f0ed;
+        }
+
+        .btn-action {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-back { background: white; color: #6c757d; border: 2px solid #e0e6ed; }
+        .btn-back:hover { background: #e0e6ed; color: #495057; }
+
+        .btn-edit { background: var(--vert-vif); color: white; }
+        .btn-edit:hover { background: var(--vert-fonce); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(8,150,71,0.3); color: white; }
+
+        .btn-delete { background: #dc3545; color: white; border: none; }
+        .btn-delete:hover { background: #c82333; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(220,53,69,0.3); color: white; }
+
+        .delete-form { margin: 0; }
+    </style>
 {% endblock %}
 
-{% block content %}
-<div class="wrapper row3">
-    <main class="hoc container clear">
-        {{ include('flash_messages.html.twig') }}
-        
-        <div class="detail-wrapper">
-            <div class="detail-card">
-                <div class="offer-header">
-                    <div class="header-content">
-                        <h2>{{ offre.nomOffre }}</h2>
-                        <span class="status-badge {% if offre.statut == 'Active' %}active{% elseif offre.statut == 'En attente' %}pending{% else %}cancelled{% endif %}">
-                            <i class="fa fa-{% if offre.statut == 'Active' %}check-circle{% else %}clock{% endif %}"></i>
-                            {{ offre.statut }}
-                        </span>
-                    </div>
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+    
+    <div class="main-content">
+        <div class="show-card">
+            <div class="show-header">
+                <div>
+                    <span class="type-badge">Finance</span>
+                    <span class="status-badge status-{{ offre.statut|lower|replace({'é':'e'}) }}">{{ offre.statut }}</span>
                 </div>
-                
-                <div class="detail-sections">
-                    <div class="section">
-                        <h4><i class="fa fa-link"></i> Linked Product</h4>
-                        <div class="detail-row">
-                            <div class="detail-field">
-                                <label>Product Name</label>
-                                <p>
-                                    <a href="{{ path('admin_produit_show', {'id': offre.produitFinancier.id}) }}" class="product-link">
-                                        {{ offre.produitFinancier.nomProduit }}
-                                    </a>
-                                </p>
-                            </div>
-                            <div class="detail-field">
-                                <label>Financing Type</label>
-                                <p>{{ offre.produitFinancier.typeFinancement }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4><i class="fa fa-money"></i> Financial Details</h4>
-                        <div class="detail-row">
-                            <div class="detail-field">
-                                <label>Minimum Amount</label>
-                                <p class="amount">{{ offre.produitFinancier.montantMin|number_format(2, '.', ',') }} <span class="currency">DT</span></p>
-                            </div>
-                            <div class="detail-field">
-                                <label>Maximum Amount</label>
-                                <p class="amount">{{ offre.produitFinancier.montantMax|number_format(2, '.', ',') }} <span class="currency">DT</span></p>
-                            </div>
-                            <div class="detail-field">
-                                <label>Interest Rate</label>
-                                <p class="amount">{{ offre.produitFinancier.tauxInteret }}<span class="percent">%</span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if offre.conditions %}
-                    <div class="section">
-                        <h4><i class="fa fa-file-text"></i> Conditions & Terms</h4>
-                        <div class="conditions-box">
-                            <p>{{ offre.conditions }}</p>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if offre.produitFinancier.reglesFinancieres %}
-                    <div class="section">
-                        <h4><i class="fa fa-list"></i> Product Financial Rules</h4>
-                        <div class="conditions-box">
-                            <p>{{ offre.produitFinancier.reglesFinancieres }}</p>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="actions">
-                    <a href="{{ path('admin_offre_edit', {'id': offre.id}) }}" class="btn btn-primary">
-                        <i class="fa fa-pencil"></i> Edit Offer
-                    </a>
-                    <a href="{{ path('admin_offre_index') }}" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Back to List
+                <h1 class="mb-0 mt-2" style="font-size: 2.2rem; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">{{ offre.nomOffre }}</h1>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Produit Associé</div>
+                <div class="detail-value">
+                    <a href="{{ offre.produitFinancier ? path('admin_produit_show', {'id': offre.produitFinancier.id}) : '#' }}" style="color: var(--vert-fonce); font-weight: bold; text-decoration: none;">
+                        <i class="fas fa-box me-2 text-muted"></i>
+                        {{ offre.produitFinancier ? offre.produitFinancier.nomProduit : 'Aucun produit' }}
                     </a>
                 </div>
             </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Conditions</div>
+                <div class="detail-value" style="line-height: 1.6; color: #555;">
+                    {{ offre.conditions ? offre.conditions|nl2br : '<span class="text-muted fst-italic">Aucune condition spécifiée.</span>' }}
+                </div>
+            </div>
+
+            <div class="actions-bar">
+                <a href="{{ path('admin_offre_index') }}" class="btn-action btn-back">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+                <a href="{{ path('admin_offre_edit', {'id': offre.id}) }}" class="btn-action btn-edit">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <form method="post" action="{{ path('admin_offre_delete', {'id': offre.id}) }}" class="delete-form" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+                    <button class="btn-action btn-delete">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+                </form>
+            </div>
         </div>
-    </main>
+    </div>
 </div>
-
-<style>
-.detail-wrapper {
-    padding: 20px 0;
-}
-
-.detail-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08);
-    overflow: hidden;
-}
-
-.offer-header {
-    background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%);
-    padding: 35px 30px;
-    color: white;
-    border-bottom: 4px solid #F4C430;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    gap: 20px;
-}
-
-.offer-header h2 {
-    margin: 0;
-    font-size: 2rem;
-    flex: 1;
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    white-space: nowrap;
-    text-transform: capitalize;
-}
-
-.status-badge.active {
-    background: #C8E6C9;
-    color: #1B7E4C;
-}
-
-.status-badge.pending {
-    background: #FFF9C4;
-    color: #F57F17;
-}
-
-.status-badge.cancelled {
-    background: #FFCDD2;
-    color: #C62828;
-}
-
-.detail-sections {
-    padding: 35px 30px;
-}
-
-.section {
-    margin-bottom: 35px;
-}
-
-.section:last-child {
-    margin-bottom: 0;
-}
-
-.section h4 {
-    color: #1B7E4C;
-    font-size: 1.1rem;
-    margin: 0 0 20px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #F4C430;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.detail-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-}
-
-.detail-field {
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 6px;
-    border-left: 4px solid #1B7E4C;
-}
-
-.detail-field label {
-    display: block;
-    font-weight: 600;
-    color: #1B7E4C;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.detail-field p {
-    margin: 0;
-    color: #333;
-    line-height: 1.6;
-    font-size: 1rem;
-}
-
-.detail-field .product-link {
-    color: #2196F3;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.detail-field .product-link:hover {
-    text-decoration: underline;
-}
-
-.detail-field .amount {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #1B7E4C;
-}
-
-.amount .currency {
-    font-size: 0.8em;
-    margin-left: 4px;
-    color: #666;
-}
-
-.amount .percent {
-    font-size: 0.7em;
-    margin-left: 3px;
-    color: #666;
-}
-
-.conditions-box {
-    background: #f0f8f4;
-    border-left: 4px solid #1B7E4C;
-    padding: 20px;
-    border-radius: 6px;
-    line-height: 1.8;
-}
-
-.conditions-box p {
-    margin: 0;
-    color: #333;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.actions {
-    padding: 25px 30px;
-    background: #f9f9f9;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    gap: 12px;
-}
-
-.btn {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(27,126,76,.3);
-}
-
-.btn-secondary {
-    background: #e0e0e0;
-    color: #333;
-}
-
-.btn-secondary:hover {
-    background: #d0d0d0;
-    transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        align-items: start;
-    }
-    
-    .offer-header h2 {
-        font-size: 1.5rem;
-    }
-    
-    .detail-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-</style>
 {% endblock %}

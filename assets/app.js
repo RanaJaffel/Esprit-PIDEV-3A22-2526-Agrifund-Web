@@ -8,7 +8,6 @@ import './styles/app.css';
 import 'bootstrap';
 
 // Import custom JavaScript
-import './js/sidebar';
 import './js/app';
 
 console.log('Application loaded successfully!');

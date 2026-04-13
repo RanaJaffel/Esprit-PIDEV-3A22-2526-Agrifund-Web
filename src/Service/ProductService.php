@@ -97,4 +97,182 @@ class ProductService
     {
         return count($this->repository->findAll());
     }
+
+    // =====================================================
+    // MÉTIER AVANCÉ — Business Logic
+    // =====================================================
+
+    /**
+     * Simulateur de crédit — calcul des mensualités
+     * Formule d'amortissement constant (annuité constante)
+     */
+    public function simulerCredit(float $montant, float $tauxAnnuel, int $dureeMois): array
+    {
+        if ($montant <= 0 || $tauxAnnuel < 0 || $dureeMois <= 0) {
+            return ['error' => 'Paramètres invalides'];
+        }
+
+        $tauxMensuel = ($tauxAnnuel / 100) / 12;
+
+        if ($tauxMensuel == 0) {
+            $mensualite = $montant / $dureeMois;
+            $coutTotal = $montant;
+            $totalInterets = 0;
+        } else {
+            // Formule d'annuité constante : M = P * [r(1+r)^n] / [(1+r)^n - 1]
+            $mensualite = $montant * ($tauxMensuel * pow(1 + $tauxMensuel, $dureeMois))
+                         / (pow(1 + $tauxMensuel, $dureeMois) - 1);
+            $coutTotal = $mensualite * $dureeMois;
+            $totalInterets = $coutTotal - $montant;
+        }
+
+        // Tableau d'amortissement
+        $tableauAmortissement = [];
+        $capitalRestant = $montant;
+
+        for ($i = 1; $i <= min($dureeMois, 360); $i++) {
+            $interetMois = $capitalRestant * $tauxMensuel;
+            $capitalMois = $mensualite - $interetMois;
+            $capitalRestant -= $capitalMois;
+
+            if ($capitalRestant < 0) {
+                $capitalRestant = 0;
+            }
+
+            $tableauAmortissement[] = [
+                'mois' => $i,
+                'mensualite' => round($mensualite, 2),
+                'capital' => round($capitalMois, 2),
+                'interet' => round($interetMois, 2),
+                'capitalRestant' => round($capitalRestant, 2),
+            ];
+        }
+
+        return [
+            'montant' => $montant,
+            'tauxAnnuel' => $tauxAnnuel,
+            'dureeMois' => $dureeMois,
+            'mensualite' => round($mensualite, 2),
+            'coutTotal' => round($coutTotal, 2),
+            'totalInterets' => round($totalInterets, 2),
+            'ratioInterets' => $montant > 0 ? round(($totalInterets / $montant) * 100, 1) : 0,
+            'tableau' => $tableauAmortissement,
+        ];
+    }
+
+    /**
+     * Comparer deux produits financiers
+     */
+    public function comparerProduits(ProduitFinancier $produit1, ProduitFinancier $produit2): array
+    {
+        $diffTaux = $produit1->getTauxInteret() - $produit2->getTauxInteret();
+
+        return [
+            'produit1' => [
+                'id' => $produit1->getId(),
+                'nom' => $produit1->getNomProduit(),
+                'type' => $produit1->getTypeFinancement(),
+                'taux' => $produit1->getTauxInteret(),
+                'montantMin' => $produit1->getMontantMin(),
+                'montantMax' => $produit1->getMontantMax(),
+                'nbOffres' => $produit1->getOffres()->count(),
+                'plage' => $produit1->getMontantMax() - $produit1->getMontantMin(),
+            ],
+            'produit2' => [
+                'id' => $produit2->getId(),
+                'nom' => $produit2->getNomProduit(),
+                'type' => $produit2->getTypeFinancement(),
+                'taux' => $produit2->getTauxInteret(),
+                'montantMin' => $produit2->getMontantMin(),
+                'montantMax' => $produit2->getMontantMax(),
+                'nbOffres' => $produit2->getOffres()->count(),
+                'plage' => $produit2->getMontantMax() - $produit2->getMontantMin(),
+            ],
+            'differencesTaux' => round($diffTaux, 2),
+            'meilleureOption' => $diffTaux <= 0 ? $produit1->getNomProduit() : $produit2->getNomProduit(),
+        ];
+    }
+
+    /**
+     * Obtenir les statistiques complètes pour le dashboard
+     */
+    public function getDashboardStatistics(): array
+    {
+        $stats = $this->repository->getStatistics();
+        $byType = $this->repository->countByType();
+        $tauxDist = $this->repository->getTauxDistribution();
+        $popular = $this->repository->findMostPopular(5);
+
+        return [
+            'stats' => $stats,
+            'byType' => $byType,
+            'tauxDistribution' => $tauxDist,
+            'topProduits' => $popular,
+        ];
+    }
+
+    /**
+     * Vérifier l'éligibilité d'un montant pour un produit
+     */
+    public function verifierEligibilite(ProduitFinancier $produit, float $montantDemande): array
+    {
+        $eligible = $montantDemande >= $produit->getMontantMin()
+                 && $montantDemande <= $produit->getMontantMax();
+
+        $raisons = [];
+        if ($montantDemande < $produit->getMontantMin()) {
+            $raisons[] = sprintf(
+                'Le montant demandé (%.0f DT) est inférieur au minimum requis (%.0f DT)',
+                $montantDemande,
+                $produit->getMontantMin()
+            );
+        }
+        if ($montantDemande > $produit->getMontantMax()) {
+            $raisons[] = sprintf(
+                'Le montant demandé (%.0f DT) dépasse le maximum autorisé (%.0f DT)',
+                $montantDemande,
+                $produit->getMontantMax()
+            );
+        }
+
+        // Suggestion de simulation si éligible
+        $simulation = null;
+        if ($eligible) {
+            $simulation = $this->simulerCredit($montantDemande, $produit->getTauxInteret(), 60);
+            unset($simulation['tableau']); // Pas besoin du tableau complet ici
+        }
+
+        return [
+            'eligible' => $eligible,
+            'produit' => $produit->getNomProduit(),
+            'montantDemande' => $montantDemande,
+            'raisons' => $raisons,
+            'simulation' => $simulation,
+        ];
+    }
+
+    /**
+     * Exporter les données des produits pour un tableau récapitulatif
+     */
+    public function getExportData(): array
+    {
+        $produits = $this->repository->findAll();
+        $data = [];
+
+        foreach ($produits as $produit) {
+            $data[] = [
+                'ID' => $produit->getId(),
+                'Nom' => $produit->getNomProduit(),
+                'Type' => $produit->getTypeFinancement(),
+                'Taux' => $produit->getTauxInteret() . '%',
+                'Montant Min' => number_format($produit->getMontantMin(), 0, ',', ' ') . ' DT',
+                'Montant Max' => number_format($produit->getMontantMax(), 0, ',', ' ') . ' DT',
+                'Plage' => number_format($produit->getMontantMax() - $produit->getMontantMin(), 0, ',', ' ') . ' DT',
+                'Nb Offres' => $produit->getOffres()->count(),
+                'Règles' => $produit->getReglesFinancieres() ?? 'N/A',
+            ];
+        }
+
+        return $data;
+    }
 }
