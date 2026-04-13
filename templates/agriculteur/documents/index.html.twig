@@ -536,6 +536,22 @@
             box-shadow: 0 10px 30px rgba(8, 150, 71, 0.35);
         }
 
+        .text-center.text-muted.py-5 .btn-secondary {
+            background: linear-gradient(135deg, var(--gris) 0%, #6b7280 100%) !important;
+            border: none !important;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(132, 138, 134, 0.25);
+            transition: all 0.3s ease;
+            color: white !important;
+        }
+
+        .text-center.text-muted.py-5 .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(132, 138, 134, 0.35);
+        }
+
         /* ==========================================
            MODALS
         ========================================== */
@@ -834,20 +850,20 @@
             <div class="dashboard-section mb-4">
                 <div class="btn-group" role="group">
                     <a href="{{ path('agriculteur_documents_index') }}" 
-                       class="btn btn-outline-primary {{ app.request.query.get('filter') is null ? 'active' : '' }}">
-                        <i class="fas fa-layer-group me-2"></i>Tous ({{ documents|length }})
+                       class="btn btn-outline-primary {{ currentFilter is null ? 'active' : '' }}">
+                        <i class="fas fa-layer-group me-2"></i>Tous ({{ counts.total }})
                     </a>
                     <a href="{{ path('agriculteur_documents_index', {filter: 'valide'}) }}" 
-                       class="btn btn-outline-success {{ app.request.query.get('filter') == 'valide' ? 'active' : '' }}">
-                        <i class="fas fa-check-circle me-2"></i>Validés
+                       class="btn btn-outline-success {{ currentFilter == 'valide' ? 'active' : '' }}">
+                        <i class="fas fa-check-circle me-2"></i>Validés ({{ counts.valide }})
                     </a>
                     <a href="{{ path('agriculteur_documents_index', {filter: 'en_attente'}) }}" 
-                       class="btn btn-outline-warning {{ app.request.query.get('filter') == 'en_attente' ? 'active' : '' }}">
-                        <i class="fas fa-clock me-2"></i>En attente
+                       class="btn btn-outline-warning {{ currentFilter == 'en_attente' ? 'active' : '' }}">
+                        <i class="fas fa-clock me-2"></i>En attente ({{ counts.en_attente }})
                     </a>
                     <a href="{{ path('agriculteur_documents_index', {filter: 'rejete'}) }}" 
-                       class="btn btn-outline-danger {{ app.request.query.get('filter') == 'rejete' ? 'active' : '' }}">
-                        <i class="fas fa-times-circle me-2"></i>Rejetés
+                       class="btn btn-outline-danger {{ currentFilter == 'rejete' ? 'active' : '' }}">
+                        <i class="fas fa-times-circle me-2"></i>Rejetés ({{ counts.rejete }})
                     </a>
                 </div>
             </div>
@@ -946,8 +962,16 @@
                 {% else %}
                 <div class="text-center text-muted py-5">
                     <i class="fas fa-file-alt fa-5x mb-3 d-block"></i>
-                    <h5>Aucun document trouvé</h5>
-                    <p>Commencez par ajouter votre premier document.</p>
+                    {% if currentFilter %}
+                        <h5>Aucun document {{ currentFilter == 'valide' ? 'validé' : (currentFilter == 'en_attente' ? 'en attente' : 'rejeté') }}</h5>
+                        <p>Essayez de changer le filtre ou ajoutez un nouveau document.</p>
+                        <a href="{{ path('agriculteur_documents_index') }}" class="btn btn-secondary mt-3 me-2">
+                            <i class="fas fa-filter me-2"></i>Voir tous les documents
+                        </a>
+                    {% else %}
+                        <h5>Aucun document trouvé</h5>
+                        <p>Commencez par ajouter votre premier document.</p>
+                    {% endif %}
                     <a href="{{ path('agriculteur_documents_add') }}" class="btn btn-success mt-3">
                         <i class="fas fa-plus me-2"></i>Ajouter un document
                     </a>
