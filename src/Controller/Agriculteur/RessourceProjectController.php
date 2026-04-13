@@ -14,24 +14,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/agriculteur/ressource-project', name: 'agriculteur_ressource_project_')]
+#[IsGranted('ROLE_AGRICULTEUR')]
 class RessourceProjectController extends AbstractController
 {
-    private function getAgriculteur(Request $request, EntityManagerInterface $em): ?Agriculteur
+    private function getAgriculteur(): ?Agriculteur
     {
-        $id = (int) $request->getSession()->get('agriculteur_id', 0);
-        return $id > 0 ? $em->getRepository(Agriculteur::class)->find($id) : null;
+        return $this->getUser()?->getAgriculteur();
     }
 
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(
         Request $request,
         RessourceProjectRepository $repo,
-        ProjectAgricoleRepository $projectRepo,
-        EntityManagerInterface $em
+        ProjectAgricoleRepository $projectRepo
     ): Response {
-        $agriculteur   = $this->getAgriculteur($request, $em);
+        $agriculteur   = $this->getAgriculteur();
+
+        if (!$agriculteur) {
+            return $this->redirectToRoute('agriculteur_profile_edit');
+        }
+
         $search        = $request->query->get('search', '');
         $typeFilter    = $request->query->get('type', '');
         $statutFilter  = $request->query->get('statut', '');
@@ -83,12 +88,14 @@ class RessourceProjectController extends AbstractController
 
     #[Route('/export/pdf', name: 'export_pdf', methods: ['GET'])]
     public function exportPdf(
-        Request $request,
         RessourceProjectRepository $repo,
-        ProjectAgricoleRepository $projectRepo,
-        EntityManagerInterface $em
+        ProjectAgricoleRepository $projectRepo
     ): Response {
-        $agriculteur = $this->getAgriculteur($request, $em);
+        $agriculteur = $this->getAgriculteur();
+
+        if (!$agriculteur) {
+            return $this->redirectToRoute('agriculteur_profile_edit');
+        }
 
         $myProjects = $projectRepo->createQueryBuilder('p')
             ->where('p.agriculteur = :agriculteur')
@@ -147,7 +154,11 @@ class RessourceProjectController extends AbstractController
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, ProjectAgricoleRepository $projectRepo): Response
     {
-        $agriculteur = $this->getAgriculteur($request, $em);
+        $agriculteur = $this->getAgriculteur();
+
+        if (!$agriculteur) {
+            return $this->redirectToRoute('agriculteur_profile_edit');
+        }
 
         $myProjects = $projectRepo->createQueryBuilder('p')
             ->where('p.agriculteur = :agriculteur')
@@ -173,9 +184,9 @@ class RessourceProjectController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(int $id, Request $request, RessourceProjectRepository $repo, EntityManagerInterface $em): Response
+    public function show(int $id, RessourceProjectRepository $repo): Response
     {
-        $ressource = $this->findOwnRessource($id, $request, $repo, $em);
+        $ressource = $this->findOwnRessource($id, $repo);
         if (!$ressource) {
             return $this->redirectToRoute('agriculteur_ressource_project_index');
         }
@@ -190,12 +201,12 @@ class RessourceProjectController extends AbstractController
         RessourceProjectRepository $repo,
         ProjectAgricoleRepository $projectRepo
     ): Response {
-        $ressource = $this->findOwnRessource($id, $request, $repo, $em);
+        $ressource = $this->findOwnRessource($id, $repo);
         if (!$ressource) {
             return $this->redirectToRoute('agriculteur_ressource_project_index');
         }
 
-        $agriculteur = $this->getAgriculteur($request, $em);
+        $agriculteur = $this->getAgriculteur();
         $myProjects = $projectRepo->createQueryBuilder('p')
             ->where('p.agriculteur = :agriculteur')
             ->setParameter('agriculteur', $agriculteur)
@@ -221,7 +232,7 @@ class RessourceProjectController extends AbstractController
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(int $id, Request $request, EntityManagerInterface $em, RessourceProjectRepository $repo): Response
     {
-        $ressource = $this->findOwnRessource($id, $request, $repo, $em);
+        $ressource = $this->findOwnRessource($id, $repo);
         if (!$ressource) {
             return $this->redirectToRoute('agriculteur_ressource_project_index');
         }
@@ -238,9 +249,9 @@ class RessourceProjectController extends AbstractController
         return $this->redirectToRoute('agriculteur_ressource_project_index');
     }
 
-    private function findOwnRessource(int $id, Request $request, RessourceProjectRepository $repo, EntityManagerInterface $em): ?RessourceProject
+    private function findOwnRessource(int $id, RessourceProjectRepository $repo): ?RessourceProject
     {
-        $agriculteur = $this->getAgriculteur($request, $em);
+        $agriculteur = $this->getAgriculteur();
         $ressource   = $repo->find($id);
 
         if (!$ressource || $ressource->getProject()?->getAgriculteur()?->getId() !== $agriculteur?->getId()) {
