@@ -136,6 +136,11 @@
 
                         <div class="project-meta">
                             <div class="meta-row">
+                                <span class="meta-icon">👨‍🌾</span>
+                                <span class="meta-label">Agriculteur:</span>
+                                <span class="meta-value">{{ project.agriculteur.utilisateur.nomComplet ?? '—' }}</span>
+                            </div>
+                            <div class="meta-row">
                                 <span class="meta-icon">🌿</span>
                                 <span class="meta-label">Surface:</span>
                                 <span class="meta-value">{{ project.surface|number_format(2, ',', '.') }} Ha</span>
