@@ -2,8 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\ProjectAgricole;
-use App\Form\ProjectAgricoleType;
 use App\Repository\ProjectAgricoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
@@ -55,26 +53,6 @@ class ProjectAgricoleController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
-        $project = new ProjectAgricole();
-        $form    = $this->createForm(ProjectAgricoleType::class, $project);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $project->setStatut('en cours');
-            $em->persist($project);
-            $em->flush();
-            $this->addFlash('success', '✅ Projet "' . $project->getNomproject() . '" créé avec succès.');
-            return $this->redirectToRoute('admin_project_agricole_index');
-        }
-
-        return $this->render('admin/project_agricole/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
     #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(int $id, ProjectAgricoleRepository $repo): Response
     {
@@ -86,30 +64,6 @@ class ProjectAgricoleController extends AbstractController
 
         return $this->render('admin/project_agricole/show.html.twig', [
             'project' => $project,
-        ]);
-    }
-
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(int $id, Request $request, EntityManagerInterface $em, ProjectAgricoleRepository $repo): Response
-    {
-        $project = $repo->find($id);
-        if (!$project) {
-            $this->addFlash('danger', 'Projet introuvable.');
-            return $this->redirectToRoute('admin_project_agricole_index');
-        }
-
-        $form = $this->createForm(ProjectAgricoleType::class, $project);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-            $this->addFlash('success', '✏️ Projet "' . $project->getNomproject() . '" modifié.');
-            return $this->redirectToRoute('admin_project_agricole_index');
-        }
-
-        return $this->render('admin/project_agricole/edit.html.twig', [
-            'project' => $project,
-            'form'    => $form->createView(),
         ]);
     }
 

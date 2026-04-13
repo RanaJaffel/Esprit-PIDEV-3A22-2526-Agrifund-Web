@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% block title %}Admin — Gestion des Projets Agricoles{% endblock %}
+{% block hide_preloader %}true{% endblock %}
 
 {% block body %}
     {% include 'components/_sidebar_admin.html.twig' %}
@@ -40,15 +41,11 @@
                 <select name="statut" class="status-select"
                         onchange="document.getElementById('filterForm').submit();">
                     <option value="">Tous les statuts</option>
-                    <option value="En cours" {% if statut == 'En cours' %}selected{% endif %}>⏳ En cours</option>
-                    <option value="Accepté"  {% if statut == 'Accepté'  %}selected{% endif %}>✅ Acceptés</option>
-                    <option value="Refusé"   {% if statut == 'Refusé'   %}selected{% endif %}>❌ Refusé</option>
+                    <option value="en cours" {% if statut == 'en cours' %}selected{% endif %}>⏳ En cours</option>
+                    <option value="accepte"  {% if statut == 'accepte'  %}selected{% endif %}>✅ Acceptés</option>
+                    <option value="refuse"   {% if statut == 'refuse'   %}selected{% endif %}>❌ Refusés</option>
                 </select>
             </form>
-
-            <a href="{{ path('admin_project_agricole_new') }}" class="btn-new">
-                + Nouveau Projet
-            </a>
         </div>
 
         {# ══════════════ DASHBOARD CARDS ══════════════ #}
@@ -115,9 +112,8 @@
                     <div class="project-card-body">
                         <div class="project-header">
                             <div class="project-icon">
-                                {% if project.statut == 'Accepté' %}✅
-                                {% elseif project.statut == 'Refusé' %}❌
-                                {% elseif project.statut == 'Terminé' %}🏁
+                                {% if project.statut == 'accepte' %}✅
+                                {% elseif project.statut == 'refuse' %}❌
                                 {% else %}⏳{% endif %}
                             </div>
                             <div>
@@ -128,9 +124,11 @@
 
                         <div class="mb-3">
                             <span class="status-badge"
-                                  style="background:{% if project.statut == 'Accepté' %}#dcfce7{% elseif project.statut == 'Refusé' %}#fee2e2{% elseif project.statut == 'Terminé' %}#e0f2fe{% else %}#ffedd5{% endif %};
-                                         color:{% if project.statut == 'Accepté' %}#166534{% elseif project.statut == 'Refusé' %}#991b1b{% elseif project.statut == 'Terminé' %}#075985{% else %}#9a3412{% endif %};">
-                                {{ project.statut }}
+                                  style="background:{% if project.statut == 'accepte' %}#dcfce7{% elseif project.statut == 'refuse' %}#fee2e2{% else %}#ffedd5{% endif %};
+                                         color:{% if project.statut == 'accepte' %}#166534{% elseif project.statut == 'refuse' %}#991b1b{% else %}#9a3412{% endif %};">
+                                {% if project.statut == 'accepte' %}Accepté
+                                {% elseif project.statut == 'refuse' %}Refusé
+                                {% else %}En cours{% endif %}
                             </span>
                         </div>
 
@@ -159,10 +157,6 @@
                         <a href="{{ path('admin_project_agricole_show', {id: project.idproject}) }}"
                            title="Voir" class="action-btn action-btn--view">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg>
-                        </a>
-                        <a href="{{ path('admin_project_agricole_edit', {id: project.idproject}) }}"
-                           title="Modifier" class="action-btn action-btn--edit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg>
                         </a>
                         <form method="POST"
                               action="{{ path('admin_project_agricole_delete', {id: project.idproject}) }}"
@@ -206,8 +200,6 @@
             padding: 2rem 2.5rem;
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
-
-        /* ── HEADER ── */
         .page-header {
             background: linear-gradient(135deg, #1a4d1f 0%, #2d7a33 100%);
             border-radius: 16px;
@@ -218,340 +210,62 @@
             margin-bottom: 1.8rem;
             box-shadow: 0 4px 24px rgba(0,0,0,.4);
         }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .header-icon {
-            width: 56px; height: 56px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.15);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem;
-            flex-shrink: 0;
-        }
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            margin: 0 0 4px;
-        }
-        .header-subtitle {
-            color: rgba(255,255,255,.7);
-            font-size: .85rem;
-            margin: 0;
-        }
-        .header-badge {
-            background: rgba(255,255,255,.2);
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: .7rem;
-            font-weight: 600;
-            margin-left: 6px;
-        }
-        .btn-export {
-            background: linear-gradient(135deg,#f59e0b,#d97706);
-            color: #fff;
-            border-radius: 10px;
-            padding: .6rem 1.4rem;
-            font-weight: 700;
-            font-size: .9rem;
-            text-decoration: none;
-            white-space: nowrap;
-            box-shadow: 0 3px 12px rgba(0,0,0,.3);
-            transition: opacity .2s;
-        }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .header-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+        .header-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 4px; }
+        .header-subtitle { color: rgba(255,255,255,.7); font-size: .85rem; margin: 0; }
+        .header-badge { background: rgba(255,255,255,.2); color: #fff; padding: 2px 8px; border-radius: 6px; font-size: .7rem; font-weight: 600; margin-left: 6px; }
+        .btn-export { background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; border-radius: 10px; padding: .6rem 1.4rem; font-weight: 700; font-size: .9rem; text-decoration: none; white-space: nowrap; box-shadow: 0 3px 12px rgba(0,0,0,.3); transition: opacity .2s; }
         .btn-export:hover { opacity: .88; color: #fff; }
-
-        /* ── TOOLBAR ── */
-        .toolbar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.8rem;
-            flex-wrap: wrap;
-        }
+        .toolbar { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.8rem; flex-wrap: wrap; }
         .toolbar-label { min-width: 180px; }
-        .toolbar-title  { color: #166534; font-size: 1rem; font-weight: 700; }
+        .toolbar-title { color: #166534; font-size: 1rem; font-weight: 700; }
         .toolbar-subtitle { color: #6b7280; font-size: .8rem; }
-
-        .toolbar-form {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            flex: 1;
-            flex-wrap: nowrap;
-        }
-        .search-wrapper {
-            position: relative;
-            flex: 1;
-            max-width: 380px;
-        }
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            font-size: .9rem;
-        }
-        .search-input {
-            width: 100%;
-            height: 42px;
-            padding: 0 1rem 0 2.5rem;
-            border-radius: 10px;
-            border: 1.5px solid #2d3748;
-            background: #1a2420;
-            color: #e5e7eb;
-            font-size: .9rem;
-            outline: none;
-            transition: border-color .2s;
-        }
-        .search-input::placeholder { color: #4b5563; }
-        .search-input:focus { border-color: #4ade80; }
-
-        .btn-search {
-            height: 42px;
-            padding: 0 1rem;
-            border-radius: 10px;
-            background: #16a34a;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: .95rem;
-            transition: background .2s;
-        }
-        .btn-search:hover { background: #15803d; }
-
-        .status-select {
-            height: 42px;
-            padding: 0 2rem 0 .8rem;
-            border-radius: 10px;
-            border: 1.5px solid #2d3748;
-            background: #1a2420;
-            color: #e5e7eb;
-            font-size: .88rem;
-            cursor: pointer;
-            outline: none;
-            appearance: auto;
-        }
-
-        .btn-new {
-            height: 42px;
-            padding: 0 1.4rem;
-            border-radius: 10px;
-            background: linear-gradient(135deg,#16a34a,#22c55e);
-            color: #fff;
-            font-weight: 700;
-            font-size: .9rem;
-            text-decoration: none;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 3px 12px rgba(22,163,74,.35);
-            transition: opacity .2s;
-        }
-        .btn-new:hover { opacity: .88; color: #fff; }
-
-        /* ── TOOLBAR inputs light ── */
-        .search-input {
-            width: 100%;
-            height: 42px;
-            padding: 0 1rem 0 2.5rem;
-            border-radius: 10px;
-            border: 1.5px solid #d1d5db;
-            background: #fff;
-            color: #111827;
-            font-size: .9rem;
-            outline: none;
-            transition: border-color .2s;
-        }
+        .toolbar-form { display: flex; align-items: center; gap: .6rem; flex: 1; flex-wrap: nowrap; }
+        .search-wrapper { position: relative; flex: 1; max-width: 380px; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); }
+        .search-input { width: 100%; height: 42px; padding: 0 1rem 0 2.5rem; border-radius: 10px; border: 1.5px solid #d1d5db; background: #fff; color: #111827; font-size: .9rem; outline: none; transition: border-color .2s; }
         .search-input::placeholder { color: #9ca3af; }
         .search-input:focus { border-color: #16a34a; }
-
-        .status-select {
-            height: 42px;
-            padding: 0 2rem 0 .8rem;
-            border-radius: 10px;
-            border: 1.5px solid #d1d5db;
-            background: #fff;
-            color: #111827;
-            font-size: .88rem;
-            cursor: pointer;
-            outline: none;
-            appearance: auto;
-        }
-
-        /* ── SECTION LABEL ── */
-        .section-label {
-            color: #374151;
-            font-size: .95rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-        }
-
-        /* ── STATS GRID ── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
+        .btn-search { height: 42px; padding: 0 1rem; border-radius: 10px; background: #16a34a; color: #fff; border: none; cursor: pointer; transition: background .2s; }
+        .btn-search:hover { background: #15803d; }
+        .status-select { height: 42px; padding: 0 2rem 0 .8rem; border-radius: 10px; border: 1.5px solid #d1d5db; background: #fff; color: #111827; font-size: .88rem; cursor: pointer; outline: none; appearance: auto; }
+        .section-label { color: #374151; font-size: .95rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
         @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px)  { .stats-grid { grid-template-columns: 1fr; } }
-
-        .stat-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 1.4rem 1.6rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform .2s, box-shadow .2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0,0,0,.1);
-        }
-        .stat-icon {
-            width: 54px; height: 54px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-        .stat-label {
-            color: #6b7280;
-            font-size: .8rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        /* ── EMPTY STATE ── */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        }
-
-        /* ── PROJECTS GRID ── */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.2rem;
-            margin-bottom: 2rem;
-        }
+        .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.4rem 1.6rem; display: flex; align-items: center; gap: 1rem; transition: transform .2s, box-shadow .2s; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+        .stat-icon { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        .stat-label { color: #6b7280; font-size: .8rem; font-weight: 600; margin-bottom: 4px; }
+        .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .empty-state { text-align: center; padding: 4rem 2rem; background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
         @media (max-width: 1200px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 700px)  { .projects-grid { grid-template-columns: 1fr; } }
-
-        .project-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            transition: transform .2s, box-shadow .2s, border-color .2s;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        }
-        .project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(0,0,0,.12);
-            border-color: #86efac;
-        }
+        .project-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s, border-color .2s; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        .project-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,.12); border-color: #86efac; }
         .project-card-body { padding: 1.4rem; flex: 1; }
-        .project-header {
-            display: flex;
-            align-items: flex-start;
-            gap: .9rem;
-            margin-bottom: 1rem;
-        }
+        .project-header { display: flex; align-items: flex-start; gap: .9rem; margin-bottom: 1rem; }
         .project-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
-        .project-name {
-            color: #166534;
-            font-size: 1rem;
-            font-weight: 700;
-            margin: 0 0 3px;
-        }
+        .project-name { color: #166534; font-size: 1rem; font-weight: 700; margin: 0 0 3px; }
         .project-id { color: #9ca3af; font-size: .78rem; }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: .8rem;
-            font-weight: 600;
-        }
-
-        .project-divider {
-            border: none;
-            border-top: 1px solid #f0f0f0;
-            margin: .8rem 0;
-        }
-
+        .status-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600; }
+        .project-divider { border: none; border-top: 1px solid #f0f0f0; margin: .8rem 0; }
         .project-meta { display: flex; flex-direction: column; gap: .5rem; }
         .meta-row { display: flex; align-items: center; gap: .5rem; font-size: .88rem; }
         .meta-icon { width: 22px; flex-shrink: 0; }
         .meta-label { color: #9ca3af; }
         .meta-value { color: #166534; font-weight: 600; margin-left: auto; }
-
-        .project-card-footer {
-            padding: 1rem 1.4rem 1.4rem;
-            display: flex;
-            gap: .5rem;
-            border-top: 1px solid #f0f0f0;
-            background: #fafafa;
-        }
-
-        .action-btn {
-            width: 42px; height: 42px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: .95rem;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: opacity .2s, transform .15s;
-        }
+        .project-card-footer { padding: 1rem 1.4rem 1.4rem; display: flex; gap: .5rem; border-top: 1px solid #f0f0f0; background: #fafafa; }
+        .action-btn { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; transition: opacity .2s, transform .15s; }
         .action-btn:hover { opacity: .82; transform: scale(1.07); }
-
         .action-btn--view   { background: #166534; color: #fff; }
-        .action-btn--edit   { background: #16a34a; color: #fff; }
         .action-btn--delete { background: #fff; color: #dc2626; border: 2px solid #dc2626; }
-
-        /* ── FOOTER STATS ── */
-        .footer-stats {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 1.2rem 1.8rem;
-            display: flex;
-            gap: 3rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        }
+        .footer-stats { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1.2rem 1.8rem; display: flex; gap: 3rem; flex-wrap: wrap; margin-top: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
         .footer-stat { display: flex; flex-direction: column; gap: 4px; }
         .footer-stat-label { color: #6b7280; font-size: .83rem; }
         .footer-stat-value { color: #166534; font-size: 1rem; font-weight: 700; }
+        @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
     </style>
-{% endblock %}
-
-{% block javascripts %}
-    {# No modal JS needed — each card has its own inline form with correct CSRF token #}
 {% endblock %}
