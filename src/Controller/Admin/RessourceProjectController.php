@@ -2,8 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\RessourceProject;
-use App\Form\RessourceProjectType;
 use App\Repository\RessourceProjectRepository;
 use App\Repository\ProjectAgricoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,11 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-
 #[Route('/admin/ressource-project', name: 'admin_ressource_project_')]
 class RessourceProjectController extends AbstractController
 {
-    
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(
         Request $request,
@@ -48,7 +44,6 @@ class RessourceProjectController extends AbstractController
 
         $ressources = $qb->getQuery()->getResult();
 
-       
         $all             = $repo->findAll();
         $totalRessources = count($all);
         $countEquipement = count(array_filter($all, fn($r) => $r->getTyperessource() === 'equipement'));
@@ -70,7 +65,6 @@ class RessourceProjectController extends AbstractController
         ]);
     }
 
-    
     #[Route('/export/pdf', name: 'export_pdf', methods: ['GET'])]
     public function exportPdf(RessourceProjectRepository $repo): Response
     {
@@ -114,27 +108,6 @@ class RessourceProjectController extends AbstractController
         return $response;
     }
 
-    
-    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
-        $ressource = new RessourceProject();
-        $form      = $this->createForm(RessourceProjectType::class, $ressource);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($ressource);
-            $em->flush();
-            $this->addFlash('success', '✅ Ressource "' . $ressource->getNomressource() . '" créée.');
-            return $this->redirectToRoute('admin_ressource_project_index');
-        }
-
-        return $this->render('admin/ressource_project/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    
     #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(int $id, RessourceProjectRepository $repo): Response
     {
@@ -149,36 +122,6 @@ class RessourceProjectController extends AbstractController
         ]);
     }
 
-    
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(
-        int $id,
-        Request $request,
-        EntityManagerInterface $em,
-        RessourceProjectRepository $repo
-    ): Response {
-        $ressource = $repo->find($id);
-        if (!$ressource) {
-            $this->addFlash('danger', 'Ressource introuvable.');
-            return $this->redirectToRoute('admin_ressource_project_index');
-        }
-
-        $form = $this->createForm(RessourceProjectType::class, $ressource);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-            $this->addFlash('success', '✏️ Ressource "' . $ressource->getNomressource() . '" modifiée.');
-            return $this->redirectToRoute('admin_ressource_project_index');
-        }
-
-        return $this->render('admin/ressource_project/edit.html.twig', [
-            'ressource' => $ressource,
-            'form'      => $form->createView(),
-        ]);
-    }
-
-    
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(
         int $id,

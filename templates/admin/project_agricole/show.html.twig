@@ -33,28 +33,11 @@
             --green-light: #86efac;
             --green-dark:  #166634;
         }
-        .card-agri {
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
-            overflow: hidden;
-        }
+        .card-agri { border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; }
         .card-agri .card-header { padding: 1rem 1.4rem; }
-        .btn-agri-primary {
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: .55rem 1.4rem;
-            font-weight: 700;
-            font-size: .9rem;
-            transition: opacity .2s;
-        }
-        .btn-agri-primary:hover { opacity: .88; color: #fff; }
         .badge-encours  { background:#ffedd5; color:#9a3412; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
         .badge-approuve { background:#dcfce7; color:#166534; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
         .badge-refuse   { background:#fee2e2; color:#991b1b; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
-        .badge-termine  { background:#e0e7ff; color:#3730a3; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
         @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
     </style>
 
@@ -73,14 +56,9 @@
                     <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span>
                 </h2>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ path('admin_project_agricole_edit', {id: project.idproject}) }}" class="btn btn-warning fw-semibold">
-                    <i class="bi bi-pencil me-1"></i> Modifier
-                </a>
-                <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-light">
-                    <i class="bi bi-arrow-left me-1"></i> Retour
-                </a>
-            </div>
+            <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-light">
+                <i class="bi bi-arrow-left me-1"></i> Retour
+            </a>
         </div>
 
         <div class="row g-4">
@@ -100,16 +78,24 @@
                             <tr>
                                 <th class="text-muted">Statut</th>
                                 <td>
-                                    <span class="{% if project.statut == 'En cours' %}badge-encours
-                                                 {% elseif project.statut == 'Accepté' %}badge-approuve
-                                                 {% elseif project.statut == 'Refusé' %}badge-refuse
-                                                 {% else %}badge-termine{% endif %}">
-                                        {{ project.statut }}
+                                    <span class="{% if project.statut == 'en cours' %}badge-encours
+                                                 {% elseif project.statut == 'accepte' %}badge-approuve
+                                                 {% elseif project.statut == 'refuse' %}badge-refuse
+                                                 {% else %}badge-encours{% endif %}">
+                                        {% if project.statut == 'accepte' %}Accepté
+                                        {% elseif project.statut == 'refuse' %}Refusé
+                                        {% else %}En cours{% endif %}
                                     </span>
                                 </td>
                             </tr>
                             <tr><th class="text-muted">Date Soumission</th><td>{{ project.datesoumission|date('d/m/Y') }}</td></tr>
-                            <tr><th class="text-muted">Agriculteur ID</th><td>{{ project.agriculteurId ?? '—' }}</td></tr>
+                            <tr><th class="text-muted">Agriculteur</th><td>
+                                {% if project.agriculteur and project.agriculteur.utilisateur %}
+                                    {{ project.agriculteur.utilisateur.prenom }} {{ project.agriculteur.utilisateur.nom }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td></tr>
                         </table>
                     </div>
                 </div>
@@ -117,13 +103,10 @@
 
             <div class="col-lg-7">
                 <div class="card card-agri">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                    <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
                         <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
                             <i class="bi bi-box-seam me-2"></i>Ressources ({{ project.ressources|length }})
                         </h5>
-                        <a href="{{ path('admin_ressource_project_new') }}" class="btn btn-sm btn-agri-primary">
-                            <i class="bi bi-plus"></i> Ajouter
-                        </a>
                     </div>
                     <div class="card-body p-0">
                         {% if project.ressources is empty %}

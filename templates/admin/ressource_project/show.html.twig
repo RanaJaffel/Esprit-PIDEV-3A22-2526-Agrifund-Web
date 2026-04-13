@@ -1,61 +1,135 @@
 {% extends 'base.html.twig' %}
 {% block title %}Admin — {{ ressource.nomressource }}{% endblock %}
+{% block hide_preloader %}true{% endblock %}
 
-{% block content %}
-<div class="page-header d-flex justify-content-between align-items-center">
-    <div>
-        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
-            <li class="breadcrumb-item"><a href="{{ path('admin_ressource_project_index') }}" class="text-white-50">Admin / Ressources</a></li>
-            <li class="breadcrumb-item active text-white">{{ ressource.nomressource }}</li>
-        </ol></nav>
-        <h2 class="fw-bold mb-0"><i class="bi bi-box-seam me-2"></i>{{ ressource.nomressource }} <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span></h2>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="{{ path('admin_ressource_project_edit', {id: ressource.idressource}) }}" class="btn btn-warning fw-semibold"><i class="bi bi-pencil me-1"></i> Modifier</a>
-        <a href="{{ path('admin_ressource_project_index') }}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i> Retour</a>
-    </div>
-</div>
+{% block body %}
+    {% include 'components/_sidebar_admin.html.twig' %}
 
-<div class="row justify-content-center"><div class="col-lg-6">
-    <div class="card card-agri">
-        <div class="card-header" style="background:var(--green-pale);border-bottom:2px solid var(--green-light);">
-            <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-info-circle me-2"></i>Détails</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-borderless mb-0">
-                <tr><th class="text-muted w-40">ID</th><td>{{ ressource.idressource }}</td></tr>
-                <tr><th class="text-muted">Nom</th><td class="fw-semibold">{{ ressource.nomressource }}</td></tr>
-                <tr><th class="text-muted">Type</th><td><span class="badge bg-info">{{ ressource.typeressource }}</span></td></tr>
-                <tr><th class="text-muted">Quantité</th><td>{{ ressource.quantite }}</td></tr>
-                <tr><th class="text-muted">Coût Unitaire</th><td class="text-success fw-semibold">{{ ressource.cout|number_format(2, ',', ' ') }} TND</td></tr>
-                <tr><th class="text-muted">Coût Total</th><td class="fw-bold" style="color:var(--green-dark)">{{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND</td></tr>
-                <tr><th class="text-muted">Fournisseur</th><td>{{ ressource.fournisseur ?? '—' }}</td></tr>
-                <tr><th class="text-muted">Statut</th><td><span class="badge bg-secondary">{{ ressource.statut }}</span></td></tr>
-                <tr><th class="text-muted">Date Ajout</th><td>{{ ressource.dateajout|date('d/m/Y') }}</td></tr>
-                <tr><th class="text-muted">Projet</th><td>{{ ressource.project.nomproject }}</td></tr>
-            </table>
-        </div>
-        <div class="card-footer bg-transparent d-flex justify-content-end">
-            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="bi bi-trash me-1"></i> Supprimer
-            </button>
-        </div>
-    </div>
-</div></div>
+    <style>
+        .admin-main {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #f4f6f4;
+            padding: 2rem 2.5rem;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #1a4d1f 0%, #2d7a33 100%);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.8rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,.4);
+        }
+        .page-header h2 { color: #fff; margin: 0; font-size: 1.5rem; }
+        .page-header .breadcrumb { margin-bottom: .25rem; }
+        .page-header .breadcrumb-item a { color: rgba(255,255,255,.6); text-decoration: none; }
+        .page-header .breadcrumb-item.active { color: #fff; }
+        .page-header .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,.4); }
+        :root {
+            --green-pale:  #f0faf2;
+            --green-light: #86efac;
+            --green-dark:  #166634;
+        }
+        .card-agri { border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; }
+        .card-agri .card-header { padding: 1rem 1.4rem; }
+        @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
+    </style>
 
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-danger text-white"><h5 class="modal-title">Confirmer</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">Supprimer <strong>{{ ressource.nomressource }}</strong> ?</div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form method="POST" action="{{ path('admin_ressource_project_delete', {id: ressource.idressource}) }}" style="display:inline;">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_ressource_' ~ ressource.idressource) }}">
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                </form>
+    <main class="admin-main">
+
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_ressource_project_index') }}">Admin / Ressources</a>
+                    </li>
+                    <li class="breadcrumb-item active text-white">{{ ressource.nomressource }}</li>
+                </ol></nav>
+                <h2 class="fw-bold mb-0">
+                    <i class="bi bi-box-seam me-2"></i>{{ ressource.nomressource }}
+                    <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span>
+                </h2>
+            </div>
+            <a href="{{ path('admin_ressource_project_index') }}" class="btn btn-light">
+                <i class="bi bi-arrow-left me-1"></i> Retour
+            </a>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card card-agri">
+                    <div class="card-header" style="background:var(--green-pale);border-bottom:2px solid var(--green-light);">
+                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
+                            <i class="bi bi-info-circle me-2"></i>Détails
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr><th class="text-muted" style="width:40%">ID</th><td>{{ ressource.idressource }}</td></tr>
+                            <tr><th class="text-muted">Nom</th><td class="fw-semibold">{{ ressource.nomressource }}</td></tr>
+                            <tr><th class="text-muted">Type</th><td>
+                                <span class="badge"
+                                      style="background:{% if ressource.typeressource == 'equipement' %}#FFF3E0{% elseif ressource.typeressource == 'materiaux' %}#E3F2FD{% else %}#F3E5F5{% endif %};
+                                             color:{% if ressource.typeressource == 'equipement' %}#E65100{% elseif ressource.typeressource == 'materiaux' %}#1565C0{% else %}#6A1B9A{% endif %};">
+                                    {{ ressource.typeressource|capitalize }}
+                                </span>
+                            </td></tr>
+                            <tr><th class="text-muted">Quantité</th><td>{{ ressource.quantite }}</td></tr>
+                            <tr><th class="text-muted">Coût Unitaire</th><td class="text-success fw-semibold">{{ ressource.cout|number_format(2, ',', ' ') }} TND</td></tr>
+                            <tr><th class="text-muted">Coût Total</th><td class="fw-bold" style="color:var(--green-dark)">{{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND</td></tr>
+                            <tr><th class="text-muted">Fournisseur</th><td>{{ ressource.fournisseur ?? '—' }}</td></tr>
+                            <tr><th class="text-muted">Statut</th><td>
+                                <span class="badge"
+                                      style="background:{% if ressource.statut in ['achete','Disponible'] %}#E8F5E9{% elseif ressource.statut in ['prevu','En commande'] %}#FFF8E1{% else %}#FFEBEE{% endif %};
+                                             color:{% if ressource.statut in ['achete','Disponible'] %}#2E7D32{% elseif ressource.statut in ['prevu','En commande'] %}#F57F17{% else %}#C62828{% endif %};">
+                                    {{ ressource.statut }}
+                                </span>
+                            </td></tr>
+                            <tr><th class="text-muted">Date Ajout</th><td>{{ ressource.dateajout|date('d/m/Y') }}</td></tr>
+                            <tr><th class="text-muted">Projet</th><td>
+                                <a href="{{ path('admin_project_agricole_show', {id: ressource.project.idproject}) }}"
+                                   class="text-success fw-semibold text-decoration-none">
+                                    {{ ressource.project.nomproject }}
+                                </a>
+                            </td></tr>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex justify-content-end">
+                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash me-1"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+
+        {# Delete confirmation modal #}
+        <div class="modal fade" id="deleteModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Confirmer la suppression</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        Supprimer <strong>{{ ressource.nomressource }}</strong> définitivement ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <form method="POST"
+                              action="{{ path('admin_ressource_project_delete', {id: ressource.idressource}) }}"
+                              style="display:inline;">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('delete_ressource_' ~ ressource.idressource) }}">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
 {% endblock %}

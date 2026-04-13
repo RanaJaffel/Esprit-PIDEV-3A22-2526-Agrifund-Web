@@ -1,12 +1,12 @@
 {#
-    templates/ressource_project/_form.html.twig
+    templates/admin/ressource_project/_form.html.twig
     Shared by new.html.twig AND edit.html.twig
     Pure server-side validation — no HTML5 constraints, no JavaScript.
 #}
 
 <div class="row g-3">
 
-    {{# ── Nom de la ressource ── #}}
+    {# ── Nom de la ressource ── #}
     <div class="col-12">
         <label for="{{ form.nomressource.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-box-seam me-1 text-success"></i>
@@ -25,7 +25,7 @@
         <div class="form-text text-muted">Entre 3 et 150 caractères.</div>
     </div>
 
-    {{# ── Type de ressource ── #}}
+    {# ── Type de ressource ── #}
     <div class="col-md-6">
         <label for="{{ form.typeressource.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-tag me-1 text-success"></i>
@@ -43,7 +43,7 @@
         {% endif %}
     </div>
 
-    {{# ── Statut ── #}}
+    {# ── Statut ── #}
     <div class="col-md-6">
         <label for="{{ form.statut.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-flag me-1 text-success"></i>
@@ -61,7 +61,7 @@
         {% endif %}
     </div>
 
-    {{# ── Quantité ── #}}
+    {# ── Quantité ── #}
     <div class="col-md-4">
         <label for="{{ form.quantite.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-hash me-1 text-success"></i>
@@ -80,7 +80,7 @@
         <div class="form-text text-muted">Entier positif, max 100 000.</div>
     </div>
 
-    {{# ── Coût unitaire ── #}}
+    {# ── Coût unitaire ── #}
     <div class="col-md-4">
         <label for="{{ form.cout.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-cash-coin me-1 text-success"></i>
@@ -99,7 +99,7 @@
         <div class="form-text text-muted">Montant positif en TND.</div>
     </div>
 
-    {{# ── Date d'ajout ── #}}
+    {# ── Date d'ajout ── #}
     <div class="col-md-4">
         <label for="{{ form.dateajout.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-calendar-date me-1 text-success"></i>
@@ -118,7 +118,7 @@
         <div class="form-text text-muted">Doit être la date d'aujourd'hui uniquement.</div>
     </div>
 
-    {{# ── Fournisseur (optionnel) ── #}}
+    {# ── Fournisseur (optionnel) ── #}
     <div class="col-md-6">
         <label for="{{ form.fournisseur.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-shop me-1 text-success"></i>
@@ -138,7 +138,7 @@
         <div class="form-text text-muted">Max 150 caractères.</div>
     </div>
 
-    {{# ── Projet agricole ── #}}
+    {# ── Projet agricole ── #}
     <div class="col-md-6">
         <label for="{{ form.project.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-folder2-open me-1 text-success"></i>
