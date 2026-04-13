@@ -1,58 +1,85 @@
 {% extends 'base.html.twig' %}
 {% block title %}Modifier — {{ project.nomproject }}{% endblock %}
 
-{% block content %}
-<div class="page-header">
-    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
-        <li class="breadcrumb-item"><a href="{{ path('agriculteur_project_agricole_index') }}" class="text-white-50">Mes Projets</a></li>
-        <li class="breadcrumb-item active text-white">Modifier</li>
-    </ol></nav>
-    <h2 class="fw-bold mb-0">
-        <i class="bi bi-pencil-square me-2"></i>Modifier : {{ project.nomproject }}
-        <span class="badge ms-2" style="background:#A5D6A7;color:#1B5E20;font-size:.7em">AGRICULTEUR</span>
-    </h2>
-</div>
+{% block body %}
+    {% include 'components/_sidebar_agriculteur.html.twig' %}
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
+    <main class="agriculteur-main" style="margin-left: 280px; min-height: 100vh; padding: 30px; background: #f5f7f5;">
 
-        {# Current statut shown as read-only info #}
-        <div class="alert d-flex align-items-center gap-3 mb-3 border-0"
-             style="background:linear-gradient(to right,#E8F5E9,#F1F8E9);border-left:4px solid #4CAF50 !important;">
-            <i class="bi bi-lock-fill text-success fs-4"></i>
-            <div>
-                Statut actuel : <span class="badge px-3 py-2
-                    {% if project.statut == 'En cours' %}badge-encours
-                    {% elseif project.statut == 'Approuvé' %}badge-approuve
-                    {% elseif project.statut == 'Refusé' %}badge-refuse
-                    {% else %}badge-termine{% endif %}">
-                    {{ project.statut }}
-                </span>
-                <br><small class="text-muted">Le statut ne peut pas être modifié manuellement.</small>
-            </div>
-        </div>
+        <!-- Mobile toggle button -->
+        <button class="btn d-lg-none mb-3" id="mobileSidebarToggle"
+                style="background: #089647; color: white; border-radius: 10px;">
+            <i class="fas fa-bars"></i>
+        </button>
 
-        <div class="card card-agri">
-            <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
-                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
-                    <i class="bi bi-pencil me-2"></i>Modifier les informations
-                </h5>
-            </div>
-            <div class="card-body p-4">
-                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                    {% include 'agriculteur/project_agricole/_form.html.twig' %}
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-agri-primary">
-                            <i class="bi bi-check-circle me-1"></i> Enregistrer
-                        </button>
-                        <a href="{{ path('agriculteur_project_agricole_show', {id: project.idproject}) }}"
-                           class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i> Retour
+        <div class="page-header mb-4 p-4 rounded-3"
+             style="background: linear-gradient(135deg, #095032 0%, #076A39 50%, #089647 100%); color: white;">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('agriculteur_project_agricole_index') }}" class="text-white-50 text-decoration-none">
+                            Mes Projets
                         </a>
+                    </li>
+                    <li class="breadcrumb-item active text-white">Modifier</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-pencil-square me-2"></i>Modifier : {{ project.nomproject }}
+                <span class="badge ms-2"
+                      style="background:#A5D6A7; color:#1B5E20; font-size:.7em;">AGRICULTEUR</span>
+            </h2>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                {# Current statut shown as read-only info #}
+                <div class="alert d-flex align-items-center gap-3 mb-3 border-0"
+                     style="background: linear-gradient(to right, #E8F5E9, #F1F8E9);
+                            border-left: 4px solid #4CAF50 !important;">
+                    <i class="bi bi-lock-fill text-success fs-4"></i>
+                    <div>
+                        Statut actuel :
+                        <span class="badge px-3 py-2
+                            {% if project.statut == 'En cours' %}bg-warning text-dark
+                            {% elseif project.statut == 'Approuvé' %}bg-success
+                            {% elseif project.statut == 'Refusé' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ project.statut }}
+                        </span>
+                        <br>
+                        <small class="text-muted">Le statut ne peut pas être modifié manuellement.</small>
                     </div>
-                {{ form_end(form) }}
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header py-3"
+                         style="background: #E8F5E9; border-bottom: 2px solid #A5D6A7;">
+                        <h5 class="mb-0 fw-semibold" style="color: #1B5E20;">
+                            <i class="bi bi-pencil me-2"></i>Modifier les informations
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                            {% include 'agriculteur/project_agricole/_form.html.twig' %}
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="submit" class="btn text-white fw-semibold px-4"
+                                        style="background: linear-gradient(135deg, #089647, #B2D944);
+                                               border: none; border-radius: 10px;">
+                                    <i class="bi bi-check-circle me-1"></i> Enregistrer
+                                </button>
+                                <a href="{{ path('agriculteur_project_agricole_show', {id: project.idproject}) }}"
+                                   class="btn btn-outline-secondary px-4" style="border-radius: 10px;">
+                                    <i class="bi bi-arrow-left me-1"></i> Retour
+                                </a>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
-</div>
+
+    </main>
 {% endblock %}

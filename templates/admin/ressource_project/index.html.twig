@@ -2,6 +2,12 @@
 {% block title %}Admin — Inventaire des Ressources{% endblock %}
 {% block hide_preloader %}true{% endblock %}
 
+{% block stylesheets %}
+    {# Force Bootstrap from CDN in case local assets fail #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
 {% block body %}
     {% include 'components/_sidebar_admin.html.twig' %}
 
@@ -13,27 +19,236 @@
             padding: 2rem 2.5rem;
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
-        @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
+        @media (max-width: 991px) {
+            .admin-main { margin-left: 0; padding: 1rem; }
+        }
+
+        /* ── Stat cards: pure flexbox, no Bootstrap ── */
+        .stat-cards-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card-wrap {
+            flex: 1 1 calc(25% - 1rem);
+            min-width: 180px;
+        }
+        @media (max-width: 767px) {
+            .stat-card-wrap { flex: 1 1 calc(50% - 1rem); }
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            padding: 1.2rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+        .stat-label {
+            color: #888;
+            font-size: .78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 2px;
+        }
+        .stat-value {
+            font-size: 1.9rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* ── Resource cards grid: CSS grid, no Bootstrap ── */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .resource-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.08);
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 28px rgba(0,0,0,.14);
+        }
+        .resource-card-accent { height: 5px; }
+        .resource-card-body { padding: 1.2rem 1.4rem; flex: 1; }
+        .resource-card-footer {
+            padding: .6rem 1.4rem 1rem;
+            display: flex;
+            gap: .5rem;
+            border-top: 1px solid #f0f0f0;
+        }
+        .info-tiles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .5rem;
+            margin-bottom: .5rem;
+        }
+        .info-tile {
+            background: #F5F5F5;
+            border-radius: 10px;
+            padding: .55rem .8rem;
+        }
+        .info-tile-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #999;
+        }
+        .info-tile-value {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #1B5E20;
+        }
+        .info-tile-total {
+            background: #E8F5E9;
+            border-radius: 10px;
+            padding: .55rem .8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0;
+        }
+        .btn-voir {
+            flex: 1;
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: none;
+            border-radius: 8px;
+            padding: .45rem .8rem;
+            font-weight: 600;
+            font-size: .88rem;
+            text-decoration: none;
+            text-align: center;
+            transition: background .15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .3rem;
+        }
+        .btn-voir:hover { background: #C8E6C9; color: #1B5E20; }
+        .btn-del {
+            background: #FFEBEE;
+            color: #C62828;
+            border: none;
+            border-radius: 8px;
+            padding: .45rem .75rem;
+            font-weight: 600;
+            font-size: .88rem;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-del:hover { background: #FFCDD2; }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .search-wrap {
+            position: relative;
+            flex-grow: 1;
+            max-width: 380px;
+        }
+        .search-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            pointer-events: none;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: .5rem .9rem .5rem 2.6rem;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            height: 42px;
+            outline: none;
+            font-size: .92rem;
+            font-family: inherit;
+        }
+        .filter-select {
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            height: 42px;
+            padding: 0 .8rem;
+            color: #444;
+            font-weight: 500;
+            font-size: .9rem;
+            background: #fff;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-reset {
+            border: 1.5px solid #ccc;
+            background: #fff;
+            border-radius: 8px;
+            height: 42px;
+            padding: 0 .9rem;
+            font-size: .88rem;
+            color: #555;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .btn-reset:hover { background: #f5f5f5; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+        }
     </style>
 
     <main class="admin-main">
 
         {# ── Page Header ── #}
-        <div style="background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-                    border-radius: 16px; padding: 2rem 2.5rem;
-                    display: flex; justify-content: space-between; align-items: center;
-                    margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(27,94,32,.35);">
-            <div class="text-center flex-grow-1">
+        <div style="background:linear-gradient(135deg,#1B5E20 0%,#2E7D32 100%);
+                    border-radius:16px; padding:2rem 2.5rem;
+                    display:flex; justify-content:space-between; align-items:center;
+                    margin-bottom:2rem; box-shadow:0 4px 20px rgba(27,94,32,.35);">
+            <div style="text-align:center; flex:1;">
                 <div style="font-size:2.2rem; margin-bottom:.3rem;">🎁</div>
-                <h2 class="fw-bold mb-1 text-white" style="font-size:1.8rem; letter-spacing:.5px;">
+                <h2 style="font-weight:700; font-size:1.8rem; letter-spacing:.5px; color:#fff; margin:0 0 .25rem;">
                     Inventaire des Ressources
                 </h2>
-                <p class="mb-0" style="color:rgba(255,255,255,.75); font-size:.95rem;">
+                <p style="color:rgba(255,255,255,.75); font-size:.95rem; margin:0;">
                     Gestion complète des ressources agricoles
-                    <span class="badge ms-2" style="background:rgba(255,255,255,.2);font-size:.7em">ADMIN</span>
+                    <span style="background:rgba(255,255,255,.2); border-radius:6px; padding:2px 8px; font-size:.7em; margin-left:6px; vertical-align:middle;">ADMIN</span>
                 </p>
             </div>
-            <div>
+            <div style="flex-shrink:0; margin-left:1.5rem;">
                 <a href="{{ path('admin_ressource_project_export_pdf') }}"
                    style="background:linear-gradient(135deg,#F9A825,#F57F17); color:#fff;
                           border:none; border-radius:10px; padding:.65rem 1.4rem;
@@ -44,200 +259,167 @@
             </div>
         </div>
 
-        {# ── Search + Filter bar (no "Nouvelle Ressource" button) ── #}
-        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-            <div>
-                <h5 class="fw-bold mb-0" style="color:#1B5E20">
-                    <i class="bi bi-clipboard2-data me-2"></i>Liste des Ressources
-                </h5>
-                <small class="text-muted">Visualisez et gérez toutes vos ressources</small>
-            </div>
-
-            <div class="flex-grow-1 ms-3">
-                <form method="GET" action="{{ path('admin_ressource_project_index') }}"
-                      class="d-flex align-items-center gap-2 flex-wrap" id="filterForm">
-
-                    <div class="position-relative flex-grow-1" style="max-width:380px;">
-                        <i class="bi bi-search position-absolute"
-                           style="left:14px;top:50%;transform:translateY(-50%);color:#aaa;pointer-events:none;"></i>
-                        <input type="text" name="search" value="{{ search }}"
-                               class="form-control ps-5"
-                               placeholder="Rechercher par nom ou fournisseur..."
-                               style="border-radius:10px; border:1.5px solid #e0e0e0; height:42px;"
-                               oninput="clearTimeout(this._t);this._t=setTimeout(()=>this.form.submit(),400)">
-                    </div>
-
-                    <select name="type" class="form-select"
-                            style="border-radius:10px; border:1.5px solid #e0e0e0; height:42px; width:auto; color:#444; font-weight:500;"
-                            onchange="this.form.submit()">
-                        <option value=""           {{ typeFilter == ''           ? 'selected' : '' }}>Tous les types</option>
-                        <option value="equipement" {{ typeFilter == 'equipement' ? 'selected' : '' }}>🚜 Équipement</option>
-                        <option value="materiaux"  {{ typeFilter == 'materiaux'  ? 'selected' : '' }}>⚙️ Matériaux</option>
-                        <option value="service"    {{ typeFilter == 'service'    ? 'selected' : '' }}>🔧 Service</option>
-                    </select>
-
-                    <select name="project" class="form-select"
-                            style="border-radius:10px; border:1.5px solid #e0e0e0; height:42px; width:auto; color:#444; font-weight:500;"
-                            onchange="this.form.submit()">
-                        <option value="0" {{ projectFilter == 0 ? 'selected' : '' }}>Tous les projets</option>
-                        {% for p in projects %}
-                            <option value="{{ p.idproject }}" {{ projectFilter == p.idproject ? 'selected' : '' }}>
-                                📁 {{ p.nomproject }}
-                            </option>
-                        {% endfor %}
-                    </select>
-
-                    {% if typeFilter or projectFilter or search %}
-                    <a href="{{ path('admin_ressource_project_index') }}"
-                       class="btn btn-sm btn-outline-secondary"
-                       style="border-radius:8px; height:42px; padding:0 .9rem; line-height:40px; white-space:nowrap;">
-                        <i class="bi bi-x-circle me-1"></i>Reset
-                    </a>
-                    {% endif %}
-                </form>
-            </div>
+        {# ── Section title ── #}
+        <div style="margin-bottom:1rem;">
+            <h5 style="font-weight:700; color:#1B5E20; margin:0 0 2px;">
+                <i class="bi bi-clipboard2-data" style="margin-right:.4rem;"></i>Liste des Ressources
+            </h5>
+            <small style="color:#888;">Visualisez et gérez toutes vos ressources</small>
         </div>
 
-        {# ── Stat Cards ── #}
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-                    <div class="card-body d-flex align-items-center gap-3 p-4">
-                        <div style="width:56px;height:56px;border-radius:14px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">📦</div>
-                        <div>
-                            <div class="text-muted small fw-semibold mb-1">Total Ressources</div>
-                            <div class="fw-bold" style="font-size:1.8rem;color:#1B5E20;line-height:1">{{ totalRessources }}</div>
-                        </div>
+        {# ── Filter bar ── #}
+        <form method="GET" action="{{ path('admin_ressource_project_index') }}" class="filter-bar" id="filterForm">
+            <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" value="{{ search }}"
+                       placeholder="Rechercher par nom ou fournisseur..."
+                       oninput="clearTimeout(this._t);this._t=setTimeout(()=>this.form.submit(),400)">
+            </div>
+
+            <select name="type" class="filter-select" onchange="this.form.submit()">
+                <option value=""           {{ typeFilter == ''           ? 'selected' : '' }}>Tous les types</option>
+                <option value="equipement" {{ typeFilter == 'equipement' ? 'selected' : '' }}>🚜 Équipement</option>
+                <option value="materiaux"  {{ typeFilter == 'materiaux'  ? 'selected' : '' }}>⚙️ Matériaux</option>
+                <option value="service"    {{ typeFilter == 'service'    ? 'selected' : '' }}>🔧 Service</option>
+            </select>
+
+            <select name="project" class="filter-select" onchange="this.form.submit()">
+                <option value="0" {{ projectFilter == 0 ? 'selected' : '' }}>Tous les projets</option>
+                {% for p in projects %}
+                    <option value="{{ p.idproject }}" {{ projectFilter == p.idproject ? 'selected' : '' }}>
+                        📁 {{ p.nomproject }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            {% if typeFilter or projectFilter or search %}
+                <a href="{{ path('admin_ressource_project_index') }}" class="btn-reset">
+                    <i class="bi bi-x-circle"></i> Reset
+                </a>
+            {% endif %}
+        </form>
+
+        {# ── Stat Cards — pure flexbox, zero Bootstrap dependency ── #}
+        <div class="stat-cards-row">
+            <div class="stat-card-wrap">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#E8F5E9;">📦</div>
+                    <div>
+                        <div class="stat-label">Total Ressources</div>
+                        <div class="stat-value" style="color:#1B5E20;">{{ totalRessources }}</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-                    <div class="card-body d-flex align-items-center gap-3 p-4">
-                        <div style="width:56px;height:56px;border-radius:14px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🚜</div>
-                        <div>
-                            <div class="text-muted small fw-semibold mb-1">Équipements</div>
-                            <div class="fw-bold" style="font-size:1.8rem;color:#E65100;line-height:1">{{ countEquipement }}</div>
-                        </div>
+            <div class="stat-card-wrap">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#FFF3E0;">🚜</div>
+                    <div>
+                        <div class="stat-label">Équipements</div>
+                        <div class="stat-value" style="color:#E65100;">{{ countEquipement }}</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-                    <div class="card-body d-flex align-items-center gap-3 p-4">
-                        <div style="width:56px;height:56px;border-radius:14px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">⚙️</div>
-                        <div>
-                            <div class="text-muted small fw-semibold mb-1">Matériaux</div>
-                            <div class="fw-bold" style="font-size:1.8rem;color:#1565C0;line-height:1">{{ countMateriaux }}</div>
-                        </div>
+            <div class="stat-card-wrap">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#E3F2FD;">⚙️</div>
+                    <div>
+                        <div class="stat-label">Matériaux</div>
+                        <div class="stat-value" style="color:#1565C0;">{{ countMateriaux }}</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-                    <div class="card-body d-flex align-items-center gap-3 p-4">
-                        <div style="width:56px;height:56px;border-radius:14px;background:#F3E5F5;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🔧</div>
-                        <div>
-                            <div class="text-muted small fw-semibold mb-1">Services</div>
-                            <div class="fw-bold" style="font-size:1.8rem;color:#6A1B9A;line-height:1">{{ countService }}</div>
-                        </div>
+            <div class="stat-card-wrap">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#F3E5F5;">🔧</div>
+                    <div>
+                        <div class="stat-label">Services</div>
+                        <div class="stat-value" style="color:#6A1B9A;">{{ countService }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {# ── Resource Cards Grid ── #}
+        {# ── Resource Cards Grid — CSS grid, zero Bootstrap dependency ── #}
         {% if ressources is empty %}
-            <div class="text-center py-5" style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);">
+            <div class="empty-state">
                 <div style="font-size:4rem;">📦</div>
-                <p class="mt-3 text-muted fs-5">Aucune ressource trouvée.</p>
+                <p style="margin-top:1rem; color:#888; font-size:1.1rem;">Aucune ressource trouvée.</p>
             </div>
         {% else %}
-            <div class="row g-3">
+            <div class="resource-grid">
                 {% for r in ressources %}
-                <div class="col-md-6 col-xl-4">
-                    <div class="card border-0 h-100"
-                         style="border-radius:16px; box-shadow:0 2px 14px rgba(0,0,0,.08);
-                                transition:transform .2s,box-shadow .2s;"
-                         onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,.14)'"
-                         onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 14px rgba(0,0,0,.08)'">
+                <div class="resource-card">
 
-                        <div style="height:5px; border-radius:16px 16px 0 0;
-                            background:{% if r.typeressource == 'equipement' %}linear-gradient(to right,#FF9800,#FFB74D)
-                            {% elseif r.typeressource == 'materiaux' %}linear-gradient(to right,#2196F3,#64B5F6)
-                            {% else %}linear-gradient(to right,#9C27B0,#CE93D8){% endif %};"></div>
+                    <div class="resource-card-accent" style="background:
+                        {% if r.typeressource == 'equipement' %}linear-gradient(to right,#FF9800,#FFB74D)
+                        {% elseif r.typeressource == 'materiaux' %}linear-gradient(to right,#2196F3,#64B5F6)
+                        {% else %}linear-gradient(to right,#9C27B0,#CE93D8){% endif %};"></div>
 
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="fw-bold mb-1" style="color:#1B5E20;font-size:1.05rem;">{{ r.nomressource }}</h6>
-                                    <span class="badge px-2 py-1" style="font-size:.75rem; border-radius:8px;
-                                        background:{% if r.typeressource == 'equipement' %}#FFF3E0{% elseif r.typeressource == 'materiaux' %}#E3F2FD{% else %}#F3E5F5{% endif %};
-                                        color:{% if r.typeressource == 'equipement' %}#E65100{% elseif r.typeressource == 'materiaux' %}#1565C0{% else %}#6A1B9A{% endif %};">
-                                        {% if r.typeressource == 'equipement' %}🚜{% elseif r.typeressource == 'materiaux' %}⚙️{% else %}🔧{% endif %}
-                                        {{ r.typeressource|capitalize }}
-                                    </span>
+                    <div class="resource-card-body">
+
+                        {# Title row #}
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.9rem; gap:.5rem;">
+                            <div>
+                                <div style="font-weight:700; color:#1B5E20; font-size:1.05rem; margin-bottom:.3rem;">
+                                    {{ r.nomressource }}
                                 </div>
-                                <span class="badge px-3 py-2" style="border-radius:20px; font-size:.78rem;
-                                    background:{% if r.statut in ['achete','Disponible'] %}#E8F5E9{% elseif r.statut in ['prevu','En commande'] %}#FFF8E1{% else %}#FFEBEE{% endif %};
-                                    color:{% if r.statut in ['achete','Disponible'] %}#2E7D32{% elseif r.statut in ['prevu','En commande'] %}#F57F17{% else %}#C62828{% endif %};">
-                                    {{ r.statut }}
+                                <span style="display:inline-block; border-radius:8px; padding:3px 9px; font-size:.74rem; font-weight:600;
+                                    background:{% if r.typeressource == 'equipement' %}#FFF3E0{% elseif r.typeressource == 'materiaux' %}#E3F2FD{% else %}#F3E5F5{% endif %};
+                                    color:{% if r.typeressource == 'equipement' %}#E65100{% elseif r.typeressource == 'materiaux' %}#1565C0{% else %}#6A1B9A{% endif %};">
+                                    {% if r.typeressource == 'equipement' %}🚜{% elseif r.typeressource == 'materiaux' %}⚙️{% else %}🔧{% endif %}
+                                    {{ r.typeressource|capitalize }}
                                 </span>
                             </div>
-
-                            <div class="row g-2 mb-3">
-                                <div class="col-6">
-                                    <div style="background:#F5F5F5;border-radius:10px;padding:.6rem .8rem;">
-                                        <div class="text-muted" style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Quantité</div>
-                                        <div class="fw-bold" style="color:#1B5E20;font-size:1.1rem;">{{ r.quantite }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div style="background:#F5F5F5;border-radius:10px;padding:.6rem .8rem;">
-                                        <div class="text-muted" style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Coût Unit.</div>
-                                        <div class="fw-bold" style="color:#2E7D32;font-size:1.05rem;">{{ r.cout|number_format(2, ',', ' ') }} TND</div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div style="background:#E8F5E9;border-radius:10px;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">
-                                        <div class="text-muted" style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">💵 Coût Total</div>
-                                        <div class="fw-bold" style="color:#1B5E20;font-size:1.15rem;">{{ (r.cout * r.quantite)|number_format(2, ',', ' ') }} TND</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="text-muted" style="font-size:.82rem;">
-                                <i class="bi bi-kanban me-1 text-success"></i>
-                                <a href="{{ path('admin_project_agricole_show', {id: r.project.idproject}) }}"
-                                   class="text-success text-decoration-none fw-semibold">{{ r.project.nomproject }}</a>
-                            </div>
-                            {% if r.fournisseur %}
-                            <div class="text-muted mt-1" style="font-size:.82rem;">
-                                <i class="bi bi-building me-1"></i>{{ r.fournisseur }}
-                            </div>
-                            {% endif %}
+                            <span style="flex-shrink:0; border-radius:20px; padding:4px 12px; font-size:.76rem; font-weight:600;
+                                background:{% if r.statut in ['achete','Disponible'] %}#E8F5E9{% elseif r.statut in ['prevu','En commande'] %}#FFF8E1{% else %}#FFEBEE{% endif %};
+                                color:{% if r.statut in ['achete','Disponible'] %}#2E7D32{% elseif r.statut in ['prevu','En commande'] %}#F57F17{% else %}#C62828{% endif %};">
+                                {{ r.statut }}
+                            </span>
                         </div>
 
-                        {# View + Delete only — no edit button #}
-                        <div class="card-footer bg-transparent border-0 d-flex gap-2 px-4 pb-3">
-                            <a href="{{ path('admin_ressource_project_show', {id: r.idressource}) }}"
-                               class="btn btn-sm flex-fill fw-semibold"
-                               style="border-radius:8px;background:#E8F5E9;color:#2E7D32;border:none;">
-                                <i class="bi bi-eye me-1"></i>Voir
-                            </a>
-                            <form method="POST"
-                                  action="{{ path('admin_ressource_project_delete', {id: r.idressource}) }}"
-                                  onsubmit="return confirm('Supprimer « {{ r.nomressource|e('js') }} » ?');"
-                                  style="display:inline;margin:0;">
-                                <input type="hidden" name="_token"
-                                       value="{{ csrf_token('delete_ressource_' ~ r.idressource) }}">
-                                <button type="submit"
-                                        class="btn btn-sm fw-semibold"
-                                        style="border-radius:8px;background:#FFEBEE;color:#C62828;border:none;">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                        {# Metrics #}
+                        <div class="info-tiles">
+                            <div class="info-tile">
+                                <div class="info-tile-label">Quantité</div>
+                                <div class="info-tile-value">{{ r.quantite }}</div>
+                            </div>
+                            <div class="info-tile">
+                                <div class="info-tile-label">Coût Unit.</div>
+                                <div class="info-tile-value" style="color:#2E7D32; font-size:.95rem;">{{ r.cout|number_format(2, ',', ' ') }} TND</div>
+                            </div>
                         </div>
+                        <div class="info-tile-total" style="margin-top:.5rem;">
+                            <span style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#555;">💵 Coût Total</span>
+                            <span style="font-weight:700; font-size:1.1rem; color:#1B5E20;">{{ (r.cout * r.quantite)|number_format(2, ',', ' ') }} TND</span>
+                        </div>
+
+                        {# Project + supplier #}
+                        <div style="margin-top:.75rem; font-size:.82rem; color:#777;">
+                            <i class="bi bi-kanban" style="color:#2E7D32; margin-right:4px;"></i>
+                            <a href="{{ path('admin_project_agricole_show', {id: r.project.idproject}) }}"
+                               style="color:#2E7D32; text-decoration:none; font-weight:600;">{{ r.project.nomproject }}</a>
+                        </div>
+                        {% if r.fournisseur %}
+                        <div style="margin-top:.3rem; font-size:.82rem; color:#777;">
+                            <i class="bi bi-building" style="margin-right:4px;"></i>{{ r.fournisseur }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="resource-card-footer">
+                        <a href="{{ path('admin_ressource_project_show', {id: r.idressource}) }}" class="btn-voir">
+                            <i class="bi bi-eye"></i> Voir
+                        </a>
+                        <form method="POST"
+                              action="{{ path('admin_ressource_project_delete', {id: r.idressource}) }}"
+                              onsubmit="return confirm('Supprimer « {{ r.nomressource|e('js') }} » ?');"
+                              style="margin:0;">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('delete_ressource_' ~ r.idressource) }}">
+                            <button type="submit" class="btn-del">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {% endfor %}
@@ -245,4 +427,8 @@
         {% endif %}
 
     </main>
+
+    {% block javascripts %}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% endblock %}
 {% endblock %}
