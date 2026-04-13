@@ -1,3 +1,8 @@
 framework:
     mailer:
         dsn: '%env(MAILER_DSN)%'
+        envelope:
+            sender: 'souleimab945@gmail.com'
+        headers:
+            from: 'Gestion Utilisateurs <souleimab945@gmail.com>'
+        message_bus: false
