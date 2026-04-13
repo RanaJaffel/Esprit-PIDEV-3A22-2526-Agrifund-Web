@@ -1,39 +1,116 @@
 {% extends 'base.html.twig' %}
 {% block title %}Admin — Nouveau Projet{% endblock %}
+{% block hide_preloader %}true{% endblock %}
 
-{% block content %}
-<div class="page-header">
-    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
-        <li class="breadcrumb-item"><a href="{{ path('admin_project_agricole_index') }}" class="text-white-50">Admin / Projets</a></li>
-        <li class="breadcrumb-item active text-white">Nouveau</li>
-    </ol></nav>
-    <h2 class="fw-bold mb-0"><i class="bi bi-plus-circle me-2"></i>Nouveau Projet <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span></h2>
-</div>
+{% block body %}
+    {% include 'components/_sidebar_admin.html.twig' %}
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        {# ── Status Info Notice ── #}
-        <div class="d-flex align-items-center gap-2 mb-3 px-3 py-2"
-             style="background:#E3F2FD;border-radius:10px;font-size:.88rem;color:#1565C0;">
-            <i class="bi bi-info-circle-fill"></i>
-            Le <strong>statut</strong> initial : <span style="background:#FFC107;color:#333;padding:0.2rem 0.6rem;border-radius:5px;font-weight:700;display:inline-block;margin:0 0.3rem;">🟡 En cours</span>
-            <br><small style="display:inline-block;margin-top:0.3rem;">Le statut sera modifié automatiquement par les décisions financières.</small>
+    <style>
+        .admin-main {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #f4f6f4;
+            padding: 2rem 2.5rem;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #1a4d1f 0%, #2d7a33 100%);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.8rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,.4);
+        }
+        .page-header h2 { color: #fff; margin: 0; font-size: 1.5rem; }
+        .page-header .breadcrumb { margin-bottom: .25rem; }
+        .page-header .breadcrumb-item a { color: rgba(255,255,255,.6); text-decoration: none; }
+        .page-header .breadcrumb-item.active { color: #fff; }
+        .page-header .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,.4); }
+        :root {
+            --green-pale:  #f0faf2;
+            --green-light: #86efac;
+            --green-dark:  #166634;
+        }
+        .card-agri {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+        .card-agri .card-header { padding: 1rem 1.4rem; }
+        .btn-agri-primary {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .55rem 1.4rem;
+            font-weight: 700;
+            font-size: .9rem;
+            transition: opacity .2s;
+        }
+        .btn-agri-primary:hover { opacity: .88; color: #fff; }
+        @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
+    </style>
+
+    <main class="admin-main">
+
+        <div class="page-header">
+            <div>
+                <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_project_agricole_index') }}">Admin / Projets</a>
+                    </li>
+                    <li class="breadcrumb-item active text-white">Nouveau</li>
+                </ol></nav>
+                <h2 class="fw-bold mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Nouveau Projet
+                    <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span>
+                </h2>
+            </div>
         </div>
 
-        <div class="card card-agri">
-            <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
-                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-file-earmark-plus me-2"></i>Informations du Projet</h5>
-            </div>
-            <div class="card-body p-4">
-                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                    {% include 'project_agricole/_form.html.twig' %}
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-agri-primary"><i class="bi bi-check-circle me-1"></i> Créer</button>
-                        <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-circle me-1"></i> Annuler</a>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                {# ── Status Info Notice ── #}
+                <div class="d-flex align-items-center gap-2 mb-3 px-3 py-2"
+                     style="background:#E3F2FD;border-radius:10px;font-size:.88rem;color:#1565C0;">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Le <strong>statut</strong> initial :
+                    <span style="background:#FFC107;color:#333;padding:0.2rem 0.6rem;border-radius:5px;font-weight:700;display:inline-block;margin:0 0.3rem;">
+                        🟡 En cours
+                    </span>
+                    <br>
+                    <small style="display:inline-block;margin-top:0.3rem;">
+                        Le statut sera modifié automatiquement par les décisions financières.
+                    </small>
+                </div>
+
+                <div class="card card-agri">
+                    <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
+                            <i class="bi bi-file-earmark-plus me-2"></i>Informations du Projet
+                        </h5>
                     </div>
-                {{ form_end(form) }}
+                    <div class="card-body p-4">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                            {% include 'admin/project_agricole/_form.html.twig' %}
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="submit" class="btn btn-agri-primary">
+                                    <i class="bi bi-check-circle me-1"></i> Créer
+                                </button>
+                                <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i> Annuler
+                                </a>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
-</div>
+
+    </main>
 {% endblock %}
