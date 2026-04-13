@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier — {{ ressource.nomressource }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{{ path('agriculteur_ressource_project_index') }}" class="text-white-50">Mes Ressources</a></li>
+        <li class="breadcrumb-item active text-white">Modifier</li>
+    </ol></nav>
+    <h2 class="fw-bold mb-0">
+        <i class="bi bi-pencil-square me-2"></i>Modifier : {{ ressource.nomressource }}
+        <span class="badge ms-2" style="background:#A5D6A7;color:#1B5E20;font-size:.7em">AGRICULTEUR</span>
+    </h2>
+</div>
+
+<div class="row justify-content-center"><div class="col-lg-8">
+    <div class="card card-agri">
+        <div class="card-header" style="background:var(--green-pale);border-bottom:2px solid var(--green-light);">
+            <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
+                <i class="bi bi-pencil me-2"></i>Modifier les informations
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {% include 'agriculteur/ressource_project/_form.html.twig' %}
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-agri-primary">
+                        <i class="bi bi-check-circle me-1"></i> Enregistrer
+                    </button>
+                    <a href="{{ path('agriculteur_ressource_project_show', {id: ressource.idressource}) }}"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div></div>
+{% endblock %}

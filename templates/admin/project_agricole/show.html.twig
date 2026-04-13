@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+{% block title %}Admin — {{ project.nomproject }}{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="{{ path('admin_project_agricole_index') }}" class="text-white-50">Admin / Projets</a></li>
+            <li class="breadcrumb-item active text-white">{{ project.nomproject }}</li>
+        </ol></nav>
+        <h2 class="fw-bold mb-0"><i class="bi bi-kanban me-2"></i>{{ project.nomproject }} <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span></h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('admin_project_agricole_edit', {id: project.idproject}) }}" class="btn btn-warning fw-semibold"><i class="bi bi-pencil me-1"></i> Modifier</a>
+        <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i> Retour</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card card-agri">
+            <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-info-circle me-2"></i>Détails</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr><th class="text-muted w-40">ID</th><td>{{ project.idproject }}</td></tr>
+                    <tr><th class="text-muted">Nom</th><td class="fw-semibold">{{ project.nomproject }}</td></tr>
+                    <tr><th class="text-muted">Surface</th><td>{{ project.surface|number_format(2, ',', '.') }} ha</td></tr>
+                    <tr><th class="text-muted">Budget</th><td class="fw-semibold text-success">{{ project.budgetdemande|number_format(2, ',', ' ') }} TND</td></tr>
+                    <tr><th class="text-muted">Statut</th><td>
+                        <span class="badge 
+                            {% if project.statut == 'En cours' %}badge-encours
+                            {% elseif project.statut == 'Approuvé' %}badge-approuve
+                            {% elseif project.statut == 'Refusé' %}badge-refuse
+                            {% else %}badge-termine{% endif %}">
+                            {{ project.statut }}
+                        </span>
+                    </td></tr>
+                    <tr><th class="text-muted">Date Soumission</th><td>{{ project.datesoumission|date('d/m/Y') }}</td></tr>
+                    <tr><th class="text-muted">Agriculteur ID</th><td>{{ project.agriculteurId ?? '—' }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card card-agri">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-box-seam me-2"></i>Ressources ({{ project.ressources|length }})</h5>
+                <a href="{{ path('admin_ressource_project_new') }}" class="btn btn-sm btn-agri-primary"><i class="bi bi-plus"></i> Ajouter</a>
+            </div>
+            <div class="card-body p-0">
+                {% if project.ressources is empty %}
+                    <div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2"></i><p class="mt-2">Aucune ressource.</p></div>
+                {% else %}
+                    <ul class="list-group list-group-flush">
+                        {% for ressource in project.ressources %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ ressource.nomressource }}</h6>
+                                <small class="text-muted">{{ ressource.typeressource }} • Qty: {{ ressource.quantite }}</small>
+                            </div>
+                            <span class="text-success fw-semibold">{{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
