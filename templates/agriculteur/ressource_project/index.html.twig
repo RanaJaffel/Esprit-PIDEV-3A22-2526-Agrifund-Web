@@ -1,264 +1,112 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}Mes Ressources{% endblock %}
 
-{% block content %}
+{% block body %}
 
-{# ── Page Header ── #}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
+
+<div style="margin-left:280px; padding:20px;">
+
+{# ── HEADER ── #}
 <div style="background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-            border-radius: 16px; padding: 2rem 2.5rem;
+            border-radius: 16px; padding: 2rem;
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(27,94,32,.35);">
-    <div class="text-center flex-grow-1">
-        <div style="font-size:2.2rem; margin-bottom:.3rem;">🎁</div>
-        <h2 class="fw-bold mb-1 text-white" style="font-size:1.8rem; letter-spacing:.5px;">
-            Inventaire des Ressources
-        </h2>
-        <p class="mb-0" style="color:rgba(255,255,255,.75); font-size:.95rem;">
-            Gestion complète des ressources agricoles
-            <span class="badge ms-2" style="background:#A5D6A7;color:#1B5E20;font-size:.7em">AGRICULTEUR</span>
-        </p>
-    </div>
-    <div>
-        <a href="{{ path('agriculteur_ressource_project_export_pdf') }}"
-           style="background:linear-gradient(135deg,#F9A825,#F57F17); color:#fff;
-                  border:none; border-radius:10px; padding:.65rem 1.4rem;
-                  font-weight:700; font-size:.92rem; text-decoration:none;
-                  box-shadow:0 3px 10px rgba(0,0,0,.25);
-                  display:inline-flex; align-items:center; gap:.5rem; white-space:nowrap;">
-            <i class="bi bi-file-earmark-pdf-fill"></i> Exporter PDF
-        </a>
-    </div>
-</div>
+            margin-bottom: 2rem;">
+    <h2 class="text-white">🎁 Mes Ressources</h2>
 
-{# ── Search + Filters + New button bar ── #}
-<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <div>
-        <h5 class="fw-bold mb-0" style="color:#1B5E20">
-            <i class="bi bi-clipboard2-data me-2"></i>Liste des Ressources
-        </h5>
-        <small class="text-muted">Visualisez et gérez toutes vos ressources</small>
-    </div>
-
-    <div class="flex-grow-1 ms-3">
-        <form method="GET" action="{{ path('agriculteur_ressource_project_index') }}"
-              class="d-flex align-items-center gap-2 flex-wrap" id="filterForm">
-
-            {# ── Search ── #}
-            <div class="position-relative" style="max-width:300px; flex-grow:1;">
-                <i class="bi bi-search position-absolute"
-                   style="left:14px;top:50%;transform:translateY(-50%);color:#aaa;pointer-events:none;"></i>
-                <input type="text" name="search" value="{{ search ?? '' }}"
-                       class="form-control ps-5" placeholder="Rechercher par nom..."
-                       style="border-radius:10px; border:1.5px solid #e0e0e0; height:42px;"
-                       oninput="clearTimeout(this._t);this._t=setTimeout(()=>this.form.submit(),400)">
-            </div>
-
-            {# ── Filter: Type de ressource ── #}
-            <select name="type" class="form-select"
-                    style="border-radius:10px; border:1.5px solid #e0e0e0; height:42px; width:auto; color:#444; font-weight:500;"
-                    onchange="this.form.submit()">
-                <option value="" {{ typeFilter == '' ? 'selected' : '' }}>🗂️ Tous les types</option>
-                <option value="equipement" {{ typeFilter == 'equipement' ? 'selected' : '' }}>🚜 Équipement</option>
-                <option value="materiaux"  {{ typeFilter == 'materiaux'  ? 'selected' : '' }}>⚙️ Matériaux</option>
-                <option value="service"    {{ typeFilter == 'service'    ? 'selected' : '' }}>🔧 Service</option>
-            </select>
-
-            {# ── Filter: Projet ── #}
-            {% if projects is not empty %}
-            <select name="project" class="form-select"
-                    style="border-radius:10px; border:1.5px solid #e0e0e0; height:42px; width:auto; color:#444; font-weight:500;"
-                    onchange="this.form.submit()">
-                <option value="0" {{ projectFilter == 0 ? 'selected' : '' }}>📁 Tous mes projets</option>
-                {% for p in projects %}
-                    <option value="{{ p.idproject }}" {{ projectFilter == p.idproject ? 'selected' : '' }}>
-                        📁 {{ p.nomproject }}
-                    </option>
-                {% endfor %}
-            </select>
-            {% endif %}
-
-            {# ── Reset button — shown when any filter is active ── #}
-            {% if search or typeFilter != '' or projectFilter > 0 %}
-            <a href="{{ path('agriculteur_ressource_project_index') }}"
-               class="btn btn-sm btn-outline-secondary"
-               style="border-radius:8px; height:42px; padding:0 .9rem; line-height:40px; white-space:nowrap;">
-                <i class="bi bi-x-circle me-1"></i>Reset
-            </a>
-            {% endif %}
-        </form>
-    </div>
-
-    <a href="{{ path('agriculteur_ressource_project_new') }}"
-       style="background:linear-gradient(135deg,#2E7D32,#4CAF50); color:#fff; border:none;
-              border-radius:10px; padding:.6rem 1.4rem; font-weight:700; font-size:.95rem;
-              text-decoration:none; white-space:nowrap; box-shadow:0 3px 10px rgba(46,125,50,.3);
-              display:inline-flex; align-items:center; gap:.5rem; height:42px;">
-        + Nouvelle Ressource
+    <a href="{{ path('agriculteur_ressource_project_export_pdf') }}"
+       class="btn btn-warning">
+        Exporter PDF
     </a>
 </div>
 
-{# ── Stat Cards ── #}
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-            <div class="card-body d-flex align-items-center gap-3 p-4">
-                <div style="width:56px;height:56px;border-radius:14px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">📦</div>
-                <div>
-                    <div class="text-muted small fw-semibold mb-1">Total Ressources</div>
-                    <div class="fw-bold" style="font-size:1.8rem;color:#1B5E20;line-height:1;">{{ ressources|length }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-            <div class="card-body d-flex align-items-center gap-3 p-4">
-                <div style="width:56px;height:56px;border-radius:14px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🚜</div>
-                <div>
-                    <div class="text-muted small fw-semibold mb-1">Équipements</div>
-                    <div class="fw-bold" style="font-size:1.8rem;color:#E65100;line-height:1;">
-                        {{ ressources|filter(r => r.typeressource == 'equipement')|length }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-            <div class="card-body d-flex align-items-center gap-3 p-4">
-                <div style="width:56px;height:56px;border-radius:14px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">⚙️</div>
-                <div>
-                    <div class="text-muted small fw-semibold mb-1">Matériaux</div>
-                    <div class="fw-bold" style="font-size:1.8rem;color:#1565C0;line-height:1;">
-                        {{ ressources|filter(r => r.typeressource == 'materiaux')|length }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 h-100" style="border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.07);">
-            <div class="card-body d-flex align-items-center gap-3 p-4">
-                <div style="width:56px;height:56px;border-radius:14px;background:#F3E5F5;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">🔧</div>
-                <div>
-                    <div class="text-muted small fw-semibold mb-1">Services</div>
-                    <div class="fw-bold" style="font-size:1.8rem;color:#6A1B9A;line-height:1;">
-                        {{ ressources|filter(r => r.typeressource == 'service')|length }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{# ── TOOLBAR ── #}
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <form method="GET" action="{{ path('agriculteur_ressource_project_index') }}"
+          class="d-flex gap-2 w-75">
+
+        <input type="text" name="search" value="{{ search ?? '' }}"
+               class="form-control" placeholder="Rechercher...">
+
+        <select name="type" class="form-select">
+            <option value="">Tous</option>
+            <option value="equipement">Équipement</option>
+            <option value="materiaux">Matériaux</option>
+            <option value="service">Service</option>
+        </select>
+
+        <button class="btn btn-secondary">Filtrer</button>
+    </form>
+
+    <a href="{{ path('agriculteur_ressource_project_new') }}"
+       class="btn btn-success">
+        + Nouvelle Ressource
+    </a>
+
 </div>
 
-{# ── Resource Cards Grid ── #}
+{# ── LIST ── #}
+
 {% if ressources is empty %}
-    <div class="text-center py-5" style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);">
-        <div style="font-size:4rem;">📦</div>
-        <p class="mt-3 text-muted fs-5">Aucune ressource trouvée.</p>
-        <a href="{{ path('agriculteur_ressource_project_new') }}"
-           style="background:linear-gradient(135deg,#2E7D32,#4CAF50); color:#fff; border:none;
-                  border-radius:10px; padding:.65rem 1.5rem; font-weight:700; text-decoration:none;
-                  display:inline-block; margin-top:.5rem;">
-            + Ajouter ma première ressource
-        </a>
+    <div class="alert alert-info text-center">
+        Aucune ressource trouvée.
     </div>
 {% else %}
-    <div class="row g-3">
-        {% for r in ressources %}
-        <div class="col-md-6 col-xl-4">
-            <div class="card border-0 h-100"
-                 style="border-radius:16px; box-shadow:0 2px 14px rgba(0,0,0,.08);
-                        transition:transform .2s,box-shadow .2s;"
-                 onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,.14)'"
-                 onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 14px rgba(0,0,0,.08)'">
 
-                <div style="height:5px; border-radius:16px 16px 0 0;
-                    background:{% if r.typeressource == 'equipement' %}linear-gradient(to right,#FF9800,#FFB74D)
-                    {% elseif r.typeressource == 'materiaux' %}linear-gradient(to right,#2196F3,#64B5F6)
-                    {% else %}linear-gradient(to right,#9C27B0,#CE93D8){% endif %};"></div>
+<div class="row">
 
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color:#1B5E20;font-size:1.05rem;">{{ r.nomressource }}</h6>
-                            <span class="badge px-2 py-1" style="font-size:.75rem; border-radius:8px;
-                                background:{% if r.typeressource == 'equipement' %}#FFF3E0{% elseif r.typeressource == 'materiaux' %}#E3F2FD{% else %}#F3E5F5{% endif %};
-                                color:{% if r.typeressource == 'equipement' %}#E65100{% elseif r.typeressource == 'materiaux' %}#1565C0{% else %}#6A1B9A{% endif %};">
-                                {% if r.typeressource == 'equipement' %}🚜{% elseif r.typeressource == 'materiaux' %}⚙️{% else %}🔧{% endif %}
-                                {{ r.typeressource|capitalize }}
-                            </span>
-                        </div>
-                        <span class="badge px-3 py-2" style="border-radius:20px; font-size:.78rem;
-                            background:{% if r.statut == 'achete' %}#E8F5E9{% else %}#FFF8E1{% endif %};
-                            color:{% if r.statut == 'achete' %}#2E7D32{% else %}#F57F17{% endif %};">
-                            {% if r.statut == 'achete' %}✅ Acheté{% else %}📋 Prévu{% endif %}
-                        </span>
-                    </div>
+{% for r in ressources %}
+    <div class="col-md-4 mb-3">
 
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <div style="background:#F5F5F5;border-radius:10px;padding:.6rem .8rem;">
-                                <div class="text-muted" style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Quantité</div>
-                                <div class="fw-bold" style="color:#1B5E20;font-size:1.1rem;">{{ r.quantite }}</div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div style="background:#F5F5F5;border-radius:10px;padding:.6rem .8rem;">
-                                <div class="text-muted" style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Coût Unit.</div>
-                                <div class="fw-bold" style="color:#2E7D32;font-size:1.05rem;">{{ r.cout|number_format(2, ',', ' ') }} TND</div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div style="background:#E8F5E9;border-radius:10px;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">
-                                <div class="text-muted" style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">💵 Coût Total</div>
-                                <div class="fw-bold" style="color:#1B5E20;font-size:1.15rem;">{{ (r.cout * r.quantite)|number_format(2, ',', ' ') }} TND</div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
 
-                    <div class="text-muted" style="font-size:.82rem;">
-                        <i class="bi bi-kanban me-1 text-success"></i>
-                        <a href="{{ path('agriculteur_project_agricole_show', {id: r.project.idproject}) }}"
-                           class="text-success text-decoration-none fw-semibold">{{ r.project.nomproject }}</a>
-                    </div>
-                    {% if r.fournisseur %}
-                    <div class="text-muted mt-1" style="font-size:.82rem;">
-                        <i class="bi bi-building me-1"></i>{{ r.fournisseur }}
-                    </div>
-                    {% endif %}
-                </div>
+                <h5>{{ r.nomressource }}</h5>
 
-                <div class="card-footer bg-transparent border-0 d-flex gap-2 px-4 pb-3">
+                <span class="badge bg-success">
+                    {{ r.typeressource }}
+                </span>
+
+                <hr>
+
+                <p><b>Quantité:</b> {{ r.quantite }}</p>
+                <p><b>Coût:</b> {{ r.cout }} TND</p>
+
+                <p>
+                    <b>Projet:</b>
+                    {{ r.project.nomproject }}
+                </p>
+
+                <div class="d-flex gap-2 mt-3">
+
                     <a href="{{ path('agriculteur_ressource_project_show', {id: r.idressource}) }}"
-                       class="btn btn-sm flex-fill fw-semibold"
-                       style="border-radius:8px;background:#E8F5E9;color:#2E7D32;border:none;">
-                        <i class="bi bi-eye me-1"></i>Voir
-                    </a>
+                       class="btn btn-primary btn-sm">Voir</a>
+
                     <a href="{{ path('agriculteur_ressource_project_edit', {id: r.idressource}) }}"
-                       class="btn btn-sm fw-semibold"
-                       style="border-radius:8px;background:#E3F2FD;color:#1565C0;border:none;">
-                        <i class="bi bi-pencil"></i>
-                    </a>
+                       class="btn btn-warning btn-sm">Modifier</a>
+
                     <form method="POST"
-                          action="{{ path('agriculteur_ressource_project_delete', {id: r.idressource}) }}"
-                          onsubmit="return confirm('Supprimer « {{ r.nomressource|e('js') }} » ?');"
-                          style="display:inline;margin:0;">
+                          action="{{ path('agriculteur_ressource_project_delete', {id: r.idressource}) }}">
                         <input type="hidden" name="_token"
                                value="{{ csrf_token('delete_ressource_' ~ r.idressource) }}">
-                        <button type="submit"
-                                class="btn btn-sm fw-semibold"
-                                style="border-radius:8px;background:#FFEBEE;color:#C62828;border:none;">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        <button class="btn btn-danger btn-sm">Supprimer</button>
                     </form>
+
                 </div>
 
             </div>
         </div>
-        {% endfor %}
+
     </div>
+{% endfor %}
+
+</div>
+
 {% endif %}
+
+</div>
 
 {% endblock %}
 

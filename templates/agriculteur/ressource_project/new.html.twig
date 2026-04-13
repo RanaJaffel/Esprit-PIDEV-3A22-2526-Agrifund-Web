@@ -1,38 +1,66 @@
 {% extends 'base.html.twig' %}
 {% block title %}Ajouter une Ressource{% endblock %}
 
-{% block content %}
-<div class="page-header">
-    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
-        <li class="breadcrumb-item"><a href="{{ path('agriculteur_ressource_project_index') }}" class="text-white-50">Mes Ressources</a></li>
-        <li class="breadcrumb-item active text-white">Ajouter</li>
-    </ol></nav>
-    <h2 class="fw-bold mb-0">
-        <i class="bi bi-plus-circle me-2"></i>Ajouter une Ressource
-        <span class="badge ms-2" style="background:#A5D6A7;color:#1B5E20;font-size:.7em">AGRICULTEUR</span>
-    </h2>
-</div>
+{% block body %}
+    {% include 'components/_sidebar_agriculteur.html.twig' %}
 
-<div class="row justify-content-center"><div class="col-lg-8">
-    <div class="card card-agri">
-        <div class="card-header" style="background:var(--green-pale);border-bottom:2px solid var(--green-light);">
-            <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
-                <i class="bi bi-box-seam me-2"></i>Informations de la Ressource
-            </h5>
+    <main class="agriculteur-main" style="margin-left: 280px; min-height: 100vh; padding: 30px; background: #f5f7f5;">
+
+        <!-- Mobile toggle button -->
+        <button class="btn d-lg-none mb-3" id="mobileSidebarToggle"
+                style="background: #089647; color: white; border-radius: 10px;">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="page-header mb-4 p-4 rounded-3"
+             style="background: linear-gradient(135deg, #095032 0%, #076A39 50%, #089647 100%); color: white;">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('agriculteur_ressource_project_index') }}" class="text-white-50 text-decoration-none">
+                            Mes Ressources
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active text-white">Ajouter</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter une Ressource
+                <span class="badge ms-2"
+                      style="background:#A5D6A7; color:#1B5E20; font-size:.7em;">AGRICULTEUR</span>
+            </h2>
         </div>
-        <div class="card-body p-4">
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                {% include 'agriculteur/ressource_project/_form.html.twig' %}
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-agri-primary">
-                        <i class="bi bi-check-circle me-1"></i> Ajouter la Ressource
-                    </button>
-                    <a href="{{ path('agriculteur_ressource_project_index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle me-1"></i> Annuler
-                    </a>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header py-3"
+                         style="background: #E8F5E9; border-bottom: 2px solid #A5D6A7;">
+                        <h5 class="mb-0 fw-semibold" style="color: #1B5E20;">
+                            <i class="bi bi-box-seam me-2"></i>Informations de la Ressource
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                            {% include 'agriculteur/ressource_project/_form.html.twig' %}
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="submit" class="btn text-white fw-semibold px-4"
+                                        style="background: linear-gradient(135deg, #089647, #B2D944);
+                                               border: none; border-radius: 10px;">
+                                    <i class="bi bi-check-circle me-1"></i> Ajouter la Ressource
+                                </button>
+                                <a href="{{ path('agriculteur_ressource_project_index') }}"
+                                   class="btn btn-outline-secondary px-4" style="border-radius: 10px;">
+                                    <i class="bi bi-x-circle me-1"></i> Annuler
+                                </a>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
                 </div>
-            {{ form_end(form) }}
+
+            </div>
         </div>
-    </div>
-</div></div>
+
+    </main>
 {% endblock %}
