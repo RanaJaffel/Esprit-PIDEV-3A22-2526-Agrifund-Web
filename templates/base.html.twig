@@ -35,10 +35,16 @@
     {% block body %}{% endblock %}
 
     <!-- Scroll Top -->
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
 
-    <!-- Preloader - Seulement pour les pages publiques -->
-    {% if block('hide_preloader') is not defined %}
+    {# ── Preloader: shown on public pages only.
+       To hide it, override this block in a child template with any non-empty value:
+       {% block hide_preloader %}true{% endblock %}
+    ── #}
+    {% block hide_preloader %}{% endblock %}
+    {% if block('hide_preloader') is empty %}
         <div id="preloader"></div>
     {% endif %}
 

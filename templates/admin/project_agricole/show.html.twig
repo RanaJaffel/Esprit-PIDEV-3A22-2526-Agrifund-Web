@@ -1,73 +1,155 @@
 {% extends 'base.html.twig' %}
 {% block title %}Admin — {{ project.nomproject }}{% endblock %}
+{% block hide_preloader %}true{% endblock %}
 
-{% block content %}
-<div class="page-header d-flex justify-content-between align-items-center">
-    <div>
-        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
-            <li class="breadcrumb-item"><a href="{{ path('admin_project_agricole_index') }}" class="text-white-50">Admin / Projets</a></li>
-            <li class="breadcrumb-item active text-white">{{ project.nomproject }}</li>
-        </ol></nav>
-        <h2 class="fw-bold mb-0"><i class="bi bi-kanban me-2"></i>{{ project.nomproject }} <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span></h2>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="{{ path('admin_project_agricole_edit', {id: project.idproject}) }}" class="btn btn-warning fw-semibold"><i class="bi bi-pencil me-1"></i> Modifier</a>
-        <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i> Retour</a>
-    </div>
-</div>
+{% block body %}
+    {% include 'components/_sidebar_admin.html.twig' %}
 
-<div class="row g-4">
-    <div class="col-lg-5">
-        <div class="card card-agri">
-            <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
-                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-info-circle me-2"></i>Détails</h5>
+    <style>
+        .admin-main {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #f4f6f4;
+            padding: 2rem 2.5rem;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #1a4d1f 0%, #2d7a33 100%);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.8rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,.4);
+        }
+        .page-header h2 { color: #fff; margin: 0; font-size: 1.5rem; }
+        .page-header .breadcrumb { margin-bottom: .25rem; }
+        .page-header .breadcrumb-item a { color: rgba(255,255,255,.6); text-decoration: none; }
+        .page-header .breadcrumb-item.active { color: #fff; }
+        .page-header .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,.4); }
+        :root {
+            --green-pale:  #f0faf2;
+            --green-light: #86efac;
+            --green-dark:  #166634;
+        }
+        .card-agri {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+        .card-agri .card-header { padding: 1rem 1.4rem; }
+        .btn-agri-primary {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .55rem 1.4rem;
+            font-weight: 700;
+            font-size: .9rem;
+            transition: opacity .2s;
+        }
+        .btn-agri-primary:hover { opacity: .88; color: #fff; }
+        .badge-encours  { background:#ffedd5; color:#9a3412; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
+        .badge-approuve { background:#dcfce7; color:#166534; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
+        .badge-refuse   { background:#fee2e2; color:#991b1b; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
+        .badge-termine  { background:#e0e7ff; color:#3730a3; padding:4px 12px; border-radius:20px; font-size:.82rem; font-weight:600; }
+        @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
+    </style>
+
+    <main class="admin-main">
+
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_project_agricole_index') }}">Admin / Projets</a>
+                    </li>
+                    <li class="breadcrumb-item active text-white">{{ project.nomproject }}</li>
+                </ol></nav>
+                <h2 class="fw-bold mb-0">
+                    <i class="bi bi-kanban me-2"></i>{{ project.nomproject }}
+                    <span class="badge bg-white text-success" style="font-size:.7em">ADMIN</span>
+                </h2>
             </div>
-            <div class="card-body">
-                <table class="table table-borderless mb-0">
-                    <tr><th class="text-muted w-40">ID</th><td>{{ project.idproject }}</td></tr>
-                    <tr><th class="text-muted">Nom</th><td class="fw-semibold">{{ project.nomproject }}</td></tr>
-                    <tr><th class="text-muted">Surface</th><td>{{ project.surface|number_format(2, ',', '.') }} ha</td></tr>
-                    <tr><th class="text-muted">Budget</th><td class="fw-semibold text-success">{{ project.budgetdemande|number_format(2, ',', ' ') }} TND</td></tr>
-                    <tr><th class="text-muted">Statut</th><td>
-                        <span class="badge 
-                            {% if project.statut == 'En cours' %}badge-encours
-                            {% elseif project.statut == 'Approuvé' %}badge-approuve
-                            {% elseif project.statut == 'Refusé' %}badge-refuse
-                            {% else %}badge-termine{% endif %}">
-                            {{ project.statut }}
-                        </span>
-                    </td></tr>
-                    <tr><th class="text-muted">Date Soumission</th><td>{{ project.datesoumission|date('d/m/Y') }}</td></tr>
-                    <tr><th class="text-muted">Agriculteur ID</th><td>{{ project.agriculteurId ?? '—' }}</td></tr>
-                </table>
+            <div class="d-flex gap-2">
+                <a href="{{ path('admin_project_agricole_edit', {id: project.idproject}) }}" class="btn btn-warning fw-semibold">
+                    <i class="bi bi-pencil me-1"></i> Modifier
+                </a>
+                <a href="{{ path('admin_project_agricole_index') }}" class="btn btn-light">
+                    <i class="bi bi-arrow-left me-1"></i> Retour
+                </a>
             </div>
         </div>
-    </div>
 
-    <div class="col-lg-7">
-        <div class="card card-agri">
-            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
-                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-box-seam me-2"></i>Ressources ({{ project.ressources|length }})</h5>
-                <a href="{{ path('admin_ressource_project_new') }}" class="btn btn-sm btn-agri-primary"><i class="bi bi-plus"></i> Ajouter</a>
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card card-agri">
+                    <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
+                            <i class="bi bi-info-circle me-2"></i>Détails
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr><th class="text-muted" style="width:40%">ID</th><td>{{ project.idproject }}</td></tr>
+                            <tr><th class="text-muted">Nom</th><td class="fw-semibold">{{ project.nomproject }}</td></tr>
+                            <tr><th class="text-muted">Surface</th><td>{{ project.surface|number_format(2, ',', '.') }} ha</td></tr>
+                            <tr><th class="text-muted">Budget</th><td class="fw-semibold text-success">{{ project.budgetdemande|number_format(2, ',', ' ') }} TND</td></tr>
+                            <tr>
+                                <th class="text-muted">Statut</th>
+                                <td>
+                                    <span class="{% if project.statut == 'En cours' %}badge-encours
+                                                 {% elseif project.statut == 'Accepté' %}badge-approuve
+                                                 {% elseif project.statut == 'Refusé' %}badge-refuse
+                                                 {% else %}badge-termine{% endif %}">
+                                        {{ project.statut }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr><th class="text-muted">Date Soumission</th><td>{{ project.datesoumission|date('d/m/Y') }}</td></tr>
+                            <tr><th class="text-muted">Agriculteur ID</th><td>{{ project.agriculteurId ?? '—' }}</td></tr>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-0">
-                {% if project.ressources is empty %}
-                    <div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2"></i><p class="mt-2">Aucune ressource.</p></div>
-                {% else %}
-                    <ul class="list-group list-group-flush">
-                        {% for ressource in project.ressources %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">{{ ressource.nomressource }}</h6>
-                                <small class="text-muted">{{ ressource.typeressource }} • Qty: {{ ressource.quantite }}</small>
+
+            <div class="col-lg-7">
+                <div class="card card-agri">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
+                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
+                            <i class="bi bi-box-seam me-2"></i>Ressources ({{ project.ressources|length }})
+                        </h5>
+                        <a href="{{ path('admin_ressource_project_new') }}" class="btn btn-sm btn-agri-primary">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if project.ressources is empty %}
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2"></i>
+                                <p class="mt-2">Aucune ressource.</p>
                             </div>
-                            <span class="text-success fw-semibold">{{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+                        {% else %}
+                            <ul class="list-group list-group-flush">
+                                {% for ressource in project.ressources %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ ressource.nomressource }}</h6>
+                                        <small class="text-muted">{{ ressource.typeressource }} • Qty: {{ ressource.quantite }}</small>
+                                    </div>
+                                    <span class="text-success fw-semibold">
+                                        {{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND
+                                    </span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+
+    </main>
 {% endblock %}
