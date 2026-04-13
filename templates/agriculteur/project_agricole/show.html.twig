@@ -1,88 +1,264 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}{{ project.nomproject }}{% endblock %}
 
-{% block content %}
-<div class="page-header d-flex justify-content-between align-items-center">
-    <div>
-        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
-            <li class="breadcrumb-item"><a href="{{ path('agriculteur_project_agricole_index') }}" class="text-white-50">Mes Projets</a></li>
-            <li class="breadcrumb-item active text-white">{{ project.nomproject }}</li>
-        </ol></nav>
-        <h2 class="fw-bold mb-0">
-            <i class="bi bi-kanban me-2"></i>{{ project.nomproject }}
-            <span class="badge ms-2" style="background:#A5D6A7;color:#1B5E20;font-size:.7em">AGRICULTEUR</span>
-        </h2>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="{{ path('agriculteur_project_agricole_edit', {id: project.idproject}) }}"
-           class="btn btn-warning fw-semibold"><i class="bi bi-pencil me-1"></i> Modifier</a>
-        <a href="{{ path('agriculteur_project_agricole_index') }}" class="btn btn-light">
-            <i class="bi bi-arrow-left me-1"></i> Mes Projets
-        </a>
-    </div>
-</div>
+{% block hide_preloader %}true{% endblock %}
 
-<div class="row g-4">
-    <div class="col-lg-5">
-        <div class="card card-agri h-100">
-            <div class="card-header" style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
-                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)"><i class="bi bi-info-circle me-2"></i>Détails</h5>
-            </div>
-            <div class="card-body">
-                <table class="table table-borderless mb-0">
-                    <tr><th class="text-muted w-40">Nom</th><td class="fw-semibold">{{ project.nomproject }}</td></tr>
-                    <tr><th class="text-muted">Surface</th><td>{{ project.surface|number_format(2, ',', '.') }} ha</td></tr>
-                    <tr><th class="text-muted">Budget Demandé</th>
-                        <td class="fw-semibold text-success">{{ project.budgetdemande|number_format(2, ',', ' ') }} TND</td></tr>
-                    <tr><th class="text-muted">Statut</th><td>
-                        <span class="badge 
-                            {% if project.statut == 'En cours' %}badge-encours
-                            {% elseif project.statut == 'Approuvé' %}badge-approuve
-                            {% elseif project.statut == 'Refusé' %}badge-refuse
-                            {% else %}badge-termine{% endif %}">
-                            {{ project.statut }}
-                        </span>
-                    </td></tr>
-                    <tr><th class="text-muted">Date Soumission</th><td>{{ project.datesoumission|date('d/m/Y') }}</td></tr>
-                    {% if project.hasLocation() %}
-                    <tr><th class="text-muted">📍 Localisation</th><td>
-                        {{ project.latitude|number_format(4, ',', '.') }}, {{ project.longitude|number_format(4, ',', '.') }}
-                    </td></tr>
-                    {% endif %}
-                </table>
-            </div>
-        </div>
-    </div>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --green-dark:  #1B4D1F;
+            --green-mid:   #2E7D32;
+            --green-light: #81C784;
+            --green-pale:  #E8F5E9;
+        }
 
-    <div class="col-lg-7">
-        <div class="card card-agri h-100">
-            <div class="card-header d-flex justify-content-between align-items-center"
-                 style="background:var(--green-pale); border-bottom:2px solid var(--green-light);">
-                <h5 class="mb-0 fw-semibold" style="color:var(--green-dark)">
-                    <i class="bi bi-box-seam me-2"></i>Ressources ({{ project.ressources|length }})
-                </h5>
-                <a href="{{ path('agriculteur_ressource_project_new') }}" class="btn btn-sm btn-agri-primary">
-                    <i class="bi bi-plus"></i> Ajouter
+        .main-content {
+            margin-left: 280px;
+            padding: 24px;
+            min-height: 100vh;
+            background: #f4f6f9;
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+            border-radius: 14px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .page-header h2 { color: #fff; margin: 0; }
+
+        /* ── Cards ── */
+        .card-agri {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .card-agri .card-header {
+            background: var(--green-pale);
+            border-bottom: 2px solid var(--green-light);
+            padding: 1rem 1.5rem;
+        }
+        .card-agri .card-body { padding: 1.5rem; }
+
+        /* ── Badges ── */
+        .badge-encours  { background:#FFF9C4; color:#F57F17; border:1px solid #F9A825; }
+        .badge-approuve { background:#E8F5E9; color:#2E7D32; border:1px solid #81C784; }
+        .badge-refuse   { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; }
+        .badge-termine  { background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; }
+
+        /* ── Buttons ── */
+        .btn-agri-primary {
+            background: var(--green-mid);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .btn-agri-primary:hover {
+            background: var(--green-dark);
+            color: #fff;
+        }
+
+        .btn { border-radius: 8px; font-weight: 600; }
+        .btn-warning { background:#F9A825; color:#212529; border:none; }
+        .btn-warning:hover { background:#F57F17; color:#212529; }
+        .btn-light { background:#fff; border:1px solid #ddd; color:#333; }
+        .btn-light:hover { background:#f0f0f0; }
+
+        /* ── Table ── */
+        .table th { color: #666; font-weight: 600; width: 40%; }
+        .table td { color: #333; }
+
+        /* ── List group ── */
+        .list-group-item {
+            padding: 1rem 1.5rem;
+            border-left: none;
+            border-right: none;
+        }
+        .list-group-item:first-child { border-top: none; }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .breadcrumb-item a:hover { color: #fff; }
+        .breadcrumb-item.active { color: #fff; }
+        .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,0.5); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 15px; }
+            .page-header { flex-direction: column; gap: 1rem; }
+        }
+    </style>
+{% endblock %}
+
+{# ===================== BODY ===================== #}
+{% block body %}
+
+    {% include 'components/_sidebar_agriculteur.html.twig' %}
+
+    <div class="main-content">
+
+        {# ── Page Header ── #}
+        <div class="page-header">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('agriculteur_project_agricole_index') }}">
+                                Mes Projets
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">{{ project.nomproject }}</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold mb-0">
+                    <i class="bi bi-kanban me-2"></i>
+                    {{ project.nomproject }}
+                    <span class="badge ms-2"
+                          style="background:#A5D6A7; color:#1B5E20; font-size:.7em;">
+                        AGRICULTEUR
+                    </span>
+                </h2>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ path('agriculteur_project_agricole_edit', {id: project.idproject}) }}"
+                   class="btn btn-warning">
+                    <i class="bi bi-pencil me-1"></i> Modifier
+                </a>
+                <a href="{{ path('agriculteur_project_agricole_index') }}"
+                   class="btn btn-light">
+                    <i class="bi bi-arrow-left me-1"></i> Mes Projets
                 </a>
             </div>
-            <div class="card-body p-0">
-                {% if project.ressources is empty %}
-                    <div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2"></i><p class="mt-2">Aucune ressource.</p></div>
-                {% else %}
-                    <ul class="list-group list-group-flush">
-                        {% for ressource in project.ressources %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">{{ ressource.nomressource }}</h6>
-                                <small class="text-muted">{{ ressource.typeressource }} • Qty: {{ ressource.quantite }}</small>
-                            </div>
-                            <span class="text-success fw-semibold">{{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
         </div>
-    </div>
-</div>
+
+        {# ── Content Row ── #}
+        <div class="row g-4">
+
+            {# ── Details Card ── #}
+            <div class="col-lg-5">
+                <div class="card card-agri h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                            <i class="bi bi-info-circle me-2"></i>Détails du Projet
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr>
+                                <th>Nom</th>
+                                <td class="fw-semibold">{{ project.nomproject }}</td>
+                            </tr>
+                            <tr>
+                                <th>Surface</th>
+                                <td>{{ project.surface|number_format(2, ',', '.') }} ha</td>
+                            </tr>
+                            <tr>
+                                <th>Budget Demandé</th>
+                                <td class="fw-semibold text-success">
+                                    {{ project.budgetdemande|number_format(2, ',', ' ') }} TND
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Statut</th>
+                                <td>
+                                    {% set statut = project.statut|lower %}
+                                    <span class="badge
+                                        {% if statut == 'en cours' %}badge-encours
+                                        {% elseif statut == 'approuvé' or statut == 'accepte' %}badge-approuve
+                                        {% elseif statut == 'refusé' or statut == 'refuse' %}badge-refuse
+                                        {% else %}badge-termine{% endif %}">
+                                        {{ project.statut }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date Soumission</th>
+                                <td>{{ project.datesoumission|date('d/m/Y') }}</td>
+                            </tr>
+                            {% if project.latitude is defined and project.latitude %}
+                            <tr>
+                                <th>📍 Localisation</th>
+                                <td>
+                                    {{ project.latitude|number_format(4, ',', '.') }},
+                                    {{ project.longitude|number_format(4, ',', '.') }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Resources Card ── #}
+            <div class="col-lg-7">
+                <div class="card card-agri h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                            <i class="bi bi-box-seam me-2"></i>
+                            Ressources
+                            <span class="badge bg-secondary ms-1">
+                                {{ project.ressources|length }}
+                            </span>
+                        </h5>
+                        <a href="{{ path('agriculteur_ressource_project_new') }}"
+                           class="btn btn-sm btn-agri-primary">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if project.ressources is empty %}
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox" style="font-size:2.5rem;"></i>
+                                <p class="mt-2 mb-0">Aucune ressource ajoutée.</p>
+                            </div>
+                        {% else %}
+                            <ul class="list-group list-group-flush">
+                                {% for ressource in project.ressources %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1 fw-semibold">
+                                                {{ ressource.nomressource }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                {{ ressource.typeressource }}
+                                                • Qté: {{ ressource.quantite }}
+                                                • Prix unit: {{ ressource.cout }} TND
+                                            </small>
+                                        </div>
+                                        <span class="fw-semibold text-success">
+                                            {{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            {# ── Total ── #}
+                            <div class="p-3 text-end border-top"
+                                 style="background:var(--green-pale);">
+                                <strong>Total Ressources : </strong>
+                                <span class="text-success fw-bold fs-5">
+                                    {% set total = 0 %}
+                                    {% for r in project.ressources %}
+                                        {% set total = total + (r.cout * r.quantite) %}
+                                    {% endfor %}
+                                    {{ total|number_format(2, ',', ' ') }} TND
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>{# end row #}
+
+    </div>{# end main-content #}
+
 {% endblock %}
