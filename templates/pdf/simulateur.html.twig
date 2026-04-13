@@ -3,17 +3,74 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <style>
-        @page { margin: 0; }
-        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 10px; margin: 0; padding: 0; background: #fff; }
+        @page { 
+            margin: 80px 40px 100px 40px; 
+        }
+        body { 
+            font-family: 'DejaVu Sans', sans-serif; 
+            color: #333; 
+            font-size: 10px; 
+            margin: 0; 
+            padding: 0; 
+            background: #fff; 
+        }
         
-        .color-bar-top { height: 10px; background: #089647; width: 100%; }
-        .hero-section { background: #133D03; color: #fff; padding: 30px 40px; }
+        /* Fixed Header Elements */
+        .color-bar-top { 
+            position: fixed;
+            top: -100px;
+            left: -40px;
+            right: -40px;
+            height: 10px; 
+            background: #089647; 
+        }
+        .hero-section { 
+            position: fixed;
+            top: -90px;
+            left: -40px;
+            right: -40px;
+            background: #133D03; 
+            padding: 20px 40px; 
+        }
         .hero-table { width: 100%; border-collapse: collapse; }
         .hero-logo { font-size: 32px; font-weight: 900; color: #B2D944; width: 60px; }
         .hero-text h1 { font-size: 22px; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .hero-text p { font-size: 10px; color: #B2D944; margin-top: 5px; text-transform: uppercase; }
-        .hero-meta { text-align: right; font-size: 9px; opacity: 0.8; }
+        /* Compact Fixed Header */
+        .fixed-header { 
+            position: fixed;
+            top: -80px;
+            left: -40px;
+            right: -40px;
+            height: 60px;
+            background: #133D03;
+            color: #fff;
+            padding: 10px 40px;
+            border-bottom: 2px solid #B2D944;
+        }
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-logo { font-size: 24px; font-weight: 900; color: #B2D944; width: 40px; }
+        .header-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
+        /* Flow-based Hero section (Only on first page) */
+        .content-wrap { padding-bottom: 30px; }
+        .hero-section { 
+            background: #f8faf5; 
+            border: 1px solid #e0ebe5;
+            padding: 25px; 
+            margin-top: -10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .hero-section h1 { color: #076A39; margin: 0; font-size: 20px; }
+        .hero-section p { color: #666; font-size: 9px; margin-top: 5px; }
+        
+        /* Data Table */
+        .content-wrap { padding-bottom: 30px; }
+        .main-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .amort-table th { background: #076A39; color: #fff; text-align: center; padding: 8px; font-size: 7px; text-transform: uppercase; }
+        .amort-table td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: right; font-size: 8px; }
+        .amort-table tr:nth-child(even) { background: #fafcf8; }
+        
         .summary-box { background: #f8faf5; border: 1px solid #e0ebe5; margin: 20px 40px; padding: 20px; border-radius: 8px; }
         .summary-table { width: 100%; border-collapse: collapse; }
         .sum-label { font-size: 8px; text-transform: uppercase; color: #666; font-weight: 700; margin-bottom: 2px; }
@@ -21,10 +78,6 @@
         .sum-val-highlight { font-size: 20px; color: #089647; }
 
         .content-wrap { padding: 0 40px 40px 40px; }
-        .amort-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .amort-table th { background: #076A39; color: #fff; text-align: center; padding: 8px; font-size: 7px; text-transform: uppercase; }
-        .amort-table td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: right; font-size: 8px; }
-        .amort-table tr:nth-child(even) { background: #fafcf8; }
         
         .stamp-box { width: 120px; height: 120px; border: 4px double #089647; border-radius: 50%; text-align: center; display: inline-block; margin-top: 30px; }
         .stamp-inner { padding-top: 22px; }
@@ -35,37 +88,33 @@
         .sig-line { width: 160px; border-bottom: 1px solid #333; margin: 30px auto 10px auto; }
         .sig-label { font-size: 8px; font-weight: 700; }
 
-        .footer { padding: 20px 40px; background: #fafafa; border-top: 1px solid #eee; font-size: 7px; color: #999; text-align: center; }
+        .footer { position: fixed; bottom: -90px; left: -40px; right: -40px; padding: 15px 40px; background: #fafafa; border-top: 1px solid #B2D944; font-size: 7px; color: #999; text-align: center; }
         .watermark { position: fixed; top: 40%; left: 10%; font-size: 80px; color: #f4f4f4; transform: rotate(-45deg); z-index: -1; font-weight: 900; }
     </style>
 </head>
 <body>
-    <div class="watermark">SIMULATION</div>
-    <div class="color-bar-top"></div>
-    
-    <div style="position: absolute; top: 0; right: 40px; width: 60px; height: 35px; background: #B2D944; text-align: center; color: #095032; font-size: 6px; padding-top: 5px; border-radius: 0 0 5px 5px; font-weight: 800;">
-        VÉRIFIÉ<br>CALC
+    <div class="fixed-header">
+        <table class="header-table">
+            <tr>
+                <td class="header-logo">AF</td>
+                <td class="header-title">AgriFund - Certificat de Simulation</td>
+                <td style="text-align: right; font-size: 8px; opacity: 0.8;">
+                    REF: SIM-{{ date|date('Ymd') }} | <span class="pagenum"></span>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="hero-section">
-        <table class="hero-table">
+        <table style="width: 100%;">
             <tr>
-                <td class="hero-logo">AF</td>
-                <td class="hero-text">
-                    <h1>Certificat de Simulation</h1>
-                    <p>
-                        {% if typeClient == 'banque' %}
-                            Étude de Financement Projet Institutionnel / Banque
-                        {% else %}
-                            Étude Personnalisée de Financement Agricole
-                        {% endif %}
-                    </p>
+                <td>
+                    <h1>Étude de Financement</h1>
+                    <p>{{ typeClient == 'banque' ? 'Analyse de Projet Institutionnel' : 'Simulation de Crédit Agricole Personnalisée' }}</p>
                 </td>
-                <td class="hero-meta">
-                    REF: SIM-{{ date|date('YmdHis') }}<br>
-                    Produit: {{ produit.nomProduit|default('Sur mesure') }}<br>
-                    Mois: {{ simulation.dureeMois }}<br>
-                    Profil: <strong style="color: #fff;">{{ typeClient == 'banque' ? 'Institution / Banque' : 'Agriculteur' }}</strong>
+                <td style="text-align: right; font-size: 9px; color: #133D03;">
+                    Généré le {{ date|date('d/m/Y H:i') }}<br>
+                    Produit: {{ produit.nomProduit|default('Sur mesure') }}
                 </td>
             </tr>
         </table>

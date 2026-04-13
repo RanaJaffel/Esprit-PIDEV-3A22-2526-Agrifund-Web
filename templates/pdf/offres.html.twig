@@ -3,25 +3,66 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <style>
-        @page { margin: 0; }
-        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 10px; margin: 0; padding: 0; background: #fff; }
+        @page { 
+            margin: 80px 40px 100px 40px; 
+        }
+        body { 
+            font-family: 'DejaVu Sans', sans-serif; 
+            color: #333; 
+            font-size: 10px; 
+            margin: 0; 
+            padding: 0; 
+            background: #fff; 
+        }
         
-        .color-bar-top { height: 10px; background: #E1B323; width: 100%; }
-        .hero-section { background: #076A39; color: #fff; padding: 30px 40px; }
+        /* Fixed Header Elements */
+        .color-bar-top { 
+            position: fixed;
+            top: -100px;
+            left: -40px;
+            right: -40px;
+            height: 10px; 
+            background: #E1B323; 
+        }
+        .hero-section { 
+            position: fixed;
+            top: -90px;
+            left: -40px;
+            right: -40px;
+            background: #076A39; 
+            color: #fff; 
+            padding: 20px 40px; 
+        }
         .hero-table { width: 100%; border-collapse: collapse; }
-        .hero-logo { font-size: 32px; font-weight: 900; color: #E1B323; width: 60px; }
-        .hero-text h1 { font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
-        .hero-text p { font-size: 10px; color: #B2D944; margin-top: 5px; text-transform: uppercase; }
-        .hero-meta { text-align: right; font-size: 9px; opacity: 0.8; }
+        /* Compact Fixed Header */
+        .fixed-header { 
+            position: fixed;
+            top: -80px;
+            left: -40px;
+            right: -40px;
+            height: 60px;
+            background: #076A39;
+            color: #fff;
+            padding: 10px 40px;
+            border-bottom: 2px solid #E1B323;
+        }
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-logo { font-size: 24px; font-weight: 900; color: #E1B323; width: 40px; }
+        .header-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        .stats-stripe { background: #fff9e6; border-bottom: 2px solid #076A39; padding: 15px 40px; }
-        .stats-table { width: 100%; border-collapse: collapse; }
-        .stat-item { text-align: center; border-right: 1px solid #ffecb3; width: 25%; }
-        .stat-item:last-child { border-right: none; }
-        .stat-val { font-size: 18px; font-weight: 900; color: #856404; }
-        .stat-lbl { font-size: 7px; text-transform: uppercase; color: #666; margin-top: 2px; }
-
-        .content-wrap { padding: 40px; }
+        /* Flow-based Hero section */
+        .hero-section { 
+            background: #fff9e6; 
+            border: 1px solid #ffecb3;
+            padding: 30px; 
+            margin-top: -10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .hero-section h1 { color: #076A39; margin: 0; font-size: 22px; }
+        .hero-section p { color: #856404; font-size: 10px; margin-top: 5px; }
+        /* Data Table */
+        .content-wrap { padding-bottom: 30px; }
         .main-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .main-table th { background: #095032; color: #fff; text-align: left; padding: 10px; font-size: 8px; text-transform: uppercase; }
         .main-table tr { page-break-inside: avoid; }
@@ -43,29 +84,33 @@
         .sig-line { width: 180px; border-bottom: 1px solid #333; margin: 40px auto 10px auto; }
         .sig-label { font-size: 9px; font-weight: 700; }
 
-        .footer { position: fixed; bottom: 0; width: 100%; padding: 20px 40px; background: #fafafa; border-top: 1px solid #eee; }
+        .footer { position: fixed; bottom: -90px; left: -40px; right: -40px; padding: 15px 40px; background: #fafafa; border-top: 1px solid #E1B323; }
         .watermark { position: fixed; top: 30%; left: 10%; font-size: 90px; color: #f0f0f0; transform: rotate(-45deg); z-index: -1; font-weight: 900; }
     </style>
 </head>
 <body>
     <div class="watermark">AGRIFUND</div>
-    <div class="color-bar-top"></div>
-    
-    <div style="position: absolute; top: 0; right: 40px; width: 60px; height: 35px; background: #076A39; text-align: center; color: #fff; font-size: 6px; padding-top: 5px; border-radius: 0 0 5px 5px; font-weight: 800;">
-        VÉRIFIÉ<br>DOC
+    <div class="fixed-header">
+        <table class="header-table">
+            <tr>
+                <td class="header-logo">AF</td>
+                <td class="header-title">AgriFund - Offres Financières</td>
+                <td style="text-align: right; font-size: 8px; opacity: 0.8;">
+                    REF: OFR-{{ date|date('Ymd') }} | <span class="pagenum"></span>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="hero-section">
-        <table class="hero-table">
+        <table style="width: 100%;">
             <tr>
-                <td class="hero-logo">AF</td>
-                <td class="hero-text">
-                    <h1>Offres Financières</h1>
-                    <p>Suivi et Performance des Campagnes</p>
+                <td>
+                    <h1>Rapport des Offres Actives</h1>
+                    <p>Performance et suivi des campagnes de financement</p>
                 </td>
-                <td class="hero-meta">
-                    REF: OFR-{{ date|date('Ymd-His') }}<br>
-                    Édité le {{ date|date('d/m/Y H:i') }}<br>
+                <td style="text-align: right; font-size: 9px; color: #856404;">
+                    Généré le {{ date|date('d/m/Y H:i') }}<br>
                     CONFIDENTIEL
                 </td>
             </tr>
