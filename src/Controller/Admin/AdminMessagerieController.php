@@ -66,22 +66,21 @@ class AdminMessagerieController extends AbstractController
     #[Route('/conversation/{id}', name: 'admin_messagerie_chat')]
     public function chat(
         Conversation $conversation,
-        MessageRepository $messageRepository,
-        UtilisateurRepository $utilisateurRepository
+        MessageRepository $messageRepository
     ): Response {
         $currentUser = $this->getUser();
         
+        // Vérifier que l'utilisateur fait partie de la conversation
         if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             $this->addFlash('error', 'Accès non autorisé à cette conversation.');
             return $this->redirectToRoute('admin_messagerie_index');
         }
 
+        // Marquer les messages comme lus
         $messageRepository->markAsRead($conversation, $currentUser->getId());
-        $messages = $messageRepository->findByConversation($conversation);
 
-        $otherUserId = $conversation->getOtherUserId($currentUser->getId());
-        $otherUser = $utilisateurRepository->find($otherUserId);
+        $messages = $messageRepository->findByConversation($conversation);
 
         return $this->render('admin/messagerie/chat.html.twig', [
             'conversation' => $conversation,

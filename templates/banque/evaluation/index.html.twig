@@ -1,0 +1,293 @@
+{% extends 'base.html.twig' %}
+{% block title %}Évaluations de Risque{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        :root { --vert-vif: #089647; --vert-fonce: #076A39; --vert-foret: #095032; --vert-tres-fonce: #133D03; --jaune-moutarde: #E1B323; --vert-clair: #B2D944; --olive: #9A951F; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%); min-height: 100vh; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 280px; padding: 0; background: transparent; transition: margin-left 0.4s; }
+        @media (max-width: 991.98px) { .main-content { margin-left: 0; } }
+        .page-header { background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 50%, #2d8a50 100%); padding: 28px 35px; position: relative; overflow: hidden; }
+        .page-header::after { content: '📊'; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.1; }
+        .stat-card { background: white; border-radius: 16px; padding: 20px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s; border-left: 4px solid transparent; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .stat-card.total { border-left-color: #2d8a50; }
+        .stat-card.faible { border-left-color: #22c55e; }
+        .stat-card.moyen { border-left-color: #f59e0b; }
+        .stat-card.eleve { border-left-color: #ef4444; }
+        .stat-number { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .stat-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; margin-top: 4px; }
+        .search-bar { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .search-input { border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 16px 12px 44px; font-size: 0.9rem; transition: all 0.3s; width: 100%; }
+        .search-input:focus { border-color: #2d8a50; box-shadow: 0 0 0 4px rgba(45,138,80,0.1); outline: none; }
+        .search-wrapper { position: relative; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .filter-select { border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; transition: all 0.3s; cursor: pointer; width: 100%; }
+        .filter-select:focus { border-color: #2d8a50; outline: none; }
+        .eval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+        .eval-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s; border: 1px solid #f0f0f0; }
+        .eval-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+        .eval-card-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .eval-card-header.faible { background: linear-gradient(135deg, #0a3d1f, #1a5c35); }
+        .eval-card-header.moyen { background: linear-gradient(135deg, #92400e, #b45309); }
+        .eval-card-header.eleve { background: linear-gradient(135deg, #7f1d1d, #991b1b); }
+        .eval-card-header .title { color: white; font-weight: 700; font-size: 1rem; }
+        .badge-risque { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .badge-faible { background: #22c55e; color: white; }
+        .badge-moyen { background: #f59e0b; color: white; }
+        .badge-eleve { background: #ef4444; color: white; }
+        .eval-card-body { padding: 20px; }
+        .score-bar { height: 8px; border-radius: 4px; background: #f0f0f0; overflow: hidden; margin: 8px 0; }
+        .score-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+        .info-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+        .info-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; font-weight: 600; }
+        .info-value { font-size: 0.88rem; color: #374151; font-weight: 500; }
+        .eval-card-footer { padding: 14px 20px; background: #fafafa; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; }
+        .btn-action { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-view { background: #eff6ff; color: #3b82f6; }
+        .btn-view:hover { background: #3b82f6; color: white; }
+        .btn-edit { background: #fffbeb; color: #d97706; }
+        .btn-edit:hover { background: #d97706; color: white; }
+        .btn-delete { background: #fef2f2; color: #ef4444; }
+        .btn-delete:hover { background: #ef4444; color: white; }
+        .btn-new { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 14px; padding: 12px 24px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
+        .btn-new:hover { transform: translateY(-2px); color: white; }
+        .main-content > *:not(.page-header):not(script) { padding-left: 35px; padding-right: 35px; }
+        @media (max-width: 768px) { .main-content > *:not(.page-header):not(script) { padding-left: 20px; padding-right: 20px; } }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_banque.html.twig' %}
+    <div class="main-content">
+
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="text-white fw-bold mb-1" style="font-size:1.8rem;">📊 Évaluations de Risque</h2>
+                    <p class="mb-0" style="color:rgba(255,255,255,0.65); font-size:0.9rem;">Gérez vos évaluations de risque</p>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-outline-light d-md-none" id="mobileSidebarToggle"><i class="fas fa-bars"></i></button>
+                    <a href="{{ path('banque_evaluation_new') }}" class="btn-new">
+                        <i class="fas fa-plus"></i> Nouvelle Évaluation
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-4">
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+
+            {% set total = evaluations|length %}
+            {% set faibles = evaluations|filter(e => e.niveauRisque == 'faible')|length %}
+            {% set moyens = evaluations|filter(e => e.niveauRisque == 'moyen')|length %}
+            {% set eleves = evaluations|filter(e => e.niveauRisque == 'eleve')|length %}
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card total">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="font-size:1.8rem;">📊</div>
+                            <div><div class="stat-number" style="color:#0a3d1f;">{{ total }}</div><div class="stat-label">Total</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card faible">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="font-size:1.8rem;">✅</div>
+                            <div><div class="stat-number" style="color:#16a34a;">{{ faibles }}</div><div class="stat-label">Risque faible</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card moyen">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="font-size:1.8rem;">⚠️</div>
+                            <div><div class="stat-number" style="color:#d97706;">{{ moyens }}</div><div class="stat-label">Risque moyen</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card eleve">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="font-size:1.8rem;">🔴</div>
+                            <div><div class="stat-number" style="color:#dc2626;">{{ eleves }}</div><div class="stat-label">Risque élevé</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-6">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher par facteur, niveau, projet...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="filter-select" id="filterNiveau">
+                            <option value="">— Filtrer par niveau —</option>
+                            <option value="faible">Faible</option>
+                            <option value="moyen">Moyen</option>
+                            <option value="eleve">Élevé</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="filter-select" id="sortSelect">
+                            <option value="">— Trier par —</option>
+                            <option value="score-desc">Score (décroissant)</option>
+                            <option value="score-asc">Score (croissant)</option>
+                            <option value="date-desc">Date (récent)</option>
+                            <option value="date-asc">Date (ancien)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {% if evaluations is empty %}
+                <div class="text-center py-5">
+                    <div style="font-size:4rem; opacity:0.3;">📊</div>
+                    <h4 class="text-muted mt-3">Aucune évaluation trouvée</h4>
+                    <a href="{{ path('banque_evaluation_new') }}" class="btn-new mt-3 d-inline-flex">
+                        <i class="fas fa-plus"></i> Créer une évaluation
+                    </a>
+                </div>
+            {% else %}
+                <div class="eval-grid mt-4" id="evalGrid">
+                    {% for eval in evaluations %}
+                    <div class="eval-card"
+                         data-niveau="{{ eval.niveauRisque }}"
+                         data-facteur="{{ eval.facteurPrincipal|lower }}"
+                         data-score="{{ eval.scoreGlobal }}"
+                         data-date="{{ eval.dateEvaluation|date('Y-m-d') }}">
+
+                        <div class="eval-card-header {{ eval.niveauRisque }}">
+                            <div class="title"><i class="fas fa-chart-bar me-2"></i>Évaluation #{{ eval.idEvaluation }}</div>
+                            <span class="badge-risque badge-{{ eval.niveauRisque }}">
+                                {% if eval.niveauRisque == 'faible' %}✅ Faible
+                                {% elseif eval.niveauRisque == 'moyen' %}⚠️ Moyen
+                                {% else %}🔴 Élevé{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="eval-card-body">
+                            <div class="info-row">
+                                <span>🎯</span>
+                                <div style="width:100%;">
+                                    <div class="info-label">Score Global</div>
+                                    <div class="info-value fw-bold" style="font-size:1.1rem;">{{ eval.scoreGlobal }}/100</div>
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width:{{ eval.scoreGlobal }}%; background:{% if eval.scoreGlobal >= 70 %}#22c55e{% elseif eval.scoreGlobal >= 40 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <span>🌱</span>
+                                <div>
+                                    <div class="info-label">Projet</div>
+                                    <div class="info-value">{{ eval.projet ? eval.projet.nomproject : 'N/A' }}</div>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <span>📋</span>
+                                <div>
+                                    <div class="info-label">Fiabilité des données</div>
+                                    <div class="info-value">{{ eval.fiabiliteDonnees }}</div>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <span>🔍</span>
+                                <div>
+                                    <div class="info-label">Facteur Principal</div>
+                                    <div class="info-value" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ eval.facteurPrincipal }}</div>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <span>📅</span>
+                                <div>
+                                    <div class="info-label">Date d'évaluation</div>
+                                    <div class="info-value">{{ eval.dateEvaluation|date('d/m/Y') }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="eval-card-footer">
+                            <a href="{{ path('banque_evaluation_show', {id: eval.idEvaluation}) }}" class="btn-action btn-view">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                            <a href="{{ path('banque_evaluation_edit', {id: eval.idEvaluation}) }}" class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <form method="post" action="{{ path('banque_evaluation_delete', {id: eval.idEvaluation}) }}"
+                                  style="flex:1;" onsubmit="return confirm('Supprimer ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ eval.idEvaluation) }}">
+                                <button type="submit" class="btn-action btn-delete w-100">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+        const searchInput = document.getElementById('searchInput');
+        const filterNiveau = document.getElementById('filterNiveau');
+        const sortSelect = document.getElementById('sortSelect');
+        const grid = document.getElementById('evalGrid');
+
+        function filterCards() {
+            if (!grid) return;
+            const search = searchInput.value.toLowerCase().trim();
+            const niveau = filterNiveau.value.trim();
+            let cards = [...grid.querySelectorAll('.eval-card')];
+
+            cards.forEach(card => {
+                const facteur = (card.dataset.facteur || '').toLowerCase();
+                const cardNiveau = (card.dataset.niveau || '').trim();
+                const matchSearch = !search || facteur.includes(search) || cardNiveau.includes(search);
+                const matchFilter = !niveau || cardNiveau === niveau;
+                card.style.display = (matchSearch && matchFilter) ? '' : 'none';
+            });
+
+            const sort = sortSelect.value;
+            if (sort) {
+                cards.sort((a, b) => {
+                    if (sort === 'score-desc') return parseInt(b.dataset.score) - parseInt(a.dataset.score);
+                    if (sort === 'score-asc') return parseInt(a.dataset.score) - parseInt(b.dataset.score);
+                    if (sort === 'date-desc') return b.dataset.date.localeCompare(a.dataset.date);
+                    if (sort === 'date-asc') return a.dataset.date.localeCompare(b.dataset.date);
+                    return 0;
+                });
+                cards.forEach(card => grid.appendChild(card));
+            }
+        }
+
+        searchInput?.addEventListener('input', filterCards);
+        filterNiveau?.addEventListener('change', filterCards);
+        sortSelect?.addEventListener('change', filterCards);
+    </script>
+{% endblock %}

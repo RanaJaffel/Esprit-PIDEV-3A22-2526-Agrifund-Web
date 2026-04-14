@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier Évaluation #{{ evaluation.idEvaluation }}{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        :root { --vert-vif: #089647; --vert-fonce: #076A39; --vert-foret: #095032; --vert-tres-fonce: #133D03; --vert-clair: #B2D944; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%); min-height: 100vh; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 280px; padding: 0; background: transparent; transition: margin-left 0.4s; }
+        @media (max-width: 991.98px) { .main-content { margin-left: 0; } }
+        .page-header { background: linear-gradient(135deg, #92400e 0%, #b45309 100%); padding: 28px 35px; position: relative; overflow: hidden; }
+        .page-header::after { content: '✏️'; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 60px; opacity: 0.1; }
+        .form-card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); overflow: hidden; }
+        .form-card-header { background: linear-gradient(135deg, #fffbeb, #fef3c7); padding: 20px 28px; border-bottom: 1px solid #fde68a; }
+        .form-card-body { padding: 32px; }
+        .field-group { margin-bottom: 24px; }
+        .field-label { display: block; font-size: 0.85rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .field-input { width: 100%; border: 2px solid #e5e7eb; border-radius: 14px; padding: 14px 18px; font-size: 0.95rem; transition: all 0.3s; background: #fafafa; color: #374151; }
+        .field-input:focus { border-color: #d97706; background: white; box-shadow: 0 0 0 4px rgba(217,119,6,0.1); outline: none; }
+        .field-hint { font-size: 0.75rem; color: #9ca3af; margin-top: 6px; }
+        .form-error { color: #ef4444; font-size: 0.8rem; margin-top: 6px; display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #fef2f2; border-radius: 8px; border-left: 3px solid #ef4444; }
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, #e5e7eb, transparent); margin: 24px 0; }
+        .btn-submit { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; border: none; border-radius: 14px; padding: 16px 32px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 4px 20px rgba(217,119,6,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-submit:hover { transform: translateY(-2px); }
+        .btn-back { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 10px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; }
+        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
+        .row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .row-fields { grid-template-columns: 1fr; } }
+        .main-content > *:not(.page-header):not(script) { padding-left: 35px; padding-right: 35px; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_banque.html.twig' %}
+    <div class="main-content">
+
+        <div class="page-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="text-white fw-bold mb-1" style="font-size:1.6rem;">✏️ Modifier Évaluation #{{ evaluation.idEvaluation }}</h2>
+                    <p class="mb-0" style="color:rgba(255,255,255,0.65); font-size:0.85rem;">Modifiez les informations de cette évaluation</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-light d-md-none" id="mobileSidebarToggle"><i class="fas fa-bars"></i></button>
+                    <a href="{{ path('banque_evaluation_index') }}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-4">
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10">
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="font-size:1.2rem;">✏️</span>
+                                <span style="font-weight:700; color:#92400e;">Modifier l'évaluation #{{ evaluation.idEvaluation }}</span>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                            <div class="row-fields">
+                                <div class="field-group">
+                                    <label class="field-label">🎯 Score Global</label>
+                                    {{ form_widget(form.scoreGlobal, {'attr': {'class': 'field-input'}}) }}
+                                    {% for error in form.scoreGlobal.vars.errors %}
+                                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                    {% endfor %}
+                                    <div class="field-hint">Plus le score est élevé, mieux c'est ✅</div>
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">⚠️ Niveau de Risque</label>
+                                    {{ form_widget(form.niveauRisque, {'attr': {'class': 'field-input'}}) }}
+                                    {% for error in form.niveauRisque.vars.errors %}
+                                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="row-fields">
+                                <div class="field-group">
+                                    <label class="field-label">📋 Fiabilité des Données</label>
+                                    {{ form_widget(form.fiabiliteDonnees, {'attr': {'class': 'field-input'}}) }}
+                                    {% for error in form.fiabiliteDonnees.vars.errors %}
+                                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">💡 Recommandation</label>
+                                    {{ form_widget(form.recommandation, {'attr': {'class': 'field-input'}}) }}
+                                    {% for error in form.recommandation.vars.errors %}
+                                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="row-fields">
+                                <div class="field-group">
+                                    <label class="field-label">📅 Date d'Évaluation</label>
+                                    {{ form_widget(form.dateEvaluation, {'attr': {'class': 'field-input'}}) }}
+                                    {% for error in form.dateEvaluation.vars.errors %}
+                                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">🌱 Projet Agricole</label>
+                                    {{ form_widget(form.projet, {'attr': {'class': 'field-input'}}) }}
+                                    {% for error in form.projet.vars.errors %}
+                                        <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="field-group">
+                                <label class="field-label">🔍 Facteur Principal</label>
+                                {{ form_widget(form.facteurPrincipal, {'attr': {'class': 'field-input', 'rows': 4}}) }}
+                                {% for error in form.facteurPrincipal.vars.errors %}
+                                    <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error.message }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-save"></i> Sauvegarder les modifications
+                            </button>
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+    </script>
+{% endblock %}
