@@ -136,7 +136,7 @@
             <span class="nav-section-title">Projets</span>
             <ul class="nav-menu">
                 <li class="nav-item {{ app.request.get('_route') starts with 'agriculteur_project_agricole' ? 'active' : '' }}">
-                    <a href="{{ path('agriculteur_project_agricole_index') }}" class="nav-link">
+                    <a href="{{ path('agriculteur_project_agricole_page') }}" class="nav-link">
                         <span class="nav-icon">
                             <i class="fas fa-leaf"></i>
                         </span>
@@ -269,7 +269,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 
+        box-shadow:
             0 8px 20px rgba(0, 0, 0, 0.25),
             0 0 20px rgba(178, 217, 68, 0.2);
         transition: all 0.3s ease;
@@ -871,18 +871,18 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', function(e) {
             const ripple = document.createElement('span');
             ripple.classList.add('ripple');
-            
+
             const rect = this.getBoundingClientRect();
             const size = Math.max(rect.width, rect.height);
             const x = e.clientX - rect.left - size / 2;
             const y = e.clientY - rect.top - size / 2;
-            
+
             ripple.style.width = ripple.style.height = size + 'px';
             ripple.style.left = x + 'px';
             ripple.style.top = y + 'px';
-            
+
             this.appendChild(ripple);
-            
+
             setTimeout(() => ripple.remove(), 600);
         });
 
