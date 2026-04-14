@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Agriculteur;
 use App\Repository\AgriculteurRepository;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -55,7 +56,8 @@ class AdminAgriculteurController extends AbstractController
     public function verify(
         Agriculteur $agriculteur,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EmailService $emailService
     ): Response {
         if ($this->isCsrfTokenValid('verify' . $agriculteur->getId(), $request->request->get('_token'))) {
             $action = $request->request->get('action');
@@ -63,14 +65,29 @@ class AdminAgriculteurController extends AbstractController
             if ($action === 'approve') {
                 $agriculteur->setStatuscompte('actif');
                 $agriculteur->setCompteverifie(true);
-                $this->addFlash('success', 'Compte agriculteur approuvé avec succès !');
+                $em->flush();
+                
+                // Envoi de l'email d'approbation
+                try {
+                    $emailService->sendAgriculteurApprovalEmail($agriculteur);
+                    $this->addFlash('success', 'Compte agriculteur approuvé et email envoyé avec succès !');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Compte approuvé mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
+                
             } elseif ($action === 'reject') {
                 $agriculteur->setStatuscompte('refuse');
                 $agriculteur->setCompteverifie(false);
-                $this->addFlash('success', 'Compte agriculteur refusé.');
+                $em->flush();
+                
+                // Envoi de l'email de rejet
+                try {
+                    $emailService->sendAgriculteurRejectionEmail($agriculteur);
+                    $this->addFlash('success', 'Compte agriculteur refusé et email envoyé.');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Compte refusé mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
             }
-
-            $em->flush();
         }
 
         return $this->redirectToRoute('admin_agriculteurs_index');

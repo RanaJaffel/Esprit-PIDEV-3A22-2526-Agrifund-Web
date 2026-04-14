@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #089647 0%, #076A39 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; padding: 12px 30px; background: #089647; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Compte Approuvé</h1>
+        </div>
+        <div class="content">
+            <p>Bonjour <strong>{{ agriculteur.utilisateur.nomComplet }}</strong>,</p>
+            
+            <p>Nous avons le plaisir de vous informer que votre compte AgriFund a été <strong>approuvé avec succès</strong> !</p>
+            
+            <p>Vous pouvez maintenant accéder à toutes les fonctionnalités de notre plateforme :</p>
+            <ul>
+                <li>Créer et gérer vos demandes de financement</li>
+                <li>Consulter les offres des banques partenaires</li>
+                <li>Suivre l'état de vos projets</li>
+            </ul>
+            
+            <a href="{{ url('app_login') }}" class="button">Se connecter maintenant</a>
+            
+            <p style="margin-top: 30px;">Bienvenue sur AgriFund !</p>
+        </div>
+        <div class="footer">
+            <p>© {{ "now"|date("Y") }} AgriFund - Plateforme de financement agricole</p>
+        </div>
+    </div>
+</body>
+</html>

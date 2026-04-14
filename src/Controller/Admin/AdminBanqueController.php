@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Banque;
 use App\Repository\BanqueRepository;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -55,7 +56,8 @@ class AdminBanqueController extends AbstractController
     public function verify(
         Banque $banque,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EmailService $emailService
     ): Response {
         if ($this->isCsrfTokenValid('verify' . $banque->getId(), $request->request->get('_token'))) {
             $action = $request->request->get('action');
@@ -63,14 +65,29 @@ class AdminBanqueController extends AbstractController
             if ($action === 'approve') {
                 $banque->setStatusCompte('actif');
                 $banque->setCompteVerfiee(true);
-                $this->addFlash('success', 'Compte banque approuvé avec succès !');
+                $em->flush();
+                
+                // Envoi de l'email d'approbation
+                try {
+                    $emailService->sendBanqueApprovalEmail($banque);
+                    $this->addFlash('success', 'Compte banque approuvé et email envoyé avec succès !');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Compte approuvé mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
+                
             } elseif ($action === 'reject') {
                 $banque->setStatusCompte('refuse');
                 $banque->setCompteVerfiee(false);
-                $this->addFlash('success', 'Compte banque refusé.');
+                $em->flush();
+                
+                // Envoi de l'email de rejet
+                try {
+                    $emailService->sendBanqueRejectionEmail($banque);
+                    $this->addFlash('success', 'Compte banque refusé et email envoyé.');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Compte refusé mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
             }
-
-            $em->flush();
         }
 
         return $this->redirectToRoute('admin_banques_index');
