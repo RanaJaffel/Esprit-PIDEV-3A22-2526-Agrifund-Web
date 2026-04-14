@@ -36,9 +36,6 @@
         overflow-x: hidden;
     }
 
-    /* ==========================================
-       REGISTER UNIVERSE - CITY NIGHT THEME
-    ========================================== */
     .register-universe {
         min-height: 100vh;
         background: linear-gradient(180deg, 
@@ -55,9 +52,6 @@
         padding-bottom: 40px;
     }
 
-    /* ==========================================
-       STARS
-    ========================================== */
     .stars-container {
         position: fixed;
         top: 0;
@@ -88,9 +82,6 @@
         50% { opacity: 1; }
     }
 
-    /* ==========================================
-       MOON
-    ========================================== */
     .moon {
         position: fixed;
         top: 80px;
@@ -109,9 +100,6 @@
         50% { box-shadow: 0 0 60px rgba(255, 255, 255, 0.6); }
     }
 
-    /* ==========================================
-       FLOATING COINS
-    ========================================== */
     .coins-container {
         position: fixed;
         top: 0;
@@ -141,9 +129,6 @@
     .coin:nth-child(3) { left: 80%; top: 75%; animation-delay: -2s; }
     .coin:nth-child(4) { left: 88%; top: 82%; animation-delay: -6s; font-size: 18px; }
 
-    /* ==========================================
-       CITY SKYLINE
-    ========================================== */
     .city-container {
         position: fixed;
         bottom: 0;
@@ -246,9 +231,6 @@
         to { transform: translateX(60px); }
     }
 
-    /* ==========================================
-       MAIN CONTAINER
-    ========================================== */
     .register-container {
         display: flex;
         align-items: flex-start;
@@ -258,9 +240,6 @@
         z-index: 10;
     }
 
-    /* ==========================================
-       GLASS CARD
-    ========================================== */
     .register-glass {
         display: flex;
         max-width: 1100px;
@@ -284,9 +263,6 @@
         }
     }
 
-    /* ==========================================
-       BRAND PANEL
-    ========================================== */
     .brand-panel {
         flex: 0 0 380px;
         padding: 35px 30px;
@@ -357,7 +333,6 @@
         line-height: 1.5;
     }
 
-    /* Benefits */
     .benefits-list {
         text-align: left;
     }
@@ -407,22 +382,10 @@
         flex-shrink: 0;
     }
 
-    .benefit-text {
-        color: white;
-    }
+    .benefit-text { color: white; }
+    .benefit-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+    .benefit-text span { font-size: 0.75rem; opacity: 0.7; }
 
-    .benefit-text strong {
-        display: block;
-        font-size: 0.85rem;
-        margin-bottom: 2px;
-    }
-
-    .benefit-text span {
-        font-size: 0.75rem;
-        opacity: 0.7;
-    }
-
-    /* Stats */
     .stats-section {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -435,10 +398,7 @@
     }
 
     @keyframes statsAppear {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .stat-item {
@@ -482,9 +442,7 @@
     }
 
     @keyframes formFadeIn {
-        to {
-            opacity: 1;
-        }
+        to { opacity: 1; }
     }
 
     .form-header-content h2 {
@@ -497,14 +455,8 @@
         gap: 10px;
     }
 
-    .form-header-content h2 .emoji {
-        font-size: 1.6rem;
-    }
-
-    .form-header-content p {
-        color: var(--gris);
-        font-size: 0.85rem;
-    }
+    .form-header-content h2 .emoji { font-size: 1.6rem; }
+    .form-header-content p { color: var(--gris); font-size: 0.85rem; }
 
     .header-badge {
         background: linear-gradient(135deg, var(--bank-gold) 0%, var(--bank-gold-dark) 100%);
@@ -518,7 +470,6 @@
         gap: 6px;
     }
 
-    /* Alerts */
     .alert {
         padding: 12px 16px;
         border-radius: 12px;
@@ -541,14 +492,9 @@
         color: #155724;
     }
 
-    .alert ul {
-        margin: 5px 0 0 0;
-        padding-left: 18px;
-    }
-
+    .alert ul { margin: 5px 0 0 0; padding-left: 18px; }
     .alert li { margin-bottom: 3px; font-size: 0.8rem; }
 
-    /* Form Sections */
     .form-section {
         background: linear-gradient(135deg, #faf9f7 0%, #f5f3ef 100%);
         border-radius: 16px;
@@ -566,9 +512,7 @@
     .form-section:nth-child(3) { animation-delay: 0.5s; }
 
     @keyframes sectionFadeIn {
-        to {
-            opacity: 1;
-        }
+        to { opacity: 1; }
     }
 
     .form-section::before {
@@ -605,14 +549,8 @@
         font-size: 13px;
     }
 
-    /* Form Groups */
-    .form-group {
-        margin-bottom: 14px;
-    }
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
+    .form-group { margin-bottom: 14px; }
+    .form-group:last-child { margin-bottom: 0; }
 
     .form-group label {
         display: flex;
@@ -629,10 +567,7 @@
         font-size: 0.9rem;
     }
 
-    .required-star {
-        color: var(--error);
-        margin-left: 3px;
-    }
+    .required-star { color: var(--error); margin-left: 3px; }
 
     .optional-tag {
         font-size: 0.68rem;
@@ -656,10 +591,7 @@
         color: var(--bank-navy-dark);
     }
 
-    .form-control::placeholder {
-        color: #adb5bd;
-        font-size: 0.85rem;
-    }
+    .form-control::placeholder { color: #adb5bd; font-size: 0.85rem; }
 
     .form-control:focus {
         outline: none;
@@ -667,15 +599,9 @@
         box-shadow: 0 0 0 3px rgba(225, 179, 35, 0.12);
     }
 
-    .form-control.is-invalid {
-        border-color: var(--error);
-        background: #fffafa;
-    }
+    .form-control.is-invalid { border-color: var(--error); background: #fffafa; }
 
-    textarea.form-control {
-        min-height: 50px;
-        resize: vertical;
-    }
+    textarea.form-control { min-height: 50px; resize: vertical; }
 
     .invalid-feedback {
         display: block;
@@ -688,11 +614,7 @@
         border-left: 2px solid var(--error);
     }
 
-    .form-text {
-        font-size: 0.7rem;
-        color: var(--gris);
-        margin-top: 3px;
-    }
+    .form-text { font-size: 0.7rem; color: var(--gris); margin-top: 3px; }
 
     .form-row {
         display: grid;
@@ -700,7 +622,9 @@
         gap: 14px;
     }
 
-    /* Terms Section */
+    /* ==========================================
+       TERMS SECTION - CORRECTION CHECKBOX
+    ========================================== */
     .terms-section {
         background: linear-gradient(135deg, #faf9f7 0%, #f5f3ef 100%);
         border-radius: 12px;
@@ -711,67 +635,29 @@
         opacity: 0;
     }
 
-    .terms-checkbox {
+    .terms-label {
         display: flex;
         align-items: flex-start;
         gap: 12px;
         cursor: pointer;
+        user-select: none;
     }
 
-    .custom-checkbox {
-        position: relative;
+    /* Checkbox natif stylisé - fonctionne parfaitement */
+    .terms-label input[type="checkbox"] {
         width: 20px;
         height: 20px;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
-    .custom-checkbox input {
-        position: absolute;
-        opacity: 0;
+        min-width: 20px;
+        accent-color: var(--bank-gold);
         cursor: pointer;
-        width: 100%;
-        height: 100%;
-    }
-
-    .checkmark {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 20px;
-        height: 20px;
-        background: white;
-        border: 2px solid #d1d5db;
+        margin-top: 2px;
         border-radius: 6px;
-        transition: all 0.3s ease;
-    }
-
-    .custom-checkbox input:checked ~ .checkmark {
-        background: linear-gradient(135deg, var(--bank-gold) 0%, var(--bank-gold-dark) 100%);
-        border-color: var(--bank-gold);
-    }
-
-    .checkmark::after {
-        content: '';
-        position: absolute;
-        display: none;
-        left: 6px;
-        top: 3px;
-        width: 5px;
-        height: 9px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-
-    .custom-checkbox input:checked ~ .checkmark::after {
-        display: block;
     }
 
     .terms-text {
         font-size: 0.78rem;
         color: var(--gris);
-        line-height: 1.5;
+        line-height: 1.6;
     }
 
     .terms-text a {
@@ -780,9 +666,7 @@
         font-weight: 600;
     }
 
-    .terms-text a:hover {
-        text-decoration: underline;
-    }
+    .terms-text a:hover { text-decoration: underline; }
 
     /* Submit Button */
     .btn-submit {
@@ -824,15 +708,9 @@
         box-shadow: 0 12px 35px rgba(225, 179, 35, 0.45);
     }
 
-    .btn-submit:hover::before {
-        left: 100%;
-    }
+    .btn-submit:hover::before { left: 100%; }
+    .btn-submit i { font-size: 1.1rem; }
 
-    .btn-submit i {
-        font-size: 1.1rem;
-    }
-
-    /* Back Link */
     .back-link {
         text-align: center;
         margin-top: 18px;
@@ -861,52 +739,19 @@
         color: white;
     }
 
-    /* ==========================================
-       RESPONSIVE
-    ========================================== */
     @media (max-width: 1100px) {
-        .register-glass {
-            flex-direction: column;
-            max-width: 550px;
-        }
-
-        .brand-panel {
-            flex: none;
-            padding: 30px 25px;
-        }
-
-        .benefits-list,
-        .stats-section {
-            display: none;
-        }
-
-        .form-panel {
-            padding: 25px 20px;
-        }
+        .register-glass { flex-direction: column; max-width: 550px; }
+        .brand-panel { flex: none; padding: 30px 25px; }
+        .benefits-list, .stats-section { display: none; }
+        .form-panel { padding: 25px 20px; }
     }
 
     @media (max-width: 600px) {
-        .register-container {
-            padding: 15px;
-        }
-
-        .form-panel {
-            padding: 20px 18px;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-            gap: 0;
-        }
-
-        .form-section {
-            padding: 15px;
-        }
-
-        .form-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
+        .register-container { padding: 15px; }
+        .form-panel { padding: 20px 18px; }
+        .form-row { grid-template-columns: 1fr; gap: 0; }
+        .form-section { padding: 15px; }
+        .form-header { flex-direction: column; align-items: flex-start; }
     }
 </style>
 {% endblock %}
@@ -1290,14 +1135,18 @@
                             </div>
                         </div>
 
+                        {# ===== TERMS SECTION CORRIGÉE ===== #}
                         <div class="terms-section">
-                            <label class="terms-checkbox">
-                                <div class="custom-checkbox">
-                                    {{ form_widget(form.agreeTerms, {'attr': {'style': 'position:absolute;opacity:0;'}}) }}
-                                    <span class="checkmark"></span>
-                                </div>
+                            <label class="terms-label" for="{{ form.agreeTerms.vars.id }}">
+                                {{ form_widget(form.agreeTerms, {
+                                    'attr': {
+                                        'class': 'terms-native-checkbox'
+                                    }
+                                }) }}
                                 <span class="terms-text">
-                                    J'accepte les <a href="#">CGU</a>, la <a href="#">Politique de confidentialité</a> et les <a href="#">Règles de partenariat</a>
+                                    J'accepte les <a href="#" onclick="return false;">CGU</a>,
+                                    la <a href="#" onclick="return false;">Politique de confidentialité</a>
+                                    et les <a href="#" onclick="return false;">Règles de partenariat</a>
                                 </span>
                             </label>
                             {% if form.agreeTerms.vars.errors|length > 0 %}
@@ -1330,18 +1179,30 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Ripple effect on button
-            document.querySelector('.btn-submit').addEventListener('click', function(e) {
-                const rect = this.getBoundingClientRect();
-                const ripple = document.createElement('span');
-                ripple.style.cssText = 'position:absolute;background:rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;left:' + (e.clientX - rect.left - 50) + 'px;top:' + (e.clientY - rect.top - 50) + 'px;transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;';
-                this.appendChild(ripple);
-                setTimeout(function() { ripple.remove(); }, 600);
-            });
+            var submitBtn = document.querySelector('.btn-submit');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    var rect = this.getBoundingClientRect();
+                    var ripple = document.createElement('span');
+                    ripple.style.cssText = 'position:absolute;background:rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;left:' + (e.clientX - rect.left - 50) + 'px;top:' + (e.clientY - rect.top - 50) + 'px;transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;';
+                    this.appendChild(ripple);
+                    setTimeout(function() { ripple.remove(); }, 600);
+                });
+            }
         });
     </script>
     <style>
         @keyframes ripple {
             to { transform: scale(4); opacity: 0; }
+        }
+        /* Style natif du checkbox terms */
+        .terms-native-checkbox {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            accent-color: var(--bank-gold);
+            cursor: pointer;
+            margin-top: 2px;
         }
     </style>
 {% endblock %}

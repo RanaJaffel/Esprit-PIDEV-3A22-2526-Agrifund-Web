@@ -1,0 +1,323 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier — {{ ressource.nomressource }}{% endblock %}
+
+{% block body_class %}agriculteur-page{% endblock %}
+
+{% block hide_preloader %}true{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ── CSS Variables ── */
+    :root {
+        --green-dark:  #1B5E20;
+        --green-mid:   #2E7D32;
+        --green-light: #4CAF50;
+        --green-pale:  #E8F5E9;
+        --green-accent:#A5D6A7;
+    }
+
+    body.agriculteur-page {
+        background: #f4f6f3;
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ── Layout ── */
+    .main-content-wrapper {
+        margin-left: 280px;
+        padding: 30px;
+        min-height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+        .main-content-wrapper {
+            margin-left: 0;
+            padding: 70px 15px 20px;
+        }
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+        border-radius: 16px;
+        padding: 24px 30px;
+        margin-bottom: 24px;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .page-header h2 {
+        color: #fff;
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    /* ── Card ── */
+    .card-agri {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .card-agri .card-header {
+        background: var(--green-pale);
+        border-bottom: 2px solid var(--green-light);
+        padding: 18px 24px;
+    }
+
+    .card-agri .card-body {
+        padding: 28px;
+    }
+
+    /* ── Form fields ── */
+    .card-agri .form-control,
+    .card-agri .form-select {
+        border-radius: 8px;
+        border: 1.5px solid #ddd;
+        padding: 10px 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card-agri .form-control:focus,
+    .card-agri .form-select:focus {
+        border-color: var(--green-light);
+        box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+    }
+
+    .card-agri label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .card-agri .invalid-feedback,
+    .card-agri .form-error-message {
+        color: #dc3545;
+        font-size: 0.85rem;
+    }
+
+    .card-agri .is-invalid {
+        border-color: #dc3545;
+    }
+
+    /* ── Save button ── */
+    .btn-agri-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 28px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, var(--green-light) 0%, var(--green-mid) 100%);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-agri-save:hover {
+        background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-dark) 100%);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(76,175,80,0.4);
+    }
+
+    .btn-agri-save:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+    }
+
+    /* ── Back / Cancel button ── */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        border: 2px solid #c0392b;
+        color: #c0392b;
+        background: #fff;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(192,57,43,0.10);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-back::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+    }
+
+    .btn-back:hover {
+        color: #fff;
+        border-color: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(192,57,43,0.30);
+    }
+
+    .btn-back:hover::before {
+        opacity: 1;
+    }
+
+    .btn-back:active {
+        transform: translateY(0);
+    }
+
+    .btn-back i,
+    .btn-back span {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── Action row ── */
+    .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    /* ── Mobile toggle ── */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 998;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 991.98px) {
+        .mobile-sidebar-toggle {
+            display: flex;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn-agri-save,
+        .form-actions .btn-back {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# Mobile sidebar toggle #}
+<button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+    <i class="fas fa-bars"></i>
+</button>
+
+{# Sidebar #}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
+
+{# ── Main Content ── #}
+<div class="main-content-wrapper">
+
+    {# Page Header — no breadcrumb #}
+    <div class="page-header">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-pencil-square me-2"></i>
+            Modifier : {{ ressource.nomressource }}
+            <span class="badge ms-2"
+                  style="background:rgba(255,255,255,0.2);color:#fff;
+                         font-size:.65em;vertical-align:middle;">
+                AGRICULTEUR
+            </span>
+        </h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            {# Form Card #}
+            <div class="card card-agri">
+                <div class="card-header">
+                    <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                        <i class="bi bi-pencil me-2"></i>Modifier les informations
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    {{ form_start(form, {'attr': {
+                        'novalidate': 'novalidate',
+                        'class': 'needs-validation'
+                    }}) }}
+
+                        {% include 'agriculteur/ressource_project/_form.html.twig' %}
+
+                        {# Action buttons #}
+                        <div class="form-actions">
+                            <button type="submit" class="btn-agri-save">
+                                <i class="bi bi-check-circle"></i>
+                                <span>Enregistrer les modifications</span>
+                            </button>
+                            <a href="{{ path('agriculteur_ressource_project_show',
+                                           {id: ressource.idressource}) }}"
+                               class="btn-back">
+                                <i class="bi bi-arrow-left"></i>
+                                <span>Retour</span>
+                            </a>
+                        </div>
+
+                    {{ form_end(form) }}
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>{# end main-content-wrapper #}
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const wrapper = document.querySelector('.main-content-wrapper');
+
+    if (sidebar && wrapper) {
+        new MutationObserver(function () {
+            wrapper.style.marginLeft =
+                sidebar.classList.contains('collapsed') ? '80px' : '280px';
+        }).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+
+        if (sidebar.classList.contains('collapsed')) {
+            wrapper.style.marginLeft = '80px';
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -42,50 +42,73 @@ class AgriculteurProfileController extends AbstractController
             $agriculteur->setStatuscompte('en_attente');
             $utilisateur->setAgriculteur($agriculteur);
             $em->persist($agriculteur);
+            $em->flush();
         }
         
         $form = $this->createForm(AgriculteurProfileType::class, $utilisateur);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Gestion du changement de mot de passe
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
-                $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
-                $utilisateur->setPassword($hashedPassword);
-            }
+            try {
+                // Gestion du changement de mot de passe
+                $plainPassword = $form->get('plainPassword')->getData();
+                if ($plainPassword) {
+                    $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
+                    $utilisateur->setPassword($hashedPassword);
+                }
 
-            // Gestion de l'upload de photo
-            $photoFile = $form->get('photoFile')->getData();
-            if ($photoFile) {
-                // Supprimer l'ancienne photo si elle existe
-                if ($utilisateur->getPhoto()) {
-                    $oldPhotoPath = $this->getParameter('kernel.project_dir') . '/public/' . $utilisateur->getPhoto();
-                    if (file_exists($oldPhotoPath)) {
-                        unlink($oldPhotoPath);
+                // Gestion de l'upload de photo
+                $photoFile = $form->get('photoFile')->getData();
+                if ($photoFile) {
+                    // Vérifier si le fichier est valide
+                    if ($photoFile->isValid()) {
+                        // Supprimer l'ancienne photo si elle existe
+                        if ($utilisateur->getPhoto()) {
+                            $oldPhotoPath = $this->getParameter('kernel.project_dir') . '/public/' . $utilisateur->getPhoto();
+                            if (file_exists($oldPhotoPath)) {
+                                @unlink($oldPhotoPath);
+                            }
+                        }
+
+                        $extension = $photoFile->guessExtension();
+                        if (!$extension) {
+                            $extension = $photoFile->getClientOriginalExtension();
+                        }
+
+                        $newFilename = 'user_' . $utilisateur->getId() . '_' . uniqid() . '_' . date('Ymd_His') . '.' . $extension;
+                        
+                        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
+                        
+                        // Créer le dossier s'il n'existe pas
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        
+                        $photoFile->move($uploadDir, $newFilename);
+                        $utilisateur->setPhoto('uploads/photos/' . $newFilename);
+                    } else {
+                        $this->addFlash('error', 'Le fichier photo est invalide.');
+                        return $this->redirectToRoute('agriculteur_profile_edit');
                     }
                 }
 
-                $newFilename = 'user_' . $utilisateur->getId() . '_' . date('Ymd_His') . '.' . $photoFile->guessExtension();
+                // Récupérer l'entité Agriculteur depuis le formulaire
+                $agriculteur = $utilisateur->getAgriculteur();
                 
-                try {
-                    $photoFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads/photos',
-                        $newFilename
-                    );
-                    $utilisateur->setPhoto('uploads/photos/' . $newFilename);
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de la photo.');
+                // S'assurer que la relation bidirectionnelle est correcte
+                if ($agriculteur && !$agriculteur->getUtilisateur()) {
+                    $agriculteur->setUtilisateur($utilisateur);
                 }
+
+                $em->flush();
+
+                $this->addFlash('success', 'Profil modifié avec succès !');
+                return $this->redirectToRoute('agriculteur_profile_show');
+                
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la modification du profil : ' . $e->getMessage());
+                return $this->redirectToRoute('agriculteur_profile_edit');
             }
-
-            // Symfony gère automatiquement la mise à jour de l'entité Agriculteur
-            // grâce au formulaire imbriqué - pas besoin de code supplémentaire
-
-            $em->flush();
-
-            $this->addFlash('success', 'Profil modifié avec succès !');
-            return $this->redirectToRoute('agriculteur_profile_show');
         }
 
         return $this->render('agriculteur/profile/edit.html.twig', [

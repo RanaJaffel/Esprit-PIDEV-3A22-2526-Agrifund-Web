@@ -1,0 +1,343 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Soumettre un Projet{% endblock %}
+
+{% block body_class %}agriculteur-page{% endblock %}
+
+{% block hide_preloader %}true{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ── Page-level CSS variables ── */
+    :root {
+        --green-dark: #1B5E20;
+        --green-mid: #2E7D32;
+        --green-light: #4CAF50;
+        --green-pale: #E8F5E9;
+        --green-accent: #A5D6A7;
+    }
+
+    body.agriculteur-page {
+        background: #f4f6f3;
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ── Main content area ── */
+    .main-content-wrapper {
+        margin-left: 280px;
+        padding: 30px;
+        min-height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+        .main-content-wrapper {
+            margin-left: 0;
+            padding: 20px 15px;
+        }
+    }
+
+    /* ── Page header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+        border-radius: 16px;
+        padding: 24px 30px;
+        margin-bottom: 24px;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    /* ── Card styling ── */
+    .card-agri {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .card-agri .card-header {
+        background: var(--green-pale);
+        border-bottom: 2px solid var(--green-light);
+        padding: 18px 24px;
+    }
+
+    .card-agri .card-body {
+        padding: 28px;
+    }
+
+    /* ── Submit button ── */
+    .btn-agri-primary {
+        background: linear-gradient(135deg, var(--green-light) 0%, var(--green-mid) 100%);
+        color: #fff;
+        border: none;
+        padding: 11px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-agri-primary:hover {
+        background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-dark) 100%);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(76,175,80,0.4);
+    }
+
+    .btn-agri-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+    }
+
+    /* ── Enhanced Cancel button ── */
+    .btn-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        border: 2px solid #c0392b;
+        color: #c0392b;
+        background: #fff;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(192,57,43,0.10);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-cancel::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+    }
+
+    .btn-cancel:hover {
+        color: #fff;
+        border-color: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(192,57,43,0.30);
+    }
+
+    .btn-cancel:hover::before {
+        opacity: 1;
+    }
+
+    .btn-cancel:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(192,57,43,0.2);
+    }
+
+    .btn-cancel i,
+    .btn-cancel span {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── Status alert ── */
+    .status-info-alert {
+        background: linear-gradient(to right, #E8F5E9, #F1F8E9);
+        border-left: 4px solid #4CAF50;
+        border-radius: 12px;
+        padding: 16px 20px;
+    }
+
+    /* ── Form fields ── */
+    .card-agri .form-control,
+    .card-agri .form-select {
+        border-radius: 8px;
+        border: 1.5px solid #ddd;
+        padding: 10px 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card-agri .form-control:focus,
+    .card-agri .form-select:focus {
+        border-color: var(--green-light);
+        box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+    }
+
+    .card-agri label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    /* ── Validation errors ── */
+    .card-agri .invalid-feedback,
+    .card-agri .form-error-message {
+        color: #dc3545;
+        font-size: 0.85rem;
+    }
+
+    .card-agri .is-invalid {
+        border-color: #dc3545;
+    }
+
+    /* ── Buttons row ── */
+    .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    /* ── Mobile toggle button ── */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 998;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+
+    @media (max-width: 991.98px) {
+        .mobile-sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn-agri-primary,
+        .form-actions .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# Mobile sidebar toggle #}
+<button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+    <i class="fas fa-bars"></i>
+</button>
+
+{# Sidebar #}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
+
+{# ── Main content ── #}
+<div class="main-content-wrapper">
+
+    {# Page Header — breadcrumb removed #}
+    <div class="page-header">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-plus-circle me-2"></i>Soumettre un Nouveau Projet
+            <span class="badge ms-2"
+                  style="background:rgba(255,255,255,0.2);color:#fff;
+                         font-size:.65em;vertical-align:middle;">
+                AGRICULTEUR
+            </span>
+        </h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            {# Status info alert #}
+            <div class="alert status-info-alert d-flex align-items-center gap-3 mb-4 border-0">
+                <i class="bi bi-info-circle-fill text-success fs-4"></i>
+                <div>
+                    Statut initial :
+                    <span class="badge px-3 py-2"
+                          style="background:linear-gradient(to right,#E1B323,#9A951F);
+                                 color:#fff;font-size:.9em;">
+                        📋 En cours
+                    </span>
+                    <br>
+                    <small class="text-muted">
+                        Le statut sera modifié automatiquement par les décisions financières.
+                    </small>
+                </div>
+            </div>
+
+            {# Form Card #}
+            <div class="card card-agri">
+                <div class="card-header">
+                    <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                        <i class="bi bi-file-earmark-plus me-2"></i>Informations du Projet
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {
+                        'novalidate': 'novalidate',
+                        'class': 'needs-validation'
+                    }}) }}
+
+                        {% include 'agriculteur/project_agricole/_form.html.twig' %}
+
+                        {# Action buttons #}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-agri-primary">
+                                <i class="bi bi-send"></i>
+                                Soumettre le Projet
+                            </button>
+                            <a href="{{ path('agriculteur_project_agricole_index') }}"
+                               class="btn-cancel">
+                                <i class="bi bi-x-circle"></i>
+                                <span>Annuler</span>
+                            </a>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const wrapper = document.querySelector('.main-content-wrapper');
+
+    if (sidebar && wrapper) {
+        const observer = new MutationObserver(function () {
+            wrapper.style.marginLeft = sidebar.classList.contains('collapsed')
+                ? '80px'
+                : '280px';
+        });
+        observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+
+        // Initial check
+        if (sidebar.classList.contains('collapsed')) {
+            wrapper.style.marginLeft = '80px';
+        }
+    }
+});
+</script>
+{% endblock %}

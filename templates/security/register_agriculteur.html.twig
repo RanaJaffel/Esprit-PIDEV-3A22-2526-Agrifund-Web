@@ -41,9 +41,6 @@
         overflow-x: hidden;
     }
 
-    /* ==========================================
-       REGISTER UNIVERSE - SUNRISE THEME
-    ========================================== */
     .register-universe {
         min-height: 100vh;
         background: linear-gradient(180deg, 
@@ -60,9 +57,6 @@
         padding-bottom: 40px;
     }
 
-    /* ==========================================
-       ANIMATED BACKGROUND
-    ========================================== */
     .bg-gradient-animated {
         position: fixed;
         top: 0;
@@ -78,9 +72,6 @@
         z-index: 0;
     }
 
-    /* ==========================================
-       SUN RISING
-    ========================================== */
     .sun {
         position: fixed;
         bottom: 10%;
@@ -88,38 +79,24 @@
         transform: translateX(-50%);
         width: 100px;
         height: 100px;
-        background: radial-gradient(circle at 50% 50%, 
-            #fff9c4 0%, 
-            #ffeb3b 30%, 
-            #ffc107 60%, 
-            #ff9800 100%
-        );
+        background: radial-gradient(circle at 50% 50%, #fff9c4 0%, #ffeb3b 30%, #ffc107 60%, #ff9800 100%);
         border-radius: 50%;
-        box-shadow: 
-            0 0 60px rgba(255, 193, 7, 0.8),
-            0 0 120px rgba(255, 152, 0, 0.5);
+        box-shadow: 0 0 60px rgba(255, 193, 7, 0.8), 0 0 120px rgba(255, 152, 0, 0.5);
         animation: sunGlow 4s ease-in-out infinite;
         z-index: 1;
     }
 
     @keyframes sunGlow {
         0%, 100% {
-            box-shadow: 
-                0 0 60px rgba(255, 193, 7, 0.8),
-                0 0 120px rgba(255, 152, 0, 0.5);
+            box-shadow: 0 0 60px rgba(255, 193, 7, 0.8), 0 0 120px rgba(255, 152, 0, 0.5);
             transform: translateX(-50%) scale(1);
         }
         50% {
-            box-shadow: 
-                0 0 80px rgba(255, 193, 7, 1),
-                0 0 150px rgba(255, 152, 0, 0.7);
+            box-shadow: 0 0 80px rgba(255, 193, 7, 1), 0 0 150px rgba(255, 152, 0, 0.7);
             transform: translateX(-50%) scale(1.05);
         }
     }
 
-    /* ==========================================
-       CLOUDS
-    ========================================== */
     .clouds-container {
         position: fixed;
         top: 0;
@@ -138,8 +115,7 @@
         animation: cloudFloat linear infinite;
     }
 
-    .cloud::before,
-    .cloud::after {
+    .cloud::before, .cloud::after {
         content: '';
         position: absolute;
         background: inherit;
@@ -147,58 +123,29 @@
     }
 
     .cloud-1 {
-        width: 150px;
-        height: 45px;
-        top: 8%;
-        left: -150px;
+        width: 150px; height: 45px;
+        top: 8%; left: -150px;
         animation-duration: 40s;
     }
 
-    .cloud-1::before {
-        width: 60px;
-        height: 60px;
-        top: -30px;
-        left: 25px;
-    }
-
-    .cloud-1::after {
-        width: 45px;
-        height: 45px;
-        top: -22px;
-        left: 70px;
-    }
+    .cloud-1::before { width: 60px; height: 60px; top: -30px; left: 25px; }
+    .cloud-1::after { width: 45px; height: 45px; top: -22px; left: 70px; }
 
     .cloud-2 {
-        width: 120px;
-        height: 35px;
-        top: 15%;
-        left: -120px;
+        width: 120px; height: 35px;
+        top: 15%; left: -120px;
         animation-duration: 50s;
         animation-delay: -15s;
     }
 
-    .cloud-2::before {
-        width: 50px;
-        height: 50px;
-        top: -25px;
-        left: 15px;
-    }
-
-    .cloud-2::after {
-        width: 35px;
-        height: 35px;
-        top: -18px;
-        left: 55px;
-    }
+    .cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+    .cloud-2::after { width: 35px; height: 35px; top: -18px; left: 55px; }
 
     @keyframes cloudFloat {
         from { transform: translateX(0); }
         to { transform: translateX(calc(100vw + 200px)); }
     }
 
-    /* ==========================================
-       BIRDS
-    ========================================== */
     .birds-container {
         position: fixed;
         top: 0;
@@ -236,9 +183,6 @@
     .bird:nth-child(2) { top: 15%; animation-duration: 16s; animation-delay: -3s; font-size: 14px; }
     .bird:nth-child(3) { top: 10%; animation-duration: 20s; animation-delay: -7s; font-size: 12px; }
 
-    /* ==========================================
-       LANDSCAPE
-    ========================================== */
     .landscape {
         position: fixed;
         bottom: 0;
@@ -249,39 +193,13 @@
         pointer-events: none;
     }
 
-    .hills {
-        position: absolute;
-        bottom: 50px;
-        width: 100%;
-        height: 150px;
-    }
+    .hills { position: absolute; bottom: 50px; width: 100%; height: 150px; }
 
-    .hill {
-        position: absolute;
-        bottom: 0;
-        border-radius: 50% 50% 0 0;
-    }
+    .hill { position: absolute; bottom: 0; border-radius: 50% 50% 0 0; }
 
-    .hill-1 {
-        left: -10%;
-        width: 45%;
-        height: 120px;
-        background: linear-gradient(180deg, #2d5a3d 0%, #1a472a 100%);
-    }
-
-    .hill-2 {
-        left: 25%;
-        width: 40%;
-        height: 100px;
-        background: linear-gradient(180deg, #3f9e4d 0%, #2d7a3a 100%);
-    }
-
-    .hill-3 {
-        right: -10%;
-        width: 50%;
-        height: 140px;
-        background: linear-gradient(180deg, #2d5a3d 0%, #1a472a 100%);
-    }
+    .hill-1 { left: -10%; width: 45%; height: 120px; background: linear-gradient(180deg, #2d5a3d 0%, #1a472a 100%); }
+    .hill-2 { left: 25%; width: 40%; height: 100px; background: linear-gradient(180deg, #3f9e4d 0%, #2d7a3a 100%); }
+    .hill-3 { right: -10%; width: 50%; height: 140px; background: linear-gradient(180deg, #2d5a3d 0%, #1a472a 100%); }
 
     .ground {
         position: absolute;
@@ -291,35 +209,12 @@
         background: linear-gradient(180deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%);
     }
 
-    /* Trees */
-    .trees-container {
-        position: absolute;
-        bottom: 50px;
-        width: 100%;
-        z-index: 2;
-    }
+    .trees-container { position: absolute; bottom: 50px; width: 100%; z-index: 2; }
 
-    .tree {
-        position: absolute;
-        bottom: 0;
-        animation: treeSway 4s ease-in-out infinite;
-    }
+    .tree { position: absolute; bottom: 0; animation: treeSway 4s ease-in-out infinite; }
 
-    .tree-trunk {
-        width: 10px;
-        height: 35px;
-        background: linear-gradient(90deg, #5d4037 0%, #795548 50%, #5d4037 100%);
-        margin: 0 auto;
-        border-radius: 2px;
-    }
-
-    .tree-crown {
-        width: 45px;
-        height: 60px;
-        background: linear-gradient(180deg, #4caf50 0%, #388e3c 50%, #2e7d32 100%);
-        border-radius: 50% 50% 45% 45%;
-        margin-bottom: -8px;
-    }
+    .tree-trunk { width: 10px; height: 35px; background: linear-gradient(90deg, #5d4037 0%, #795548 50%, #5d4037 100%); margin: 0 auto; border-radius: 2px; }
+    .tree-crown { width: 45px; height: 60px; background: linear-gradient(180deg, #4caf50 0%, #388e3c 50%, #2e7d32 100%); border-radius: 50% 50% 45% 45%; margin-bottom: -8px; }
 
     @keyframes treeSway {
         0%, 100% { transform: rotate(-1deg); }
@@ -331,15 +226,10 @@
     .tree:nth-child(3) { right: 8%; transform: scale(0.7); animation-delay: -2s; }
     .tree:nth-child(4) { right: 15%; transform: scale(0.9); animation-delay: -0.5s; }
 
-    /* ==========================================
-       BUTTERFLIES
-    ========================================== */
     .butterflies-container {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
         pointer-events: none;
         z-index: 3;
     }
@@ -361,9 +251,6 @@
     .butterfly:nth-child(1) { top: 35%; left: 8%; animation-delay: 0s; }
     .butterfly:nth-child(2) { top: 45%; left: 85%; animation-delay: -8s; }
 
-    /* ==========================================
-       MAIN CONTAINER
-    ========================================== */
     .register-container {
         display: flex;
         align-items: flex-start;
@@ -373,9 +260,6 @@
         z-index: 10;
     }
 
-    /* ==========================================
-       GLASS CARD
-    ========================================== */
     .register-glass {
         display: flex;
         max-width: 1100px;
@@ -393,15 +277,9 @@
     }
 
     @keyframes cardAppear {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ==========================================
-       BRAND PANEL
-    ========================================== */
     .brand-panel {
         flex: 0 0 360px;
         padding: 35px 30px;
@@ -416,10 +294,8 @@
     .brand-panel::before {
         content: '';
         position: absolute;
-        top: -100%;
-        left: -100%;
-        width: 300%;
-        height: 300%;
+        top: -100%; left: -100%;
+        width: 300%; height: 300%;
         background: radial-gradient(circle, rgba(178, 217, 68, 0.08) 0%, transparent 40%);
         animation: rotateBg 30s linear infinite;
     }
@@ -429,15 +305,10 @@
         to { transform: rotate(360deg); }
     }
 
-    .brand-content {
-        text-align: center;
-        position: relative;
-        z-index: 1;
-    }
+    .brand-content { text-align: center; position: relative; z-index: 1; }
 
     .brand-logo {
-        width: 85px;
-        height: 85px;
+        width: 85px; height: 85px;
         background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-vif) 100%);
         border-radius: 22px;
         display: flex;
@@ -453,29 +324,11 @@
         50% { transform: translateY(-8px); }
     }
 
-    .brand-logo i {
-        font-size: 40px;
-        color: white;
-    }
+    .brand-logo i { font-size: 40px; color: white; }
+    .brand-title { color: white; font-size: 1.9rem; font-weight: 800; margin-bottom: 8px; }
+    .brand-subtitle { color: rgba(255, 255, 255, 0.75); font-size: 0.88rem; margin-bottom: 30px; line-height: 1.5; }
 
-    .brand-title {
-        color: white;
-        font-size: 1.9rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-    }
-
-    .brand-subtitle {
-        color: rgba(255, 255, 255, 0.75);
-        font-size: 0.88rem;
-        margin-bottom: 30px;
-        line-height: 1.5;
-    }
-
-    /* Benefits */
-    .benefits-list {
-        text-align: left;
-    }
+    .benefits-list { text-align: left; }
 
     .benefit-item {
         display: flex;
@@ -498,20 +351,13 @@
     .benefit-item:nth-child(4) { animation-delay: 0.7s; }
 
     @keyframes benefitSlide {
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        to { opacity: 1; transform: translateX(0); }
     }
 
-    .benefit-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-    }
+    .benefit-item:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
 
     .benefit-item i {
-        width: 36px;
-        height: 36px;
+        width: 36px; height: 36px;
         background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--jaune-fonce) 100%);
         border-radius: 10px;
         display: flex;
@@ -522,20 +368,9 @@
         flex-shrink: 0;
     }
 
-    .benefit-text {
-        color: white;
-    }
-
-    .benefit-text strong {
-        display: block;
-        font-size: 0.85rem;
-        margin-bottom: 2px;
-    }
-
-    .benefit-text span {
-        font-size: 0.75rem;
-        opacity: 0.7;
-    }
+    .benefit-text { color: white; }
+    .benefit-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+    .benefit-text span { font-size: 0.75rem; opacity: 0.7; }
 
     /* ==========================================
        FORM PANEL - SANS SCROLL
@@ -553,10 +388,7 @@
     }
 
     @keyframes formFadeIn {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        to { opacity: 1; }
     }
 
     .form-header h2 {
@@ -569,20 +401,13 @@
         gap: 10px;
     }
 
-    .form-header h2 .emoji {
-        font-size: 1.6rem;
-    }
+    .form-header h2 .emoji { font-size: 1.6rem; }
+    .form-header p { color: var(--gris); font-size: 0.88rem; }
 
-    .form-header p {
-        color: var(--gris);
-        font-size: 0.88rem;
-    }
-
-    /* Alerts */
     .alert {
         padding: 12px 16px;
         border-radius: 12px;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
         display: flex;
         align-items: flex-start;
         gap: 10px;
@@ -601,14 +426,9 @@
         color: #155724;
     }
 
-    .alert ul {
-        margin: 5px 0 0 0;
-        padding-left: 18px;
-    }
-
+    .alert ul { margin: 5px 0 0 0; padding-left: 18px; }
     .alert li { margin-bottom: 3px; font-size: 0.82rem; }
 
-    /* Form Sections */
     .form-section {
         background: linear-gradient(135deg, #f8faf5 0%, #f0f4e8 100%);
         border-radius: 16px;
@@ -626,18 +446,13 @@
     .form-section:nth-child(3) { animation-delay: 0.5s; }
 
     @keyframes sectionFadeIn {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        to { opacity: 1; }
     }
 
     .form-section::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
+        top: 0; left: 0; right: 0;
         height: 3px;
         background: linear-gradient(90deg, var(--vert-clair), var(--vert-vif), var(--jaune-moutarde));
     }
@@ -655,8 +470,7 @@
     }
 
     .section-title i {
-        width: 32px;
-        height: 32px;
+        width: 32px; height: 32px;
         background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
         border-radius: 8px;
         display: flex;
@@ -666,14 +480,8 @@
         font-size: 13px;
     }
 
-    /* Form Groups */
-    .form-group {
-        margin-bottom: 14px;
-    }
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
+    .form-group { margin-bottom: 14px; }
+    .form-group:last-child { margin-bottom: 0; }
 
     .form-group label {
         display: flex;
@@ -684,16 +492,8 @@
         margin-bottom: 6px;
     }
 
-    .form-group label i {
-        margin-right: 8px;
-        color: var(--vert-vif);
-        font-size: 0.9rem;
-    }
-
-    .required-star {
-        color: var(--error);
-        margin-left: 3px;
-    }
+    .form-group label i { margin-right: 8px; color: var(--vert-vif); font-size: 0.9rem; }
+    .required-star { color: var(--error); margin-left: 3px; }
 
     .form-control {
         width: 100%;
@@ -707,10 +507,7 @@
         color: var(--vert-tres-fonce);
     }
 
-    .form-control::placeholder {
-        color: #adb5bd;
-        font-size: 0.85rem;
-    }
+    .form-control::placeholder { color: #adb5bd; font-size: 0.85rem; }
 
     .form-control:focus {
         outline: none;
@@ -718,15 +515,9 @@
         box-shadow: 0 0 0 3px rgba(8, 150, 71, 0.1);
     }
 
-    .form-control.is-invalid {
-        border-color: var(--error);
-        background: #fffafa;
-    }
+    .form-control.is-invalid { border-color: var(--error); background: #fffafa; }
 
-    textarea.form-control {
-        min-height: 55px;
-        resize: vertical;
-    }
+    textarea.form-control { min-height: 55px; resize: vertical; }
 
     select.form-control {
         cursor: pointer;
@@ -749,11 +540,7 @@
         border-left: 2px solid var(--error);
     }
 
-    .form-text {
-        font-size: 0.7rem;
-        color: var(--gris);
-        margin-top: 3px;
-    }
+    .form-text { font-size: 0.7rem; color: var(--gris); margin-top: 3px; }
 
     .form-row {
         display: grid;
@@ -761,7 +548,9 @@
         gap: 14px;
     }
 
-    /* Terms Section */
+    /* ==========================================
+       TERMS SECTION - CORRECTION CHECKBOX
+    ========================================== */
     .terms-section {
         background: linear-gradient(135deg, #f8faf5 0%, #f0f4e8 100%);
         border-radius: 12px;
@@ -772,67 +561,28 @@
         opacity: 0;
     }
 
-    .terms-checkbox {
+    .terms-label {
         display: flex;
         align-items: flex-start;
         gap: 12px;
         cursor: pointer;
+        user-select: none;
     }
 
-    .custom-checkbox {
-        position: relative;
+    /* Checkbox natif stylisé - fonctionne parfaitement */
+    .terms-native-checkbox {
         width: 20px;
         height: 20px;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
-    .custom-checkbox input {
-        position: absolute;
-        opacity: 0;
+        min-width: 20px;
+        accent-color: var(--vert-vif);
         cursor: pointer;
-        width: 100%;
-        height: 100%;
-    }
-
-    .checkmark {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 20px;
-        height: 20px;
-        background: white;
-        border: 2px solid #d1d5db;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-    }
-
-    .custom-checkbox input:checked ~ .checkmark {
-        background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
-        border-color: var(--vert-vif);
-    }
-
-    .checkmark::after {
-        content: '';
-        position: absolute;
-        display: none;
-        left: 6px;
-        top: 3px;
-        width: 5px;
-        height: 9px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-
-    .custom-checkbox input:checked ~ .checkmark::after {
-        display: block;
+        margin-top: 2px;
     }
 
     .terms-text {
         font-size: 0.78rem;
         color: var(--gris);
-        line-height: 1.5;
+        line-height: 1.6;
     }
 
     .terms-text a {
@@ -841,9 +591,7 @@
         font-weight: 600;
     }
 
-    .terms-text a:hover {
-        text-decoration: underline;
-    }
+    .terms-text a:hover { text-decoration: underline; }
 
     /* Submit Button */
     .btn-submit {
@@ -871,10 +619,8 @@
     .btn-submit::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
         transition: left 0.5s ease;
     }
@@ -884,15 +630,9 @@
         box-shadow: 0 10px 30px rgba(8, 150, 71, 0.35);
     }
 
-    .btn-submit:hover::before {
-        left: 100%;
-    }
+    .btn-submit:hover::before { left: 100%; }
+    .btn-submit i { font-size: 1.1rem; }
 
-    .btn-submit i {
-        font-size: 1.1rem;
-    }
-
-    /* Back Link */
     .back-link {
         text-align: center;
         margin-top: 18px;
@@ -916,56 +656,21 @@
         transition: all 0.3s ease;
     }
 
-    .back-link a:hover {
-        background: var(--vert-vif);
-        color: white;
-    }
+    .back-link a:hover { background: var(--vert-vif); color: white; }
 
-    /* ==========================================
-       RESPONSIVE
-    ========================================== */
     @media (max-width: 992px) {
-        .register-glass {
-            flex-direction: column;
-            max-width: 550px;
-        }
-
-        .brand-panel {
-            flex: none;
-            padding: 30px 25px;
-        }
-
-        .benefits-list {
-            display: none;
-        }
-
-        .form-panel {
-            padding: 25px 20px;
-        }
+        .register-glass { flex-direction: column; max-width: 550px; }
+        .brand-panel { flex: none; padding: 30px 25px; }
+        .benefits-list { display: none; }
+        .form-panel { padding: 25px 20px; }
     }
 
     @media (max-width: 576px) {
-        .register-container {
-            padding: 15px;
-        }
-
-        .form-panel {
-            padding: 20px 18px;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-            gap: 0;
-        }
-
-        .form-section {
-            padding: 15px;
-        }
-
-        .sun {
-            width: 70px;
-            height: 70px;
-        }
+        .register-container { padding: 15px; }
+        .form-panel { padding: 20px 18px; }
+        .form-row { grid-template-columns: 1fr; gap: 0; }
+        .form-section { padding: 15px; }
+        .sun { width: 70px; height: 70px; }
     }
 </style>
 {% endblock %}
@@ -1007,22 +712,10 @@
                 <div class="hill hill-3"></div>
             </div>
             <div class="trees-container">
-                <div class="tree">
-                    <div class="tree-crown"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-                <div class="tree">
-                    <div class="tree-crown"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-                <div class="tree">
-                    <div class="tree-crown"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-                <div class="tree">
-                    <div class="tree-crown"></div>
-                    <div class="tree-trunk"></div>
-                </div>
+                <div class="tree"><div class="tree-crown"></div><div class="tree-trunk"></div></div>
+                <div class="tree"><div class="tree-crown"></div><div class="tree-trunk"></div></div>
+                <div class="tree"><div class="tree-crown"></div><div class="tree-trunk"></div></div>
+                <div class="tree"><div class="tree-crown"></div><div class="tree-trunk"></div></div>
             </div>
             <div class="ground"></div>
         </div>
@@ -1045,7 +738,7 @@
                             <div class="benefit-item">
                                 <i class="fas fa-chart-pie"></i>
                                 <div class="benefit-text">
-                                    <strong>Tableau de bord intelligent</strong>
+                                    <strong>Tableau de bord</strong>
                                     <span>Suivez vos performances</span>
                                 </div>
                             </div>
@@ -1278,14 +971,18 @@
                             </div>
                         </div>
 
+                        {# ===== TERMS SECTION CORRIGÉE ===== #}
                         <div class="terms-section">
-                            <label class="terms-checkbox">
-                                <div class="custom-checkbox">
-                                    {{ form_widget(form.agreeTerms, {'attr': {'style': 'position:absolute;opacity:0;'}}) }}
-                                    <span class="checkmark"></span>
-                                </div>
+                            <label class="terms-label" for="{{ form.agreeTerms.vars.id }}">
+                                {{ form_widget(form.agreeTerms, {
+                                    'attr': {
+                                        'class': 'terms-native-checkbox'
+                                    }
+                                }) }}
                                 <span class="terms-text">
-                                    J'accepte les <a href="#">CGU</a> et la <a href="#">Politique de confidentialité</a>
+                                    J'accepte les <a href="#" onclick="return false;">CGU</a>
+                                    et la <a href="#" onclick="return false;">Politique de confidentialité</a> d'AgriFund.
+                                    Je consens au traitement de mes données personnelles conformément au RGPD.
                                 </span>
                             </label>
                             {% if form.agreeTerms.vars.errors|length > 0 %}
@@ -1318,18 +1015,30 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Ripple effect on button
-            document.querySelector('.btn-submit').addEventListener('click', function(e) {
-                const rect = this.getBoundingClientRect();
-                const ripple = document.createElement('span');
-                ripple.style.cssText = 'position:absolute;background:rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;left:' + (e.clientX - rect.left - 50) + 'px;top:' + (e.clientY - rect.top - 50) + 'px;transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;';
-                this.appendChild(ripple);
-                setTimeout(function() { ripple.remove(); }, 600);
-            });
+            var submitBtn = document.querySelector('.btn-submit');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    var rect = this.getBoundingClientRect();
+                    var ripple = document.createElement('span');
+                    ripple.style.cssText = 'position:absolute;background:rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;left:' + (e.clientX - rect.left - 50) + 'px;top:' + (e.clientY - rect.top - 50) + 'px;transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;';
+                    this.appendChild(ripple);
+                    setTimeout(function() { ripple.remove(); }, 600);
+                });
+            }
         });
     </script>
     <style>
         @keyframes ripple {
             to { transform: scale(4); opacity: 0; }
+        }
+        /* Style natif du checkbox terms */
+        .terms-native-checkbox {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            accent-color: var(--vert-vif);
+            cursor: pointer;
+            margin-top: 2px;
         }
     </style>
 {% endblock %}

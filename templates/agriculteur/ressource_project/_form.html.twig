@@ -1,0 +1,157 @@
+{# templates/agriculteur/ressource_project/_form.html.twig #}
+{# Uses RessourceProjectAgriculteurType — project limited to own projects #}
+{# Pure server-side validation — no HTML5 constraints, no JavaScript.    #}
+
+<div class="row g-3">
+
+    {# ── Nom de la ressource ── #}
+    <div class="col-md-8">
+        <label for="{{ form.nomressource.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-box-seam me-1 text-success"></i>
+            {{ form.nomressource.vars.label }}
+        </label>
+        {{ form_widget(form.nomressource, {
+            'attr': {'class': 'form-control' ~ (form.nomressource.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.nomressource.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.nomressource.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Entre 3 et 150 caractères.</div>
+    </div>
+
+    {# ── Type de ressource ── #}
+    <div class="col-md-4">
+        <label for="{{ form.typeressource.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-tag me-1 text-success"></i>
+            {{ form.typeressource.vars.label }}
+        </label>
+        {{ form_widget(form.typeressource, {
+            'attr': {'class': 'form-select' ~ (form.typeressource.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.typeressource.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.typeressource.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    {# ── Quantité ── #}
+    <div class="col-md-4">
+        <label for="{{ form.quantite.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-hash me-1 text-success"></i>
+            {{ form.quantite.vars.label }}
+        </label>
+        {{ form_widget(form.quantite, {
+            'attr': {'class': 'form-control' ~ (form.quantite.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.quantite.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.quantite.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Entier positif, max 100 000.</div>
+    </div>
+
+    {# ── Coût unitaire ── #}
+    <div class="col-md-4">
+        <label for="{{ form.cout.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-cash-coin me-1 text-success"></i>
+            {{ form.cout.vars.label }}
+        </label>
+        {{ form_widget(form.cout, {
+            'attr': {'class': 'form-control' ~ (form.cout.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.cout.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.cout.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Montant positif en TND.</div>
+    </div>
+
+    {# ── Statut ── #}
+    <div class="col-md-4">
+        <label for="{{ form.statut.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-flag me-1 text-success"></i>
+            {{ form.statut.vars.label }}
+        </label>
+        {{ form_widget(form.statut, {
+            'attr': {'class': 'form-select' ~ (form.statut.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.statut.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.statut.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    {# ── Fournisseur (optionnel) ── #}
+    <div class="col-md-6">
+        <label for="{{ form.fournisseur.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-shop me-1 text-success"></i>
+            {{ form.fournisseur.vars.label }}
+            <span class="text-muted fw-normal">(optionnel)</span>
+        </label>
+        {{ form_widget(form.fournisseur, {
+            'attr': {'class': 'form-control' ~ (form.fournisseur.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.fournisseur.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.fournisseur.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Max 150 caractères.</div>
+    </div>
+
+    {# ── Date d'ajout ── #}
+    <div class="col-md-6">
+        <label for="{{ form.dateajout.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-calendar-date me-1 text-success"></i>
+            {{ form.dateajout.vars.label }}
+        </label>
+        {{ form_widget(form.dateajout, {
+            'attr': {'class': 'form-control' ~ (form.dateajout.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.dateajout.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.dateajout.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Doit être la date d'aujourd'hui uniquement.</div>
+    </div>
+
+    {# ── Mon projet ── #}
+    <div class="col-12">
+        <label for="{{ form.project.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-folder2-open me-1 text-success"></i>
+            {{ form.project.vars.label }}
+        </label>
+        {{ form_widget(form.project, {
+            'attr': {'class': 'form-select' ~ (form.project.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.project.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.project.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>

@@ -282,6 +282,30 @@
             </ul>
         </div>
 
+        <div class="nav-section">
+            <span class="nav-section-title">Projets</span>
+            <ul class="nav-menu">
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_project_agricole' ? 'active' : '' }}">
+                    <a href="{{ path('admin_project_agricole_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-leaf"></i>
+                        </span>
+                        <span class="nav-text">Projets Agricoles</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_ressource_project' ? 'active' : '' }}">
+                    <a href="{{ path('admin_ressource_project_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-tools"></i>
+                        </span>
+                        <span class="nav-text">Ressources Projets</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
     {# Footer #}

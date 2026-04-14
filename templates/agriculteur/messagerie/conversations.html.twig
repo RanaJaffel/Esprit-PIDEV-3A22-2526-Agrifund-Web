@@ -97,22 +97,42 @@
             {% include 'components/_flash_messages.html.twig' %}
             
             <div class="dashboard-section">
-                {% if conversations|length > 0 %}
+                {% if conversationsData|length > 0 %}
                     <div class="conversations-list">
-                        {% for conversation in conversations %}
-                            {% set otherUserId = conversation.getOtherUserId(current_user.id) %}
-                            {% set lastMessage = conversation.lastMessage %}
-                            {% set unreadCount = conversation.getUnreadMessagesCount(current_user.id) %}
+                        {% for data in conversationsData %}
+                            {% set conversation = data.conversation %}
+                            {% set otherUser = data.otherUser %}
+                            {% set lastMessage = data.lastMessage %}
+                            {% set unreadCount = data.unreadCount %}
                             
                             <a href="{{ path('agriculteur_messagerie_chat', {id: conversation.id}) }}" 
                                class="conversation-item d-flex align-items-center {{ unreadCount > 0 ? 'unread' : '' }}">
                                 <div>
-                                    <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                    {% if otherUser.photo %}
+                                        <img src="{{ asset(otherUser.photo) }}" 
+                                             alt="{{ otherUser.nomComplet }}" 
+                                             class="conversation-avatar">
+                                    {% elseif otherUser.banque and otherUser.banque.logo %}
+                                        <img src="{{ asset(otherUser.banque.logo) }}" 
+                                             alt="{{ otherUser.nom }}" 
+                                             class="conversation-avatar">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                    {% endif %}
                                 </div>
                                 
-                                <div class="conversation-info">
+                                <div class="conversation-info ms-3">
                                     <div class="conversation-name">
-                                        Conversation #{{ conversation.id }}
+                                        {% if otherUser.banque %}
+                                            {{ otherUser.nom }}
+                                        {% else %}
+                                            {{ otherUser.nomComplet }}
+                                        {% endif %}
+                                        {% if otherUser.admin %}
+                                            <span class="badge bg-danger ms-2">Admin</span>
+                                        {% elseif otherUser.banque %}
+                                            <span class="badge bg-warning ms-2">Banque</span>
+                                        {% endif %}
                                     </div>
                                     <div class="conversation-preview">
                                         {% if lastMessage %}
@@ -121,7 +141,7 @@
                                             {% endif %}
                                             {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0, 50) ~ '...' : lastMessage.contenu }}
                                         {% else %}
-                                            Aucun message
+                                            <em>Aucun message</em>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -131,7 +151,7 @@
                                         {{ conversation.derniereActivite|date('d/m/Y H:i') }}
                                     </div>
                                     {% if unreadCount > 0 %}
-                                        <div class="conversation-badge mt-2">
+                                        <div class="conversation-badge mt-2 ms-auto">
                                             {{ unreadCount }}
                                         </div>
                                     {% endif %}

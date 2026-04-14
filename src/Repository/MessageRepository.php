@@ -7,9 +7,6 @@ use App\Entity\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Message>
- */
 class MessageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -17,12 +14,11 @@ class MessageRepository extends ServiceEntityRepository
         parent::__construct($registry, Message::class);
     }
 
-    /**
-     * Trouve les messages d'une conversation
-     */
     public function findByConversation(Conversation $conversation, bool $includeDeleted = false): array
     {
         $qb = $this->createQueryBuilder('m')
+            ->leftJoin('m.piecesJointes', 'pj')
+            ->addSelect('pj')
             ->where('m.conversation = :conversation')
             ->setParameter('conversation', $conversation)
             ->orderBy('m.dateEnvoi', 'ASC');
@@ -35,9 +31,6 @@ class MessageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    /**
-     * Marque les messages comme lus
-     */
     public function markAsRead(Conversation $conversation, int $userId): void
     {
         $this->createQueryBuilder('m')
@@ -54,13 +47,8 @@ class MessageRepository extends ServiceEntityRepository
             ->setParameter('notRead', false)
             ->getQuery()
             ->execute();
-
-        $this->getEntityManager()->flush();
     }
 
-    /**
-     * Compte les messages non lus pour un utilisateur dans une conversation
-     */
     public function countUnreadMessages(Conversation $conversation, int $userId): int
     {
         return (int) $this->createQueryBuilder('m')
@@ -77,9 +65,6 @@ class MessageRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    /**
-     * Compte tous les messages non lus pour un utilisateur
-     */
     public function countAllUnreadMessages(int $userId): int
     {
         return (int) $this->createQueryBuilder('m')
@@ -96,29 +81,9 @@ class MessageRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    /**
-     * Supprime (soft delete) un message
-     */
     public function softDelete(Message $message): void
     {
         $message->setEstSupprime(true);
         $this->getEntityManager()->flush();
-    }
-
-    /**
-     * Recherche dans les messages
-     */
-    public function searchMessages(Conversation $conversation, string $query): array
-    {
-        return $this->createQueryBuilder('m')
-            ->where('m.conversation = :conversation')
-            ->andWhere('m.contenu LIKE :query')
-            ->andWhere('m.estSupprime = :deleted')
-            ->setParameter('conversation', $conversation)
-            ->setParameter('query', '%' . $query . '%')
-            ->setParameter('deleted', false)
-            ->orderBy('m.dateEnvoi', 'DESC')
-            ->getQuery()
-            ->getResult();
     }
 }

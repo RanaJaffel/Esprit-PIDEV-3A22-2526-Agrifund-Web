@@ -97,37 +97,45 @@
             {% include 'components/_flash_messages.html.twig' %}
             
             <div class="dashboard-section">
-                {% if conversations|length > 0 %}
+                {% if conversationsData|length > 0 %}
                     <div class="conversations-list">
-                        {% for conversation in conversations %}
-                            {% set otherUserId = conversation.getOtherUserId(current_user.id) %}
-                            {% set lastMessage = conversation.lastMessage %}
-                            {% set unreadCount = conversation.getUnreadMessagesCount(current_user.id) %}
-                            
-                            {# Récupérer l'autre utilisateur #}
-                            {% set otherUser = null %}
-                            {% for user in [conversation.utilisateur1Id, conversation.utilisateur2Id] %}
-                                {% if user != current_user.id %}
-                                    {% set otherUser = user %}
-                                {% endif %}
-                            {% endfor %}
+                        {% for data in conversationsData %}
+                            {% set conversation = data.conversation %}
+                            {% set otherUser = data.otherUser %}
+                            {% set lastMessage = data.lastMessage %}
+                            {% set unreadCount = data.unreadCount %}
                             
                             <a href="{{ path('admin_messagerie_chat', {id: conversation.id}) }}" 
                                class="conversation-item d-flex align-items-center {{ unreadCount > 0 ? 'unread' : '' }}">
                                 <div>
-                                    {# Avatar placeholder - vous devrez récupérer l'utilisateur réel #}
-                                    <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                    {% if otherUser.photo %}
+                                        <img src="{{ asset(otherUser.photo) }}" 
+                                             alt="{{ otherUser.nomComplet }}" 
+                                             class="conversation-avatar">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                    {% endif %}
                                 </div>
                                 
-                                <div class="conversation-info">
+                                <div class="conversation-info ms-3">
                                     <div class="conversation-name">
-                                        Conversation #{{ conversation.id }}
+                                        {{ otherUser.nomComplet }}
+                                        {% if otherUser.admin %}
+                                            <span class="badge bg-danger ms-2">Admin</span>
+                                        {% elseif otherUser.agriculteur %}
+                                            <span class="badge bg-success ms-2">Agriculteur</span>
+                                        {% elseif otherUser.banque %}
+                                            <span class="badge bg-warning ms-2">Banque</span>
+                                        {% endif %}
                                     </div>
                                     <div class="conversation-preview">
                                         {% if lastMessage %}
+                                            {% if lastMessage.aPieceJointe %}
+                                                <i class="fas fa-paperclip me-1"></i>
+                                            {% endif %}
                                             {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0, 50) ~ '...' : lastMessage.contenu }}
                                         {% else %}
-                                            Aucun message
+                                            <em>Aucun message</em>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -137,7 +145,7 @@
                                         {{ conversation.derniereActivite|date('d/m/Y H:i') }}
                                     </div>
                                     {% if unreadCount > 0 %}
-                                        <div class="conversation-badge mt-2">
+                                        <div class="conversation-badge mt-2 ms-auto">
                                             {{ unreadCount }}
                                         </div>
                                     {% endif %}
@@ -162,4 +170,24 @@
 
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        // Auto-refresh unread count
+        setInterval(function() {
+            fetch('{{ path('admin_messagerie_unread_count') }}')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('h1 .badge');
+                    if (data.count > 0) {
+                        if (badge) {
+                            badge.textContent = data.count;
+                        } else {
+                            document.querySelector('h1').insertAdjacentHTML('beforeend', 
+                                `<span class="badge bg-danger">${data.count}</span>`);
+                        }
+                    } else if (badge) {
+                        badge.remove();
+                    }
+                });
+        }, 10000); // Refresh every 10 seconds
+    </script>
 {% endblock %}
