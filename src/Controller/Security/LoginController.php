@@ -1,8 +1,12 @@
 <?php
+// src/Controller/Security/LoginController.php
 
 namespace App\Controller\Security;
 
+use App\Service\TwoFactorAuthService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -14,6 +18,14 @@ class LoginController extends AbstractController
     {
         // Si déjà connecté, rediriger selon le rôle
         if ($this->getUser()) {
+            // Vérifier si la 2FA est requise
+            $user = $this->getUser();
+            if ($user->has2FAEnabled()) {
+                $session = $this->container->get('request_stack')->getCurrentRequest()->getSession();
+                if (!$session->get('2fa_verified')) {
+                    return $this->redirectToRoute('app_login_2fa');
+                }
+            }
             return $this->redirectToRoute($this->getRedirectRoute());
         }
 
@@ -27,6 +39,78 @@ class LoginController extends AbstractController
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
+    }
+
+    #[Route('/login/2fa', name: 'app_login_2fa')]
+    public function verify2FA(
+        Request $request,
+        TwoFactorAuthService $twoFactorService,
+        EntityManagerInterface $em
+    ): Response {
+        // Vérifier si l'utilisateur est déjà connecté
+        $user = $this->getUser();
+        
+        if (!$user) {
+            $this->addFlash('error', 'Veuillez vous connecter d\'abord.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Vérifier si 2FA est activé
+        if (!$user->has2FAEnabled()) {
+            return $this->redirectToRoute($this->getRedirectRoute());
+        }
+
+        // Vérifier si le code 2FA a déjà été validé dans cette session
+        if ($request->getSession()->get('2fa_verified')) {
+            return $this->redirectToRoute($this->getRedirectRoute());
+        }
+
+        $error = null;
+
+        if ($request->isMethod('POST')) {
+            $code = $request->request->get('code');
+
+            if ($twoFactorService->verifierCode($user, $code)) {
+                // Code valide - marquer comme vérifié dans la session
+                $request->getSession()->set('2fa_verified', true);
+                
+                // MAINTENANT on met à jour la dernière connexion et le statut en ligne
+                $user->setDerniereConnexion(new \DateTime());
+                $user->setEstEnLigne(true);
+                $em->flush();
+
+                $this->addFlash('success', 'Authentification réussie ! Bienvenue ' . $user->getNomComplet());
+                return $this->redirectToRoute($this->getRedirectRoute());
+            } else {
+                $error = 'Code invalide ou expiré. Veuillez réessayer.';
+                $this->addFlash('error', $error);
+            }
+        }
+
+        return $this->render('security/verify_2fa.html.twig', [
+            'error' => $error,
+            'utilisateur' => $user
+        ]);
+    }
+
+    #[Route('/login/2fa/resend', name: 'app_login_2fa_resend')]
+    public function resend2FA(
+        TwoFactorAuthService $twoFactorService
+    ): Response {
+        $user = $this->getUser();
+        
+        if (!$user || !$user->has2FAEnabled()) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        try {
+            $twoFactorService->creerEtEnvoyerCode($user);
+            $this->addFlash('success', 'Un nouveau code a été envoyé à votre adresse email !');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur lors de l\'envoi du code. Veuillez réessayer.');
+        }
+
+        return $this->redirectToRoute('app_login_2fa');
     }
 
     #[Route('/logout', name: 'app_logout')]

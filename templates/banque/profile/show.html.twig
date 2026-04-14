@@ -819,6 +819,20 @@
                                     {% endif %}
                                 </td>
                             </tr>
+                            <tr>
+    <th>Authentification 2FA:</th>
+    <td>
+        {% if utilisateur.parametres2fa and utilisateur.parametres2fa.estActive %}
+            <span class="badge bg-success">
+                <i class="fas fa-lock me-1"></i>Activée
+            </span>
+        {% else %}
+            <span class="badge bg-warning">
+                <i class="fas fa-unlock me-1"></i>Désactivée
+            </span>
+        {% endif %}
+    </td>
+</tr>
                         </table>
                         
                         <hr class="my-4">
@@ -826,6 +840,9 @@
                         <div class="d-grid gap-2">
                             <a href="{{ path('banque_profile_edit') }}" class="btn btn-warning btn-lg">
                                 <i class="fas fa-edit"></i>Modifier mes Informations
+                            </a>
+                            <a href="{{ path('banque_profile_2fa') }}" class="btn btn-outline-warning btn-lg">
+                                <i class="fas fa-shield-alt"></i>Sécurité 2FA
                             </a>
                             <a href="{{ path('banque_dashboard') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left"></i>Retour au Tableau de Bord

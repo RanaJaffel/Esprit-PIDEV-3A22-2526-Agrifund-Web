@@ -1,4 +1,5 @@
 <?php
+// src/Entity/Utilisateur.php
 
 namespace App\Entity;
 
@@ -65,6 +66,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Banque::class, cascade: ['persist', 'remove'])]
     private ?Banque $banque = null;
 
+    // NOUVELLE RELATION POUR 2FA
+    #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Parametres2fa::class, cascade: ['persist', 'remove'])]
+    private ?Parametres2fa $parametres2fa = null;
+
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Document::class, cascade: ['remove'])]
     private Collection $documents;
 
@@ -96,7 +101,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         }
     }
 
-    // Getters et Setters
+    // ... (tous vos getters/setters existants restent identiques)
+
     public function getId(): ?int
     {
         return $this->id;
@@ -258,6 +264,26 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    // NOUVEAU GETTER/SETTER POUR 2FA
+    public function getParametres2fa(): ?Parametres2fa
+    {
+        return $this->parametres2fa;
+    }
+
+    public function setParametres2fa(?Parametres2fa $parametres2fa): self
+    {
+        if ($parametres2fa === null && $this->parametres2fa !== null) {
+            $this->parametres2fa->setUtilisateur(null);
+        }
+
+        if ($parametres2fa !== null && $parametres2fa->getUtilisateur() !== $this) {
+            $parametres2fa->setUtilisateur($this);
+        }
+
+        $this->parametres2fa = $parametres2fa;
+        return $this;
+    }
+
     /**
      * @return Collection<int, Document>
      */
@@ -357,5 +383,11 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             return 'Banque';
         }
         return 'Utilisateur';
+    }
+
+    // NOUVELLE MÉTHODE UTILITAIRE POUR 2FA
+    public function has2FAEnabled(): bool
+    {
+        return $this->parametres2fa !== null && $this->parametres2fa->isEstActive();
     }
 }
