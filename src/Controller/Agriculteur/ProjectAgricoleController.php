@@ -18,6 +18,18 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_AGRICULTEUR')]
 class ProjectAgricoleController extends AbstractController
 {
+    #[Route('/page', name: 'page', methods: ['GET'])]
+    public function page(): Response
+    {
+        $agriculteur = $this->getUser()?->getAgriculteur();
+
+        if (!$agriculteur) {
+            return $this->redirectToRoute('agriculteur_profile_edit');
+        }
+
+        return $this->render('agriculteur/project_agricole/page.html.twig');
+    }
+
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(ProjectAgricoleRepository $repo): Response
     {
@@ -63,8 +75,6 @@ class ProjectAgricoleController extends AbstractController
         $totalBudget   = array_sum(array_map(fn($p) => (float) $p->getBudgetdemande(), $projects));
         $totalSurface  = array_sum(array_map(fn($p) => $p->getSurface(), $projects));
 
-        // FIX: status strings must match exactly what is stored in the database
-        // and what the Twig templates display: 'Accepté', 'En cours', 'Refusé', 'Terminé'
         $countApprouve = count(array_filter($projects, fn($p) => $p->getStatut() === 'Accepté'));
         $countEncours  = count(array_filter($projects, fn($p) => $p->getStatut() === 'En cours'));
         $countRefuse   = count(array_filter($projects, fn($p) => $p->getStatut() === 'Refusé'));
@@ -78,7 +88,7 @@ class ProjectAgricoleController extends AbstractController
             'countApprouve' => $countApprouve,
             'countEncours'  => $countEncours,
             'countRefuse'   => $countRefuse,
-            'countTermine'  => $countTermine,  // FIX: was missing entirely
+            'countTermine'  => $countTermine,
         ]);
 
         $options = new Options();
