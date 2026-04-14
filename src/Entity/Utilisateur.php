@@ -57,6 +57,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $estEnLigne = false;
 
+    // NOUVEAU CHAMP POUR LA VÉRIFICATION EMAIL
+    #[ORM\Column(type: 'boolean')]
+    private bool $isVerified = false;
+
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Admin::class, cascade: ['persist', 'remove'])]
     private ?Admin $admin = null;
 
@@ -66,7 +70,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Banque::class, cascade: ['persist', 'remove'])]
     private ?Banque $banque = null;
 
-    // NOUVELLE RELATION POUR 2FA
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Parametres2fa::class, cascade: ['persist', 'remove'])]
     private ?Parametres2fa $parametres2fa = null;
 
@@ -88,6 +91,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         $this->tokensReinitialisation = new ArrayCollection();
         $this->dateInscrit = new \DateTime();
         $this->derniereConnexion = new \DateTime();
+        $this->isVerified = false; // Par défaut non vérifié
     }
 
     #[ORM\PrePersist]
@@ -100,8 +104,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->derniereConnexion = new \DateTime();
         }
     }
-
-    // ... (tous vos getters/setters existants restent identiques)
 
     public function getId(): ?int
     {
@@ -207,6 +209,18 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    // GETTER/SETTER POUR isVerified
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+        return $this;
+    }
+
     public function getAdmin(): ?Admin
     {
         return $this->admin;
@@ -264,7 +278,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // NOUVEAU GETTER/SETTER POUR 2FA
     public function getParametres2fa(): ?Parametres2fa
     {
         return $this->parametres2fa;
@@ -385,9 +398,23 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return 'Utilisateur';
     }
 
-    // NOUVELLE MÉTHODE UTILITAIRE POUR 2FA
     public function has2FAEnabled(): bool
     {
         return $this->parametres2fa !== null && $this->parametres2fa->isEstActive();
+    }
+
+    // NOUVELLE MÉTHODE UTILITAIRE POUR LE STATUT DE VÉRIFICATION
+    public function getVerificationStatus(): string
+    {
+        if ($this->isVerified) {
+            return 'Vérifié';
+        }
+        return 'En attente de vérification';
+    }
+
+    // NOUVELLE MÉTHODE POUR VÉRIFIER SI L'UTILISATEUR PEUT SE CONNECTER
+    public function canLogin(): bool
+    {
+        return $this->isVerified;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+// src/Controller/Security/RegisterController.php
 
 namespace App\Controller\Security;
 
@@ -7,6 +8,7 @@ use App\Entity\Agriculteur;
 use App\Entity\Banque;
 use App\Form\AgriculteurRegistrationType;
 use App\Form\BanqueRegistrationType;
+use App\Service\EmailVerificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +32,8 @@ class RegisterController extends AbstractController
     public function registerAgriculteur(
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EmailVerificationService $emailVerification
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
@@ -39,7 +42,7 @@ class RegisterController extends AbstractController
         $utilisateur = new Utilisateur();
         $agriculteur = new Agriculteur();
         
-        // IMPORTANT : Établir la relation des DEUX côtés
+        // Établir la relation des DEUX côtés
         $utilisateur->setAgriculteur($agriculteur);
         $agriculteur->setUtilisateur($utilisateur);
         
@@ -47,28 +50,38 @@ class RegisterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // NE PAS utiliser try/catch pendant le debug
-            $plainPassword = $form->get('plainPassword')->getData();
-            
-            $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
-            $utilisateur->setPassword($hashedPassword);
+            try {
+                $plainPassword = $form->get('plainPassword')->getData();
+                
+                $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
+                $utilisateur->setPassword($hashedPassword);
+                
+                // Email non vérifié par défaut
+                $utilisateur->setIsVerified(false);
 
-            // Re-assurer la relation (au cas où le formulaire l'aurait modifiée)
-            $agriculteur = $utilisateur->getAgriculteur();
-            $agriculteur->setUtilisateur($utilisateur);
-            
-            // Statut par défaut
-            $agriculteur->setStatuscompte('en_attente');
-            $agriculteur->setCompteverifie(false);
+                // Re-assurer la relation
+                $agriculteur = $utilisateur->getAgriculteur();
+                $agriculteur->setUtilisateur($utilisateur);
+                
+                // Statut par défaut
+                $agriculteur->setStatuscompte('en_attente');
+                $agriculteur->setCompteverifie(false);
 
-            // Persister les DEUX entités explicitement
-            $em->persist($utilisateur);
-            $em->persist($agriculteur);
-            $em->flush();
+                // Persister les DEUX entités
+                $em->persist($utilisateur);
+                $em->persist($agriculteur);
+                $em->flush();
 
-            $this->addFlash('success', 'Inscription réussie ! Votre compte est en attente de validation.');
-            
-            return $this->redirectToRoute('app_login');
+                // Envoyer l'email de vérification
+                $emailVerification->sendVerificationEmail($utilisateur);
+
+                $this->addFlash('success', 'Inscription réussie ! Un email de vérification a été envoyé à ' . $utilisateur->getEmail());
+                
+                return $this->redirectToRoute('app_login');
+                
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de l\'inscription : ' . $e->getMessage());
+            }
         }
 
         return $this->render('security/register_agriculteur.html.twig', [
@@ -80,7 +93,8 @@ class RegisterController extends AbstractController
     public function registerBanque(
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EmailVerificationService $emailVerification
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
@@ -89,7 +103,7 @@ class RegisterController extends AbstractController
         $utilisateur = new Utilisateur();
         $banque = new Banque();
         
-        // IMPORTANT : Établir la relation des DEUX côtés
+        // Établir la relation des DEUX côtés
         $utilisateur->setBanque($banque);
         $banque->setUtilisateur($utilisateur);
         
@@ -97,31 +111,41 @@ class RegisterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // NE PAS utiliser try/catch pendant le debug
-            $plainPassword = $form->get('plainPassword')->getData();
-            
-            $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
-            $utilisateur->setPassword($hashedPassword);
+            try {
+                $plainPassword = $form->get('plainPassword')->getData();
+                
+                $hashedPassword = $passwordHasher->hashPassword($utilisateur, $plainPassword);
+                $utilisateur->setPassword($hashedPassword);
+                
+                // Email non vérifié par défaut
+                $utilisateur->setIsVerified(false);
 
-            // Re-assurer la relation
-            $banque = $utilisateur->getBanque();
-            $banque->setUtilisateur($utilisateur);
-            
-            // Convertir le code banque en majuscules
-            $banque->setCodebanque(strtoupper($banque->getCodebanque()));
-            
-            // Statut par défaut
-            $banque->setStatusCompte('en_attente');
-            $banque->setCompteVerfiee(false);
+                // Re-assurer la relation
+                $banque = $utilisateur->getBanque();
+                $banque->setUtilisateur($utilisateur);
+                
+                // Convertir le code banque en majuscules
+                $banque->setCodebanque(strtoupper($banque->getCodebanque()));
+                
+                // Statut par défaut
+                $banque->setStatusCompte('en_attente');
+                $banque->setCompteVerfiee(false);
 
-            // Persister les DEUX entités explicitement
-            $em->persist($utilisateur);
-            $em->persist($banque);
-            $em->flush();
+                // Persister les DEUX entités
+                $em->persist($utilisateur);
+                $em->persist($banque);
+                $em->flush();
 
-            $this->addFlash('success', 'Inscription réussie ! Votre compte est en attente de validation.');
-            
-            return $this->redirectToRoute('app_login');
+                // Envoyer l'email de vérification
+                $emailVerification->sendVerificationEmail($utilisateur);
+
+                $this->addFlash('success', 'Inscription réussie ! Un email de vérification a été envoyé à ' . $utilisateur->getEmail());
+                
+                return $this->redirectToRoute('app_login');
+                
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de l\'inscription : ' . $e->getMessage());
+            }
         }
 
         return $this->render('security/register_banque.html.twig', [
