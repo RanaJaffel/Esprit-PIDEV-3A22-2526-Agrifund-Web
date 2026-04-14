@@ -2,263 +2,520 @@
 
 {% block title %}{{ project.nomproject }}{% endblock %}
 
+{% block body_class %}agriculteur-page{% endblock %}
+
 {% block hide_preloader %}true{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <style>
-        :root {
-            --green-dark:  #1B4D1F;
-            --green-mid:   #2E7D32;
-            --green-light: #81C784;
-            --green-pale:  #E8F5E9;
-        }
+<style>
+    /* ── CSS Variables ── */
+    :root {
+        --green-dark:  #1B5E20;
+        --green-mid:   #2E7D32;
+        --green-light: #4CAF50;
+        --green-pale:  #E8F5E9;
+        --green-accent:#A5D6A7;
+    }
 
-        .main-content {
-            margin-left: 280px;
-            padding: 24px;
-            min-height: 100vh;
-            background: #f4f6f9;
-        }
+    body.agriculteur-page {
+        background: #f4f6f3;
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-        /* ── Page Header ── */
-        .page-header {
-            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
-            border-radius: 14px;
-            padding: 1.5rem 2rem;
-            margin-bottom: 1.8rem;
+    /* ── Layout ── */
+    .main-content-wrapper {
+        margin-left: 280px;
+        padding: 30px;
+        min-height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+        .main-content-wrapper {
+            margin-left: 0;
+            padding: 70px 15px 20px;
+        }
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+        border-radius: 16px;
+        padding: 24px 30px;
+        margin-bottom: 24px;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #fff;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    /* ── Header action buttons ── */
+    .btn-header-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #F9A825, #F57F17);
+        color: #212529;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(249,168,37,0.35);
+        transition: all 0.3s ease;
+    }
+
+    .btn-header-edit:hover {
+        background: linear-gradient(135deg, #FFB300, #E65100);
+        color: #212529;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(249,168,37,0.45);
+    }
+
+    .btn-header-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        border-radius: 10px;
+        border: 2px solid rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
+    }
+
+    .btn-header-back:hover {
+        background: rgba(255,255,255,0.25);
+        border-color: rgba(255,255,255,0.8);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    /* ── Cards ── */
+    .card-agri {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+        overflow: hidden;
+        background: #fff;
+        height: 100%;
+    }
+
+    .card-agri .card-header {
+        background: var(--green-pale);
+        border-bottom: 2px solid var(--green-light);
+        padding: 16px 22px;
+    }
+
+    .card-agri .card-body {
+        padding: 22px;
+    }
+
+    /* ── Status Badges ── */
+    .badge-encours {
+        background: #FFF9C4;
+        color: #F57F17;
+        border: 1px solid #F9A825;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-approuve {
+        background: #E8F5E9;
+        color: #2E7D32;
+        border: 1px solid #81C784;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-refuse {
+        background: #FFEBEE;
+        color: #C62828;
+        border: 1px solid #EF9A9A;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-termine {
+        background: #E3F2FD;
+        color: #1565C0;
+        border: 1px solid #90CAF9;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* ── Detail Table ── */
+    .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .detail-table tr {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .detail-table th {
+        color: #777;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 12px 10px 12px 0;
+        width: 42%;
+        vertical-align: top;
+    }
+
+    .detail-table td {
+        color: #222;
+        padding: 12px 0;
+        vertical-align: top;
+    }
+
+    /* ── Resource list ── */
+    .resource-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 22px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s ease;
+    }
+
+    .resource-item:last-child {
+        border-bottom: none;
+    }
+
+    .resource-item:hover {
+        background: #fafff9;
+    }
+
+    .resource-name {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 3px;
+        font-size: 0.95rem;
+    }
+
+    .resource-meta {
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+    .resource-total {
+        font-weight: 700;
+        color: var(--green-mid);
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #aaa;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    /* ── Resources total footer ── */
+    .resources-total-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 22px;
+        background: var(--green-pale);
+        border-top: 2px solid var(--green-light);
+    }
+
+    /* ── Add resource button ── */
+    .btn-add-resource {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 16px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(76,175,80,0.25);
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-resource:hover {
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(76,175,80,0.35);
+    }
+
+    /* ── Mobile toggle ── */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 998;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 991.98px) {
+        .mobile-sidebar-toggle {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .page-header h2 { color: #fff; margin: 0; }
-
-        /* ── Cards ── */
-        .card-agri {
-            border: none;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        .card-agri .card-header {
-            background: var(--green-pale);
-            border-bottom: 2px solid var(--green-light);
-            padding: 1rem 1.5rem;
-        }
-        .card-agri .card-body { padding: 1.5rem; }
-
-        /* ── Badges ── */
-        .badge-encours  { background:#FFF9C4; color:#F57F17; border:1px solid #F9A825; }
-        .badge-approuve { background:#E8F5E9; color:#2E7D32; border:1px solid #81C784; }
-        .badge-refuse   { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; }
-        .badge-termine  { background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; }
-
-        /* ── Buttons ── */
-        .btn-agri-primary {
-            background: var(--green-mid);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        .btn-agri-primary:hover {
-            background: var(--green-dark);
-            color: #fff;
         }
 
-        .btn { border-radius: 8px; font-weight: 600; }
-        .btn-warning { background:#F9A825; color:#212529; border:none; }
-        .btn-warning:hover { background:#F57F17; color:#212529; }
-        .btn-light { background:#fff; border:1px solid #ddd; color:#333; }
-        .btn-light:hover { background:#f0f0f0; }
-
-        /* ── Table ── */
-        .table th { color: #666; font-weight: 600; width: 40%; }
-        .table td { color: #333; }
-
-        /* ── List group ── */
-        .list-group-item {
-            padding: 1rem 1.5rem;
-            border-left: none;
-            border-right: none;
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
-        .list-group-item:first-child { border-top: none; }
 
-        /* ── Breadcrumb ── */
-        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
-        .breadcrumb-item a:hover { color: #fff; }
-        .breadcrumb-item.active { color: #fff; }
-        .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,0.5); }
-
-        /* ── Responsive ── */
-        @media (max-width: 768px) {
-            .main-content { margin-left: 0; padding: 15px; }
-            .page-header { flex-direction: column; gap: 1rem; }
+        .header-actions {
+            width: 100%;
+            display: flex;
+            gap: 10px;
         }
-    </style>
+
+        .btn-header-edit,
+        .btn-header-back {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
 {% endblock %}
 
-{# ===================== BODY ===================== #}
 {% block body %}
 
-    {% include 'components/_sidebar_agriculteur.html.twig' %}
+{# Mobile sidebar toggle #}
+<button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+    <i class="fas fa-bars"></i>
+</button>
 
-    <div class="main-content">
+{# Sidebar #}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
 
-        {# ── Page Header ── #}
-        <div class="page-header">
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-1">
-                        <li class="breadcrumb-item">
-                            <a href="{{ path('agriculteur_project_agricole_index') }}">
-                                Mes Projets
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active">{{ project.nomproject }}</li>
-                    </ol>
-                </nav>
-                <h2 class="fw-bold mb-0">
-                    <i class="bi bi-kanban me-2"></i>
-                    {{ project.nomproject }}
-                    <span class="badge ms-2"
-                          style="background:#A5D6A7; color:#1B5E20; font-size:.7em;">
-                        AGRICULTEUR
-                    </span>
-                </h2>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ path('agriculteur_project_agricole_edit', {id: project.idproject}) }}"
-                   class="btn btn-warning">
-                    <i class="bi bi-pencil me-1"></i> Modifier
-                </a>
-                <a href="{{ path('agriculteur_project_agricole_index') }}"
-                   class="btn btn-light">
-                    <i class="bi bi-arrow-left me-1"></i> Mes Projets
-                </a>
+{# ── Main Content ── #}
+<div class="main-content-wrapper">
+
+    {# ── Page Header ── #}
+    <div class="page-header">
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-kanban me-2"></i>
+                {{ project.nomproject }}
+                <span class="badge ms-2"
+                      style="background:rgba(255,255,255,0.2);
+                             color:#fff;font-size:.6em;
+                             vertical-align:middle;">
+                    AGRICULTEUR
+                </span>
+            </h2>
+        </div>
+
+        <div class="header-actions d-flex gap-2">
+            <a href="{{ path('agriculteur_project_agricole_edit', {id: project.idproject}) }}"
+               class="btn-header-edit">
+                <i class="bi bi-pencil"></i>
+                Modifier
+            </a>
+            <a href="{{ path('agriculteur_project_agricole_index') }}"
+               class="btn-header-back">
+                <i class="bi bi-arrow-left"></i>
+                Mes Projets
+            </a>
+        </div>
+    </div>
+
+    {# ── Content Row ── #}
+    <div class="row g-4">
+
+        {# ── Details Card ── #}
+        <div class="col-lg-5">
+            <div class="card card-agri">
+                <div class="card-header">
+                    <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                        <i class="bi bi-info-circle me-2"></i>Détails du Projet
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="detail-table">
+                        <tr>
+                            <th>Nom du projet</th>
+                            <td class="fw-semibold">{{ project.nomproject }}</td>
+                        </tr>
+                        <tr>
+                            <th>Surface</th>
+                            <td>{{ project.surface|number_format(2, ',', '.') }} ha</td>
+                        </tr>
+                        <tr>
+                            <th>Budget demandé</th>
+                            <td class="fw-bold" style="color:var(--green-mid);">
+                                {{ project.budgetdemande|number_format(2, ',', ' ') }} TND
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Statut</th>
+                            <td>
+                                {% set statut = project.statut|lower %}
+                                <span class="
+                                    {% if 'en cours' in statut %}badge-encours
+                                    {% elseif 'approuv' in statut or 'accept' in statut %}badge-approuve
+                                    {% elseif 'refus' in statut %}badge-refuse
+                                    {% else %}badge-termine{% endif %}">
+                                    {{ project.statut }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date de soumission</th>
+                            <td>{{ project.datesoumission|date('d/m/Y') }}</td>
+                        </tr>
+                        {% if project.latitude is defined and project.latitude %}
+                        <tr>
+                            <th>📍 Localisation</th>
+                            <td>
+                                {{ project.latitude|number_format(4, ',', '.') }},
+                                {{ project.longitude|number_format(4, ',', '.') }}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
             </div>
         </div>
 
-        {# ── Content Row ── #}
-        <div class="row g-4">
-
-            {# ── Details Card ── #}
-            <div class="col-lg-5">
-                <div class="card card-agri h-100">
-                    <div class="card-header">
-                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
-                            <i class="bi bi-info-circle me-2"></i>Détails du Projet
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-borderless mb-0">
-                            <tr>
-                                <th>Nom</th>
-                                <td class="fw-semibold">{{ project.nomproject }}</td>
-                            </tr>
-                            <tr>
-                                <th>Surface</th>
-                                <td>{{ project.surface|number_format(2, ',', '.') }} ha</td>
-                            </tr>
-                            <tr>
-                                <th>Budget Demandé</th>
-                                <td class="fw-semibold text-success">
-                                    {{ project.budgetdemande|number_format(2, ',', ' ') }} TND
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Statut</th>
-                                <td>
-                                    {% set statut = project.statut|lower %}
-                                    <span class="badge
-                                        {% if statut == 'en cours' %}badge-encours
-                                        {% elseif statut == 'approuvé' or statut == 'accepte' %}badge-approuve
-                                        {% elseif statut == 'refusé' or statut == 'refuse' %}badge-refuse
-                                        {% else %}badge-termine{% endif %}">
-                                        {{ project.statut }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Date Soumission</th>
-                                <td>{{ project.datesoumission|date('d/m/Y') }}</td>
-                            </tr>
-                            {% if project.latitude is defined and project.latitude %}
-                            <tr>
-                                <th>📍 Localisation</th>
-                                <td>
-                                    {{ project.latitude|number_format(4, ',', '.') }},
-                                    {{ project.longitude|number_format(4, ',', '.') }}
-                                </td>
-                            </tr>
-                            {% endif %}
-                        </table>
-                    </div>
+        {# ── Resources Card ── #}
+        <div class="col-lg-7">
+            <div class="card card-agri">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                        <i class="bi bi-box-seam me-2"></i>
+                        Ressources
+                        <span class="badge bg-secondary ms-1"
+                              style="font-size:0.75em;">
+                            {{ project.ressources|length }}
+                        </span>
+                    </h5>
+                    <a href="{{ path('agriculteur_ressource_project_new') }}"
+                       class="btn-add-resource">
+                        <i class="bi bi-plus-lg"></i> Ajouter
+                    </a>
                 </div>
-            </div>
 
-            {# ── Resources Card ── #}
-            <div class="col-lg-7">
-                <div class="card card-agri h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
-                            <i class="bi bi-box-seam me-2"></i>
-                            Ressources
-                            <span class="badge bg-secondary ms-1">
-                                {{ project.ressources|length }}
-                            </span>
-                        </h5>
-                        <a href="{{ path('agriculteur_ressource_project_new') }}"
-                           class="btn btn-sm btn-agri-primary">
-                            <i class="bi bi-plus"></i> Ajouter
-                        </a>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if project.ressources is empty %}
-                            <div class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox" style="font-size:2.5rem;"></i>
-                                <p class="mt-2 mb-0">Aucune ressource ajoutée.</p>
-                            </div>
-                        {% else %}
-                            <ul class="list-group list-group-flush">
-                                {% for ressource in project.ressources %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-1 fw-semibold">
-                                                {{ ressource.nomressource }}
-                                            </h6>
-                                            <small class="text-muted">
-                                                {{ ressource.typeressource }}
-                                                • Qté: {{ ressource.quantite }}
-                                                • Prix unit: {{ ressource.cout }} TND
-                                            </small>
-                                        </div>
-                                        <span class="fw-semibold text-success">
-                                            {{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND
+                <div class="card-body p-0">
+                    {% if project.ressources is empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p class="mb-0 fw-semibold">Aucune ressource ajoutée</p>
+                            <small>Cliquez sur « Ajouter » pour commencer.</small>
+                        </div>
+                    {% else %}
+                        {# Resource list #}
+                        {% set total = 0 %}
+                        {% for ressource in project.ressources %}
+                            {% set lineTotal = ressource.cout * ressource.quantite %}
+                            {% set total = total + lineTotal %}
+                            <div class="resource-item">
+                                <div>
+                                    <div class="resource-name">
+                                        {{ ressource.nomressource }}
+                                    </div>
+                                    <div class="resource-meta">
+                                        <span class="badge"
+                                              style="background:#e0f2e9;color:#2E7D32;
+                                                     font-size:0.75em;font-weight:600;">
+                                            {{ ressource.typeressource }}
                                         </span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-
-                            {# ── Total ── #}
-                            <div class="p-3 text-end border-top"
-                                 style="background:var(--green-pale);">
-                                <strong>Total Ressources : </strong>
-                                <span class="text-success fw-bold fs-5">
-                                    {% set total = 0 %}
-                                    {% for r in project.ressources %}
-                                        {% set total = total + (r.cout * r.quantite) %}
-                                    {% endfor %}
-                                    {{ total|number_format(2, ',', ' ') }} TND
-                                </span>
+                                        &nbsp;Qté : <strong>{{ ressource.quantite }}</strong>
+                                        &nbsp;·&nbsp;
+                                        Prix unit. : <strong>{{ ressource.cout }} TND</strong>
+                                    </div>
+                                </div>
+                                <div class="resource-total">
+                                    {{ lineTotal|number_format(2, ',', ' ') }} TND
+                                </div>
                             </div>
-                        {% endif %}
-                    </div>
+                        {% endfor %}
+
+                        {# Total bar #}
+                        <div class="resources-total-bar">
+                            <span class="text-muted fw-semibold" style="font-size:0.9rem;">
+                                <i class="bi bi-calculator me-1"></i>Total Ressources
+                            </span>
+                            <span class="fw-bold fs-5" style="color:var(--green-mid);">
+                                {{ total|number_format(2, ',', ' ') }} TND
+                            </span>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
+        </div>
 
-        </div>{# end row #}
+    </div>{# end row #}
 
-    </div>{# end main-content #}
+</div>{# end main-content-wrapper #}
 
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const wrapper = document.querySelector('.main-content-wrapper');
+
+    if (sidebar && wrapper) {
+        new MutationObserver(function () {
+            wrapper.style.marginLeft =
+                sidebar.classList.contains('collapsed') ? '80px' : '280px';
+        }).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+
+        if (sidebar.classList.contains('collapsed')) {
+            wrapper.style.marginLeft = '80px';
+        }
+    }
+});
+</script>
 {% endblock %}
