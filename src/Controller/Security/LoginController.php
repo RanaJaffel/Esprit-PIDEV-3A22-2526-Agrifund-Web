@@ -5,6 +5,7 @@ namespace App\Controller\Security;
 
 use App\Service\TwoFactorAuthService;
 use Doctrine\ORM\EntityManagerInterface;
+use ReCaptcha\ReCaptcha;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,19 +15,42 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class LoginController extends AbstractController
 {
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
-    {
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+        Request $request
+    ): Response {
         // Si déjà connecté, rediriger selon le rôle
         if ($this->getUser()) {
             // Vérifier si la 2FA est requise
             $user = $this->getUser();
             if ($user->has2FAEnabled()) {
-                $session = $this->container->get('request_stack')->getCurrentRequest()->getSession();
+                $session = $request->getSession();
                 if (!$session->get('2fa_verified')) {
                     return $this->redirectToRoute('app_login_2fa');
                 }
             }
             return $this->redirectToRoute($this->getRedirectRoute());
+        }
+
+        // Vérifier le CAPTCHA si le formulaire est soumis
+        if ($request->isMethod('POST')) {
+            $recaptchaResponse = $request->request->get('g-recaptcha-response');
+            
+            if (empty($recaptchaResponse)) {
+                $this->addFlash('error', 'Veuillez cocher la case "Je ne suis pas un robot"');
+            } else {
+                $recaptcha = new ReCaptcha($this->getParameter('recaptcha_secret_key'));
+                $resp = $recaptcha->setExpectedHostname($request->getHost())
+                                  ->verify($recaptchaResponse, $request->getClientIp());
+                
+                if (!$resp->isSuccess()) {
+                    $errors = $resp->getErrorCodes();
+                    $this->addFlash('error', 'Validation CAPTCHA échouée. Veuillez réessayer.');
+                    
+                    // Log les erreurs pour le débogage
+                    error_log('reCAPTCHA errors: ' . implode(', ', $errors));
+                }
+            }
         }
 
         // Récupérer l'erreur de connexion s'il y en a une
@@ -38,6 +62,7 @@ class LoginController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
+            'recaptcha_site_key' => $this->getParameter('recaptcha_site_key'),
         ]);
     }
 

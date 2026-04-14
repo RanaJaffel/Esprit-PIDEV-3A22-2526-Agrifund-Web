@@ -775,6 +775,7 @@
 
     .input-group:nth-child(1) { animation-delay: 0.55s; }
     .input-group:nth-child(2) { animation-delay: 0.7s; }
+    .input-group:nth-child(3) { animation-delay: 0.85s; }
 
     @keyframes inputFadeIn {
         from {
@@ -867,13 +868,35 @@
         width: calc(100% - 4px);
     }
 
+    /* reCAPTCHA Styling */
+    .recaptcha-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #f9fafb;
+        border-radius: 16px;
+        border: 2px dashed #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .recaptcha-wrapper:hover {
+        border-color: #3f9e4d;
+        background: white;
+    }
+
+    .g-recaptcha {
+        transform: scale(0.95);
+        transform-origin: center;
+    }
+
     /* Options Row */
     .options-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 32px;
-        animation: inputFadeIn 0.6s ease-out 0.85s forwards;
+        animation: inputFadeIn 0.6s ease-out 1s forwards;
         opacity: 0;
     }
 
@@ -999,7 +1022,7 @@
         justify-content: center;
         gap: 12px;
         transition: all 0.4s ease;
-        animation: inputFadeIn 0.6s ease-out 1s forwards;
+        animation: inputFadeIn 0.6s ease-out 1.15s forwards;
         opacity: 0;
         position: relative;
         overflow: hidden;
@@ -1066,7 +1089,7 @@
         align-items: center;
         gap: 18px;
         margin: 38px 0;
-        animation: inputFadeIn 0.6s ease-out 1.15s forwards;
+        animation: inputFadeIn 0.6s ease-out 1.3s forwards;
         opacity: 0;
     }
 
@@ -1086,7 +1109,7 @@
 
     /* Register Section */
     .register-section {
-        animation: inputFadeIn 0.6s ease-out 1.3s forwards;
+        animation: inputFadeIn 0.6s ease-out 1.45s forwards;
         opacity: 0;
     }
 
@@ -1180,7 +1203,7 @@
         margin-top: 32px;
         padding-top: 22px;
         border-top: 1px solid #f3f4f6;
-        animation: inputFadeIn 0.6s ease-out 1.45s forwards;
+        animation: inputFadeIn 0.6s ease-out 1.6s forwards;
         opacity: 0;
     }
 
@@ -1234,6 +1257,10 @@
             gap: 18px;
             align-items: flex-start;
         }
+
+        .g-recaptcha {
+            transform: scale(0.85);
+        }
     }
 
     @media (max-width: 480px) {
@@ -1243,6 +1270,15 @@
 
         .welcome-text {
             font-size: 1.6rem;
+        }
+
+        .g-recaptcha {
+            transform: scale(0.77);
+            transform-origin: 0 0;
+        }
+
+        .recaptcha-wrapper {
+            padding: 5px;
         }
     }
 </style>
@@ -1394,6 +1430,13 @@
                         </div>
                     {% endfor %}
 
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+
                     <form method="post" action="{{ path('app_login') }}" id="loginForm">
                         <div class="input-group">
                             <label class="input-label">
@@ -1425,8 +1468,18 @@
                                        name="password"
                                        required
                                        autocomplete="current-password"
-                                       placeholder="••••••••">
+                                       placeholder="•••���••••">
                                 <div class="input-highlight"></div>
+                            </div>
+                        </div>
+
+                        <!-- reCAPTCHA -->
+                        <div class="input-group">
+                            <div class="recaptcha-wrapper">
+                                <div class="g-recaptcha" 
+                                     data-sitekey="{{ recaptcha_site_key }}"
+                                     data-theme="light">
+                                </div>
                             </div>
                         </div>
 
@@ -1483,7 +1536,11 @@
     </div>
 
     {% include 'partials/_footer.html.twig' %}
+{% endblock %}
 
+{% block javascripts %}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
@@ -1504,6 +1561,39 @@
 
             // Form submit handler
             loginForm.addEventListener('submit', function(e) {
+                // Vérifier si le CAPTCHA est coché
+                const recaptchaResponse = grecaptcha.getResponse();
+                
+                if (!recaptchaResponse) {
+                    e.preventDefault();
+                    
+                    // Créer une alerte visuelle
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.style.animation = 'alertPop 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                    alertDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i><span>Veuillez cocher la case "Je ne suis pas un robot"</span>';
+                    
+                    const formHeader = document.querySelector('.form-header');
+                    formHeader.parentNode.insertBefore(alertDiv, formHeader.nextSibling);
+                    
+                    // Scroll vers le CAPTCHA
+                    document.querySelector('.g-recaptcha').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Faire vibrer le wrapper du CAPTCHA
+                    const recaptchaWrapper = document.querySelector('.recaptcha-wrapper');
+                    recaptchaWrapper.style.animation = 'inputShake 0.5s ease-out';
+                    setTimeout(() => {
+                        recaptchaWrapper.style.animation = '';
+                    }, 500);
+                    
+                    // Retirer l'alerte après 5 secondes
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 5000);
+                    
+                    return false;
+                }
+                
                 // Show loading overlay
                 loadingOverlay.classList.add('active');
                 
