@@ -62,9 +62,13 @@ class ProjectAgricoleController extends AbstractController
 
         $totalBudget   = array_sum(array_map(fn($p) => (float) $p->getBudgetdemande(), $projects));
         $totalSurface  = array_sum(array_map(fn($p) => $p->getSurface(), $projects));
-        $countApprouve = count(array_filter($projects, fn($p) => $p->getStatut() === 'accepte'));
-        $countEncours  = count(array_filter($projects, fn($p) => $p->getStatut() === 'en cours'));
-        $countRefuse   = count(array_filter($projects, fn($p) => $p->getStatut() === 'refuse'));
+
+        // FIX: status strings must match exactly what is stored in the database
+        // and what the Twig templates display: 'Accepté', 'En cours', 'Refusé', 'Terminé'
+        $countApprouve = count(array_filter($projects, fn($p) => $p->getStatut() === 'Accepté'));
+        $countEncours  = count(array_filter($projects, fn($p) => $p->getStatut() === 'En cours'));
+        $countRefuse   = count(array_filter($projects, fn($p) => $p->getStatut() === 'Refusé'));
+        $countTermine  = count(array_filter($projects, fn($p) => $p->getStatut() === 'Terminé'));
 
         $html = $this->renderView('agriculteur/project_agricole/export_pdf.html.twig', [
             'projects'      => $projects,
@@ -74,6 +78,7 @@ class ProjectAgricoleController extends AbstractController
             'countApprouve' => $countApprouve,
             'countEncours'  => $countEncours,
             'countRefuse'   => $countRefuse,
+            'countTermine'  => $countTermine,  // FIX: was missing entirely
         ]);
 
         $options = new Options();
@@ -89,7 +94,7 @@ class ProjectAgricoleController extends AbstractController
         $pdfContent = $dompdf->output();
 
         return new Response($pdfContent, 200, [
-            'Content-Type' => 'application/octet-stream',
+            'Content-Type'        => 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
@@ -133,7 +138,7 @@ class ProjectAgricoleController extends AbstractController
         }
 
         return $this->render('agriculteur/project_agricole/show.html.twig', [
-            'project' => $project
+            'project' => $project,
         ]);
     }
 
