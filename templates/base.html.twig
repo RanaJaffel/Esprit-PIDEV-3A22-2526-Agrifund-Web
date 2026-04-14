@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}AgriFund{% endblock %}</title>
     <meta name="description" content="Plateforme de financement agricole">
 
@@ -28,12 +29,8 @@
     <!-- Main CSS File -->
     <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet">
 
-    {# ==========================
-       AgriFund IoT Theme (global)
-       Place ces fichiers dans public/ui/
-       ========================== #}
+    {# AgriFund IoT Theme (optionnel) #}
     <link rel="stylesheet" href="{{ asset('ui/agrifund-iot.css') }}">
-    {# Si tu n'as pas créé ce fichier, commente la ligne suivante #}
     <link rel="stylesheet" href="{{ asset('ui/agrifund-iot-admin.css') }}">
 
     {% block stylesheets %}{% endblock %}
@@ -48,7 +45,7 @@
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
-    <!-- Preloader - Seulement pour les pages publiques -->
+    <!-- Preloader -->
     {% if block('hide_preloader') is not defined %}
         <div id="preloader"></div>
     {% endif %}
@@ -63,12 +60,10 @@
     <!-- Main JS File -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
 
-    {# ==========================
-       AgriFund IoT JS (reveal animations)
-       ========================== #}
+    <!-- AgriFund IoT JS -->
     <script defer src="{{ asset('ui/agrifund-iot.js') }}"></script>
 
-    <!-- Force hide preloader after 2 seconds -->
+    <!-- Force hide preloader -->
     <script>
         (function() {
             function hidePreloader() {
@@ -77,18 +72,12 @@
                     preloader.style.transition = 'opacity 0.3s ease';
                     preloader.style.opacity = '0';
                     setTimeout(function() {
-                        preloader.style.display = 'none';
                         preloader.remove();
                     }, 300);
                 }
             }
 
-            if (document.readyState === 'complete') {
-                hidePreloader();
-            } else {
-                window.addEventListener('load', hidePreloader);
-            }
-
+            window.addEventListener('load', hidePreloader);
             setTimeout(hidePreloader, 2000);
         })();
     </script>

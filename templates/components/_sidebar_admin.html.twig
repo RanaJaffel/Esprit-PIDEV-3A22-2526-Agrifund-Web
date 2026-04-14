@@ -1,7 +1,7 @@
 {# templates/components/_sidebar_admin.html.twig #}
 
 <aside class="admin-sidebar" id="sidebar">
-    
+
     {# Background Effects #}
     <div class="sidebar-bg-effects">
         <div class="sidebar-glow"></div>
@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    {# Header #}
+    {# ============ HEADER ============ #}
     <div class="sidebar-header">
         <div class="brand-logo">
             <div class="logo-icon">
@@ -32,18 +32,16 @@
         </button>
     </div>
 
-    {# User Card #}
+    {# ============ USER CARD ============ #}
     <div class="sidebar-user-section">
         <div class="user-card">
             <div class="user-avatar-wrapper">
                 <div class="user-avatar">
                     {% if app.user.photo %}
-                        <img src="{{ asset(app.user.photo) }}" 
-                             alt="{{ app.user.nomComplet }}">
+                        <img src="{{ asset(app.user.photo) }}" alt="{{ app.user.nomComplet }}">
                     {% else %}
                         <div class="avatar-placeholder">
-                            {{ app.user.prenom|slice(0,1)|upper }}
-                            {{ app.user.nom|slice(0,1)|upper }}
+                            {{ app.user.prenom|slice(0,1)|upper }}{{ app.user.nom|slice(0,1)|upper }}
                         </div>
                     {% endif %}
                 </div>
@@ -58,17 +56,18 @@
                     Administrateur
                 </span>
             </div>
-            <a href="{{ path('admin_profile_show') }}" 
-               class="user-action-btn" title="Mon profil">
-                <i class="fas fa-cog"></i>
-            </a>
+            <div class="user-actions">
+                <a href="{{ path('admin_profile_show') }}" class="user-action-btn" title="Mon profil">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </div>
         </div>
     </div>
 
-    {# Navigation #}
+    {# ============ NAVIGATION ============ #}
     <nav class="sidebar-nav">
 
-        {# Principal #}
+        {# --- Principal --- #}
         <div class="nav-section">
             <span class="nav-section-title">
                 <span class="section-line"></span>
@@ -76,14 +75,9 @@
                 <span class="section-line"></span>
             </span>
             <ul class="nav-menu">
-                <li class="nav-item 
-                    {{ app.request.get('_route') == 'admin_dashboard' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_dashboard') }}" 
-                       class="nav-link" data-tooltip="Tableau de bord">
-                        <span class="nav-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
+                    <a href="{{ path('admin_dashboard') }}" class="nav-link" data-tooltip="Tableau de bord">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
                         <span class="nav-text">Tableau de bord</span>
                         <span class="nav-indicator"></span>
                     </a>
@@ -91,7 +85,7 @@
             </ul>
         </div>
 
-        {# Gestion #}
+        {# --- Gestion --- #}
         <div class="nav-section">
             <span class="nav-section-title">
                 <span class="section-line"></span>
@@ -99,76 +93,80 @@
                 <span class="section-line"></span>
             </span>
             <ul class="nav-menu">
-
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_users' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_users_index') }}" 
-                       class="nav-link" data-tooltip="Utilisateurs">
-                        <span class="nav-icon">
-                            <i class="fas fa-users"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_users' ? 'active' : '' }}">
+                    <a href="{{ path('admin_users_index') }}" class="nav-link" data-tooltip="Utilisateurs">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
                         <span class="nav-text">Utilisateurs</span>
+                        <span class="nav-badge users-count">--</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_agriculteurs' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_agriculteurs_index') }}" 
-                       class="nav-link" data-tooltip="Agriculteurs">
-                        <span class="nav-icon">
-                            <i class="fas fa-tractor"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_agriculteurs' ? 'active' : '' }}">
+                    <a href="{{ path('admin_agriculteurs_index') }}" class="nav-link" data-tooltip="Agriculteurs">
+                        <span class="nav-icon"><i class="fas fa-tractor"></i></span>
                         <span class="nav-text">Agriculteurs</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_banques' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_banques_index') }}" 
-                       class="nav-link" data-tooltip="Banques">
-                        <span class="nav-icon">
-                            <i class="fas fa-university"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_banques' ? 'active' : '' }}">
+                    <a href="{{ path('admin_banques_index') }}" class="nav-link" data-tooltip="Banques">
+                        <span class="nav-icon"><i class="fas fa-university"></i></span>
                         <span class="nav-text">Banques</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_documents' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_documents_index') }}" 
-                       class="nav-link" data-tooltip="Documents">
-                        <span class="nav-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_documents' ? 'active' : '' }}">
+                    <a href="{{ path('admin_documents_index') }}" class="nav-link" data-tooltip="Documents">
+                        <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
                         <span class="nav-text">Documents</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_decision' ? 'active' : '' }}">
+                    <a href="{{ path('admin_decision_index') }}" class="nav-link" data-tooltip="Décisions">
+                        <span class="nav-icon"><i class="fas fa-gavel"></i></span>
+                        <span class="nav-text">Décisions</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
             </ul>
         </div>
 
-        {# IoT & Surveillance #}
+        {# --- Projets --- #}
         <div class="nav-section">
             <span class="nav-section-title">
                 <span class="section-line"></span>
-                IoT & Surveillance
+                Projets
                 <span class="section-line"></span>
             </span>
             <ul class="nav-menu">
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_project_agricole' ? 'active' : '' }}">
+                    <a href="{{ path('admin_project_agricole_index') }}" class="nav-link" data-tooltip="Projets Agricoles">
+                        <span class="nav-icon"><i class="fas fa-leaf"></i></span>
+                        <span class="nav-text">Projets Agricoles</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_ressource_project' ? 'active' : '' }}">
+                    <a href="{{ path('admin_ressource_project_index') }}" class="nav-link" data-tooltip="Ressources Projets">
+                        <span class="nav-icon"><i class="fas fa-tools"></i></span>
+                        <span class="nav-text">Ressources Projets</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_capteur' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_capteur_index') }}" 
-                       class="nav-link iot-link" data-tooltip="Capteurs IoT">
+        {# --- IoT & Surveillance --- #}
+        <div class="nav-section">
+            <span class="nav-section-title">
+                <span class="section-line"></span>
+                IoT &amp; Surveillance
+                <span class="section-line"></span>
+            </span>
+            <ul class="nav-menu">
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_capteur' ? 'active' : '' }}">
+                    <a href="{{ path('admin_capteur_index') }}" class="nav-link iot-link" data-tooltip="Capteurs IoT">
                         <span class="nav-icon iot-icon">
                             <i class="fas fa-satellite-dish"></i>
                             <span class="iot-pulse"></span>
@@ -180,56 +178,34 @@
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-                <li class="nav-item 
-    {{ app.request.get('_route') starts with 'admin_releve_terrain'
-       ? 'active' : '' }}">
-    <a href="{{ path('admin_releve_terrain') }}"
-       class="nav-link" data-tooltip="Relevés terrain">
-        <span class="nav-icon">
-            <i class="fas fa-wave-square"></i>
-        </span>
-        <span class="nav-text">Relevés terrain</span>
-
-        {# badge optionnel "7j" (rétention) #}
-        <span class="nav-badge iot-badge">
-            7j
-        </span>
-
-        <span class="nav-indicator"></span>
-    </a>
-</li>
-
-                <li class="nav-item 
-    {{ app.request.get('_route') starts with 'admin_rapport_journalier'
-       ? 'active' : '' }}">
-    <a href="{{ path('admin_rapport_journalier') }}"
-       class="nav-link" data-tooltip="Rapports journaliers">
-        <span class="nav-icon">
-            <i class="fas fa-chart-bar"></i>
-        </span>
-        <span class="nav-text">Rapports journaliers</span>
-        <span class="nav-badge iot-badge">Daily</span>
-        <span class="nav-indicator"></span>
-    </a>
-</li>
-<li class="nav-item
-    {{ app.request.get('_route') starts with 'admin_releve_hebdo'
-       ? 'active' : '' }}">
-    <a href="{{ path('admin_releve_hebdo') }}"
-       class="nav-link" data-tooltip="Relevés hebdomadaires">
-        <span class="nav-icon">
-            <i class="fas fa-calendar-alt"></i>
-        </span>
-        <span class="nav-text">Relevés Hebdomadaires</span>
-        <span class="nav-badge iot-badge">AI Ready</span>
-        <div class="nav-indicator"></div>
-    </a>
-</li>
-
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_releve_terrain' ? 'active' : '' }}">
+                    <a href="{{ path('admin_releve_terrain') }}" class="nav-link" data-tooltip="Relevés terrain">
+                        <span class="nav-icon"><i class="fas fa-wave-square"></i></span>
+                        <span class="nav-text">Relevés terrain</span>
+                        <span class="nav-badge iot-badge">7j</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_rapport_journalier' ? 'active' : '' }}">
+                    <a href="{{ path('admin_rapport_journalier') }}" class="nav-link" data-tooltip="Rapports journaliers">
+                        <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                        <span class="nav-text">Rapports journaliers</span>
+                        <span class="nav-badge iot-badge">Daily</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_releve_hebdo' ? 'active' : '' }}">
+                    <a href="{{ path('admin_releve_hebdo') }}" class="nav-link" data-tooltip="Relevés hebdomadaires">
+                        <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
+                        <span class="nav-text">Relevés Hebdomadaires</span>
+                        <span class="nav-badge iot-badge">AI Ready</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
             </ul>
         </div>
 
-        {# Communication #}
+        {# --- Communication --- #}
         <div class="nav-section">
             <span class="nav-section-title">
                 <span class="section-line"></span>
@@ -237,27 +213,18 @@
                 <span class="section-line"></span>
             </span>
             <ul class="nav-menu">
-
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_messagerie' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_messagerie_index') }}" 
-                       class="nav-link" data-tooltip="Messagerie">
-                        <span class="nav-icon">
-                            <i class="fas fa-envelope"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_messagerie' ? 'active' : '' }}">
+                    <a href="{{ path('admin_messagerie_index') }}" class="nav-link" data-tooltip="Messagerie">
+                        <span class="nav-icon"><i class="fas fa-envelope"></i></span>
                         <span class="nav-text">Messagerie</span>
-                        <span class="nav-badge notification" 
-                              id="unread-messages-badge" 
-                              style="display:none;">0</span>
+                        <span class="nav-badge notification" id="unread-messages-badge" style="display: none;">0</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-
             </ul>
         </div>
 
-        {# Paramètres #}
+        {# --- Paramètres --- #}
         <div class="nav-section">
             <span class="nav-section-title">
                 <span class="section-line"></span>
@@ -265,59 +232,26 @@
                 <span class="section-line"></span>
             </span>
             <ul class="nav-menu">
-
-                <li class="nav-item 
-                    {{ app.request.get('_route') starts with 'admin_profile' 
-                       ? 'active' : '' }}">
-                    <a href="{{ path('admin_profile_show') }}" 
-                       class="nav-link" data-tooltip="Mon profil">
-                        <span class="nav-icon">
-                            <i class="fas fa-user-cog"></i>
-                        </span>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_profile' ? 'active' : '' }}">
+                    <a href="{{ path('admin_profile_show') }}" class="nav-link" data-tooltip="Mon profil">
+                        <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
                         <span class="nav-text">Mon profil</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
-
             </ul>
         </div>
 
-        <div class="nav-section">
-            <span class="nav-section-title">Projets</span>
-            <ul class="nav-menu">
-                <li class="nav-item {{ app.request.get('_route') starts with 'admin_project_agricole' ? 'active' : '' }}">
-                    <a href="{{ path('admin_project_agricole_index') }}" class="nav-link">
-                        <span class="nav-icon">
-                            <i class="fas fa-leaf"></i>
-                        </span>
-                        <span class="nav-text">Projets Agricoles</span>
-                        <span class="nav-indicator"></span>
-                    </a>
-                </li>
-
-                <li class="nav-item {{ app.request.get('_route') starts with 'admin_ressource_project' ? 'active' : '' }}">
-                    <a href="{{ path('admin_ressource_project_index') }}" class="nav-link">
-                        <span class="nav-icon">
-                            <i class="fas fa-tools"></i>
-                        </span>
-                        <span class="nav-text">Ressources Projets</span>
-                        <span class="nav-indicator"></span>
-                    </a>
-                </li>
-            </ul>
-        </div>
     </nav>
 
-    {# Footer #}
+    {# ============ FOOTER ============ #}
     <div class="sidebar-footer">
         <div class="system-status">
             <div class="status-dot online"></div>
             <span>Système opérationnel</span>
         </div>
         <a href="{{ path('app_logout') }}" class="logout-btn">
-            <span class="logout-icon">
-                <i class="fas fa-sign-out-alt"></i>
-            </span>
+            <span class="logout-icon"><i class="fas fa-sign-out-alt"></i></span>
             <span class="logout-text">Déconnexion</span>
             <i class="fas fa-arrow-right logout-arrow"></i>
         </a>
@@ -334,6 +268,7 @@
 <style>
 :root {
     --sidebar-width: 285px;
+    --sidebar-collapsed-width: 72px;
     --vert-vif: #089647;
     --vert-fonce: #076A39;
     --vert-foret: #095032;
@@ -350,22 +285,17 @@
 ============================================ */
 .admin-sidebar {
     position: fixed;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: var(--sidebar-width);
     height: 100vh;
-    background: linear-gradient(
-        180deg, 
-        #0a1f0a 0%, 
-        #0d2e0d 30%,
-        #0f3d0f 60%,
-        #0a2a0a 100%
-    );
+    background: linear-gradient(180deg, #0a1f0a 0%, #0d2e0d 30%, #0f3d0f 60%, #0a2a0a 100%);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    box-shadow: 4px 0 30px rgba(0,0,0,0.3);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Background Effects */
@@ -378,81 +308,55 @@
 
 .sidebar-glow {
     position: absolute;
-    top: -100px; left: -100px;
-    width: 400px; height: 400px;
-    background: radial-gradient(
-        circle, 
-        rgba(8,150,71,0.15) 0%, 
-        transparent 70%
-    );
+    top: -100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(8, 150, 71, 0.15) 0%, transparent 70%);
     animation: glowFloat 8s ease-in-out infinite;
 }
 
 .sidebar-glow::after {
     content: '';
     position: absolute;
-    bottom: -200px; right: -100px;
-    width: 300px; height: 300px;
-    background: radial-gradient(
-        circle,
-        rgba(178,217,68,0.08) 0%,
-        transparent 70%
-    );
+    bottom: -200px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(178, 217, 68, 0.08) 0%, transparent 70%);
     animation: glowFloat 12s ease-in-out infinite reverse;
 }
 
 @keyframes glowFloat {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33% { transform: translate(30px,20px) scale(1.1); }
-    66% { transform: translate(-20px,30px) scale(0.9); }
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, 20px) scale(1.1); }
+    66% { transform: translate(-20px, 30px) scale(0.9); }
 }
 
 .sidebar-pattern {
     position: absolute;
     inset: 0;
-    background-image: 
-        radial-gradient(circle at 20% 30%, 
-            rgba(178,217,68,0.03) 0%, transparent 50%),
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(178, 217, 68, 0.03) 0%, transparent 50%),
         url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 2 L22 10 L20 18 L18 10 Z' fill='%23B2D944' fill-opacity='0.02'/%3E%3C/svg%3E");
     background-size: auto, 40px 40px;
 }
 
 .sidebar-particles span {
     position: absolute;
-    width: 3px; height: 3px;
+    width: 3px;
+    height: 3px;
     background: var(--vert-clair);
     border-radius: 50%;
     opacity: 0.3;
     animation: particleFloat linear infinite;
 }
 
-.sidebar-particles span:nth-child(1) {
-    left: 20%; top: 20%;
-    animation-duration: 6s;
-    animation-delay: 0s;
-}
-.sidebar-particles span:nth-child(2) {
-    left: 60%; top: 40%;
-    animation-duration: 8s;
-    animation-delay: 1s;
-    width: 2px; height: 2px;
-}
-.sidebar-particles span:nth-child(3) {
-    left: 80%; top: 60%;
-    animation-duration: 7s;
-    animation-delay: 2s;
-}
-.sidebar-particles span:nth-child(4) {
-    left: 30%; top: 70%;
-    animation-duration: 9s;
-    animation-delay: 0.5s;
-    width: 4px; height: 4px;
-}
-.sidebar-particles span:nth-child(5) {
-    left: 50%; top: 85%;
-    animation-duration: 5s;
-    animation-delay: 1.5s;
-}
+.sidebar-particles span:nth-child(1) { left: 20%; top: 20%; animation-duration: 6s; }
+.sidebar-particles span:nth-child(2) { left: 60%; top: 40%; animation-duration: 8s; animation-delay: 1s; width: 2px; height: 2px; }
+.sidebar-particles span:nth-child(3) { left: 80%; top: 60%; animation-duration: 7s; animation-delay: 2s; }
+.sidebar-particles span:nth-child(4) { left: 30%; top: 70%; animation-duration: 9s; animation-delay: 0.5s; width: 4px; height: 4px; }
+.sidebar-particles span:nth-child(5) { left: 50%; top: 85%; animation-duration: 5s; animation-delay: 1.5s; }
 
 @keyframes particleFloat {
     0% { transform: translateY(0) scale(1); opacity: 0.3; }
@@ -470,8 +374,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    background: rgba(0,0,0,0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.15);
 }
 
 .brand-logo {
@@ -482,30 +386,21 @@
 
 .logo-icon {
     position: relative;
-    width: 50px; height: 50px;
-    background: linear-gradient(
-        135deg, 
-        var(--vert-clair) 0%, 
-        var(--vert-vif) 50%,
-        var(--vert-fonce) 100%
-    );
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-vif) 50%, var(--vert-fonce) 100%);
     border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 
-        0 8px 25px rgba(8,150,71,0.4),
-        0 0 0 1px rgba(178,217,68,0.2),
-        inset 0 1px 0 rgba(255,255,255,0.2);
+    box-shadow: 0 8px 25px rgba(8, 150, 71, 0.4), 0 0 0 1px rgba(178, 217, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .logo-icon:hover {
     transform: rotate(-8deg) scale(1.08);
-    box-shadow: 
-        0 12px 35px rgba(8,150,71,0.5),
-        0 0 0 2px rgba(178,217,68,0.4);
+    box-shadow: 0 12px 35px rgba(8, 150, 71, 0.5), 0 0 0 2px rgba(178, 217, 68, 0.4);
 }
 
 .logo-icon i {
@@ -524,7 +419,7 @@
 }
 
 @keyframes logoPulse {
-    0%,100% { opacity: 0; transform: scale(1); }
+    0%, 100% { opacity: 0; transform: scale(1); }
     50% { opacity: 0.3; transform: scale(1.05); }
 }
 
@@ -558,9 +453,10 @@
 }
 
 .sidebar-toggle-btn {
-    width: 36px; height: 36px;
+    width: 36px;
+    height: 36px;
     border: none;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     color: white;
     cursor: pointer;
@@ -571,7 +467,7 @@
 }
 
 .sidebar-toggle-btn:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     transform: rotate(90deg);
 }
 
@@ -589,19 +485,19 @@
     align-items: center;
     gap: 12px;
     padding: 14px 16px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .user-card:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(178,217,68,0.2);
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(178, 217, 68, 0.2);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 .user-avatar-wrapper {
@@ -610,24 +506,20 @@
 }
 
 .user-avatar {
-    width: 46px; height: 46px;
+    width: 46px;
+    height: 46px;
     border-radius: 13px;
     overflow: hidden;
-    background: linear-gradient(
-        135deg, 
-        var(--jaune-moutarde) 0%, 
-        var(--olive) 100%
-    );
+    background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--olive) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 
-        0 4px 15px rgba(0,0,0,0.25),
-        0 0 0 2px rgba(225,179,35,0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(225, 179, 35, 0.3);
 }
 
 .user-avatar img {
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
@@ -639,8 +531,10 @@
 
 .user-status {
     position: absolute;
-    bottom: -2px; right: -2px;
-    width: 13px; height: 13px;
+    bottom: -2px;
+    right: -2px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
     border: 2.5px solid #0d2e0d;
     display: flex;
@@ -650,7 +544,7 @@
 
 .user-status.online {
     background: var(--vert-clair);
-    box-shadow: 0 0 8px rgba(178,217,68,0.6);
+    box-shadow: 0 0 8px rgba(178, 217, 68, 0.6);
 }
 
 .user-status i {
@@ -684,22 +578,30 @@
 }
 
 .user-role.admin {
-    background: rgba(225,179,35,0.15);
+    background: rgba(225, 179, 35, 0.15);
     color: var(--jaune-moutarde);
-    border: 1px solid rgba(225,179,35,0.2);
+    border: 1px solid rgba(225, 179, 35, 0.2);
+}
+
+.user-role i {
+    font-size: 0.6rem;
+}
+
+.user-actions {
+    flex-shrink: 0;
 }
 
 .user-action-btn {
-    width: 32px; height: 32px;
+    width: 32px;
+    height: 32px;
     border-radius: 9px;
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     transition: all 0.3s ease;
-    flex-shrink: 0;
     font-size: 0.85rem;
 }
 
@@ -707,7 +609,7 @@
     background: var(--jaune-moutarde);
     color: white;
     transform: rotate(90deg);
-    box-shadow: 0 4px 15px rgba(225,179,35,0.3);
+    box-shadow: 0 4px 15px rgba(225, 179, 35, 0.3);
 }
 
 /* ============================================
@@ -720,19 +622,12 @@
     overflow-y: auto;
     padding: 8px 0 16px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.1) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
-.sidebar-nav::-webkit-scrollbar {
-    width: 3px;
-}
-.sidebar-nav::-webkit-scrollbar-track {
-    background: transparent;
-}
-.sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-}
+.sidebar-nav::-webkit-scrollbar { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
 
 .nav-section {
     padding: 0 14px;
@@ -746,7 +641,7 @@
     font-size: 0.62rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: rgba(255,255,255,0.25);
+    color: rgba(255, 255, 255, 0.25);
     font-weight: 700;
     padding: 14px 10px 8px;
 }
@@ -754,12 +649,7 @@
 .section-line {
     flex: 1;
     height: 1px;
-    background: linear-gradient(
-        90deg, 
-        transparent, 
-        rgba(255,255,255,0.1), 
-        transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 .nav-menu {
@@ -779,8 +669,8 @@
     padding: 11px 12px;
     border-radius: 13px;
     text-decoration: none !important;
-    color: rgba(255,255,255,0.6);
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
@@ -789,11 +679,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        90deg, 
-        rgba(8,150,71,0.15), 
-        rgba(178,217,68,0.05)
-    );
+    background: linear-gradient(90deg, rgba(8, 150, 71, 0.15), rgba(178, 217, 68, 0.05));
     opacity: 0;
     transition: opacity 0.3s ease;
     border-radius: 13px;
@@ -801,7 +687,7 @@
 
 .nav-link:hover {
     color: white !important;
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
     transform: translateX(5px);
 }
 
@@ -811,12 +697,8 @@
 
 .nav-item.active .nav-link {
     color: white !important;
-    background: linear-gradient(
-        90deg, 
-        rgba(8,150,71,0.25), 
-        rgba(178,217,68,0.08)
-    );
-    border: 1px solid rgba(178,217,68,0.15);
+    background: linear-gradient(90deg, rgba(8, 150, 71, 0.25), rgba(178, 217, 68, 0.08));
+    border: 1px solid rgba(178, 217, 68, 0.15);
 }
 
 .nav-item.active .nav-link::before {
@@ -825,9 +707,10 @@
 
 .nav-icon {
     position: relative;
-    width: 38px; height: 38px;
+    width: 38px;
+    height: 38px;
     border-radius: 11px;
-    background: rgba(255,255,255,0.07);
+    background: rgba(255, 255, 255, 0.07);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -837,57 +720,56 @@
 }
 
 .nav-link:hover .nav-icon {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     transform: scale(1.1);
 }
 
 .nav-item.active .nav-icon {
-    background: linear-gradient(
-        135deg, 
-        var(--vert-vif) 0%, 
-        var(--vert-clair) 100%
-    );
-    box-shadow: 
-        0 4px 15px rgba(8,150,71,0.35),
-        inset 0 1px 0 rgba(255,255,255,0.2);
+    background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-clair) 100%);
+    box-shadow: 0 4px 15px rgba(8, 150, 71, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.nav-link:hover .nav-icon i {
+    transform: scale(1.15);
+}
+
+.nav-icon i {
+    transition: transform 0.3s ease;
+}
+
+.nav-item.active .nav-icon i {
+    animation: iconBounce 0.5s ease;
+}
+
+@keyframes iconBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
 }
 
 /* IoT Special Styling */
 .iot-icon {
-    background: linear-gradient(
-        135deg,
-        rgba(8,150,71,0.2),
-        rgba(178,217,68,0.1)
-    ) !important;
-    border: 1px solid rgba(178,217,68,0.2);
+    background: linear-gradient(135deg, rgba(8, 150, 71, 0.2), rgba(178, 217, 68, 0.1)) !important;
+    border: 1px solid rgba(178, 217, 68, 0.2);
 }
 
 .iot-pulse {
     position: absolute;
-    top: 6px; right: 6px;
-    width: 7px; height: 7px;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
     background: var(--vert-clair);
     border-radius: 50%;
     animation: iotPulse 2s ease-in-out infinite;
 }
 
 @keyframes iotPulse {
-    0%,100% { 
-        opacity: 1; 
-        box-shadow: 0 0 0 0 rgba(178,217,68,0.5);
-    }
-    50% { 
-        opacity: 0.8;
-        box-shadow: 0 0 0 4px rgba(178,217,68,0);
-    }
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(178, 217, 68, 0.5); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(178, 217, 68, 0); }
 }
 
 .nav-item.active .iot-icon {
-    background: linear-gradient(
-        135deg,
-        var(--vert-vif) 0%,
-        var(--vert-clair) 100%
-    ) !important;
+    background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-clair) 100%) !important;
     border-color: transparent;
 }
 
@@ -915,13 +797,18 @@
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: white;
     animation: pulseBadge 2s infinite;
-    box-shadow: 0 2px 8px rgba(239,68,68,0.4);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.nav-badge.users-count {
+    background: rgba(225, 179, 35, 0.2);
+    color: var(--jaune-moutarde);
 }
 
 .iot-badge {
-    background: rgba(178,217,68,0.15);
+    background: rgba(178, 217, 68, 0.15);
     color: var(--vert-clair);
-    border: 1px solid rgba(178,217,68,0.25);
+    border: 1px solid rgba(178, 217, 68, 0.25);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -934,27 +821,25 @@
 }
 
 @keyframes pulseBadge {
-    0%,100% { opacity: 1; transform: scale(1); }
+    0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.7; transform: scale(1.05); }
 }
 
 .nav-indicator {
     position: absolute;
-    right: 0; top: 50%;
+    right: 0;
+    top: 50%;
     transform: translateY(-50%);
-    width: 3px; height: 0;
-    background: linear-gradient(
-        180deg, 
-        var(--vert-clair), 
-        var(--vert-vif)
-    );
+    width: 3px;
+    height: 0;
+    background: linear-gradient(180deg, var(--vert-clair), var(--vert-vif));
     border-radius: 2px 0 0 2px;
-    transition: height 0.4s cubic-bezier(0.4,0,0.2,1);
+    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-item.active .nav-indicator {
     height: 55%;
-    box-shadow: 0 0 8px rgba(178,217,68,0.5);
+    box-shadow: 0 0 8px rgba(178, 217, 68, 0.5);
 }
 
 /* ============================================
@@ -964,8 +849,8 @@
     position: relative;
     z-index: 1;
     padding: 16px 20px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    background: rgba(0,0,0,0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.15);
 }
 
 .system-status {
@@ -973,32 +858,33 @@
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: rgba(8,150,71,0.08);
+    background: rgba(8, 150, 71, 0.08);
     border-radius: 10px;
-    border: 1px solid rgba(8,150,71,0.15);
+    border: 1px solid rgba(8, 150, 71, 0.15);
     margin-bottom: 12px;
 }
 
 .status-dot {
-    width: 8px; height: 8px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
 .status-dot.online {
     background: var(--vert-clair);
-    box-shadow: 0 0 0 3px rgba(178,217,68,0.2);
+    box-shadow: 0 0 0 3px rgba(178, 217, 68, 0.2);
     animation: dotPulse 2s infinite;
 }
 
 @keyframes dotPulse {
-    0%,100% { box-shadow: 0 0 0 3px rgba(178,217,68,0.2); }
-    50% { box-shadow: 0 0 0 5px rgba(178,217,68,0.1); }
+    0%, 100% { box-shadow: 0 0 0 3px rgba(178, 217, 68, 0.2); }
+    50% { box-shadow: 0 0 0 5px rgba(178, 217, 68, 0.1); }
 }
 
 .system-status span {
     font-size: 0.72rem;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     font-weight: 500;
 }
 
@@ -1009,8 +895,8 @@
     width: 100%;
     padding: 12px 16px;
     border-radius: 13px;
-    background: rgba(239,68,68,0.08);
-    border: 1px solid rgba(239,68,68,0.15);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.15);
     color: #fca5a5;
     text-decoration: none !important;
     font-weight: 500;
@@ -1019,17 +905,18 @@
 }
 
 .logout-btn:hover {
-    background: rgba(239,68,68,0.18);
-    border-color: rgba(239,68,68,0.35);
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.35);
     color: white !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(239,68,68,0.2);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.2);
 }
 
 .logout-icon {
-    width: 34px; height: 34px;
+    width: 34px;
+    height: 34px;
     border-radius: 10px;
-    background: rgba(239,68,68,0.12);
+    background: rgba(239, 68, 68, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1038,7 +925,7 @@
 }
 
 .logout-btn:hover .logout-icon {
-    background: rgba(239,68,68,0.25);
+    background: rgba(239, 68, 68, 0.25);
 }
 
 .logout-text {
@@ -1061,7 +948,7 @@
 .sidebar-version {
     text-align: center;
     font-size: 0.65rem;
-    color: rgba(255,255,255,0.2);
+    color: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1074,12 +961,12 @@
 }
 
 /* ============================================
-   MOBILE
+   OVERLAY & MOBILE
 ============================================ */
 .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(5px);
     z-index: 999;
     opacity: 0;
@@ -1099,7 +986,14 @@
     }
     .admin-sidebar.show {
         transform: translateX(0);
-        box-shadow: 4px 0 40px rgba(0,0,0,0.4);
+        box-shadow: 4px 0 40px rgba(0, 0, 0, 0.4);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .admin-sidebar {
+        width: 100%;
+        max-width: 300px;
     }
 }
 
@@ -1107,12 +1001,12 @@
    COLLAPSED STATE
 ============================================ */
 .admin-sidebar.collapsed {
-    width: 72px;
+    width: var(--sidebar-collapsed-width);
 }
 
 .admin-sidebar.collapsed .logo-text,
 .admin-sidebar.collapsed .user-details,
-.admin-sidebar.collapsed .user-action-btn,
+.admin-sidebar.collapsed .user-actions,
 .admin-sidebar.collapsed .nav-section-title,
 .admin-sidebar.collapsed .nav-text,
 .admin-sidebar.collapsed .nav-badge,
@@ -1124,24 +1018,28 @@
     width: 0;
     overflow: hidden;
     pointer-events: none;
+    visibility: hidden;
+}
+
+.admin-sidebar.collapsed .brand-logo,
+.admin-sidebar.collapsed .user-card,
+.admin-sidebar.collapsed .nav-link,
+.admin-sidebar.collapsed .logout-btn {
+    justify-content: center;
 }
 
 .admin-sidebar.collapsed .user-card,
 .admin-sidebar.collapsed .nav-link,
 .admin-sidebar.collapsed .logout-btn {
-    justify-content: center;
     padding: 10px;
 }
 
-.admin-sidebar.collapsed .brand-logo {
-    justify-content: center;
+.admin-sidebar.collapsed .nav-icon,
+.admin-sidebar.collapsed .logout-icon {
+    margin: 0;
 }
 
-/* Tooltips collapsed */
-.admin-sidebar.collapsed .nav-link {
-    position: relative;
-}
-
+/* Tooltips when collapsed */
 .admin-sidebar.collapsed .nav-link:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -1155,9 +1053,26 @@
     font-size: 0.82rem;
     font-weight: 500;
     white-space: nowrap;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     z-index: 1001;
+}
+
+/* Ripple effect */
+.nav-link .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(0);
+    animation: rippleAnim 0.5s ease-out;
+    pointer-events: none;
+}
+
+@keyframes rippleAnim {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
 }
 </style>
 
@@ -1166,8 +1081,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
     const closeBtn = document.getElementById('sidebarClose');
+    const toggleBtn = document.getElementById('sidebarToggle');
 
-    // Close
+    // Open sidebar (mobile)
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.add('show');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    // Close sidebar
     function closeSidebar() {
         sidebar.classList.remove('show');
         overlay.classList.remove('active');
@@ -1177,52 +1102,53 @@ document.addEventListener('DOMContentLoaded', function() {
     if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
     if (overlay) overlay.addEventListener('click', closeSidebar);
 
-    // Double-click logo to collapse
+    // Double-click logo to collapse (desktop only)
     const logoIcon = document.querySelector('.logo-icon');
-    if (logoIcon && window.innerWidth > 991) {
-        logoIcon.addEventListener('dblclick', () => {
-            sidebar.classList.toggle('collapsed');
-            localStorage.setItem(
-                'admin-sidebar-collapsed', 
-                sidebar.classList.contains('collapsed')
-            );
+    if (logoIcon) {
+        logoIcon.addEventListener('dblclick', function() {
+            if (window.innerWidth > 991) {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('admin-sidebar-collapsed', sidebar.classList.contains('collapsed'));
+            }
         });
     }
 
-    // Restore state
-    if (localStorage.getItem('admin-sidebar-collapsed') === 'true' 
-        && window.innerWidth > 991) {
+    // Restore collapsed state
+    if (localStorage.getItem('admin-sidebar-collapsed') === 'true' && window.innerWidth > 991) {
         sidebar.classList.add('collapsed');
     }
 
-    // Ripple on nav links
-    document.querySelectorAll('.nav-link').forEach(link => {
+    // Set data-tooltip attributes from nav-text
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+        var text = link.querySelector('.nav-text');
+        if (text && !link.getAttribute('data-tooltip')) {
+            link.setAttribute('data-tooltip', text.textContent.trim());
+        }
+    });
+
+    // Ripple effect on nav links
+    document.querySelectorAll('.nav-link').forEach(function(link) {
         link.addEventListener('click', function(e) {
-            const ripple = document.createElement('span');
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            ripple.style.cssText = `
-                position: absolute;
-                background: rgba(255,255,255,0.15);
-                border-radius: 50%;
-                width: ${size}px; height: ${size}px;
-                left: ${e.clientX - rect.left - size/2}px;
-                top: ${e.clientY - rect.top - size/2}px;
-                transform: scale(0);
-                animation: rippleAnim 0.5s ease-out;
-                pointer-events: none;
-            `;
+            var ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            var rect = this.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var x = e.clientX - rect.left - size / 2;
+            var y = e.clientY - rect.top - size / 2;
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
             this.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 500);
+            setTimeout(function() { ripple.remove(); }, 600);
         });
     });
 
-    // Unread badge
-    function updateBadge() {
+    // Update unread messages badge
+    function updateUnreadBadge() {
         fetch('/api/messages/unread-count')
-            .then(r => r.json())
-            .then(data => {
-                const badge = document.getElementById('unread-messages-badge');
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('unread-messages-badge');
                 if (badge) {
                     if (data.count > 0) {
                         badge.textContent = data.count > 99 ? '99+' : data.count;
@@ -1231,10 +1157,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         badge.style.display = 'none';
                     }
                 }
-            }).catch(() => {});
+            })
+            .catch(function() {});
     }
 
-    updateBadge();
-    setInterval(updateBadge, 60000);
+    updateUnreadBadge();
+    setInterval(updateUnreadBadge, 60000);
 });
 </script>

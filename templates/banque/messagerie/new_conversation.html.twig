@@ -9,10 +9,16 @@
         .user-list-item {
             padding: 15px;
             border-bottom: 1px solid #e9ecef;
+<<<<<<< HEAD
+=======
+            cursor: pointer;
+            transition: background var(--transition-fast);
+>>>>>>> origin/chedy
             text-decoration: none;
             color: inherit;
             display: flex;
             align-items: center;
+<<<<<<< HEAD
             gap: 15px;
             transition: background 0.2s;
         }
@@ -20,11 +26,20 @@
             background: rgba(225, 179, 35, 0.05);
             text-decoration: none;
         }
+=======
+        }
+        
+        .user-list-item:hover {
+            background: rgba(225, 179, 35, 0.05);
+        }
+        
+>>>>>>> origin/chedy
         .user-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
             object-fit: cover;
+<<<<<<< HEAD
             flex-shrink: 0;
         }
         .user-avatar-placeholder {
@@ -66,11 +81,29 @@
         .users-list {
             max-height: 65vh;
             overflow-y: auto;
+=======
+            margin-right: 15px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--vert-fonce);
+        }
+        
+        .user-email {
+            color: var(--gris);
+            font-size: 0.9rem;
+>>>>>>> origin/chedy
         }
     </style>
 {% endblock %}
 
 {% block body %}
+<<<<<<< HEAD
 <div class="dashboard-container">
     {% include 'components/_sidebar_banque.html.twig' %}
 
@@ -213,11 +246,58 @@
                                     {% elseif user.agriculteur.statuscompte == 'en_attente' %}
                                         <span class="badge bg-warning-subtle text-warning" style="font-size:0.65rem;">
                                             En attente
+=======
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_banque.html.twig' %}
+        
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>Nouvelle conversation
+                </h1>
+                <a href="{{ path('banque_messagerie_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+            
+            <div class="dashboard-section">
+                <h5 class="mb-4">Sélectionnez un utilisateur pour démarrer une conversation</h5>
+                
+                {% if available_users|length > 0 %}
+                    <div class="list-group">
+                        {% for user in available_users %}
+                            <a href="{{ path('banque_messagerie_start', {userId: user.id}) }}" 
+                               class="user-list-item list-group-item list-group-item-action">
+                                <div>
+                                    {% if user.photo %}
+                                        <img src="{{ asset(user.photo) }}" 
+                                             alt="{{ user.nomComplet }}" 
+                                             class="user-avatar">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-3x text-muted me-3"></i>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="user-info">
+                                    <div class="user-name">{{ user.nomComplet }}</div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                </div>
+                                
+                                <div>
+                                    {% if user.admin %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-user-shield me-1"></i>Admin
+                                        </span>
+                                    {% elseif user.agriculteur %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-tractor me-1"></i>Agriculteur
+>>>>>>> origin/chedy
                                         </span>
                                     {% endif %}
                                 </div>
                             </a>
                         {% endfor %}
+<<<<<<< HEAD
                     {% endif %}
 
                     <div id="noResults" class="text-center text-muted py-5" style="display:none;">
@@ -237,10 +317,24 @@
         </div>
     </div>
 </div>
+=======
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-users fa-5x mb-3 d-block"></i>
+                        <h5>Aucun utilisateur disponible</h5>
+                        <p>Il n'y a actuellement aucun utilisateur avec qui vous pouvez démarrer une conversation.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+>>>>>>> origin/chedy
 {% endblock %}
 
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
+<<<<<<< HEAD
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchUser');
@@ -280,4 +374,6 @@
             });
         });
     </script>
+=======
+>>>>>>> origin/chedy
 {% endblock %}

@@ -97,6 +97,7 @@
             {% include 'components/_flash_messages.html.twig' %}
             
             <div class="dashboard-section">
+<<<<<<< HEAD
                 {% if conversationsData|length > 0 %}
                     <div class="conversations-list">
                         {% for data in conversationsData %}
@@ -104,10 +105,19 @@
                             {% set otherUser = data.otherUser %}
                             {% set lastMessage = data.lastMessage %}
                             {% set unreadCount = data.unreadCount %}
+=======
+                {% if conversations|length > 0 %}
+                    <div class="conversations-list">
+                        {% for conversation in conversations %}
+                            {% set otherUserId = conversation.getOtherUserId(current_user.id) %}
+                            {% set lastMessage = conversation.lastMessage %}
+                            {% set unreadCount = conversation.getUnreadMessagesCount(current_user.id) %}
+>>>>>>> origin/chedy
                             
                             <a href="{{ path('banque_messagerie_chat', {id: conversation.id}) }}" 
                                class="conversation-item d-flex align-items-center {{ unreadCount > 0 ? 'unread' : '' }}">
                                 <div>
+<<<<<<< HEAD
                                     {% if otherUser.photo %}
                                         <img src="{{ asset(otherUser.photo) }}" 
                                              alt="{{ otherUser.nomComplet }}" 
@@ -134,6 +144,20 @@
                                             {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0, 50) ~ '...' : lastMessage.contenu }}
                                         {% else %}
                                             <em>Aucun message</em>
+=======
+                                    <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                </div>
+                                
+                                <div class="conversation-info">
+                                    <div class="conversation-name">
+                                        Conversation #{{ conversation.id }}
+                                    </div>
+                                    <div class="conversation-preview">
+                                        {% if lastMessage %}
+                                            {{ lastMessage.contenu|length > 50 ? lastMessage.contenu|slice(0, 50) ~ '...' : lastMessage.contenu }}
+                                        {% else %}
+                                            Aucun message
+>>>>>>> origin/chedy
                                         {% endif %}
                                     </div>
                                 </div>
@@ -143,7 +167,11 @@
                                         {{ conversation.derniereActivite|date('d/m/Y H:i') }}
                                     </div>
                                     {% if unreadCount > 0 %}
+<<<<<<< HEAD
                                         <div class="conversation-badge mt-2 ms-auto">
+=======
+                                        <div class="conversation-badge mt-2">
+>>>>>>> origin/chedy
                                             {{ unreadCount }}
                                         </div>
                                     {% endif %}
