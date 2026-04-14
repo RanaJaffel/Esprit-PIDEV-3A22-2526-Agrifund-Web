@@ -1,0 +1,129 @@
+{# templates/agriculteur/project_agricole/_form.html.twig #}
+{# Uses ProjectAgricoleAgriculteurType — statut is intentionally absent #}
+{# Pure server-side validation — no HTML5 constraints, no JavaScript.  #}
+
+<div class="row g-3">
+
+    {# ── Nom du projet ── #}
+    <div class="col-12">
+        <label for="{{ form.nomproject.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-card-heading me-1 text-success"></i>
+            {{ form.nomproject.vars.label }}
+        </label>
+        {{ form_widget(form.nomproject, {
+            'attr': {'class': 'form-control' ~ (form.nomproject.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.nomproject.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.nomproject.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Entre 3 et 150 caractères.</div>
+    </div>
+
+    {# ── Surface ── #}
+    <div class="col-md-6">
+        <label for="{{ form.surface.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-rulers me-1 text-success"></i>
+            {{ form.surface.vars.label }}
+        </label>
+        {{ form_widget(form.surface, {
+            'attr': {'class': 'form-control' ~ (form.surface.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.surface.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.surface.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Valeur positive, max 100 000 ha.</div>
+    </div>
+
+    {# ── Budget demandé ── #}
+    <div class="col-md-6">
+        <label for="{{ form.budgetdemande.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-cash-coin me-1 text-success"></i>
+            {{ form.budgetdemande.vars.label }}
+        </label>
+        {{ form_widget(form.budgetdemande, {
+            'attr': {'class': 'form-control' ~ (form.budgetdemande.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.budgetdemande.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.budgetdemande.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Valeur positive en TND.</div>
+    </div>
+
+    {# ── Date de soumission ── #}
+    <div class="col-12">
+        <label for="{{ form.datesoumission.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-calendar-date me-1 text-success"></i>
+            {{ form.datesoumission.vars.label }}
+        </label>
+        {{ form_widget(form.datesoumission, {
+            'attr': {'class': 'form-control' ~ (form.datesoumission.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.datesoumission.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.datesoumission.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Doit être la date d'aujourd'hui uniquement.</div>
+    </div>
+
+    {# ── GPS separator ── #}
+    <div class="col-12">
+        <hr class="my-1">
+        <p class="text-muted small mb-2">
+            <i class="bi bi-geo-alt me-1"></i>Localisation GPS de votre ferme (optionnel)
+        </p>
+    </div>
+
+    {# ── Latitude ── #}
+    <div class="col-md-6">
+        <label for="{{ form.latitude.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-geo-alt me-1 text-success"></i>
+            {{ form.latitude.vars.label }}
+        </label>
+        {{ form_widget(form.latitude, {
+            'attr': {'class': 'form-control' ~ (form.latitude.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.latitude.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.latitude.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Entre -90° et 90°.</div>
+    </div>
+
+    {# ── Longitude ── #}
+    <div class="col-md-6">
+        <label for="{{ form.longitude.vars.id }}" class="form-label fw-semibold">
+            <i class="bi bi-geo me-1 text-success"></i>
+            {{ form.longitude.vars.label }}
+        </label>
+        {{ form_widget(form.longitude, {
+            'attr': {'class': 'form-control' ~ (form.longitude.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.longitude.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.longitude.vars.errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">Entre -180° et 180°.</div>
+    </div>
+
+</div>

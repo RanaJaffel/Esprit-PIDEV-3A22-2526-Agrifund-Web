@@ -124,27 +124,29 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
      * Trouve les utilisateurs pour la messagerie (admins et banques pour agriculteur)
      */
     public function findAvailableForMessaging(Utilisateur $currentUser): array
-    {
-        $qb = $this->createQueryBuilder('u')
-            ->leftJoin('u.admin', 'a')
-            ->leftJoin('u.agriculteur', 'ag')
-            ->leftJoin('u.banque', 'b')
-            ->where('u.id != :currentId')
-            ->setParameter('currentId', $currentUser->getId());
+{
+    $qb = $this->createQueryBuilder('u')
+        ->leftJoin('u.admin', 'a')
+        ->leftJoin('u.agriculteur', 'ag')
+        ->leftJoin('u.banque', 'b')
+        ->where('u.id != :currentId')
+        ->setParameter('currentId', $currentUser->getId());
 
-        // Si agriculteur : peut parler aux admins et banques
-        if ($currentUser->getAgriculteur()) {
-            $qb->andWhere('a.id IS NOT NULL OR b.id IS NOT NULL');
-        }
-        // Si banque : peut parler aux admins et agriculteurs
-        elseif ($currentUser->getBanque()) {
-            $qb->andWhere('a.id IS NOT NULL OR ag.id IS NOT NULL');
-        }
-        // Si admin : peut parler à tout le monde (pas de restriction)
-
-        return $qb->orderBy('u.nom', 'ASC')
-            ->addOrderBy('u.prenom', 'ASC')
-            ->getQuery()
-            ->getResult();
+    // Admin peut parler à tout le monde
+    if ($currentUser->getAdmin()) {
+        // aucune restriction
     }
+    // Banque peut parler aux admins et agriculteurs
+    elseif ($currentUser->getBanque()) {
+        $qb->andWhere('a.id IS NOT NULL OR ag.id IS NOT NULL');
+    }
+    // Agriculteur peut parler aux admins et banques
+    elseif ($currentUser->getAgriculteur()) {
+        $qb->andWhere('a.id IS NOT NULL OR b.id IS NOT NULL');
+    }
+
+    return $qb->orderBy('u.nom', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
 }

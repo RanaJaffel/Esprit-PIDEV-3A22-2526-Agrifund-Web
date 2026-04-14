@@ -9,129 +9,284 @@
         .user-list-item {
             padding: 15px;
             border-bottom: 1px solid #e9ecef;
-            cursor: pointer;
-            transition: background var(--transition-fast);
             text-decoration: none;
             color: inherit;
             display: flex;
             align-items: center;
+            gap: 15px;
+            transition: background 0.2s;
         }
-        
         .user-list-item:hover {
             background: rgba(178, 217, 68, 0.05);
+            text-decoration: none;
         }
-        
         .user-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 15px;
+            flex-shrink: 0;
         }
-        
-        .user-info {
-            flex: 1;
+        .user-avatar-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        
+        .user-info { flex: 1; min-width: 0; }
         .user-name {
             font-weight: 600;
             color: var(--vert-fonce);
+            margin-bottom: 3px;
         }
-        
         .user-email {
-            color: var(--gris);
-            font-size: 0.9rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        
-        .user-type-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 500;
+        .user-extra {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        .search-box {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .users-list {
+            max-height: 65vh;
+            overflow-y: auto;
         }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="dashboard-container">
-        {% include 'components/_sidebar_agriculteur.html.twig' %}
-        
-        <div class="main-content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">
-                    <i class="fas fa-plus me-2"></i>Nouvelle conversation
-                </h1>
-                <a href="{{ path('agriculteur_messagerie_index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Retour
-                </a>
-            </div>
-            
-            <div class="dashboard-section">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Information:</strong> Vous pouvez communiquer avec les administrateurs et les banques.
+<div class="dashboard-container">
+    {% include 'components/_sidebar_agriculteur.html.twig' %}
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">
+                <i class="fas fa-plus me-2"></i>Nouvelle conversation
+            </h1>
+            <a href="{{ path('agriculteur_messagerie_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+
+        {% include 'components/_flash_messages.html.twig' %}
+
+        <div class="alert alert-info mx-0 mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Information :</strong> En tant qu'agriculteur, vous pouvez communiquer avec les
+            <strong>administrateurs</strong> et les <strong>banques</strong>.
+        </div>
+
+        <div class="dashboard-section p-0">
+            {% if available_users|length > 0 %}
+
+                <div class="search-box">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text"
+                               class="form-control border-start-0"
+                               id="searchUser"
+                               placeholder="Rechercher..."
+                               autocomplete="off">
+                    </div>
                 </div>
-                
-                <h5 class="mb-4">Sélectionnez un utilisateur pour démarrer une conversation</h5>
-                
-                {% if available_users|length > 0 %}
-                    <div class="list-group">
-                        {% for user in available_users %}
-                            <a href="{{ path('agriculteur_messagerie_start', {userId: user.id}) }}" 
-                               class="user-list-item list-group-item list-group-item-action">
+
+                <div class="px-3 py-2 border-bottom bg-light">
+                    <small class="text-muted">
+                        <span id="userCount">{{ available_users|length }}</span> contact(s) disponible(s)
+                    </small>
+                </div>
+
+                <div class="users-list" id="usersList">
+
+                    {# Admins #}
+                    {% set admins = available_users|filter(u => u.admin is not null) %}
+                    {% if admins|length > 0 %}
+                        <div class="px-3 py-2 bg-light border-bottom user-group-header">
+                            <small class="fw-bold text-uppercase text-danger">
+                                <i class="fas fa-user-shield me-1"></i>Administrateurs ({{ admins|length }})
+                            </small>
+                        </div>
+                        {% for user in admins %}
+                            <a href="{{ path('agriculteur_messagerie_start', {userId: user.id}) }}"
+                               class="user-list-item list-group-item list-group-item-action user-item"
+                               data-name="{{ user.nomComplet|lower }}"
+                               data-email="{{ user.email|lower }}">
+
                                 <div>
                                     {% if user.photo %}
-                                        <img src="{{ asset(user.photo) }}" 
-                                             alt="{{ user.nomComplet }}" 
-                                             class="user-avatar">
-                                    {% elseif user.banque and user.banque.logo %}
-                                        <img src="{{ asset(user.banque.logo) }}" 
-                                             alt="{{ user.nom }}" 
+                                        <img src="{{ asset(user.photo) }}"
+                                             alt="{{ user.nomComplet }}"
                                              class="user-avatar">
                                     {% else %}
-                                        <i class="fas fa-user-circle fa-3x text-muted me-3"></i>
+                                        <div class="user-avatar-placeholder">
+                                            <i class="fas fa-user-shield text-danger"></i>
+                                        </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 <div class="user-info">
-                                    <div class="user-name">
-                                        {% if user.admin or user.agriculteur %}
-                                            {{ user.nomComplet }}
-                                        {% elseif user.banque %}
-                                            {{ user.nom }}
-                                        {% endif %}
-                                    </div>
+                                    <div class="user-name">{{ user.nomComplet }}</div>
                                     <div class="user-email">{{ user.email }}</div>
-                                    {% if user.banque and user.banque.codebanque %}
-                                        <small class="text-muted">Code: {{ user.banque.codebanque }}</small>
+                                    {% if user.tel %}
+                                        <div class="user-extra">
+                                            <i class="fas fa-phone me-1"></i>{{ user.tel }}
+                                        </div>
                                     {% endif %}
                                 </div>
-                                
+
+                                <div class="flex-shrink-0">
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-user-shield me-1"></i>Admin
+                                    </span>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+
+                    {# Banques #}
+                    {% set banques = available_users|filter(u => u.banque is not null) %}
+                    {% if banques|length > 0 %}
+                        <div class="px-3 py-2 bg-light border-bottom border-top user-group-header">
+                            <small class="fw-bold text-uppercase text-warning">
+                                <i class="fas fa-university me-1"></i>Banques ({{ banques|length }})
+                            </small>
+                        </div>
+                        {% for user in banques %}
+                            <a href="{{ path('agriculteur_messagerie_start', {userId: user.id}) }}"
+                               class="user-list-item list-group-item list-group-item-action user-item"
+                               data-name="{{ user.nom|lower }}"
+                               data-email="{{ user.email|lower }}">
+
                                 <div>
-                                    {% if user.admin %}
-                                        <span class="badge bg-danger user-type-badge">
-                                            <i class="fas fa-user-shield me-1"></i>Administrateur
-                                        </span>
-                                    {% elseif user.banque %}
-                                        <span class="badge bg-warning user-type-badge">
-                                            <i class="fas fa-university me-1"></i>Banque
+                                    {% if user.banque.logo %}
+                                        <img src="{{ asset(user.banque.logo) }}"
+                                             alt="{{ user.nom }}"
+                                             class="user-avatar">
+                                    {% elseif user.photo %}
+                                        <img src="{{ asset(user.photo) }}"
+                                             alt="{{ user.nom }}"
+                                             class="user-avatar">
+                                    {% else %}
+                                        <div class="user-avatar-placeholder">
+                                            <i class="fas fa-university text-warning"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="user-info">
+                                    <div class="user-name">{{ user.nom }}</div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                    {% if user.banque.codebanque %}
+                                        <div class="user-extra">
+                                            <i class="fas fa-id-card me-1"></i>Code : {{ user.banque.codebanque }}
+                                        </div>
+                                    {% endif %}
+                                    {% if user.banque.adresseAgence %}
+                                        <div class="user-extra">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ user.banque.adresseAgence }}
+                                        </div>
+                                    {% endif %}
+                                    {% if user.banque.siteweb %}
+                                        <div class="user-extra">
+                                            <i class="fas fa-globe me-1"></i>
+                                            <a href="{{ user.banque.siteweb }}" target="_blank"
+                                               onclick="event.stopPropagation()">
+                                                {{ user.banque.siteweb }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="flex-shrink-0 text-end">
+                                    <span class="badge bg-warning text-dark mb-1 d-block">
+                                        <i class="fas fa-university me-1"></i>Banque
+                                    </span>
+                                    {% if user.banque.statusCompte == 'actif' %}
+                                        <span class="badge bg-success-subtle text-success" style="font-size:0.65rem;">
+                                            <i class="fas fa-check-circle me-1"></i>Vérifiée
                                         </span>
                                     {% endif %}
                                 </div>
                             </a>
                         {% endfor %}
+                    {% endif %}
+
+                    <div id="noResults" class="text-center text-muted py-5" style="display:none;">
+                        <i class="fas fa-search fa-3x mb-3 d-block opacity-25"></i>
+                        <p>Aucun contact trouvé pour cette recherche.</p>
                     </div>
-                {% else %}
-                    <div class="text-center text-muted py-5">
-                        <i class="fas fa-users fa-5x mb-3 d-block"></i>
-                        <h5>Aucun utilisateur disponible</h5>
-                        <p>Il n'y a actuellement aucun utilisateur avec qui vous pouvez démarrer une conversation.</p>
-                    </div>
-                {% endif %}
-            </div>
+
+                </div>
+
+            {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-users fa-5x mb-3 d-block opacity-25"></i>
+                    <h5>Aucun contact disponible</h5>
+                    <p>Il n'y a actuellement aucun administrateur ou banque disponible.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchUser');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.user-item');
+                const groups = document.querySelectorAll('.user-group-header');
+                const noResults = document.getElementById('noResults');
+                const userCount = document.getElementById('userCount');
+
+                let visibleCount = 0;
+
+                items.forEach(function (item) {
+                    const name = item.dataset.name || '';
+                    const email = item.dataset.email || '';
+                    const matches = name.includes(query) || email.includes(query);
+                    item.style.display = matches ? '' : 'none';
+                    if (matches) visibleCount++;
+                });
+
+                groups.forEach(function (group) {
+                    let nextEl = group.nextElementSibling;
+                    let hasVisible = false;
+                    while (nextEl && !nextEl.classList.contains('user-group-header')) {
+                        if (nextEl.classList.contains('user-item') && nextEl.style.display !== 'none') {
+                            hasVisible = true;
+                        }
+                        nextEl = nextEl.nextElementSibling;
+                    }
+                    group.style.display = hasVisible ? '' : 'none';
+                });
+
+                userCount.textContent = visibleCount;
+                noResults.style.display = visibleCount === 0 ? '' : 'none';
+            });
+        });
+    </script>
 {% endblock %}

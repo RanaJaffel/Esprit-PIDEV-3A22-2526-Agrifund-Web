@@ -1,0 +1,541 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ressource.nomressource }}{% endblock %}
+
+{% block body_class %}agriculteur-page{% endblock %}
+
+{% block hide_preloader %}true{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ── CSS Variables ── */
+    :root {
+        --green-dark:  #1B5E20;
+        --green-mid:   #2E7D32;
+        --green-light: #4CAF50;
+        --green-pale:  #E8F5E9;
+        --green-accent:#A5D6A7;
+    }
+
+    body.agriculteur-page {
+        background: #f4f6f3;
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ── Layout ── */
+    .main-content-wrapper {
+        margin-left: 280px;
+        padding: 30px;
+        min-height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+        .main-content-wrapper {
+            margin-left: 0;
+            padding: 70px 15px 20px;
+        }
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+        border-radius: 16px;
+        padding: 24px 30px;
+        margin-bottom: 24px;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+        color: #fff;
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    /* ── Header buttons ── */
+    .btn-header-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #F9A825, #F57F17);
+        color: #212529;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(249,168,37,0.35);
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-header-edit:hover {
+        background: linear-gradient(135deg, #FFB300, #E65100);
+        color: #212529;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(249,168,37,0.45);
+    }
+
+    .btn-header-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        border-radius: 10px;
+        border: 2px solid rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-header-back:hover {
+        background: rgba(255,255,255,0.25);
+        border-color: rgba(255,255,255,0.8);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    /* ── Card ── */
+    .card-agri {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .card-agri .card-header {
+        background: var(--green-pale);
+        border-bottom: 2px solid var(--green-light);
+        padding: 18px 24px;
+    }
+
+    .card-agri .card-body {
+        padding: 8px 0;
+    }
+
+    .card-agri .card-footer {
+        background: #fafafa;
+        border-top: 1px solid #f0f0f0;
+        padding: 16px 24px;
+    }
+
+    /* ── Detail table ── */
+    .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .detail-table tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s ease;
+    }
+
+    .detail-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .detail-table tr:hover {
+        background: #fafff9;
+    }
+
+    .detail-table th {
+        color: #888;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 14px 16px 14px 24px;
+        width: 38%;
+        vertical-align: middle;
+    }
+
+    .detail-table td {
+        color: #222;
+        padding: 14px 24px 14px 8px;
+        vertical-align: middle;
+    }
+
+    /* ── Badges ── */
+    .badge-type {
+        background: #e0f2e9;
+        color: var(--green-mid);
+        border: 1px solid var(--green-accent);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-statut {
+        background: #EDE7F6;
+        color: #512DA8;
+        border: 1px solid #B39DDB;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* ── Cost display ── */
+    .total-cost {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--green-mid);
+    }
+
+    .unit-cost {
+        font-weight: 600;
+        color: #388E3C;
+    }
+
+    /* ── Delete button (card footer) ── */
+    .btn-delete {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 20px;
+        border-radius: 10px;
+        border: 2px solid #c0392b;
+        color: #c0392b;
+        background: #fff;
+        font-weight: 600;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-delete::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+    }
+
+    .btn-delete:hover {
+        color: #fff;
+        border-color: #c0392b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(192,57,43,0.30);
+    }
+
+    .btn-delete:hover::before {
+        opacity: 1;
+    }
+
+    .btn-delete i,
+    .btn-delete span {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── Modal ── */
+    .modal-content {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+    }
+
+    .modal-footer {
+        padding: 20px 24px;
+        background: #fafafa;
+        border-top: 1px solid #eee;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    /* ── Modal cancel button ── */
+    .btn-modal-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 22px;
+        border-radius: 9px;
+        border: 1.5px solid #ccc;
+        background: #fff;
+        color: #555;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel:hover {
+        background: #f5f5f5;
+        border-color: #aaa;
+        color: #333;
+    }
+
+    /* ── Modal confirm delete button ── */
+    .btn-modal-confirm {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 24px;
+        border-radius: 9px;
+        border: none;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(192,57,43,0.30);
+        transition: all 0.3s ease;
+    }
+
+    .btn-modal-confirm:hover {
+        background: linear-gradient(135deg, #c0392b, #96281B);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(192,57,43,0.40);
+    }
+
+    /* ── Mobile toggle ── */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 998;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 991.98px) {
+        .mobile-sidebar-toggle {
+            display: flex;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-header-edit,
+        .btn-header-back {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# Mobile sidebar toggle #}
+<button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+    <i class="fas fa-bars"></i>
+</button>
+
+{# Sidebar #}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
+
+{# ── Main Content ── #}
+<div class="main-content-wrapper">
+
+    {# ── Page Header ── #}
+    <div class="page-header">
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-box-seam me-2"></i>
+                {{ ressource.nomressource }}
+                <span class="badge ms-2"
+                      style="background:rgba(255,255,255,0.2);color:#fff;
+                             font-size:.6em;vertical-align:middle;">
+                    AGRICULTEUR
+                </span>
+            </h2>
+        </div>
+
+        <div class="header-actions d-flex gap-2">
+            <a href="{{ path('agriculteur_ressource_project_edit', {id: ressource.idressource}) }}"
+               class="btn-header-edit">
+                <i class="bi bi-pencil"></i>
+                Modifier
+            </a>
+            <a href="{{ path('agriculteur_ressource_project_index') }}"
+               class="btn-header-back">
+                <i class="bi bi-arrow-left"></i>
+                Mes Ressources
+            </a>
+        </div>
+    </div>
+
+    {# ── Details Card ── #}
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-xl-6">
+
+            <div class="card card-agri">
+                <div class="card-header">
+                    <h5 class="mb-0 fw-semibold" style="color:var(--green-dark);">
+                        <i class="bi bi-info-circle me-2"></i>Détails de la Ressource
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <table class="detail-table">
+                        <tr>
+                            <th>Nom</th>
+                            <td class="fw-semibold">{{ ressource.nomressource }}</td>
+                        </tr>
+                        <tr>
+                            <th>Type</th>
+                            <td>
+                                <span class="badge-type">{{ ressource.typeressource }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Quantité</th>
+                            <td>{{ ressource.quantite }}</td>
+                        </tr>
+                        <tr>
+                            <th>Coût unitaire</th>
+                            <td class="unit-cost">
+                                {{ ressource.cout|number_format(2, ',', ' ') }} TND
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>💵 Coût total</th>
+                            <td class="total-cost">
+                                {{ (ressource.cout * ressource.quantite)|number_format(2, ',', ' ') }} TND
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Fournisseur</th>
+                            <td>{{ ressource.fournisseur ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Statut</th>
+                            <td>
+                                <span class="badge-statut">{{ ressource.statut }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date d'ajout</th>
+                            <td>{{ ressource.dateajout|date('d/m/Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Projet lié</th>
+                            <td class="fw-semibold">
+                                <i class="bi bi-folder2 me-1 text-success"></i>
+                                {{ ressource.project.nomproject }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                {# ── Card Footer: delete button only ── #}
+                <div class="card-footer d-flex justify-content-end">
+                    <button class="btn-delete"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="bi bi-trash"></i>
+                        <span>Supprimer cette ressource</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>{# end main-content-wrapper #}
+
+{# ── Delete Confirmation Modal ── #}
+<div class="modal fade" id="deleteModal" tabindex="-1"
+     aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Fermer">
+                </button>
+            </div>
+
+            {# ── No modal body — no text at all ── #}
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn-modal-cancel"
+                        data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Annuler
+                </button>
+                <form method="POST"
+                      action="{{ path('agriculteur_ressource_project_delete',
+                                     {id: ressource.idressource}) }}">
+                    <input type="hidden"
+                           name="_token"
+                           value="{{ csrf_token('delete_ressource_' ~ ressource.idressource) }}">
+                    <button type="submit" class="btn-modal-confirm">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const wrapper = document.querySelector('.main-content-wrapper');
+
+    if (sidebar && wrapper) {
+        new MutationObserver(function () {
+            wrapper.style.marginLeft =
+                sidebar.classList.contains('collapsed') ? '80px' : '280px';
+        }).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+
+        if (sidebar.classList.contains('collapsed')) {
+            wrapper.style.marginLeft = '80px';
+        }
+    }
+});
+</script>
+{% endblock %}

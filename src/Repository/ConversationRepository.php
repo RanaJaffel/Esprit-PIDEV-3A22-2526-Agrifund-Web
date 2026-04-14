@@ -7,9 +7,6 @@ use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Conversation>
- */
 class ConversationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -17,17 +14,9 @@ class ConversationRepository extends ServiceEntityRepository
         parent::__construct($registry, Conversation::class);
     }
 
-    /**
-     * Trouve ou crée une conversation entre deux utilisateurs
-     */
     public function findOrCreateConversation(int $user1Id, int $user2Id): Conversation
     {
-        $conversation = $this->createQueryBuilder('c')
-            ->where('(c.utilisateur1Id = :user1 AND c.utilisateur2Id = :user2) OR (c.utilisateur1Id = :user2 AND c.utilisateur2Id = :user1)')
-            ->setParameter('user1', $user1Id)
-            ->setParameter('user2', $user2Id)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $conversation = $this->findConversationBetweenUsers($user1Id, $user2Id);
 
         if (!$conversation) {
             $conversation = new Conversation();
@@ -42,12 +31,10 @@ class ConversationRepository extends ServiceEntityRepository
         return $conversation;
     }
 
-    /**
-     * Trouve les conversations d'un utilisateur
-     */
     public function findUserConversations(int $userId): array
     {
         return $this->createQueryBuilder('c')
+            ->leftJoin('c.messages', 'm')
             ->where('c.utilisateur1Id = :userId OR c.utilisateur2Id = :userId')
             ->setParameter('userId', $userId)
             ->orderBy('c.derniereActivite', 'DESC')
@@ -55,9 +42,6 @@ class ConversationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Trouve une conversation entre deux utilisateurs
-     */
     public function findConversationBetweenUsers(int $user1Id, int $user2Id): ?Conversation
     {
         return $this->createQueryBuilder('c')
@@ -68,9 +52,6 @@ class ConversationRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    /**
-     * Compte les conversations non lues pour un utilisateur
-     */
     public function countUnreadConversations(int $userId): int
     {
         $conversations = $this->findUserConversations($userId);
@@ -85,12 +66,19 @@ class ConversationRepository extends ServiceEntityRepository
         return $count;
     }
 
-    /**
-     * Met à jour la dernière activité d'une conversation
-     */
     public function updateLastActivity(Conversation $conversation): void
     {
         $conversation->setDerniereActivite(new \DateTime());
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Récupère l'utilisateur complet par son ID
+     */
+    public function getUserById(int $userId): ?Utilisateur
+    {
+        return $this->getEntityManager()
+            ->getRepository(Utilisateur::class)
+            ->find($userId);
     }
 }

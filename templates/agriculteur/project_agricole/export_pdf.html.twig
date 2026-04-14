@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes Projets Agricoles — Rapport</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+        :root {
+            --forest: #1a3d2b;
+            --leaf:   #2d6a4f;
+            --mint:   #52b788;
+            --sage:   #d8f0e4;
+            --earth:  #7f5539;
+            --sand:   #fdf6ec;
+            --ink:    #1c1c1c;
+            --muted:  #6b7280;
+            --line:   #e4e9e6;
+            --gold:   #c9943a;
+            --white:  #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', Arial, sans-serif;
+            background: var(--white);
+            color: var(--ink);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ── A4 PAGE ─────────────────────────────── */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── HEADER ──────────────────────────────── */
+        .header {
+            background: var(--forest);
+            padding: 20px 30px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -100px; right: -60px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 11px; }
+        .brand-icon {
+            width: 38px; height: 38px;
+            background: var(--mint);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55em; color: var(--white); font-weight: 700; line-height: 1;
+        }
+        .brand-sub {
+            font-size: 0.8em; color: var(--mint);
+            text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px;
+        }
+
+        .header-center h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.85em; color: var(--white);
+            font-weight: 900; letter-spacing: -0.3px; text-align: center;
+        }
+        .header-center h1 span { color: var(--mint); }
+        .header-center p {
+            text-align: center; color: rgba(255,255,255,0.55);
+            font-size: 0.9em; font-weight: 300; margin-top: 3px;
+        }
+
+        .header-right { text-align: right; }
+        .doc-label {
+            font-size: 0.72em; color: var(--mint);
+            text-transform: uppercase; letter-spacing: 1.2px;
+        }
+        .doc-date { font-size: 0.9em; color: rgba(255,255,255,0.8); margin-top: 3px; }
+        .doc-badge {
+            display: inline-block; margin-top: 6px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.55);
+            font-size: 0.68em; padding: 3px 10px;
+            border-radius: 20px; letter-spacing: 0.8px; text-transform: uppercase;
+        }
+
+        .accent-bar {
+            height: 3px;
+            background: linear-gradient(90deg, var(--mint) 0%, var(--gold) 55%, transparent 100%);
+        }
+
+        /* ── BODY ────────────────────────────────── */
+        .body {
+            padding: 18px 30px;
+            flex: 1; display: flex; flex-direction: column; gap: 15px;
+        }
+
+        /* ── STATS ROW ───────────────────────────── */
+        .stats-row { display: flex; gap: 10px; }
+
+        .stat-card {
+            flex: 1; background: var(--sand);
+            border: 1px solid var(--line); border-radius: 8px;
+            padding: 12px 13px; position: relative; overflow: hidden;
+        }
+        .stat-card::before {
+            content: ''; position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            border-radius: 8px 0 0 8px;
+        }
+        .stat-card.c-green::before  { background: var(--leaf); }
+        .stat-card.c-mint::before   { background: var(--mint); }
+        .stat-card.c-gold::before   { background: var(--gold); }
+        .stat-card.c-red::before    { background: #c0392b; }
+        .stat-card.c-earth::before  { background: var(--earth); }
+        .stat-card.c-blue::before   { background: #2980b9; }
+
+        .stat-icon  { font-size: 1.25em; display: block; margin-bottom: 4px; }
+        .stat-label {
+            font-size: 0.72em; text-transform: uppercase;
+            letter-spacing: 0.7px; color: var(--muted);
+            font-weight: 500; white-space: nowrap;
+        }
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75em; font-weight: 700;
+            color: var(--forest); line-height: 1.1; margin-top: 3px;
+        }
+        .stat-value.sm { font-size: 1.2em; }
+        .stat-unit {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.45em; color: var(--muted); font-weight: 400;
+        }
+
+        /* ── SECTION HEADING ─────────────────────── */
+        .section-heading { display: flex; align-items: center; gap: 8px; }
+        .sh-icon {
+            width: 24px; height: 24px; background: var(--sage);
+            border-radius: 5px; display: flex; align-items: center;
+            justify-content: center; font-size: 12px; flex-shrink: 0;
+        }
+        .sh-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15em; color: var(--forest); font-weight: 700;
+        }
+        .sh-line { flex: 1; height: 1px; background: var(--line); }
+
+        /* ── TABLE ───────────────────────────────── */
+        .table-wrap {
+            border: 1px solid var(--line); border-radius: 8px;
+            overflow: hidden; flex: 1;
+        }
+        table { width: 100%; border-collapse: collapse; }
+
+        thead tr { background: var(--forest); }
+        thead th {
+            padding: 10px 12px; text-align: left;
+            font-size: 0.72em; text-transform: uppercase;
+            letter-spacing: 0.8px; color: rgba(255,255,255,0.78); font-weight: 600;
+        }
+
+        tbody tr { border-bottom: 1px solid var(--line); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:nth-child(even) { background: #fafcfb; }
+
+        tbody td { padding: 9px 12px; font-size: 0.92em; vertical-align: middle; }
+
+        .td-id {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85em; color: var(--muted); font-weight: 700; white-space: nowrap;
+        }
+        .td-name    { font-weight: 600; color: var(--forest); }
+        .td-surface { font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+        .td-budget  { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--earth); white-space: nowrap; }
+        .td-date    { color: var(--muted); font-size: 0.85em; white-space: nowrap; }
+
+        /* status badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.82em; font-weight: 600; white-space: nowrap;
+        }
+        .b-encours  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .b-approuve { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .b-refuse   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .b-termine  { background: #e0e7ff; color: #3730a3; border: 1px solid #a5b4fc; }
+
+        .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .dot-encours  { background: #d97706; }
+        .dot-approuve { background: #059669; }
+        .dot-refuse   { background: #dc2626; }
+        .dot-termine  { background: #4f46e5; }
+
+        /* summary row */
+        .summary-row td {
+            background: var(--sage); font-weight: 700;
+            color: var(--forest); padding: 9px 12px;
+            font-size: 0.92em; border-top: 2px solid var(--mint);
+        }
+
+        .empty-row td {
+            text-align: center; padding: 30px;
+            color: var(--muted); font-size: 0.95em;
+        }
+
+        /* ── FOOTER ──────────────────────────────── */
+        .footer {
+            background: var(--forest); padding: 10px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .footer-left { font-size: 0.82em; color: rgba(255,255,255,0.6); }
+        .footer-left strong { color: var(--mint); }
+        .footer-right { font-size: 0.75em; color: rgba(255,255,255,0.4); text-align: right; }
+
+        /* ── PRINT ───────────────────────────────── */
+        @page { size: A4 portrait; margin: 0; }
+        @media print { body { background: white; } .page { width: 100%; min-height: 100vh; } }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <div class="brand-icon">🌿</div>
+            <div>
+                <div class="brand-name">AgriFund</div>
+                <div class="brand-sub">Espace Agriculteur</div>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <h1>Mes <span>Projets</span></h1>
+            <p>Rapport personnel · Statuts · Budgets · Surfaces</p>
+        </div>
+
+        <div class="header-right">
+            <div class="doc-label">Généré le</div>
+            <div class="doc-date">{{ "now"|date('d/m/Y à H:i') }}</div>
+            <div class="doc-badge">Personnel</div>
+        </div>
+    </div>
+    <div class="accent-bar"></div>
+
+    <!-- BODY -->
+    <div class="body">
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card c-green">
+                <span class="stat-icon">📁</span>
+                <div class="stat-label">Total Projets</div>
+                <div class="stat-value">{{ totalCount }}</div>
+            </div>
+            <div class="stat-card c-mint">
+                <span class="stat-icon">✅</span>
+                <div class="stat-label">Acceptés</div>
+                <div class="stat-value">{{ countApprouve }}</div>
+            </div>
+            <div class="stat-card c-gold">
+                <span class="stat-icon">⏳</span>
+                <div class="stat-label">En Cours</div>
+                <div class="stat-value">{{ countEncours }}</div>
+            </div>
+            <div class="stat-card c-red">
+                <span class="stat-icon">❌</span>
+                <div class="stat-label">Refusés</div>
+                <div class="stat-value">{{ countRefuse }}</div>
+            </div>
+            <div class="stat-card c-blue">
+                <span class="stat-icon">🏁</span>
+                <div class="stat-label">Terminés</div>
+                <div class="stat-value">{{ countTermine }}</div>
+            </div>
+            <div class="stat-card c-earth">
+                <span class="stat-icon">💰</span>
+                <div class="stat-label">Budget Total</div>
+                <div class="stat-value sm">{{ totalBudget|number_format(0, ',', ' ') }}<span class="stat-unit"> DT</span></div>
+            </div>
+        </div>
+
+        <!-- Table heading -->
+        <div class="section-heading">
+            <div class="sh-icon">📋</div>
+            <div class="sh-title">Détail de mes Projets</div>
+            <div class="sh-line"></div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom du Projet</th>
+                        <th>Statut</th>
+                        <th>Surface (Ha)</th>
+                        <th>Budget (DT)</th>
+                        <th>Soumission</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if projects is empty %}
+                    <tr class="empty-row">
+                        <td colspan="6">🌱 Aucun projet disponible pour le moment.</td>
+                    </tr>
+                    {% else %}
+                    {% for project in projects %}
+                    <tr>
+                        <td class="td-id">#{{ project.idproject }}</td>
+                        <td class="td-name">{{ project.nomproject }}</td>
+                        <td>
+                            {% if project.statut == 'Accepté' %}
+                                <span class="badge b-approuve"><span class="dot dot-approuve"></span>Accepté</span>
+                            {% elseif project.statut == 'Refusé' %}
+                                <span class="badge b-refuse"><span class="dot dot-refuse"></span>Refusé</span>
+                            {% elseif project.statut == 'Terminé' %}
+                                <span class="badge b-termine"><span class="dot dot-termine"></span>Terminé</span>
+                            {% else %}
+                                <span class="badge b-encours"><span class="dot dot-encours"></span>En cours</span>
+                            {% endif %}
+                        </td>
+                        <td class="td-surface">{{ project.surface|number_format(2, ',', '.') }}</td>
+                        <td class="td-budget">{{ project.budgetdemande|number_format(2, ',', ' ') }}</td>
+                        <td class="td-date">{{ project.datesoumission|date('d/m/Y') }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Summary row -->
+                    <tr class="summary-row">
+                        <td colspan="3" style="text-align:right; letter-spacing:0.5px;">TOTAUX</td>
+                        <td>{{ totalSurface|number_format(2, ',', '.') }} Ha</td>
+                        <td>{{ totalBudget|number_format(2, ',', ' ') }} DT</td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+    </div><!-- /body -->
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-left">
+            Rapport personnel généré par <strong>AgriFund</strong> &nbsp;·&nbsp; {{ totalCount }} projet(s)
+        </div>
+        <div class="footer-right">
+            {{ "now"|date('d/m/Y \à H:i:s') }} &nbsp;·&nbsp; Document personnel
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

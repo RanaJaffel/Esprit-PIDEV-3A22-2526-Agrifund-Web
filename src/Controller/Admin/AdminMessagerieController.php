@@ -23,15 +23,30 @@ class AdminMessagerieController extends AbstractController
     #[Route('/', name: 'admin_messagerie_index')]
     public function index(
         ConversationRepository $conversationRepository,
-        MessageRepository $messageRepository
+        MessageRepository $messageRepository,
+        UtilisateurRepository $utilisateurRepository
     ): Response {
         $currentUser = $this->getUser();
         $conversations = $conversationRepository->findUserConversations($currentUser->getId());
         
+        // Enrichir les conversations avec les informations des utilisateurs
+        $conversationsData = [];
+        foreach ($conversations as $conversation) {
+            $otherUserId = $conversation->getOtherUserId($currentUser->getId());
+            $otherUser = $utilisateurRepository->find($otherUserId);
+            
+            $conversationsData[] = [
+                'conversation' => $conversation,
+                'otherUser' => $otherUser,
+                'lastMessage' => $conversation->getLastMessage(),
+                'unreadCount' => $conversation->getUnreadMessagesCount($currentUser->getId())
+            ];
+        }
+        
         $messagesNonLus = $messageRepository->countAllUnreadMessages($currentUser->getId());
 
         return $this->render('admin/messagerie/conversations.html.twig', [
-            'conversations' => $conversations,
+            'conversationsData' => $conversationsData,
             'current_user' => $currentUser,
             'messages_non_lus' => $messagesNonLus,
         ]);
@@ -51,26 +66,28 @@ class AdminMessagerieController extends AbstractController
     #[Route('/conversation/{id}', name: 'admin_messagerie_chat')]
     public function chat(
         Conversation $conversation,
-        MessageRepository $messageRepository
+        MessageRepository $messageRepository,
+        UtilisateurRepository $utilisateurRepository
     ): Response {
         $currentUser = $this->getUser();
         
-        // Vérifier que l'utilisateur fait partie de la conversation
         if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             $this->addFlash('error', 'Accès non autorisé à cette conversation.');
             return $this->redirectToRoute('admin_messagerie_index');
         }
 
-        // Marquer les messages comme lus
         $messageRepository->markAsRead($conversation, $currentUser->getId());
-
         $messages = $messageRepository->findByConversation($conversation);
+
+        $otherUserId = $conversation->getOtherUserId($currentUser->getId());
+        $otherUser = $utilisateurRepository->find($otherUserId);
 
         return $this->render('admin/messagerie/chat.html.twig', [
             'conversation' => $conversation,
             'messages' => $messages,
             'current_user' => $currentUser,
+            'other_user' => $otherUser,
         ]);
     }
 
@@ -88,7 +105,6 @@ class AdminMessagerieController extends AbstractController
             return $this->redirectToRoute('admin_messagerie_index');
         }
 
-        // Vérifier si une conversation existe déjà
         $conversation = $conversationRepository->findConversationBetweenUsers(
             $currentUser->getId(),
             $otherUser->getId()
@@ -119,7 +135,6 @@ class AdminMessagerieController extends AbstractController
 
         $currentUser = $this->getUser();
         
-        // Vérifier l'accès
         if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
@@ -128,7 +143,7 @@ class AdminMessagerieController extends AbstractController
         $contenu = $request->request->get('contenu');
         $files = $request->files->get('files', []);
 
-        if (empty($contenu) && empty($files)) {
+        if (empty(trim($contenu ?? '')) && empty($files)) {
             return new JsonResponse(['error' => 'Message vide'], 400);
         }
 
@@ -137,16 +152,25 @@ class AdminMessagerieController extends AbstractController
         $message->setExpediteur($currentUser);
         $message->setContenu($contenu ?: '');
 
-        // Gestion des pièces jointes
         if (!empty($files)) {
             foreach ($files as $file) {
+                // Vérifier si le fichier est valide
+                if (!$file->isValid()) {
+                    return new JsonResponse(['error' => 'Fichier invalide'], 400);
+                }
+
                 $pieceJointe = new PieceJointe();
                 
-                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $extension = $file->guessExtension();
+                if (!$extension) {
+                    $extension = $file->getClientOriginalExtension();
+                }
+                
                 $mimeType = $file->getMimeType();
                 
-                // Déterminer le type de fichier
+                // Obtenir la taille AVANT de déplacer le fichier
+                $fileSize = $file->getSize();
+                
                 $typeFichier = 'autre';
                 if (str_starts_with($mimeType, 'image/')) {
                     $typeFichier = 'image';
@@ -167,7 +191,6 @@ class AdminMessagerieController extends AbstractController
                     $uploadDir .= 'files/';
                 }
                 
-                // Créer le dossier s'il n'existe pas
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
@@ -180,7 +203,7 @@ class AdminMessagerieController extends AbstractController
                     $pieceJointe->setNomOriginal($file->getClientOriginalName());
                     $pieceJointe->setNomStockage($newFilename);
                     $pieceJointe->setCheminFichier(str_replace($this->getParameter('kernel.project_dir') . '/public/', '', $uploadDir . $newFilename));
-                    $pieceJointe->setTailleOctets($file->getSize());
+                    $pieceJointe->setTailleOctets($fileSize); // Utiliser la taille obtenue AVANT le déplacement
                     $pieceJointe->setExtension($extension);
                     $pieceJointe->setMimeType($mimeType);
                     
@@ -193,10 +216,7 @@ class AdminMessagerieController extends AbstractController
         }
 
         $em->persist($message);
-        
-        // Mettre à jour la dernière activité de la conversation
         $conversation->setDerniereActivite(new \DateTime());
-        
         $em->flush();
 
         return new JsonResponse([
@@ -206,12 +226,16 @@ class AdminMessagerieController extends AbstractController
                 'contenu' => $message->getContenu(),
                 'date' => $message->getDateEnvoi()->format('Y-m-d H:i:s'),
                 'expediteur_id' => $message->getExpediteur()->getId(),
+                'expediteur_nom' => $message->getExpediteur()->getNomComplet(),
+                'est_lu' => $message->isEstLu(),
+                'est_modifie' => false,
                 'pieces_jointes' => array_map(function($pj) {
                     return [
                         'id' => $pj->getId(),
                         'nom' => $pj->getNomOriginal(),
                         'type' => $pj->getTypeFichier(),
                         'url' => '/' . $pj->getCheminFichier(),
+                        'taille' => $pj->getTailleFormatee(),
                     ];
                 }, $message->getPiecesJointes()->toArray()),
             ]
@@ -226,14 +250,13 @@ class AdminMessagerieController extends AbstractController
     ): JsonResponse {
         $currentUser = $this->getUser();
         
-        // Vérifier que c'est bien l'expéditeur
         if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Non autorisé'], 403);
         }
 
         $nouveauContenu = $request->request->get('contenu');
         
-        if (empty($nouveauContenu)) {
+        if (empty(trim($nouveauContenu ?? ''))) {
             return new JsonResponse(['error' => 'Le message ne peut pas être vide'], 400);
         }
 
@@ -260,12 +283,13 @@ class AdminMessagerieController extends AbstractController
     ): JsonResponse {
         $currentUser = $this->getUser();
         
-        // Vérifier que c'est bien l'expéditeur
         if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Non autorisé'], 403);
         }
 
-        if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $request->request->get('_token'))) {
+        // Correction du CSRF token
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $token)) {
             return new JsonResponse(['error' => 'Token CSRF invalide'], 403);
         }
 
@@ -273,6 +297,22 @@ class AdminMessagerieController extends AbstractController
         $em->flush();
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/message/{id}/csrf-token', name: 'admin_messagerie_csrf_token', methods: ['GET'])]
+    public function getCsrfToken(Message $message): JsonResponse
+    {
+        $currentUser = $this->getUser();
+        
+        if ($message->getExpediteur()->getId() !== $currentUser->getId()) {
+            return new JsonResponse(['error' => 'Non autorisé'], 403);
+        }
+
+        $token = $this->container->get('security.csrf.token_manager')
+            ->getToken('delete_message' . $message->getId())
+            ->getValue();
+
+        return new JsonResponse(['token' => $token]);
     }
 
     #[Route('/messages/unread-count', name: 'admin_messagerie_unread_count', methods: ['GET'])]
@@ -291,7 +331,6 @@ class AdminMessagerieController extends AbstractController
     ): JsonResponse {
         $currentUser = $this->getUser();
         
-        // Vérifier l'accès
         if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
             $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
