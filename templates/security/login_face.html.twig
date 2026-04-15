@@ -1,0 +1,534 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion par reconnaissance faciale - AgriFund{% endblock %}
+
+{% block body_class %}login-face-page{% endblock %}
+
+{% block stylesheets %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body.login-face-page {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #0a1628 0%, #1a3a2a 50%, #0d2818 100%);
+        min-height: 100vh;
+        padding-top: 80px;
+    }
+
+    .face-login-container {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    .face-login-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+    }
+
+    .face-login-header {
+        background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 100%);
+        padding: 40px;
+        text-align: center;
+        color: white;
+    }
+
+    .face-login-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .face-login-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .face-login-body {
+        padding: 50px;
+    }
+
+    .email-input-group {
+        margin-bottom: 30px;
+    }
+
+    .email-input {
+        width: 100%;
+        padding: 18px 24px;
+        font-size: 1.1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .email-input:focus {
+        outline: none;
+        border-color: #3f9e4d;
+        box-shadow: 0 0 0 4px rgba(63, 158, 77, 0.1);
+    }
+
+    .video-wrapper {
+        position: relative;
+        background: #000;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 30px 0;
+    }
+
+    #videoFace {
+        width: 100%;
+        display: block;
+    }
+
+    .face-guide {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 350px;
+        border: 4px dashed rgba(139, 195, 74, 0.8);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+    }
+
+    .status-message {
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 500;
+        animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .status-message.info {
+        background: #e3f2fd;
+        color: #1565c0;
+        border-left: 5px solid #2196f3;
+    }
+
+    .status-message.success {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border-left: 5px solid #4caf50;
+    }
+
+    .status-message.error {
+        background: #ffebee;
+        color: #c62828;
+        border-left: 5px solid #f44336;
+    }
+
+    .status-message.warning {
+        background: #fff3e0;
+        color: #e65100;
+        border-left: 5px solid #ff9800;
+    }
+
+    .btn-verify {
+        width: 100%;
+        padding: 18px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 100%);
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .btn-verify:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(63, 158, 77, 0.4);
+    }
+
+    .btn-verify:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .alternative-login {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .alternative-login a {
+        color: #3f9e4d;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .alternative-login a:hover {
+        color: #2d7a3a;
+        text-decoration: underline;
+    }
+
+    .confidence-meter {
+        margin-top: 20px;
+        display: none;
+    }
+
+    .confidence-bar {
+        height: 30px;
+        background: #e0e0e0;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f44336, #ff9800, #4caf50);
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .instructions-list {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+
+    .instructions-list h6 {
+        color: #3f9e4d;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+
+    .instructions-list ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .instructions-list li {
+        padding: 8px 0;
+        padding-left: 30px;
+        position: relative;
+    }
+
+    .instructions-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #3f9e4d;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .preview-capture {
+        margin-top: 20px;
+        text-align: center;
+        display: none;
+    }
+
+    .preview-capture img {
+        max-width: 300px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'partials/_navbar.html.twig' %}
+
+    <div class="face-login-container">
+        <div class="face-login-card">
+            <div class="face-login-header">
+                <h1><i class="bi bi-person-bounding-box"></i> Connexion Faciale</h1>
+                <p>Identifiez-vous en un regard</p>
+            </div>
+
+            <div class="face-login-body">
+                <div class="instructions-list">
+                    <h6><i class="bi bi-lightbulb"></i> Conseils pour une meilleure reconnaissance</h6>
+                    <ul>
+                        <li>Positionnez votre visage dans le cadre ovale</li>
+                        <li>Assurez-vous d'être dans un endroit bien éclairé</li>
+                        <li>Retirez lunettes de soleil et masques</li>
+                        <li>Regardez directement la caméra</li>
+                        <li>Restez immobile pendant la vérification</li>
+                    </ul>
+                </div>
+
+                <div class="email-input-group">
+                    <label for="email" style="font-weight: 600; margin-bottom: 10px; display: block; color: #333;">
+                        <i class="bi bi-envelope-fill"></i> Votre adresse email
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="email-input" 
+                        placeholder="votre@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="video-wrapper">
+                    <video id="videoFace" autoplay playsinline></video>
+                    <div class="face-guide"></div>
+                    <canvas id="canvasFace" style="display:none;"></canvas>
+                </div>
+
+                <div id="statusMessage" class="status-message info">
+                    <i class="bi bi-info-circle-fill" style="font-size: 1.5rem;"></i>
+                    <span>Préparation de la caméra...</span>
+                </div>
+
+                <div id="confidenceMeter" class="confidence-meter">
+                    <p style="font-weight: 600; margin-bottom: 10px;">Niveau de confiance</p>
+                    <div class="confidence-bar">
+                        <div id="confidenceFill" class="confidence-fill" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+
+                <div id="previewCapture" class="preview-capture">
+                    <p style="font-weight: 600; margin-bottom: 10px;">Image capturée</p>
+                    <img id="previewImage" src="" alt="Capture">
+                </div>
+
+                <button id="verifyBtn" class="btn-verify" disabled>
+                    <i class="bi bi-shield-check"></i>
+                    <span id="btnText">Vérifier mon identité</span>
+                </button>
+
+                <div class="alternative-login">
+                    <p>
+                        Reconnaissance faciale non disponible ?
+                        <a href="{{ path('app_login') }}">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Connexion classique
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'partials/_footer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    const video = document.getElementById('videoFace');
+    const canvas = document.getElementById('canvasFace');
+    const emailInput = document.getElementById('email');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const btnText = document.getElementById('btnText');
+    const statusMessage = document.getElementById('statusMessage');
+    const confidenceMeter = document.getElementById('confidenceMeter');
+    const confidenceFill = document.getElementById('confidenceFill');
+    const previewCapture = document.getElementById('previewCapture');
+    const previewImage = document.getElementById('previewImage');
+
+    let stream = null;
+    let isVerifying = false;
+
+    // Fonction pour mettre à jour le statut
+    function setStatus(type, message, icon = 'info-circle-fill') {
+        statusMessage.className = `status-message ${type}`;
+        statusMessage.innerHTML = `
+            <i class="bi bi-${icon}" style="font-size: 1.5rem;"></i>
+            <span>${message}</span>
+        `;
+    }
+
+    // Démarrer la caméra
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: 'user'
+            }
+        });
+
+        video.srcObject = stream;
+
+        video.onloadedmetadata = () => {
+            setStatus('success', 'Caméra prête ! Entrez votre email et cliquez sur "Vérifier mon identité"', 'check-circle-fill');
+        };
+
+    } catch (err) {
+        console.error('Erreur caméra:', err);
+        setStatus('error', `Impossible d'accéder à la caméra: ${err.message}`, 'exclamation-triangle-fill');
+    }
+
+    // Activer le bouton quand l'email est renseigné
+    emailInput.addEventListener('input', function() {
+        verifyBtn.disabled = !this.value.includes('@') || isVerifying;
+    });
+
+    // Vérification faciale
+    verifyBtn.addEventListener('click', async function() {
+        const email = emailInput.value.trim();
+
+        if (!email || !email.includes('@')) {
+            setStatus('error', 'Veuillez entrer une adresse email valide', 'exclamation-triangle-fill');
+            return;
+        }
+
+        if (!stream) {
+            setStatus('error', 'Caméra non disponible', 'camera-video-off-fill');
+            return;
+        }
+
+        isVerifying = true;
+        verifyBtn.disabled = true;
+        btnText.textContent = 'Vérification en cours...';
+        verifyBtn.innerHTML = `
+            <div class="spinner"></div>
+            <span>Analyse de votre visage...</span>
+        `;
+
+        setStatus('warning', 'Restez immobile... Analyse en cours...', 'hourglass-split');
+
+        // Capturer l'image
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
+        const imageBase64 = canvas.toDataURL('image/jpeg', 0.95);
+
+        // Afficher l'aperçu
+        previewImage.src = imageBase64;
+        previewCapture.style.display = 'block';
+
+        try {
+            const response = await fetch('{{ path('app_login_face_verify') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image: imageBase64,
+                    email: email
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.match) {
+                // Afficher la confiance
+                const confidencePercent = Math.round((result.confidence || 0) * 100);
+                confidenceMeter.style.display = 'block';
+                confidenceFill.style.width = confidencePercent + '%';
+                confidenceFill.textContent = confidencePercent + '%';
+
+                setStatus('success', `✅ Identité vérifiée avec ${confidencePercent}% de confiance !`, 'check-circle-fill');
+
+                btnText.textContent = 'Connexion réussie !';
+
+                // Rediriger
+                setTimeout(() => {
+                    window.location.href = result.redirect || '{{ path('agriculteur_dashboard') }}';
+                }, 1500);
+
+            } else {
+                let errorMessage = result.error || 'Visage non reconnu';
+                let errorIcon = 'x-circle-fill';
+
+                if (result.code === 'NO_FACE') {
+                    errorMessage = 'Aucun visage détecté. Positionnez-vous correctement.';
+                    errorIcon = 'person-x-fill';
+                } else if (result.code === 'MULTIPLE_FACES') {
+                    errorMessage = 'Plusieurs visages détectés. Assurez-vous d\'être seul(e).';
+                    errorIcon = 'people-fill';
+                } else if (result.code === 'FACE_TOO_SMALL') {
+                    errorMessage = 'Visage trop éloigné. Rapprochez-vous.';
+                    errorIcon = 'zoom-in';
+                } else if (result.confidence !== undefined) {
+                    const confidencePercent = Math.round(result.confidence * 100);
+                    confidenceMeter.style.display = 'block';
+                    confidenceFill.style.width = confidencePercent + '%';
+                    confidenceFill.textContent = confidencePercent + '%';
+                    errorMessage = `Visage non reconnu (confiance: ${confidencePercent}%)`;
+                }
+
+                setStatus('error', '❌ ' + errorMessage, errorIcon);
+
+                isVerifying = false;
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = `
+                    <i class="bi bi-shield-check"></i>
+                    <span>Réessayer</span>
+                `;
+            }
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            setStatus('error', '❌ Erreur de connexion au serveur', 'exclamation-triangle-fill');
+
+            isVerifying = false;
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = `
+                <i class="bi bi-shield-check"></i>
+                <span>Réessayer</span>
+            `;
+        }
+    });
+
+    // Nettoyer lors de la fermeture
+    window.addEventListener('beforeunload', function() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+});
+</script>
+{% endblock %}

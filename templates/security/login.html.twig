@@ -1503,6 +1503,72 @@
                             <span id="btnText">Se connecter</span>
                             <i class="bi bi-arrow-right-circle-fill btn-icon" id="btnIcon"></i>
                         </button>
+
+                        {# Après le bouton "Se connecter" et avant la section "register-section" #}
+
+                        <div class="divider">
+                             <span>Ou</span>
+                        </div>
+
+                        <div class="face-login-option" style="text-align: center; margin: 30px 0;">
+                            <a href="{{ path('app_login_face') }}" class="btn-face-login">
+                                <i class="bi bi-person-bounding-box"></i>
+                                <span>Se connecter avec la reconnaissance faciale</span>
+                            </a>
+                        </div>
+
+<style>
+.btn-face-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, rgba(139, 195, 74, 0.1), rgba(63, 158, 77, 0.2));
+    border: 2px solid #8bc34a;
+    border-radius: 16px;
+    color: #2d7a3a;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-face-login::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(139, 195, 74, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.5s ease;
+}
+
+.btn-face-login:hover::before {
+    width: 350px;
+    height: 350px;
+}
+
+.btn-face-login:hover {
+    background: linear-gradient(135deg, #8bc34a, #689f38);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(139, 195, 74, 0.3);
+    border-color: transparent;
+}
+
+.btn-face-login i {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-face-login:hover i {
+    transform: scale(1.2) rotate(5deg);
+}
+</style>
                     </form>
 
                     <div class="divider">
