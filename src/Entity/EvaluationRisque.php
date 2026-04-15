@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Entity;
-
 use App\Repository\EvaluationRisqueRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -56,4 +54,33 @@ class EvaluationRisque
     public function setProjet(?ProjetAgricole $v): self { $this->projet = $v; return $this; }
     public function getBanqueId(): ?int { return $this->banqueId; }
     public function setBanqueId(?int $v): self { $this->banqueId = $v; return $this; }
+
+    /**
+     * Normalise le niveau de risque vers une clé simple : faible | moyen | eleve
+     * Peu importe la casse ou les accents stockés en DB.
+     */
+    public function getNiveauRisqueNormalized(): string
+    {
+        $raw = mb_strtolower(trim($this->niveauRisque ?? ''));
+
+        // Retire les accents pour une comparaison robuste
+        $map = [
+            'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+            'à' => 'a', 'â' => 'a', 'î' => 'i', 'ô' => 'o', 'û' => 'u',
+        ];
+        $normalized = strtr($raw, $map);
+
+        if (str_contains($normalized, 'faible'))  return 'faible';
+        if (str_contains($normalized, 'moyen'))   return 'moyen';
+        if (str_contains($normalized, 'eleve') || str_contains($normalized, 'elev')) return 'eleve';
+
+        // Fallback par score si le texte est inconnu
+        if ($this->scoreGlobal !== null) {
+            if ($this->scoreGlobal >= 70) return 'faible';
+            if ($this->scoreGlobal >= 40) return 'moyen';
+            return 'eleve';
+        }
+
+        return 'eleve'; // par défaut sécuritaire
+    }
 }
