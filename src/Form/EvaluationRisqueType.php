@@ -13,7 +13,6 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Length;
 
 class EvaluationRisqueType extends AbstractType
@@ -23,63 +22,61 @@ class EvaluationRisqueType extends AbstractType
         $builder
             ->add('scoreGlobal', IntegerType::class, [
                 'label' => 'Score Global',
-                'attr' => ['class' => 'field-input', 'min' => 0, 'max' => 100, 'placeholder' => 'Score entre 0 et 100'],
-                'constraints' => [
-                    new NotBlank(message: 'Le score est obligatoire'),
-                    new Range(min: 0, max: 100, notInRangeMessage: 'Entre {{ min }} et {{ max }}'),
-                ],
+                'attr' => ['class' => 'field-input', 'readonly' => true],
+                'constraints' => [new NotBlank(), new \Symfony\Component\Validator\Constraints\Range(min: 0, max: 100)],
             ])
             ->add('niveauRisque', ChoiceType::class, [
                 'label' => 'Niveau de Risque',
                 'placeholder' => '— Choisir un niveau —',
                 'choices' => [
                     'Faible' => 'faible',
-                    'Moyen' => 'moyen',
-                    'Élevé' => 'eleve',
+                    'Moyen'  => 'moyen',
+                    'Élevé'  => 'eleve',
                 ],
                 'attr' => ['class' => 'field-input'],
-                'constraints' => [new NotBlank(message: 'Le niveau de risque est obligatoire')],
+                'constraints' => [new NotBlank()],
             ])
             ->add('fiabiliteDonnees', ChoiceType::class, [
                 'label' => 'Fiabilité des Données',
                 'placeholder' => '— Choisir la fiabilité —',
                 'choices' => [
-                    'Faible' => 'faible',
-                    'Moyenne' => 'moyenne',
-                    'Élevée' => 'elevee',
+                    'Faible'   => 'faible',
+                    'Moyenne'  => 'moyenne',
+                    'Élevée'   => 'elevee',
                 ],
                 'attr' => ['class' => 'field-input'],
-                'constraints' => [new NotBlank(message: 'La fiabilité est obligatoire')],
+                'constraints' => [new NotBlank()],
             ])
-            ->add('facteurPrincipal', TextareaType::class, [
-                'label' => 'Facteur Principal',
-                'attr' => ['class' => 'field-input', 'rows' => 4, 'placeholder' => 'Décrivez le facteur principal...'],
-                'constraints' => [
-                    new NotBlank(message: 'Le facteur principal est obligatoire'),
-                    new Length(min: 10, max: 1000, minMessage: 'Minimum {{ limit }} caractères'),
-                ],
-            ])
-            ->add('recommandation', IntegerType::class, [
+            ->add('recommandation', TextareaType::class, [   // ← CHANGÉ ICI
                 'label' => 'Recommandation',
-                'attr' => ['class' => 'field-input', 'min' => 0, 'max' => 100, 'placeholder' => 'Score de recommandation'],
+                'attr' => [
+                    'class' => 'field-input',
+                    'rows' => 3,
+                    'readonly' => true,
+                    'placeholder' => 'Recommandation IA apparaîtra ici...'
+                ],
                 'constraints' => [
                     new NotBlank(message: 'La recommandation est obligatoire'),
-                    new Range(min: 0, max: 100, notInRangeMessage: 'Entre {{ min }} et {{ max }}'),
+                    new Length(max: 500),
                 ],
+            ])
+            ->add('facteurPrincipal', TextareaType::class, [
+                'label' => 'Analyse Détaillée & Conseils',
+                'attr' => ['class' => 'field-input', 'rows' => 10, 'readonly' => true],
+                'constraints' => [new NotBlank(), new Length(min: 10, max: 2000)],
             ])
             ->add('dateEvaluation', DateTimeType::class, [
                 'label' => 'Date d\'Évaluation',
                 'widget' => 'single_text',
                 'attr' => ['class' => 'field-input'],
-                'constraints' => [new NotBlank(message: 'La date est obligatoire')],
+                'constraints' => [new NotBlank()],
             ])
             ->add('projet', EntityType::class, [
                 'class' => ProjetAgricole::class,
                 'choice_label' => fn(ProjetAgricole $p) => '#'.$p->getIdproject().' — '.$p->getNomproject().' ('.$p->getStatut().')',
                 'placeholder' => '— Choisir un projet —',
-                'label' => 'Projet Agricole',
                 'attr' => ['class' => 'field-input'],
-                'constraints' => [new NotBlank(message: 'Veuillez choisir un projet')],
+                'constraints' => [new NotBlank()],
             ]);
     }
 
