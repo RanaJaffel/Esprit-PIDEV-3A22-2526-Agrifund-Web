@@ -5,61 +5,120 @@
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('admin') }}
     <style>
-        :root { --vert-vif: #089647; --vert-fonce: #076A39; --vert-foret: #095032; --vert-tres-fonce: #133D03; --vert-clair: #B2D944; }
+        :root { 
+            --vert-vif: #089647; 
+            --vert-fonce: #076A39; 
+            --vert-foret: #095032; 
+            --vert-tres-fonce: #133D03; 
+            --vert-clair: #B2D944; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%); min-height: 100vh; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%); 
+            min-height: 100vh; 
+        }
         .dashboard-container { display: flex; min-height: 100vh; }
         .main-content { flex: 1; margin-left: 280px; padding: 0; background: transparent; transition: margin-left 0.4s; }
         @media (max-width: 991.98px) { .main-content { margin-left: 0; } }
-        .page-header { background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 100%); padding: 28px 35px; position: relative; overflow: hidden; }
-        .page-header::after { content: '⚖️'; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 60px; opacity: 0.1; }
-        .form-card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #f0f0f0; }
-        .form-card-header { background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 20px 28px; border-bottom: 1px solid #bbf7d0; }
+
+        .page-header { 
+            background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 100%); 
+            padding: 28px 35px; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        .page-header::after { 
+            content: '⚖️'; 
+            position: absolute; 
+            right: 30px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            font-size: 60px; 
+            opacity: 0.1; 
+        }
+
+        .form-card { 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08); 
+            overflow: hidden; 
+            border: 1px solid #f0f0f0; 
+        }
+        .form-card-header { 
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7); 
+            padding: 20px 28px; 
+            border-bottom: 1px solid #bbf7d0; 
+        }
         .form-card-body { padding: 32px; }
+
         .field-group { margin-bottom: 24px; }
-        .field-label { display: block; font-size: 0.85rem; font-weight: 700; color: #0a3d1f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .field-input { width: 100%; border: 2px solid #e5e7eb; border-radius: 14px; padding: 14px 18px; font-size: 0.95rem; transition: all 0.3s; background: #fafafa; color: #374151; }
-        .field-input:focus { border-color: #16a34a; background: white; box-shadow: 0 0 0 4px rgba(22,163,74,0.1); outline: none; }
+        .field-label { 
+            display: block; 
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            color: #0a3d1f; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            margin-bottom: 8px; 
+        }
+        .field-input { 
+            width: 100%; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 14px; 
+            padding: 14px 18px; 
+            font-size: 0.95rem; 
+            transition: all 0.3s; 
+            background: #fafafa; 
+            color: #374151; 
+        }
+        .field-input:focus { 
+            border-color: #16a34a; 
+            background: white; 
+            box-shadow: 0 0 0 4px rgba(22,163,74,0.1); 
+            outline: none; 
+        }
         .field-hint { font-size: 0.75rem; color: #9ca3af; margin-top: 6px; }
-        .divider { height: 1px; background: linear-gradient(90deg, transparent, #e5e7eb, transparent); margin: 24px 0; }
-        .btn-submit { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; border-radius: 14px; padding: 16px 32px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 4px 20px rgba(22,163,74,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(22,163,74,0.4); }
-        .btn-back { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 10px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; font-size: 0.9rem; backdrop-filter: blur(10px); }
-        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
-        .main-content > *:not(.page-header):not(script) { padding-left: 35px; padding-right: 35px; }
-        ul.form-errors {
-            list-style: none;
-            margin: 6px 0 0 0;
-            padding: 0;
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, #e5e7eb, transparent); margin: 28px 0; }
+
+        .btn-submit { 
+            background: linear-gradient(135deg, #16a34a, #22c55e); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            padding: 16px 32px; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 20px rgba(22,163,74,0.3); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
         }
-        
-        ul.form-errors li {
-            color: #ef4444;
-            font-size: 0.8rem;
-            padding: 8px 12px;
-            background: #fef2f2;
-            border-radius: 8px;
-            border-left: 3px solid #ef4444;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .btn-submit:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 30px rgba(22,163,74,0.4); 
         }
-        
-        ul.form-errors li::before {
-            content: '⚠️';
-            font-size: 0.9rem;
+
+        .btn-back { 
+            background: rgba(255,255,255,0.15); 
+            color: white; 
+            border: 2px solid rgba(255,255,255,0.3); 
+            border-radius: 12px; 
+            padding: 10px 20px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: all 0.3s; 
         }
-        
-        /* Si Symfony génère des span au lieu de ul */
-        span.form-error-message {
-            color: #ef4444;
-            font-size: 0.8rem;
-            margin-top: 6px;
-            display: block;
-            padding: 8px 12px;
-            background: #fef2f2;
-            border-radius: 8px;
-            border-left: 3px solid #ef4444;
+        .btn-back:hover { 
+            background: rgba(255,255,255,0.25); 
+            color: white; 
         }
     </style>
 {% endblock %}
@@ -68,7 +127,6 @@
 <div class="dashboard-container">
     {% include 'components/_sidebar_admin.html.twig' %}
     <div class="main-content">
-
         <div class="page-header">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
@@ -96,13 +154,8 @@
                         </div>
                         <div class="form-card-body">
                             {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                            <div class="field-group">
-                                <label class="field-label">📊 Statut</label>
-                                {{ form_widget(form.statut, {'attr': {'class': 'field-input'}}) }}
-                                {{ form_errors(form.statut) }}
-                                <div class="field-hint">Sélectionnez le statut approprié</div>
-                            </div>
-                            <div class="divider"></div>
+
+                            <!-- 1. Évaluation liée (en premier) -->
                             <div class="field-group">
                                 <label class="field-label">🔍 Évaluation liée</label>
                                 {{ form_widget(form.evaluation, {'attr': {'class': 'field-input'}}) }}
@@ -110,15 +163,35 @@
                                 <div class="field-hint">Choisissez l'évaluation de risque associée</div>
                             </div>
                             <div class="divider"></div>
+
+                            <!-- 2. Type de Décision -->
+                            <div class="field-group">
+                                <label class="field-label">⚖️ Type de Décision</label>
+                                {{ form_widget(form.statut, {'attr': {'class': 'field-input'}}) }}
+                                {{ form_errors(form.statut) }}
+                                <div class="field-hint">Sélectionnez le type de décision</div>
+                            </div>
+                            <div class="divider"></div>
+
+                            <!-- 3. Justification -->
                             <div class="field-group">
                                 <label class="field-label">📝 Justification</label>
                                 {{ form_widget(form.justification, {'attr': {'class': 'field-input', 'rows': 5, 'placeholder': 'Expliquez la raison de cette décision...'}}) }}
                                 {{ form_errors(form.justification) }}
                             </div>
                             <div class="divider"></div>
+
+                            <!-- 4. Date de décision (avant le bouton) -->
+                            <div class="field-group">
+                                <label class="field-label">📅 Date de décision</label>
+                                {{ form_widget(form.dateDecision, {'attr': {'class': 'field-input'}}) }}
+                                {{ form_errors(form.dateDecision) }}
+                            </div>
+
                             <button type="submit" class="btn-submit">
                                 <i class="fas fa-save"></i> Enregistrer la décision
                             </button>
+
                             {{ form_end(form) }}
                         </div>
                     </div>

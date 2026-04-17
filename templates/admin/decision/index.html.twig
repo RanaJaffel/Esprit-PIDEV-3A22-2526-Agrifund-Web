@@ -22,39 +22,47 @@
 
         .decision-header { background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 50%, #2d8a50 100%); padding: 28px 35px; position: relative; overflow: hidden; }
         .decision-header::before { content: '⚖️'; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.1; }
+
         .stat-card { background: white; border-radius: 16px; padding: 20px 24px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s ease; border-left: 4px solid transparent; }
         .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
         .stat-card.total { border-left-color: #2d8a50; }
         .stat-card.approuve { border-left-color: #22c55e; }
         .stat-card.refuse { border-left-color: #ef4444; }
-        .stat-card.attente { border-left-color: #f59e0b; }
+
         .stat-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
         .stat-number { font-size: 2rem; font-weight: 800; line-height: 1; }
         .stat-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; margin-top: 4px; }
+
         .search-filter-bar { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 24px; }
         .search-input { border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 16px 12px 44px; font-size: 0.9rem; transition: all 0.3s; width: 100%; }
         .search-input:focus { border-color: #2d8a50; box-shadow: 0 0 0 4px rgba(45,138,80,0.1); outline: none; }
         .search-wrapper { position: relative; }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+
         .filter-select { border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; transition: all 0.3s; cursor: pointer; }
         .filter-select:focus { border-color: #2d8a50; outline: none; }
+
         .decision-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
         .decision-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s ease; border: 1px solid #f0f0f0; }
         .decision-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+
         .decision-card-header { background: linear-gradient(135deg, #0a3d1f, #1a5c35); padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
         .decision-card-header .title { color: white; font-weight: 700; font-size: 1rem; }
+
         .badge-statut { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
         .badge-approuve { background: #22c55e; color: white; }
         .badge-refuse { background: #ef4444; color: white; }
-        .badge-attente { background: #f59e0b; color: white; }
+
         .decision-card-body { padding: 20px; }
         .eval-badge { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; }
         .eval-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; font-weight: 600; }
         .eval-value { font-size: 1rem; font-weight: 700; color: #15803d; }
+
         .info-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
         .info-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; font-weight: 600; }
         .info-value { font-size: 0.88rem; color: #374151; font-weight: 500; }
         .info-value.truncate { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
         .decision-card-footer { padding: 14px 20px; background: #fafafa; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; }
         .btn-action { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-view { background: #eff6ff; color: #3b82f6; }
@@ -63,9 +71,10 @@
         .btn-edit:hover { background: #d97706; color: white; }
         .btn-delete { background: #fef2f2; color: #ef4444; }
         .btn-delete:hover { background: #ef4444; color: white; }
-        .progress-bar-custom { height: 8px; border-radius: 4px; background: #f0f0f0; overflow: hidden; margin-bottom: 8px; }
+
         .btn-new { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 14px; padding: 12px 24px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
         .btn-new:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(34,197,94,0.4); color: white; }
+
         .main-content > *:not(.decision-header):not(script) { padding-left: 35px; padding-right: 35px; }
         @media (max-width: 768px) { .main-content > *:not(.decision-header):not(script) { padding-left: 20px; padding-right: 20px; } }
     </style>
@@ -75,8 +84,6 @@
 <div class="dashboard-container">
     {% include 'components/_sidebar_admin.html.twig' %}
     <div class="main-content">
-
-        {# HEADER #}
         <div class="decision-header">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
@@ -100,14 +107,13 @@
                 </div>
             {% endfor %}
 
-            {# STATS #}
+            {# STATS - Sans "En attente" #}
             {% set total = decisions|length %}
             {% set approuves = decisions|filter(d => d.statut == 'approuve')|length %}
             {% set refuses = decisions|filter(d => d.statut == 'refuse')|length %}
-            {% set attente = decisions|filter(d => d.statut == 'en_attente')|length %}
 
             <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="stat-card total">
                         <div class="d-flex align-items-center gap-3">
                             <div class="stat-icon" style="background:#f0fdf4;">⚖️</div>
@@ -115,7 +121,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="stat-card approuve">
                         <div class="d-flex align-items-center gap-3">
                             <div class="stat-icon" style="background:#f0fdf4;">✅</div>
@@ -123,7 +129,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="stat-card refuse">
                         <div class="d-flex align-items-center gap-3">
                             <div class="stat-icon" style="background:#fef2f2;">❌</div>
@@ -131,31 +137,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card attente">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="stat-icon" style="background:#fffbeb;">⏳</div>
-                            <div><div class="stat-number" style="color:#d97706;">{{ attente }}</div><div class="stat-label">En cours</div></div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            {# PROGRESS BAR #}
+            {# PROGRESS BAR - Sans En attente #}
             {% if total > 0 %}
             <div class="search-filter-bar mb-4">
                 <div style="font-size:0.85rem; font-weight:700; color:#374151; margin-bottom:10px;">📊 Répartition des décisions</div>
                 <div class="progress-bar-custom">
                     <div style="display:flex; height:100%;">
-                        <div style="width:{{ (approuves/total*100)|round }}%; background:#22c55e; border-radius:4px;"></div>
-                        <div style="width:{{ (refuses/total*100)|round }}%; background:#ef4444;"></div>
-                        <div style="width:{{ (attente/total*100)|round }}%; background:#f59e0b; border-radius:4px;"></div>
+                        <div style="width:{{ (approuves/total*100)|round }}%; background:#22c55e; border-radius:4px 0 0 4px;"></div>
+                        <div style="width:{{ (refuses/total*100)|round }}%; background:#ef4444; border-radius:0 4px 4px 0;"></div>
                     </div>
                 </div>
-                <div class="d-flex gap-3 mt-2" style="font-size:0.78rem;">
+                <div class="d-flex gap-4 mt-2" style="font-size:0.78rem;">
                     <span><span style="color:#22c55e;">●</span> Approuvées ({{ approuves }})</span>
                     <span><span style="color:#ef4444;">●</span> Refusées ({{ refuses }})</span>
-                    <span><span style="color:#f59e0b;">●</span> En cours ({{ attente }})</span>
                 </div>
             </div>
             {% endif %}
@@ -181,7 +177,6 @@
                             <option value="">— Filtrer par statut —</option>
                             <option value="approuve">Approuvé</option>
                             <option value="refuse">Refusé</option>
-                            <option value="en_attente">En attente</option>
                         </select>
                     </div>
                 </div>
@@ -203,18 +198,14 @@
                          data-statut="{{ decision.statut }}"
                          data-justification="{{ decision.justification|lower }}"
                          data-date="{{ decision.dateDecision|date('Y-m-d') }}">
-
                         <div class="decision-card-header">
                             <div class="title"><i class="fas fa-gavel me-2"></i>Décision #{{ decision.idDecision }}</div>
                             {% if decision.statut == 'approuve' %}
                                 <span class="badge-statut badge-approuve">✓ Approuvé</span>
-                            {% elseif decision.statut == 'refuse' %}
-                                <span class="badge-statut badge-refuse">✗ Refusé</span>
                             {% else %}
-                                <span class="badge-statut badge-attente">⏳ En attente</span>
+                                <span class="badge-statut badge-refuse">✗ Refusé</span>
                             {% endif %}
                         </div>
-
                         <div class="decision-card-body">
                             {% if decision.evaluation %}
                             <div class="eval-badge">
@@ -238,7 +229,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="decision-card-footer">
                             <a href="{{ path('admin_decision_show', {id: decision.idDecision}) }}" class="btn-action btn-view">
                                 <i class="fas fa-eye"></i> Voir
@@ -246,8 +236,7 @@
                             <a href="{{ path('admin_decision_edit', {id: decision.idDecision}) }}" class="btn-action btn-edit">
                                 <i class="fas fa-edit"></i> Modifier
                             </a>
-                            <form method="post" action="{{ path('admin_decision_delete', {id: decision.idDecision}) }}"
-                                  style="flex:1;" onsubmit="return confirm('Supprimer ?')">
+                            <form method="post" action="{{ path('admin_decision_delete', {id: decision.idDecision}) }}" style="flex:1;" onsubmit="return confirm('Supprimer cette décision ?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ decision.idDecision) }}">
                                 <button type="submit" class="btn-action btn-delete w-100">
                                     <i class="fas fa-trash"></i> Supprimer
