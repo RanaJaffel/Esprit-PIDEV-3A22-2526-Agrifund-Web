@@ -1,10 +1,8 @@
 {# templates/agriculteur/project_agricole/_form.html.twig #}
-{# Uses ProjectAgricoleAgriculteurType — statut is intentionally absent #}
-{# Pure server-side validation — no HTML5 constraints, no JavaScript.  #}
+{# Uses ProjectAgricoleAgriculteurType - statut is intentionally absent #}
 
 <div class="row g-3">
 
-    {# ── Nom du projet ── #}
     <div class="col-12">
         <label for="{{ form.nomproject.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-card-heading me-1 text-success"></i>
@@ -20,10 +18,9 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="form-text text-muted">Entre 3 et 150 caractères.</div>
+        <div class="form-text text-muted">Entre 3 et 150 caracteres.</div>
     </div>
 
-    {# ── Surface ── #}
     <div class="col-md-6">
         <label for="{{ form.surface.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-rulers me-1 text-success"></i>
@@ -42,7 +39,6 @@
         <div class="form-text text-muted">Valeur positive, max 100 000 ha.</div>
     </div>
 
-    {# ── Budget demandé ── #}
     <div class="col-md-6">
         <label for="{{ form.budgetdemande.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-cash-coin me-1 text-success"></i>
@@ -61,7 +57,6 @@
         <div class="form-text text-muted">Valeur positive en TND.</div>
     </div>
 
-    {# ── Date de soumission ── #}
     <div class="col-12">
         <label for="{{ form.datesoumission.vars.id }}" class="form-label fw-semibold">
             <i class="bi bi-calendar-date me-1 text-success"></i>
@@ -77,53 +72,222 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="form-text text-muted">Doit être la date d'aujourd'hui uniquement.</div>
+        <div class="form-text text-muted">Doit etre la date d'aujourd'hui uniquement.</div>
     </div>
 
-    {# ── GPS separator ── #}
     <div class="col-12">
-        <hr class="my-1">
-        <p class="text-muted small mb-2">
-            <i class="bi bi-geo-alt me-1"></i>Localisation GPS de votre ferme (optionnel)
+        <hr class="my-2">
+        <p class="fw-semibold mb-2" style="color: var(--green-dark);">
+            <i class="bi bi-geo-alt-fill me-1 text-success"></i>
+            Localisation GPS de votre ferme
+            <span class="text-muted fw-normal small">(optionnel)</span>
         </p>
-    </div>
 
-    {# ── Latitude ── #}
-    <div class="col-md-6">
-        <label for="{{ form.latitude.vars.id }}" class="form-label fw-semibold">
-            <i class="bi bi-geo-alt me-1 text-success"></i>
-            {{ form.latitude.vars.label }}
-        </label>
-        {{ form_widget(form.latitude, {
-            'attr': {'class': 'form-control' ~ (form.latitude.vars.errors|length > 0 ? ' is-invalid' : '')}
-        }) }}
-        {% if form.latitude.vars.errors|length > 0 %}
-            <div class="invalid-feedback d-block">
+        <div class="input-group mb-2">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-success"></i>
+            </span>
+            <input
+                id="map-search-input"
+                type="text"
+                class="form-control border-start-0"
+                placeholder="Rechercher une adresse ou un lieu..."
+                autocomplete="off"
+            >
+            <button type="button" class="btn btn-outline-success" id="btn-my-location">
+                <i class="bi bi-crosshair"></i> Ma position
+            </button>
+        </div>
+
+        <div id="farm-map" style="width:100%;height:420px;border-radius:12px;border:2px solid #c8e6c9;"></div>
+
+        <p class="form-text text-muted mt-1">
+            <i class="bi bi-hand-index me-1"></i>
+            Cliquez sur la carte ou faites glisser le marqueur pour positionner votre ferme.
+        </p>
+
+        <div id="coord-badge" style="display:none;" class="mt-2">
+            <span class="badge px-3 py-2" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);color:#fff;font-size:.88em;border-radius:8px;">
+                <i class="bi bi-geo-alt-fill me-1"></i>
+                <span id="coord-text"></span>
+            </span>
+            <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="btn-clear-map">
+                <i class="bi bi-x-circle me-1"></i>Effacer
+            </button>
+        </div>
+
+        {% if form.latitude.vars.errors|length > 0 or form.longitude.vars.errors|length > 0 %}
+            <div class="alert alert-danger py-2 mt-2">
                 {% for error in form.latitude.vars.errors %}
                     <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
                 {% endfor %}
-            </div>
-        {% endif %}
-        <div class="form-text text-muted">Entre -90° et 90°.</div>
-    </div>
-
-    {# ── Longitude ── #}
-    <div class="col-md-6">
-        <label for="{{ form.longitude.vars.id }}" class="form-label fw-semibold">
-            <i class="bi bi-geo me-1 text-success"></i>
-            {{ form.longitude.vars.label }}
-        </label>
-        {{ form_widget(form.longitude, {
-            'attr': {'class': 'form-control' ~ (form.longitude.vars.errors|length > 0 ? ' is-invalid' : '')}
-        }) }}
-        {% if form.longitude.vars.errors|length > 0 %}
-            <div class="invalid-feedback d-block">
                 {% for error in form.longitude.vars.errors %}
                     <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error.message }}<br>
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="form-text text-muted">Entre -180° et 180°.</div>
+    </div>
+
+    <div style="display:none;">
+        {{ form_widget(form.latitude,  {'attr': {'data-farm-field': 'latitude',  'id': 'field-latitude'}}) }}
+        {{ form_widget(form.longitude, {'attr': {'data-farm-field': 'longitude', 'id': 'field-longitude'}}) }}
     </div>
 
 </div>
+
+<script>
+(function () {
+
+    function farmMapBoot() {
+        var latEl  = document.querySelector('[data-farm-field="latitude"]') || document.getElementById('field-latitude');
+        var lngEl  = document.querySelector('[data-farm-field="longitude"]') || document.getElementById('field-longitude');
+        var badge  = document.getElementById('coord-badge');
+        var coordT = document.getElementById('coord-text');
+        var mapDiv = document.getElementById('farm-map');
+
+        if (!latEl || !lngEl || !badge || !coordT || !mapDiv) {
+            console.warn('FarmMap: missing required DOM elements.');
+            return;
+        }
+
+        var hasGoogle = !!(window.google && window.google.maps);
+
+        if (!hasGoogle) {
+            mapDiv.innerHTML = '<div class="alert alert-warning m-3 mb-0"><strong>Google Maps non configure.</strong> Ajoutez une vraie valeur a <code>GOOGLE_MAPS_API_KEY</code> dans <code>.env</code>, puis rechargez la page.</div>';
+            return;
+        }
+
+        var map = null;
+        var marker = null;
+
+        function setCoords(lat, lng) {
+            latEl.value = Number(lat).toFixed(6);
+            lngEl.value = Number(lng).toFixed(6);
+            coordT.textContent = 'Lat : ' + Number(lat).toFixed(5) + '   Lng : ' + Number(lng).toFixed(5);
+            badge.style.display = '';
+        }
+
+        function clearCoords() {
+            latEl.value = '';
+            lngEl.value = '';
+            badge.style.display = 'none';
+        }
+
+        var initLat = parseFloat(latEl.value);
+        var initLng = parseFloat(lngEl.value);
+        var hasVal = !Number.isNaN(initLat) && !Number.isNaN(initLng);
+
+        if (!hasVal) {
+            initLat = 33.8869;
+            initLng = 9.5375;
+        }
+
+        var searchInput = document.getElementById('map-search-input');
+        var btnLoc = document.getElementById('btn-my-location');
+        var btnClear = document.getElementById('btn-clear-map');
+
+        map = new google.maps.Map(mapDiv, {
+            center: { lat: initLat, lng: initLng },
+            zoom: hasVal ? 13 : 6,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            streetViewControl: false,
+            fullscreenControl: true
+        });
+
+        function dropGoogleMarker(latlng) {
+            if (marker) {
+                marker.setPosition(latlng);
+            } else {
+                marker = new google.maps.Marker({
+                    position: latlng,
+                    map: map,
+                    draggable: true,
+                    animation: google.maps.Animation.DROP,
+                    icon: {
+                        url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                        scaledSize: new google.maps.Size(40, 40)
+                    }
+                });
+                marker.addListener('dragend', function (e) {
+                    setCoords(e.latLng.lat(), e.latLng.lng());
+                });
+            }
+            map.panTo(latlng);
+            setCoords(latlng.lat(), latlng.lng());
+        }
+
+        if (hasVal) {
+            dropGoogleMarker(new google.maps.LatLng(initLat, initLng));
+        }
+
+        map.addListener('click', function (e) {
+            dropGoogleMarker(e.latLng);
+        });
+
+        if (searchInput) {
+            var ac = new google.maps.places.Autocomplete(searchInput, { fields: ['geometry'] });
+            ac.addListener('place_changed', function () {
+                var p = ac.getPlace();
+                if (!p.geometry || !p.geometry.location) {
+                    return;
+                }
+                map.setZoom(14);
+                dropGoogleMarker(p.geometry.location);
+            });
+        }
+
+        if (btnLoc) {
+            btnLoc.addEventListener('click', function () {
+                var btn = this;
+                if (!navigator.geolocation) {
+                    alert('Geolocalisation non disponible.');
+                    return;
+                }
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                navigator.geolocation.getCurrentPosition(
+                    function (pos) {
+                        var ll = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+                        map.setZoom(15);
+                        dropGoogleMarker(ll);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-crosshair"></i> Ma position';
+                    },
+                    function () {
+                        alert('Position introuvable. Verifiez les permissions.');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-crosshair"></i> Ma position';
+                    }
+                );
+            });
+        }
+
+        if (btnClear) {
+            btnClear.addEventListener('click', function () {
+                if (marker) {
+                    marker.setMap(null);
+                    marker = null;
+                }
+                clearCoords();
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+            });
+        }
+    }
+
+    window.initFarmMap = function () {
+        if (window.__farmMapInitialized) {
+            return;
+        }
+        window.__farmMapInitialized = true;
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', farmMapBoot);
+        } else {
+            farmMapBoot();
+        }
+    };
+
+})();
+</script>
