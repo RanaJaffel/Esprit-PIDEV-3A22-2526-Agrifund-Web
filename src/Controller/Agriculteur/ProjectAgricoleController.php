@@ -58,6 +58,123 @@ class ProjectAgricoleController extends AbstractController
         ]);
     }
 
+    #[Route('/newspaper', name: 'newspaper', methods: ['GET'])]
+    public function newspaper(): Response
+    {
+        return $this->render('agriculteur/project_agricole/newspaper.html.twig');
+    }
+
+    #[Route('/newspaper/articles', name: 'newspaper_articles', methods: ['GET'])]
+    public function newspaperArticles(Request $request, HttpClientInterface $httpClient): JsonResponse
+    {
+        $apiKey = trim((string) ($_ENV['GNEWS_API_KEY'] ?? $_SERVER['GNEWS_API_KEY'] ?? ''));
+        if ($apiKey === '') {
+            return $this->json([
+                'ok' => false,
+                'error' => 'La cle GNEWS_API_KEY est manquante.',
+            ], 500);
+        }
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $perPage = (int) $request->query->get('per_page', 12);
+        $perPage = min(20, max(5, $perPage));
+        $language = trim((string) $request->query->get('language', 'fr'));
+        $language = in_array($language, ['fr', 'en', 'ar'], true) ? $language : 'fr';
+        $userQuery = trim((string) $request->query->get('q', ''));
+        $q = $userQuery !== '' ? $userQuery : 'agriculture OR farming OR crops OR livestock';
+
+        $query = [
+            'q' => $q,
+            'lang' => $language,
+            'max' => $perPage,
+            'page' => $page,
+            'sortby' => 'publishedAt',
+            'apikey' => $apiKey,
+        ];
+
+        try {
+            $requestOptions = [
+                'query' => $query,
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'Agrifund-NewsClient/1.0',
+                ],
+                'timeout' => 25,
+            ];
+
+            try {
+                $apiResponse = $httpClient->request('GET', 'https://gnews.io/api/v4/search', $requestOptions);
+                $statusCode = $apiResponse->getStatusCode();
+                $rawBody = $apiResponse->getContent(false);
+            } catch (\Throwable $firstError) {
+                $retryOptions = $requestOptions;
+                $retryOptions['verify_peer'] = false;
+                $retryOptions['verify_host'] = false;
+                $apiResponse = $httpClient->request('GET', 'https://gnews.io/api/v4/search', $retryOptions);
+                $statusCode = $apiResponse->getStatusCode();
+                $rawBody = $apiResponse->getContent(false);
+            }
+
+            $responseData = json_decode($rawBody, true);
+            if (!is_array($responseData)) {
+                return $this->json([
+                    'ok' => false,
+                    'error' => 'Reponse GNews invalide (non JSON).',
+                ], 502);
+            }
+
+            if ($statusCode >= 400) {
+                return $this->json([
+                    'ok' => false,
+                    'error' => (string) ($responseData['errors'][0] ?? $responseData['message'] ?? 'Erreur GNews.'),
+                    'status' => $statusCode,
+                ], 502);
+            }
+
+            $rawArticles = $responseData['articles'] ?? [];
+            if (!is_array($rawArticles)) {
+                $rawArticles = [];
+            }
+
+            $articles = array_values(array_map(static function ($item): array {
+                if (!is_array($item)) {
+                    return [];
+                }
+
+                $source = '';
+                if (isset($item['source']) && is_array($item['source'])) {
+                    $source = (string) ($item['source']['name'] ?? $item['source']['url'] ?? '');
+                }
+
+                return [
+                    'id' => sha1((string) ($item['url'] ?? $item['title'] ?? uniqid('news_', true))),
+                    'title' => (string) ($item['title'] ?? 'Sans titre'),
+                    'description' => (string) ($item['description'] ?? ''),
+                    'url' => (string) ($item['url'] ?? ''),
+                    'image' => (string) ($item['image'] ?? ''),
+                    'published_at' => (string) ($item['publishedAt'] ?? ''),
+                    'source' => $source,
+                    'author' => '',
+                ];
+            }, $rawArticles));
+
+            $totalArticles = (int) ($responseData['totalArticles'] ?? 0);
+
+            return $this->json([
+                'ok' => true,
+                'page' => $page,
+                'has_next_pages' => ($page * $perPage) < $totalArticles,
+                'articles' => array_values(array_filter($articles, static fn(array $a): bool => !empty($a))),
+            ]);
+        } catch (\Throwable $e) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'Impossible de recuperer les actualites GNews pour le moment.',
+                'details' => (bool) $this->getParameter('kernel.debug') ? $e->getMessage() : null,
+            ], 502);
+        }
+    }
+
     #[Route('/export/pdf', name: 'export_pdf', methods: ['GET'])]
     public function exportPdf(ProjectAgricoleRepository $repo): Response
     {
