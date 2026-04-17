@@ -1,0 +1,441 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Plant Disease Assistant - {{ project.nomproject }}{% endblock %}
+{% block hide_preloader %}true{% endblock %}
+{% block body_class %}agriculteur-page{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --pd-green-900: #0f3d2e;
+        --pd-green-700: #1f7a53;
+        --pd-green-500: #2fb36a;
+        --pd-green-100: #e8f8ef;
+        --pd-ink: #10231a;
+    }
+
+    body.agriculteur-page {
+        background: radial-gradient(circle at 10% 10%, #f2fbf6 0%, #eef6f1 36%, #f7fbf8 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pd-main {
+        margin-left: 280px;
+        min-height: 100vh;
+        padding: 32px;
+    }
+
+    .pd-hero {
+        background: linear-gradient(125deg, var(--pd-green-900), #185740 55%, var(--pd-green-700));
+        color: #fff;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 12px 38px rgba(23, 70, 51, 0.3);
+        margin-bottom: 22px;
+    }
+
+    .pd-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 430px) minmax(350px, 1fr);
+        gap: 18px;
+    }
+
+    .pd-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(16, 35, 26, 0.08);
+        border: 1px solid #edf2ee;
+    }
+
+    .pd-card-head {
+        padding: 18px 20px;
+        border-bottom: 1px solid #edf2ee;
+        color: var(--pd-ink);
+        font-weight: 700;
+    }
+
+    .pd-card-body {
+        padding: 20px;
+    }
+
+    .dropzone {
+        border: 2px dashed #9ad7b3;
+        border-radius: 16px;
+        background: var(--pd-green-100);
+        min-height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #2b5f47;
+        cursor: pointer;
+        padding: 18px;
+        transition: all .2s ease;
+    }
+
+    .dropzone.dragover {
+        border-color: var(--pd-green-700);
+        background: #dcf2e5;
+        transform: translateY(-2px);
+    }
+
+    .preview {
+        width: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+        max-height: 320px;
+        border: 1px solid #d7e8dc;
+    }
+
+    .pd-btn {
+        border: none;
+        border-radius: 12px;
+        padding: 11px 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .pd-btn-primary {
+        width: 100%;
+        color: #fff;
+        background: linear-gradient(135deg, var(--pd-green-500), var(--pd-green-700));
+        box-shadow: 0 8px 24px rgba(31, 122, 83, 0.35);
+    }
+
+    .pd-btn-primary:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .pd-btn-secondary {
+        background: #fff;
+        color: #2b5f47;
+        border: 1px solid #b8dfc9;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .result-shell {
+        min-height: 380px;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #fbfffc, #f7fbf9);
+        border: 1px solid #e8efea;
+        padding: 16px;
+        overflow-y: auto;
+        max-height: 540px;
+    }
+
+    .chat-box {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .chat-bubble {
+        max-width: 88%;
+        border-radius: 14px;
+        padding: 11px 13px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 16px rgba(15, 61, 46, 0.08);
+    }
+
+    .chat-bubble.bot {
+        background: #fff;
+        color: #153a2a;
+        border: 1px solid #dce9e2;
+        align-self: flex-start;
+    }
+
+    .chat-bubble.user {
+        background: linear-gradient(135deg, #1f7a53, #2fb36a);
+        color: #fff;
+        align-self: flex-end;
+    }
+
+    .result-empty {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c8477;
+        text-align: center;
+        padding: 22px;
+    }
+
+    .loading {
+        display: none;
+        gap: 10px;
+        align-items: center;
+        color: #1f7a53;
+        font-weight: 600;
+        margin-top: 12px;
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #b8dfc9;
+        border-top-color: #1f7a53;
+        animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .pd-error {
+        display: none;
+        margin-top: 12px;
+        border-radius: 10px;
+        border: 1px solid #f3c7c7;
+        background: #fff2f2;
+        color: #8b2a2a;
+        padding: 10px 12px;
+        font-size: .9rem;
+    }
+
+    @media (max-width: 991.98px) {
+        .pd-main {
+            margin-left: 0;
+            padding: 70px 14px 20px;
+        }
+
+        .pd-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
+
+<main class="pd-main">
+    <section class="pd-hero">
+        <div style="font-size:.82rem;opacity:.86;margin-bottom:8px;">Assistant IA agricole</div>
+        <h2 style="margin:0 0 6px 0; font-size:1.55rem;">Plant Disease Assistant</h2>
+        <div style="opacity:.92;font-size:.95rem;">
+            Projet: <strong>{{ project.nomproject }}</strong> · Importez une photo de plante malade pour recevoir un diagnostic, un traitement et des conseils de prevention.
+        </div>
+        <div style="margin-top:14px;">
+            <a href="{{ path('agriculteur_project_agricole_index') }}" style="color:#e6fff2;text-decoration:underline;">Retour a mes projets</a>
+        </div>
+    </section>
+
+    <section class="pd-grid">
+        <article class="pd-card">
+            <div class="pd-card-head">1) Importer une image</div>
+            <div class="pd-card-body">
+                <form id="disease-form" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="{{ csrf_token('plant_disease_' ~ project.idproject) }}">
+                    <input type="file" id="plant-image" name="plant_image" accept="image/*" hidden>
+
+                    <div id="dropzone" class="dropzone" role="button" tabindex="0">
+                        <div id="dropzone-content">
+                            <div style="font-size:2rem; margin-bottom:8px;">📎</div>
+                            <div style="font-weight:700; margin-bottom:4px;">Glissez votre image ici</div>
+                            <div style="font-size:.9rem; color:#507462;">ou cliquez pour selectionner (JPG, PNG, WebP)</div>
+                        </div>
+                        <img id="preview" class="preview" style="display:none;" alt="Preview">
+                    </div>
+
+                    <button type="button" id="analyze-btn" class="pd-btn pd-btn-primary" disabled>
+                        Analyser avec l assistant IA
+                    </button>
+                    <button type="button" id="reset-btn" class="pd-btn pd-btn-secondary" style="display:none;">
+                        Changer d'image
+                    </button>
+                </form>
+
+                <div id="loading" class="loading">
+                    <span class="spinner"></span>
+                    Analyse en cours...
+                </div>
+
+                <div id="error-box" class="pd-error"></div>
+            </div>
+        </article>
+
+        <article class="pd-card">
+            <div class="pd-card-head">2) Diagnostic et recommandations</div>
+            <div class="pd-card-body">
+                <div class="result-shell" id="result-shell">
+                    <div class="result-empty" id="result-empty">
+                        Le resultat de l'analyse apparaitra ici apres l'envoi de la photo.
+                    </div>
+                    <div id="chat-box" class="chat-box" style="display:none;"></div>
+                </div>
+            </div>
+        </article>
+    </section>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    const form = document.getElementById('disease-form');
+    const imageInput = document.getElementById('plant-image');
+    const dropzone = document.getElementById('dropzone');
+    const preview = document.getElementById('preview');
+    const dropzoneContent = document.getElementById('dropzone-content');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const loading = document.getElementById('loading');
+    const errorBox = document.getElementById('error-box');
+    const resultEmpty = document.getElementById('result-empty');
+    const chatBox = document.getElementById('chat-box');
+
+    if (!form || !imageInput || !dropzone || !chatBox) {
+        return;
+    }
+
+    const endpoint = '{{ path('agriculteur_project_agricole_plant_disease_assistant_analyze', { id: project.idproject }) }}';
+
+    function setError(message) {
+        if (!message) {
+            errorBox.style.display = 'none';
+            errorBox.textContent = '';
+            return;
+        }
+
+        errorBox.style.display = 'block';
+        errorBox.textContent = message;
+    }
+
+    function setLoading(isLoading) {
+        loading.style.display = isLoading ? 'flex' : 'none';
+        analyzeBtn.disabled = isLoading || !imageInput.files || imageInput.files.length === 0;
+    }
+
+    function addChatBubble(container, text, isUser) {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + (isUser ? 'user' : 'bot');
+        bubble.textContent = text;
+        container.appendChild(bubble);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function showChat() {
+        resultEmpty.style.display = 'none';
+        chatBox.style.display = 'flex';
+    }
+
+    function renderPreview(file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            preview.src = event.target.result;
+            preview.style.display = 'block';
+            dropzoneContent.style.display = 'none';
+            analyzeBtn.disabled = false;
+            resetBtn.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearSelection() {
+        imageInput.value = '';
+        preview.removeAttribute('src');
+        preview.style.display = 'none';
+        dropzoneContent.style.display = '';
+        analyzeBtn.disabled = true;
+        resetBtn.style.display = 'none';
+        setError('');
+    }
+
+    function handleFile(file) {
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            setError('Le fichier selectionne n est pas une image valide.');
+            return;
+        }
+
+        setError('');
+        renderPreview(file);
+    }
+
+    dropzone.addEventListener('click', function () {
+        imageInput.click();
+    });
+
+    dropzone.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            imageInput.click();
+        }
+    });
+
+    dropzone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', function () {
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const file = e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files[0] : null;
+        if (file) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            imageInput.files = dt.files;
+            handleFile(file);
+        }
+    });
+
+    imageInput.addEventListener('change', function () {
+        handleFile(imageInput.files[0]);
+    });
+
+    resetBtn.addEventListener('click', clearSelection);
+
+    addChatBubble(chatBox, "🌿 Bonjour ! Je suis votre assistant specialise en maladies des plantes.\n\n📸 Envoyez-moi une photo de votre plante malade et je vous fournirai :\n  • Le nom exact de la plante\n  • Le diagnostic de la maladie\n  • Un traitement agricole adapte\n\nCliquez sur 📎 pour selectionner votre photo.", false);
+    showChat();
+
+    analyzeBtn.addEventListener('click', async function () {
+        setError('');
+
+        if (!imageInput.files || imageInput.files.length === 0) {
+            setError('Veuillez importer une image avant de lancer l analyse.');
+            return;
+        }
+
+        const formData = new FormData(form);
+        setLoading(true);
+        addChatBubble(chatBox, '📸 Image envoyee. Je lance maintenant l analyse...', true);
+        showChat();
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error || 'Echec de l analyse.');
+            }
+
+            addChatBubble(chatBox, data.analysis || '', false);
+            showChat();
+        } catch (error) {
+            setError(error.message || 'Echec de communication avec le service IA.');
+        } finally {
+            setLoading(false);
+        }
+    });
+})();
+</script>
+{% endblock %}
