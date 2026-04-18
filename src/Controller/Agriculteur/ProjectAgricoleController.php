@@ -175,6 +175,228 @@ class ProjectAgricoleController extends AbstractController
         }
     }
 
+    #[Route('/{id}/conseils-projet', name: 'project_advice', methods: ['GET'], requirements: ['id' => '\\d+'])]
+    public function projectAdvice(int $id, ProjectAgricoleRepository $repo, HttpClientInterface $httpClient): Response
+    {
+        $project = $this->findOwnProject($id, $repo);
+        if (!$project) {
+            return $this->redirectToRoute('agriculteur_project_agricole_index');
+        }
+
+        $lat = $project->getLatitude();
+        $lon = $project->getLongitude();
+        if ($lat === null || $lon === null) {
+            return $this->render('agriculteur/project_agricole/Conseils du projet.html.twig', [
+                'project' => $project,
+                'error' => 'Ce projet ne contient pas de coordonnees GPS. Ajoutez latitude/longitude dans le projet pour obtenir des conseils meteo.',
+                'agro' => null,
+                'advice' => [],
+            ]);
+        }
+
+        $apiKey = trim((string) ($_ENV['OPENWEATHER_API_KEY'] ?? $_SERVER['OPENWEATHER_API_KEY'] ?? ''));
+        if ($apiKey === '') {
+            return $this->render('agriculteur/project_agricole/Conseils du projet.html.twig', [
+                'project' => $project,
+                'error' => 'La cle OPENWEATHER_API_KEY est manquante dans .env.local.',
+                'agro' => null,
+                'advice' => [],
+            ]);
+        }
+
+        $weatherUrl = 'https://api.openweathermap.org/data/2.5/weather';
+        $weatherQuery = [
+            'lat' => $lat,
+            'lon' => $lon,
+            'appid' => $apiKey,
+            'units' => 'metric',
+            'lang' => 'fr',
+        ];
+
+        try {
+            try {
+                $weatherResp = $httpClient->request('GET', $weatherUrl, [
+                    'query' => $weatherQuery,
+                    'timeout' => 20,
+                ]);
+                $weather = $weatherResp->toArray(false);
+            } catch (\Throwable $sslError) {
+                $weatherResp = $httpClient->request('GET', $weatherUrl, [
+                    'query' => $weatherQuery,
+                    'timeout' => 20,
+                    'verify_peer' => false,
+                    'verify_host' => false,
+                ]);
+                $weather = $weatherResp->toArray(false);
+            }
+
+            $uvi = null;
+            try {
+                $uviResp = $httpClient->request('GET', 'https://api.openweathermap.org/data/3.0/onecall', [
+                    'query' => [
+                        'lat' => $lat,
+                        'lon' => $lon,
+                        'exclude' => 'minutely,hourly,daily,alerts',
+                        'appid' => $apiKey,
+                        'units' => 'metric',
+                        'lang' => 'fr',
+                    ],
+                    'timeout' => 20,
+                ]);
+                $uviData = $uviResp->toArray(false);
+                $uvi = isset($uviData['current']['uvi']) ? (float) $uviData['current']['uvi'] : null;
+            } catch (\Throwable $ignored) {
+                $uvi = null;
+            }
+
+            $agro = [
+                'temperature' => isset($weather['main']['temp']) ? (float) $weather['main']['temp'] : null,
+                'humidity' => isset($weather['main']['humidity']) ? (float) $weather['main']['humidity'] : null,
+                'wind' => isset($weather['wind']['speed']) ? (float) $weather['wind']['speed'] : null,
+                'pressure' => isset($weather['main']['pressure']) ? (float) $weather['main']['pressure'] : null,
+                'clouds' => isset($weather['clouds']['all']) ? (float) $weather['clouds']['all'] : null,
+                'conditions' => (string) ($weather['weather'][0]['description'] ?? 'N/A'),
+                'uvi' => $uvi,
+                'location_name' => (string) ($weather['name'] ?? 'Localisation du projet'),
+                'lat' => $lat,
+                'lon' => $lon,
+            ];
+
+            $advice = $this->buildAgroAdvice($agro);
+
+            return $this->render('agriculteur/project_agricole/Conseils du projet.html.twig', [
+                'project' => $project,
+                'agro' => $agro,
+                'advice' => $advice,
+                'error' => null,
+            ]);
+        } catch (\Throwable $e) {
+            return $this->render('agriculteur/project_agricole/Conseils du projet.html.twig', [
+                'project' => $project,
+                'error' => 'Impossible de recuperer les donnees meteo OpenWeather pour ce projet.',
+                'agro' => null,
+                'advice' => [],
+            ]);
+        }
+    }
+
+    private function buildAgroAdvice(array $agro): array
+    {
+        $tips = [];
+
+        $temp = $agro['temperature'] ?? null;
+        if (is_numeric($temp)) {
+            $t = number_format((float) $temp, 1, '.', '');
+            if ($temp <= 2) {
+                $tips[] = '❄ Temperature tres froide (' . $t . ' °C) — Risque de gel. Protegez les cultures fragiles et evitez les semis.';
+            } elseif ($temp < 12) {
+                $tips[] = '🌤 Temperature fraiche (' . $t . ' °C) — Conditions favorables pour ble, orge et legumes d hiver.';
+            } elseif ($temp <= 28) {
+                $tips[] = '☀ Temperature optimale (' . $t . ' °C) — Ideal pour la croissance active des cultures.';
+            } elseif ($temp < 35) {
+                $tips[] = '🌡 Chaleur elevee (' . $t . ' °C) — Augmentez l irrigation. Preferez les travaux tot le matin.';
+            } else {
+                $tips[] = '🔥 Chaleur extreme (' . $t . ' °C) — Stress hydrique eleve. Irrigation renforcee et paillage recommande.';
+            }
+        }
+
+        $humidity = $agro['humidity'] ?? null;
+        if (is_numeric($humidity)) {
+            $h = number_format((float) $humidity, 0, '.', '');
+            if ($humidity < 35) {
+                $tips[] = '💧 Humidite tres basse (' . $h . ' %) — Irrigation urgente recommandee. Risque de stress hydrique.';
+            } elseif ($humidity < 55) {
+                $tips[] = '💧 Humidite moderee (' . $h . ' %) — Surveillez le sol. Irrigation legere possible.';
+            } elseif ($humidity <= 80) {
+                $tips[] = '💧 Humidite suffisante (' . $h . ' %) — Bon niveau hydrique. Vigilance fongique si cette situation dure.';
+            } else {
+                $tips[] = '💧 Humidite tres elevee (' . $h . ' %) — Risque fongique. Assurez un bon drainage et l aeration.';
+            }
+        }
+
+        // Estimation simple de l etat hydrique du sol a partir des donnees dispo.
+        $clouds = $agro['clouds'] ?? null;
+        $conditions = mb_strtolower((string) ($agro['conditions'] ?? ''));
+        $rainLike = str_contains($conditions, 'rain')
+            || str_contains($conditions, 'pluie')
+            || str_contains($conditions, 'drizzle')
+            || str_contains($conditions, 'averse');
+        if (is_numeric($humidity) && is_numeric($clouds)) {
+            if ($humidity < 40 && $clouds < 35 && !$rainLike) {
+                $tips[] = '🌍 Sol sec (estime) — Irrigation immediate necessaire.';
+            } elseif (($humidity >= 40 && $humidity <= 75) && !$rainLike) {
+                $tips[] = '🌍 Humidite du sol correcte (estimee) — Conditions favorables pour les racines.';
+            } else {
+                $tips[] = '🌍 Sol tres humide (estime) — Reduisez l irrigation et verifiez le drainage.';
+            }
+        }
+
+        $wind = $agro['wind'] ?? null;
+        if (is_numeric($wind)) {
+            $w = number_format((float) $wind, 1, '.', '');
+            if ($wind >= 10) {
+                $tips[] = '💨 Vent fort (' . $w . ' m/s) — Evitez les traitements phytosanitaires. Proteger les jeunes plants.';
+            } elseif ($wind >= 5) {
+                $tips[] = '💨 Vent modere (' . $w . ' m/s) — Conditions moyennes pour les epandages.';
+            } else {
+                $tips[] = '💨 Vent faible (' . $w . ' m/s) — Bonnes conditions pour les traitements localises.';
+            }
+        }
+
+        $pressure = $agro['pressure'] ?? null;
+        if (is_numeric($pressure)) {
+            $p = number_format((float) $pressure, 0, '.', '');
+            if ($pressure < 1005) {
+                $tips[] = '🌫 Pression basse (' . $p . ' hPa) — Meteo instable/pluie possible. Anticipez les travaux sensibles.';
+            } elseif ($pressure > 1020) {
+                $tips[] = '🧭 Pression elevee (' . $p . ' hPa) — Conditions plutot stables et seches. Surveillez l evaporation.';
+            } else {
+                $tips[] = '🌫 Pression moderee (' . $p . ' hPa) — Conditions meteo relativement normales.';
+            }
+        }
+
+        if (is_numeric($clouds)) {
+            $c = number_format((float) $clouds, 0, '.', '');
+            if ($clouds < 20) {
+                $tips[] = '🌾 Ciel degage (' . $c . ' %) — Forte lumiere, photosynthese active et evaporation plus rapide.';
+            } elseif ($clouds <= 70) {
+                $tips[] = '⛅ Ciel partiellement nuageux (' . $c . ' %) — Conditions globalement equilibrees pour la plupart des cultures.';
+            } else {
+                $tips[] = '☁ Nebulosite elevee (' . $c . ' %) — Rayonnement reduit. Ajustez irrigation/fertilisation.';
+            }
+        }
+
+        $uvi = $agro['uvi'] ?? null;
+        if (is_numeric($uvi)) {
+            $u = number_format((float) $uvi, 1, '.', '');
+            if ($uvi >= 8) {
+                $tips[] = '☀ UV eleve (' . $u . ') — Travaillez tot le matin ou en soiree. Protection individuelle obligatoire.';
+            } elseif ($uvi >= 6) {
+                $tips[] = '🔆 UV modere/eleve (' . $u . ') — Surveillez les jeunes plants et limitez les interventions en plein midi.';
+            } else {
+                $tips[] = '🕶 UV faible a modere (' . $u . ') — Risque solaire limite pour les cultures et operateurs.';
+            }
+        }
+
+        if ($conditions !== '') {
+            if (str_contains($conditions, 'rain') || str_contains($conditions, 'pluie')) {
+                $tips[] = '🌧 Conditions pluvieuses — Reportez les traitements foliaires et surveillez le drainage.';
+            }
+            if (str_contains($conditions, 'thunderstorm') || str_contains($conditions, 'orage')) {
+                $tips[] = '⛈ Risque orageux — Protegez le materiel et evitez les interventions en parcelle.';
+            }
+            if (str_contains($conditions, 'fog') || str_contains($conditions, 'brouillard')) {
+                $tips[] = '🌫 Brouillard — Vigilance accrue sur les maladies cryptogamiques.';
+            }
+        }
+
+        if (empty($tips)) {
+            $tips[] = '✅ Conditions globalement favorables. Maintenez le suivi hydrique et sanitaire habituel.';
+        }
+
+        return $tips;
+    }
+
     #[Route('/export/pdf', name: 'export_pdf', methods: ['GET'])]
     public function exportPdf(ProjectAgricoleRepository $repo): Response
     {

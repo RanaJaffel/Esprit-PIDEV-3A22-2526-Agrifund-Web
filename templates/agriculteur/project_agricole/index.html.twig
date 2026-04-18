@@ -261,6 +261,13 @@
 
                         {# Card action buttons #}
                         <div style="padding:1rem 1.4rem 1.4rem;display:flex;gap:.5rem;border-top:1px solid #f0f0f0;background:#fafafa;border-radius:0 0 16px 16px;">
+                            <a href="{{ path('agriculteur_project_agricole_project_advice', {id: project.idproject}) }}"
+                               title="Conseils du projet"
+                               style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;
+                                      display:flex;align-items:center;justify-content:center;
+                                      text-decoration:none;font-size:1rem;">
+                                🌱
+                            </a>
                             <a href="{{ path('agriculteur_project_agricole_plant_disease_assistant', {id: project.idproject}) }}"
                                title="Plant Disease Assistant"
                                style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0f766e,#0ea5a4);color:#fff;

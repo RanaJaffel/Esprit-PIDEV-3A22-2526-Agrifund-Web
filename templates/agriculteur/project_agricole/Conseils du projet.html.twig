@@ -1,0 +1,114 @@
+﻿{% extends 'base.html.twig' %}
+{% block title %}Conseils du projet - {{ project.nomproject }}{% endblock %}
+{% block hide_preloader %}true{% endblock %}
+{% block body_class %}agriculteur-page{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .advice-main {
+        margin-left: 280px;
+        min-height: 100vh;
+        padding: 30px;
+        background: radial-gradient(circle at 20% 10%, #f5fbf6 0%, #edf5ef 60%, #f8fbf9 100%);
+    }
+
+    .advice-hero {
+        background: linear-gradient(135deg, #14532d, #15803d 55%, #22c55e);
+        border-radius: 16px;
+        padding: 20px 24px;
+        color: #fff;
+        box-shadow: 0 10px 26px rgba(21, 128, 61, .35);
+        margin-bottom: 16px;
+    }
+
+    .advice-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .metric-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5ece7;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+        padding: 12px;
+    }
+
+    .metric-label { color: #5f7a6a; font-size: .85rem; }
+    .metric-value { color: #154734; font-weight: 800; font-size: 1.2rem; margin-top: 4px; }
+
+    .advice-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #e6eee8;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
+        padding: 16px;
+    }
+
+    .advice-list { margin: 0; padding-left: 18px; }
+    .advice-list li { margin-bottom: 8px; color: #244637; line-height: 1.42; }
+
+    .error-box {
+        background: #fff2f2;
+        color: #8a2c2c;
+        border: 1px solid #efc4c4;
+        border-radius: 12px;
+        padding: 14px;
+    }
+
+    @media (max-width: 991.98px) {
+        .advice-main { margin-left: 0; padding: 70px 14px 20px; }
+        .advice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 575.98px) {
+        .advice-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'components/_sidebar_agriculteur.html.twig' %}
+
+<main class="advice-main">
+    <section class="advice-hero">
+        <div style="font-size:.82rem;opacity:.88;">Agromonitoring OpenWeather</div>
+        <h2 style="margin:4px 0 6px 0;font-size:1.55rem;">🌱 Conseils du projet</h2>
+        <div style="opacity:.93;">
+            Projet: <strong>{{ project.nomproject }}</strong>
+            {% if agro %}
+                · Zone: {{ agro.location_name }} ({{ agro.lat|number_format(4, '.', '') }}, {{ agro.lon|number_format(4, '.', '') }})
+            {% endif %}
+        </div>
+        <div style="margin-top:10px;">
+            <a href="{{ path('agriculteur_project_agricole_index') }}" style="color:#e8fff0;text-decoration:underline;">Retour a mes projets</a>
+        </div>
+    </section>
+
+    {% if error %}
+        <div class="error-box">{{ error }}</div>
+    {% elseif agro %}
+        <section class="advice-grid">
+            <article class="metric-card"><div class="metric-label">🌡 Temperature</div><div class="metric-value">{{ agro.temperature is not null ? agro.temperature|number_format(1, '.', '') ~ ' °C' : 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">💧 Humidite</div><div class="metric-value">{{ agro.humidity is not null ? agro.humidity|number_format(0, '.', '') ~ ' %' : 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">💨 Vent</div><div class="metric-value">{{ agro.wind is not null ? agro.wind|number_format(1, '.', '') ~ ' m/s' : 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">🌫 Pression</div><div class="metric-value">{{ agro.pressure is not null ? agro.pressure|number_format(0, '.', '') ~ ' hPa' : 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">☁ Nebulosite</div><div class="metric-value">{{ agro.clouds is not null ? agro.clouds|number_format(0, '.', '') ~ ' %' : 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">📝 Conditions</div><div class="metric-value" style="font-size:1rem;">{{ agro.conditions ?: 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">☀ UV</div><div class="metric-value">{{ agro.uvi is not null ? agro.uvi|number_format(1, '.', '') : 'N/A' }}</div></article>
+            <article class="metric-card"><div class="metric-label">📍 Coordonnees</div><div class="metric-value" style="font-size:1rem;">{{ agro.lat|number_format(4, '.', '') }}, {{ agro.lon|number_format(4, '.', '') }}</div></article>
+        </section>
+
+        <section class="advice-card">
+            <h3 style="margin:0 0 10px 0;color:#14532d;">Conseils agricoles recommandes</h3>
+            <ul class="advice-list">
+                {% for tip in advice %}
+                    <li>{{ tip }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+</main>
+{% endblock %}
