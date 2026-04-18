@@ -91,8 +91,8 @@
                                font-size:.9rem;cursor:pointer;min-width:160px;font-family:inherit;">
                     <option value="">Tous les statuts</option>
                     <option value="en cours">⏳ En cours</option>
-                    <option value="accepté">✅ Accepté</option>
-                    <option value="refusé">❌ Refusé</option>
+                    <option value="accepte">✅ Accepté</option>
+                    <option value="refuse">❌ Refusé</option>
                 </select>
 
                 <button id="resetBtn" onclick="resetFilters()"
@@ -111,9 +111,9 @@
         </div>
 
         {% set myTotal    = projects|length %}
-        {% set myApprouve = projects|filter(p => p.statut == 'Accepté')|length %}
-        {% set myEncours  = projects|filter(p => p.statut == 'En cours')|length %}
-        {% set myRefuse   = projects|filter(p => p.statut == 'Refusé')|length %}
+        {% set myApprouve = projects|filter(p => (p.statut|lower|replace({'é':'e'})) == 'accepte')|length %}
+        {% set myEncours  = projects|filter(p => (p.statut|lower|replace({'é':'e'})) == 'en cours')|length %}
+        {% set myRefuse   = projects|filter(p => (p.statut|lower|replace({'é':'e'})) == 'refuse')|length %}
 
         <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem;">
 
@@ -130,7 +130,7 @@
                 </div>
             </div>
 
-            <div class="stat-filter-card" data-statut="accepté" title="Filtrer : Acceptés"
+            <div class="stat-filter-card" data-statut="accepte" title="Filtrer : Acceptés"
                  style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .15s;padding:1.4rem;">
                 <div style="display:flex;align-items:center;gap:1rem;">
                     <div style="width:60px;height:60px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -156,7 +156,7 @@
                 </div>
             </div>
 
-            <div class="stat-filter-card" data-statut="refusé" title="Filtrer : Refusés"
+            <div class="stat-filter-card" data-statut="refuse" title="Filtrer : Refusés"
                  style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .15s;padding:1.4rem;">
                 <div style="display:flex;align-items:center;gap:1rem;">
                     <div style="width:60px;height:60px;border-radius:50%;background:#FFEBEE;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -211,9 +211,10 @@
 
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;" id="projectsGrid">
                 {% for project in projects %}
+                {% set statutNorm = project.statut|lower|replace({'é':'e'}) %}
                 <div class="project-card-col"
                      data-name="{{ project.nomproject|lower }}"
-                     data-statut="{{ project.statut|lower }}">
+                     data-statut="{{ statutNorm }}">
                     <div style="background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.08);
                                 transition:transform .2s,box-shadow .2s;height:100%;display:flex;flex-direction:column;"
                          onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,.14)'"
@@ -222,8 +223,8 @@
                         <div style="padding:1.4rem;flex:1;">
                             <div style="display:flex;align-items:flex-start;gap:.9rem;margin-bottom:1rem;">
                                 <div style="font-size:1.6rem;flex-shrink:0;margin-top:2px;">
-                                    {% if project.statut == 'Accepté' %}✅
-                                    {% elseif project.statut == 'Refusé' %}❌
+                                    {% if statutNorm == 'accepte' %}✅
+                                    {% elseif statutNorm == 'refuse' %}❌
                                     {% else %}⏳{% endif %}
                                 </div>
                                 <div>
@@ -234,7 +235,7 @@
 
                             <div style="margin-bottom:1rem;">
                                 <span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:600;
-                                    background:{% if project.statut == 'Accepté' %}#2E7D32{% elseif project.statut == 'Refusé' %}#C62828{% elseif project.statut == 'Terminé' %}#455A64{% else %}#E65100{% endif %};
+                                    background:{% if statutNorm == 'accepte' %}#2E7D32{% elseif statutNorm == 'refuse' %}#C62828{% elseif statutNorm == 'termine' %}#455A64{% else %}#E65100{% endif %};
                                     color:#fff;">{{ project.statut }}</span>
                             </div>
 
