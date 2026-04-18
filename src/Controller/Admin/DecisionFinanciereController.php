@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 #[Route('/admin/decision', name: 'admin_decision_')]
 class DecisionFinanciereController extends AbstractController
@@ -47,33 +49,39 @@ class DecisionFinanciereController extends AbstractController
     }
 
     #[Route('/new', name: 'new')]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
-        $decision = new DecisionFinanciere();
-        $form     = $this->createForm(DecisionFinanciereType::class, $decision);
-        $form->handleRequest($request);
+public function new(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+{
+    $decision = new DecisionFinanciere();
+    $form     = $this->createForm(DecisionFinanciereType::class, $decision);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+    if ($form->isSubmitted()) {
+        if (!$form->isValid()) {
+            $this->addFlash('danger', 'Formulaire non valide : ' . (string) $form->getErrors(true, false));
+        } else {
             $em->persist($decision);
             $em->flush();
-            $this->addFlash('success', 'Decision creee !');
+            $this->sendDecisionEmail($mailer, $decision);
+            $this->addFlash('success', 'Decision creee et email envoye !');
             return $this->redirectToRoute('admin_decision_index');
         }
-
-        return $this->render('admin/decision/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
     }
 
-    #[Route('/{id}/edit', name: 'edit')]
-    public function edit(Request $request, DecisionFinanciere $decision, EntityManagerInterface $em): Response
+    return $this->render('admin/decision/new.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+
+    #[Route('/{idDecision}/edit', name: 'edit')]
+    public function edit(Request $request, DecisionFinanciere $decision, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         $form = $this->createForm(DecisionFinanciereType::class, $decision);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Decision modifiee !');
+            $this->sendDecisionEmail($mailer, $decision);
+            $this->addFlash('success', 'Decision modifiee et email envoye !');
             return $this->redirectToRoute('admin_decision_index');
         }
 
@@ -99,9 +107,58 @@ class DecisionFinanciereController extends AbstractController
             $em->flush();
             $this->addFlash('success', 'Decision supprimee !');
         }
-
         return $this->redirectToRoute('admin_decision_index');
     }
+
+    // ==================== EMAIL ====================
+    private function sendDecisionEmail(MailerInterface $mailer, DecisionFinanciere $decision): void
+{
+    // 🔥 DEBUG : vérifier que la fonction est appelée
+    file_put_contents('mail_debug.txt', "FUNCTION CALLED\n", FILE_APPEND);
+
+
+    $statut      = $decision->getStatut();
+    $evaluation  = $decision->getEvaluation();
+
+    $evalId    = $evaluation?->getIdEvaluation() ?? 'N/A';
+    $score     = $evaluation?->getScoreGlobal()  ?? 'N/A';
+    $risque    = $evaluation?->getNiveauRisque() ?? 'N/A';
+
+    // Message personnalisé selon le statut
+    if ($statut === 'approuve') {
+        $messageStatut = "Félicitations, votre demande a été acceptée !";
+    } elseif ($statut === 'refuse') {
+        $messageStatut = "Nous sommes désolés, votre demande a été refusée.";
+    } else {
+        $messageStatut = "Statut de la décision : " . ucfirst($statut);
+    }
+
+    $sujet = "Décision financière : " . ucfirst($statut);
+    $corps = $messageStatut . "\n\n"
+           . "Decision ID: " . $evalId . "\n"
+           . "Score: " . $score . "\n"
+           . "Risque: " . $risque . "\n"
+           . "Statut: " . $statut;
+
+    try {
+        $email = (new Email())
+            ->from('chedyderouiche87@gmail.com')
+            ->to('chedyderouiche87@gmail.com') // 👉 change si besoin
+            ->subject($sujet)
+            ->text($corps);
+
+        $mailer->send($email);
+
+        // 🔥 DEBUG succès
+        file_put_contents('mail_debug.txt', "EMAIL SENT\n", FILE_APPEND);
+
+    } catch (\Exception $e) {
+        // 🔥 DEBUG erreur
+        file_put_contents('mail_debug.txt', "ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
+
+        dd($e->getMessage()); // affiche l’erreur direct
+    }
+}
 
     // ==================== GET EVALUATION ====================
     #[Route('/evaluation/{id}', name: 'get_evaluation', methods: ['GET'])]
@@ -117,7 +174,7 @@ class DecisionFinanciereController extends AbstractController
         ]);
     }
 
-    // ==================== CHATBOT AGRICOLE (GROQ) ====================
+    // ==================== CHATBOT (GROQ) ====================
     #[Route('/chat', name: 'chat', methods: ['POST'])]
     public function chat(Request $request, HttpClientInterface $client): JsonResponse
     {
@@ -130,16 +187,15 @@ class DecisionFinanciereController extends AbstractController
         }
 
         $groqKey = $_ENV['GROQ_API_KEY'] ?? null;
-
         if (!$groqKey) {
             return $this->json(['reply' => "La cle API Groq n'est pas configuree dans le .env."]);
         }
 
-        $niveauRisque  = $evaluation['niveauRisque']  ?? 'N/A';
-        $scoreGlobal   = $evaluation['scoreGlobal']   ?? 'N/A';
-        $fiabilite     = $evaluation['fiabilite']     ?? 'N/A';
-        $facteur       = $evaluation['facteur']       ?? 'N/A';
-        $recommandation= $evaluation['recommandation']?? 'N/A';
+        $niveauRisque   = $evaluation['niveauRisque']   ?? 'N/A';
+        $scoreGlobal    = $evaluation['scoreGlobal']    ?? 'N/A';
+        $fiabilite      = $evaluation['fiabilite']      ?? 'N/A';
+        $facteur        = $evaluation['facteur']        ?? 'N/A';
+        $recommandation = $evaluation['recommandation'] ?? 'N/A';
 
         $systemContent = "Tu es un expert agricole senior francophone avec 20 ans d'experience. "
                        . "Tu analyses des projets agricoles et donnes des conseils professionnels, "
@@ -154,29 +210,23 @@ class DecisionFinanciereController extends AbstractController
                      . "- Recommandation    : " . $recommandation . "\n\n"
                      . "Ma question : "         . $message;
 
-        $payload = [
-            'model' => 'llama-3.3-70b-versatile',
-            'max_tokens'  => 400,
-            'temperature' => 0.7,
-            'messages'    => [
-                ['role' => 'system', 'content' => $systemContent],
-                ['role' => 'user',   'content' => $userContent],
-            ],
-        ];
-
         try {
-            $response = $client->request(
-                'POST',
-                'https://api.groq.com/openai/v1/chat/completions',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $groqKey,
-                        'Content-Type'  => 'application/json',
+            $response = $client->request('POST', 'https://api.groq.com/openai/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $groqKey,
+                    'Content-Type'  => 'application/json',
+                ],
+                'json' => [
+                    'model'       => 'llama-3.3-70b-versatile',
+                    'max_tokens'  => 400,
+                    'temperature' => 0.7,
+                    'messages'    => [
+                        ['role' => 'system', 'content' => $systemContent],
+                        ['role' => 'user',   'content' => $userContent],
                     ],
-                    'json'    => $payload,
-                    'timeout' => 20,
-                ]
-            );
+                ],
+                'timeout' => 20,
+            ]);
 
             $content = $response->toArray(false);
 
@@ -187,7 +237,6 @@ class DecisionFinanciereController extends AbstractController
             }
 
             $reply = $content['choices'][0]['message']['content'] ?? null;
-
             if (!$reply) {
                 return $this->json(['reply' => "Pas de reponse generee. Reessayez."]);
             }
