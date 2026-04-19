@@ -10,12 +10,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 #[Route('/admin/project-agricole', name: 'admin_project_agricole_')]
 class ProjectAgricoleController extends AbstractController
 {
     #[Route('/', name: 'index', methods: ['GET'])]
-    public function index(Request $request, ProjectAgricoleRepository $repo): Response
+    public function index(
+        Request $request,
+        ProjectAgricoleRepository $repo,
+        ChartBuilderInterface $chartBuilder
+    ): Response
     {
         $search = $request->query->get('search', '');
         $statut = $request->query->get('statut', '');
@@ -40,6 +46,32 @@ class ProjectAgricoleController extends AbstractController
         $countApprouve = count(array_filter($allProjects, fn($p) => $p->getStatut() === 'accepte'));
         $countRefuse   = count(array_filter($allProjects, fn($p) => $p->getStatut() === 'refuse'));
 
+        $statusChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $statusChart->setData([
+            'labels' => ['Acceptés', 'Refusés', 'En cours'],
+            'datasets' => [[
+                'label' => 'Statut des projets',
+                'data' => [$countApprouve, $countRefuse, $countEncours],
+                'backgroundColor' => ['#16a34a', '#dc2626', '#ea580c'],
+                'borderColor' => ['#ffffff', '#ffffff', '#ffffff'],
+                'borderWidth' => 2,
+                'hoverOffset' => 8,
+            ]],
+        ]);
+        $statusChart->setOptions([
+            'plugins' => [
+                'legend' => [
+                    'position' => 'bottom',
+                    'labels' => [
+                        'boxWidth' => 14,
+                        'padding' => 16,
+                    ],
+                ],
+            ],
+            'maintainAspectRatio' => false,
+            'cutout' => '62%',
+        ]);
+
         return $this->render('admin/project_agricole/index.html.twig', [
             'projects'      => $projects,
             'search'        => $search,
@@ -50,6 +82,7 @@ class ProjectAgricoleController extends AbstractController
             'countApprouve' => $countApprouve,
             'countRefuse'   => $countRefuse,
             'totalCount'    => count($allProjects),
+            'statusChart'   => $statusChart,
         ]);
     }
 

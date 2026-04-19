@@ -52,6 +52,7 @@ Encore
     // Loaders
     .enableSassLoader()
     .enablePostCssLoader()
+    .enableStimulusBridge('./assets/controllers.json')
 
     // jQuery support
     .autoProvidejQuery()

@@ -2,6 +2,7 @@
  * Welcome to your app's main JavaScript file!
  */
 
+import './bootstrap';
 import './styles/app.css';
 
 // Import Bootstrap
