@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #E1B323 0%, #c9a020 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+        }
+        .content p {
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #555;
+        }
+        .content strong {
+            color: #E1B323;
+            font-weight: 700;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, rgba(225, 179, 35, 0.1) 0%, rgba(225, 179, 35, 0.05) 100%);
+            border-left: 4px solid #E1B323;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .warning-box h3 {
+            margin: 0 0 10px 0;
+            color: #c9a020;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .warning-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .warning-box li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .info-section h3 {
+            margin: 0 0 12px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .info-item {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 160px;
+        }
+        .info-value {
+            color: #333;
+        }
+        .impact-section {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .impact-section h3 {
+            margin: 0 0 12px 0;
+            color: #dc2626;
+            font-size: 16px;
+        }
+        .contact-section {
+            background: linear-gradient(135deg, #1a365d 0%, #076A39 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .contact-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+        .contact-section p {
+            margin: 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .contact-section a {
+            color: #E1B323;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            padding: 25px 30px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 13px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #E1B323;
+            text-decoration: none;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+            margin: 30px 0;
+        }
+        .code-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(225, 179, 35, 0.15) 0%, rgba(225, 179, 35, 0.08) 100%);
+            color: #c9a020;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid rgba(225, 179, 35, 0.3);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">🏦</div>
+            <h1>Compte Bancaire Suspendu</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour <strong>{{ banque.utilisateur.nom }}</strong>,</p>
+            
+            <p>Nous vous informons que votre compte bancaire partenaire sur la plateforme AgriFund a été <strong>temporairement suspendu</strong>.</p>
+            
+            <div class="info-section">
+                <h3>🏦 Informations de votre compte bancaire</h3>
+                <div class="info-item">
+                    <div class="info-label">Nom de la banque :</div>
+                    <div class="info-value">{{ banque.utilisateur.nom }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Code banque :</div>
+                    <div class="info-value"><span class="code-badge">{{ banque.codebanque }}</span></div>
+                </div>
+                {% if banque.representantLegal %}
+                <div class="info-item">
+                    <div class="info-label">Représentant légal :</div>
+                    <div class="info-value">{{ banque.representantLegal }}</div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label">Email :</div>
+                    <div class="info-value">{{ banque.utilisateur.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Statut :</div>
+                    <div class="info-value" style="color: #E1B323; font-weight: 600;">⚠️ Suspendu</div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>🚫 Restrictions actuelles</h3>
+                <p>Pendant la période de suspension, votre établissement ne pourra pas :</p>
+                <ul>
+                    <li>Accéder à l'espace bancaire partenaire</li>
+                    <li>Consulter les nouvelles demandes de financement</li>
+                    <li>Proposer des offres de crédit</li>
+                    <li>Gérer le portefeuille de clients existants</li>
+                    <li>Accéder aux statistiques et rapports</li>
+                </ul>
+            </div>
+
+            <div class="impact-section">
+                <h3>⚠️ Impact sur vos dossiers en cours</h3>
+                <p>Les demandes de financement en cours de traitement seront mises en pause. Les agriculteurs concernés seront informés de la situation.</p>
+                <p style="margin-top: 10px;">Aucune nouvelle transaction ne pourra être initiée jusqu'à la levée de la suspension.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="contact-section">
+                <h3>💬 Service Partenariats Bancaires</h3>
+                <p>Pour toute question concernant la suspension de votre compte ou pour entamer les démarches de régularisation, veuillez contacter notre service dédié aux partenariats bancaires.</p>
+                <p style="margin-top: 15px;">
+                    📧 Email : <a href="mailto:partnerships@agrifund.com">partnerships@agrifund.com</a><br>
+                    📧 Support : <a href="mailto:support.banques@agrifund.com">support.banques@agrifund.com</a><br>
+                    📞 Ligne directe : +221 33 XXX XX XX<br>
+                    ⏰ Du lundi au vendredi, 9h-18h
+                </p>
+            </div>
+
+            <p style="margin-top: 30px; padding: 15px; background: #fffbea; border-left: 3px solid #E1B323; border-radius: 5px; color: #666; font-size: 14px;">
+                <strong>Note importante :</strong> Cette suspension est une mesure temporaire. Nous vous invitons à prendre contact avec nos services dans les plus brefs délais pour clarifier la situation et envisager une réactivation de votre compte.
+            </p>
+
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                Nous vous remercions de votre compréhension et de votre coopération.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>AgriFund</strong> - Plateforme de financement agricole</p>
+            <p>© {{ "now"|date("Y") }} AgriFund. Tous droits réservés.</p>
+            <p style="margin-top: 10px;">
+                <a href="#">Politique de confidentialité</a> | 
+                <a href="#">Conditions partenaires</a> | 
+                <a href="#">Support bancaire</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

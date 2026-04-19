@@ -13,8 +13,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class Banque
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'banque', targetEntity: Utilisateur::class, cascade: ['persist'])]
@@ -26,15 +26,15 @@ class Banque
     #[Assert\Length(max: 50)]
     private ?string $codebanque = null;
 
-    #[ORM\Column(name: "addresseSiege", length: 255, nullable: true)]
+    #[ORM\Column(name: 'addresseSiege', length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $addresseSiege = null;
 
-    #[ORM\Column(name: "representantLegal", length: 255, nullable: true)]
+    #[ORM\Column(name: 'representantLegal', length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $representantLegal = null;
 
-    #[ORM\Column(name: "adresseAgence", length: 255, nullable: true)]
+    #[ORM\Column(name: 'adresseAgence', length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $adresseAgence = null;
 
@@ -45,10 +45,10 @@ class Banque
     #[Assert\Url(message: 'URL invalide')]
     private ?string $siteweb = null;
 
-    #[ORM\Column(name: "statusCompte", length: 50)]
+    #[ORM\Column(name: 'statusCompte', length: 50)]
     private string $statusCompte = 'en_attente';
 
-    #[ORM\Column(name: "compteVerfiee", type: 'boolean')]
+    #[ORM\Column(name: 'compteVerfiee', type: 'boolean')]
     private bool $compteVerfiee = false;
 
     public function getId(): ?int
@@ -64,6 +64,7 @@ class Banque
     public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 
@@ -75,6 +76,7 @@ class Banque
     public function setCodebanque(string $codebanque): self
     {
         $this->codebanque = $codebanque;
+
         return $this;
     }
 
@@ -86,6 +88,7 @@ class Banque
     public function setAddresseSiege(?string $addresseSiege): self
     {
         $this->addresseSiege = $addresseSiege;
+
         return $this;
     }
 
@@ -97,6 +100,7 @@ class Banque
     public function setRepresentantLegal(?string $representantLegal): self
     {
         $this->representantLegal = $representantLegal;
+
         return $this;
     }
 
@@ -108,6 +112,7 @@ class Banque
     public function setAdresseAgence(?string $adresseAgence): self
     {
         $this->adresseAgence = $adresseAgence;
+
         return $this;
     }
 
@@ -119,6 +124,7 @@ class Banque
     public function setLogo(?string $logo): self
     {
         $this->logo = $logo;
+
         return $this;
     }
 
@@ -130,6 +136,7 @@ class Banque
     public function setSiteweb(?string $siteweb): self
     {
         $this->siteweb = $siteweb;
+
         return $this;
     }
 
@@ -141,6 +148,7 @@ class Banque
     public function setStatusCompte(string $statusCompte): self
     {
         $this->statusCompte = $statusCompte;
+
         return $this;
     }
 
@@ -152,6 +160,7 @@ class Banque
     public function setCompteVerfiee(bool $compteVerfiee): self
     {
         $this->compteVerfiee = $compteVerfiee;
+
         return $this;
     }
 }

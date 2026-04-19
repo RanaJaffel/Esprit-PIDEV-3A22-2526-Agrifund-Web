@@ -11,8 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Agriculteur
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'agriculteur', targetEntity: Utilisateur::class, cascade: ['persist'])]
@@ -49,6 +49,7 @@ class Agriculteur
     public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 
@@ -60,6 +61,7 @@ class Agriculteur
     public function setAdresseferme(?string $adresseferme): self
     {
         $this->adresseferme = $adresseferme;
+
         return $this;
     }
 
@@ -71,6 +73,7 @@ class Agriculteur
     public function setSuperficieferme(?string $superficieferme): self
     {
         $this->superficieferme = $superficieferme;
+
         return $this;
     }
 
@@ -82,6 +85,7 @@ class Agriculteur
     public function setTypeCulture(?string $typeCulture): self
     {
         $this->typeCulture = $typeCulture;
+
         return $this;
     }
 
@@ -93,6 +97,7 @@ class Agriculteur
     public function setStatuscompte(string $statuscompte): self
     {
         $this->statuscompte = $statuscompte;
+
         return $this;
     }
 
@@ -104,6 +109,7 @@ class Agriculteur
     public function setCompteverifie(bool $compteverifie): self
     {
         $this->compteverifie = $compteverifie;
+
         return $this;
     }
 }

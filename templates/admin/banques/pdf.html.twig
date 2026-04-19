@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 13px;
+            color: #2d3748;
+            background: #fff;
+        }
+
+        /* ===== WATERMARK ===== */
+        .watermark {
+            position: fixed;
+            top: 35%;
+            left: 10%;
+            font-size: 90px;
+            color: rgba(26, 54, 93, 0.04);
+            transform: rotate(-35deg);
+            font-weight: bold;
+            letter-spacing: 5px;
+            z-index: -1;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #1a365d, #095032);
+            color: white;
+            padding: 25px 30px;
+            margin-bottom: 0;
+        }
+
+        .header-top {
+            display: table;
+            width: 100%;
+        }
+
+        .header-left {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #E1B323;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            margin: 2px 0;
+        }
+
+        .reference-badge {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 8px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #E1B323;
+            letter-spacing: 2px;
+        }
+
+        /* ===== DIVIDER ===== */
+        .divider {
+            height: 4px;
+            background: linear-gradient(90deg, #E1B323, #B2D944, #E1B323);
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 25px 30px;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1a365d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 15px;
+            background: rgba(26, 54, 93, 0.06);
+            border-left: 4px solid #1a365d;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        /* ===== INFO TABLE ===== */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .info-table tr:nth-child(even) {
+            background: #f7f9fc;
+        }
+
+        .info-table tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        .info-table td {
+            padding: 11px 15px;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .info-table .label {
+            font-weight: bold;
+            color: #4a5568;
+            width: 35%;
+            background: #edf2f7;
+            font-size: 12px;
+        }
+
+        .info-table .value {
+            color: #2d3748;
+            font-size: 13px;
+        }
+
+        /* ===== CODE BANQUE ===== */
+        .code-badge {
+            background: rgba(225, 179, 35, 0.15);
+            color: #c9a020;
+            padding: 5px 15px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            border: 1px solid rgba(225, 179, 35, 0.3);
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-actif {
+            background: #c6f6d5;
+            color: #276749;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-attente {
+            background: #fefcbf;
+            color: #744210;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-refuse {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* ===== DOCUMENTS TABLE ===== */
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .docs-table thead tr {
+            background: #1a365d;
+            color: white;
+        }
+
+        .docs-table thead th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .docs-table tbody tr:nth-child(even) {
+            background: #f7f9fc;
+        }
+
+        .docs-table tbody tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        .docs-table tbody td {
+            padding: 9px 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #2d3748;
+        }
+
+        /* ===== SIGNATURE ===== */
+        .signature-section {
+            margin-top: 40px;
+            display: table;
+            width: 100%;
+        }
+
+        .signature-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+
+        .signature-right {
+            display: table-cell;
+            width: 50%;
+            text-align: right;
+            vertical-align: bottom;
+        }
+
+        .signature-box {
+            border-top: 2px solid #1a365d;
+            padding-top: 10px;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .signature-box p {
+            font-size: 11px;
+            color: #4a5568;
+            margin: 3px 0;
+        }
+
+        .signature-box .sig-title {
+            font-weight: bold;
+            color: #1a365d;
+            font-size: 12px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f7fafc;
+            border-top: 2px solid #1a365d;
+            padding: 10px 30px;
+            display: table;
+            width: 100%;
+        }
+
+        .footer-left {
+            display: table-cell;
+            font-size: 10px;
+            color: #718096;
+            vertical-align: middle;
+        }
+
+        .footer-right {
+            display: table-cell;
+            text-align: right;
+            font-size: 10px;
+            color: #718096;
+            vertical-align: middle;
+        }
+
+        /* ===== VERIFIED SEAL ===== */
+        .verified-seal {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px dashed #1a365d;
+            border-radius: 10px;
+            background: rgba(26, 54, 93, 0.03);
+        }
+
+        .verified-seal p {
+            color: #1a365d;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .verified-seal .seal-date {
+            color: #718096;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+{# WATERMARK #}
+<div class="watermark">AGRIFUND</div>
+
+{# HEADER #}
+<div class="header">
+    <div class="header-top">
+        <div class="header-left">
+            <h1>🏦 AGRIFUND</h1>
+            <p>Plateforme de Financement Agricole</p>
+            <p>Rapport Officiel — Dossier Banque</p>
+        </div>
+        <div class="header-right">
+            <div class="reference-badge">{{ reference }}</div>
+            <p style="margin-top: 8px; font-size: 11px;">Émis le {{ date|date('d/m/Y à H:i') }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+{# CONTENT #}
+<div class="content">
+
+    {# Informations générales #}
+    <div class="section-title">🏦 Informations Générales</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Nom de la banque</td>
+            <td class="value"><strong>{{ banque.utilisateur.nom }}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">Code banque</td>
+            <td class="value">
+                <span class="code-badge">{{ banque.codebanque }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Email</td>
+            <td class="value">{{ banque.utilisateur.email }}</td>
+        </tr>
+        <tr>
+            <td class="label">Téléphone</td>
+            <td class="value">{{ banque.utilisateur.tel ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Site web</td>
+            <td class="value">{{ banque.siteweb ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Date d'inscription</td>
+            <td class="value">{{ banque.utilisateur.dateInscrit|date('d/m/Y H:i') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Dernière connexion</td>
+            <td class="value">{{ banque.utilisateur.derniereConnexion|date('d/m/Y H:i') }}</td>
+        </tr>
+    </table>
+
+    {# Informations bancaires #}
+    <div class="section-title">🏢 Informations Bancaires</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Adresse siège</td>
+            <td class="value">{{ banque.addresseSiege ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Adresse agence</td>
+            <td class="value">{{ banque.adresseAgence ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Représentant légal</td>
+            <td class="value">
+                {% if banque.representantLegal %}
+                    <strong>{{ banque.representantLegal }}</strong>
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Statut du compte</td>
+            <td class="value">
+                {% if banque.statusCompte == 'actif' %}
+                    <span class="status-actif">✓ Active</span>
+                {% elseif banque.statusCompte == 'en_attente' %}
+                    <span class="status-attente">⏳ En attente</span>
+                {% elseif banque.statusCompte == 'refuse' %}
+                    <span class="status-refuse">✗ Refusée</span>
+                {% else %}
+                    {{ banque.statusCompte }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Compte vérifié</td>
+            <td class="value">
+                {% if banque.compteVerfiee %}
+                    <span class="status-actif">✓ Vérifié</span>
+                {% else %}
+                    <span class="status-attente">⚠ Non vérifié</span>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {# Documents #}
+    {% set documents = banque.utilisateur.documents %}
+    {% if documents|length > 0 %}
+    <div class="section-title">📄 Documents Soumis</div>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Date d'envoi</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for document in documents %}
+            <tr>
+                <td>{{ document.nom }}</td>
+                <td>{{ document.typeDocument }}</td>
+                <td>{{ document.dateUpload|date('d/m/Y') }}</td>
+                <td>{{ document.statut }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {# Verified seal #}
+    {% if banque.compteVerfiee %}
+    <div class="verified-seal">
+        <p>✅ BANQUE OFFICIELLEMENT VÉRIFIÉE PAR L'ADMINISTRATION</p>
+        <p class="seal-date">Référence : {{ reference }} — {{ date|date('d/m/Y') }}</p>
+    </div>
+    {% endif %}
+
+    {# Signature #}
+    <div class="signature-section">
+        <div class="signature-left">
+            <div class="signature-box">
+                <p style="height: 40px;"></p>
+                <p class="sig-title">Le Représentant</p>
+                <p>{{ banque.representantLegal ?? banque.utilisateur.nom }}</p>
+            </div>
+        </div>
+        <div class="signature-right">
+            <div class="signature-box">
+                <p style="height: 40px;"></p>
+                <p class="sig-title">L'Administration</p>
+                <p>AGRIFUND</p>
+                <p>{{ date|date('d/m/Y') }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# FOOTER #}
+<div class="footer">
+    <div class="footer-left">
+        🌿 AGRIFUND — Plateforme de Financement Agricole<br>
+        Document généré automatiquement — Ne nécessite pas de signature manuscrite
+    </div>
+    <div class="footer-right">
+        Réf : {{ reference }}<br>
+        Généré le {{ date|date('d/m/Y à H:i') }}
+    </div>
+</div>
+
+</body>
+</html>

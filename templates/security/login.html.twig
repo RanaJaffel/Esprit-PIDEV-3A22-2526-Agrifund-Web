@@ -1,5 +1,4 @@
 {# templates/security/login.html.twig #}
-
 {% extends 'base.html.twig' %}
 
 {% block title %}Connexion - AgriFund{% endblock %}
@@ -8,7 +7,6 @@
 
 {% block stylesheets %}
 <style>
-    /* Cacher le preloader de base.html.twig */
     #preloader {
         display: none !important;
         opacity: 0 !important;
@@ -18,25 +16,33 @@
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
     * {
+        box-sizing: border-box;
+    }
+
+    html, body {
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
+        min-height: 100%;
     }
 
     body.login-page-body {
         font-family: 'Poppins', sans-serif;
         overflow-x: hidden;
+        background: #0d2818;
     }
 
-    /* ==========================================
-       LOADING OVERLAY
-    ========================================== */
+    #scroll-top {
+        display: none !important;
+    }
+
+    .login-page-shell {
+        min-height: 100vh;
+        position: relative;
+    }
+
     .login-loading-overlay {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: linear-gradient(135deg, #0d2818 0%, #1a472a 50%, #2d5a3d 100%);
         z-index: 99999;
         display: flex;
@@ -116,26 +122,22 @@
         font-size: 0.9rem;
     }
 
-    /* ==========================================
-       LOGIN UNIVERSE
-    ========================================== */
     .login-universe {
         min-height: 100vh;
         background: linear-gradient(180deg, #0a1628 0%, #1a3a2a 50%, #0d2818 100%);
         position: relative;
         overflow: hidden;
-        padding-top: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
     }
 
-    /* ==========================================
-       STARS
-    ========================================== */
-    .stars-container {
+    .stars-container,
+    .fireflies-container,
+    .leaves-container {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         pointer-events: none;
         overflow: hidden;
     }
@@ -157,9 +159,6 @@
         50% { opacity: 1; transform: scale(1.3); }
     }
 
-    /* ==========================================
-       SHOOTING STARS
-    ========================================== */
     .shooting-star {
         position: absolute;
         width: 100px;
@@ -180,18 +179,6 @@
     .shooting-star:nth-child(2) { top: 20%; right: 20%; animation-delay: 2s; }
     .shooting-star:nth-child(3) { top: 5%; right: 30%; animation-delay: 4s; }
 
-    /* ==========================================
-       FIREFLIES
-    ========================================== */
-    .fireflies-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-
     .firefly {
         position: absolute;
         width: 8px;
@@ -203,10 +190,7 @@
     }
 
     @keyframes fireflyFloat {
-        0%, 100% {
-            transform: translate(0, 0) scale(0.8);
-            opacity: 0;
-        }
+        0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0; }
         10% { opacity: 1; }
         25% { transform: translate(30px, -50px) scale(1); }
         50% { transform: translate(80px, -20px) scale(0.9); opacity: 0.8; }
@@ -214,18 +198,15 @@
         90% { opacity: 1; }
     }
 
-    /* ==========================================
-       MOON
-    ========================================== */
     .moon {
         position: absolute;
-        top: 80px;
+        top: 70px;
         right: 10%;
         width: 90px;
         height: 90px;
         background: radial-gradient(circle at 30% 30%, #fffde7 0%, #ffd54f 40%, #ffb300 100%);
         border-radius: 50%;
-        box-shadow: 
+        box-shadow:
             0 0 60px rgba(255, 213, 79, 0.6),
             0 0 120px rgba(255, 213, 79, 0.3),
             inset -10px -10px 20px rgba(255, 183, 77, 0.3);
@@ -255,27 +236,14 @@
     }
 
     @keyframes moonGlow {
-        0%, 100% { 
+        0%, 100% {
             box-shadow: 0 0 60px rgba(255, 213, 79, 0.6), 0 0 120px rgba(255, 213, 79, 0.3);
             transform: scale(1);
         }
-        50% { 
+        50% {
             box-shadow: 0 0 80px rgba(255, 213, 79, 0.8), 0 0 150px rgba(255, 213, 79, 0.4);
             transform: scale(1.02);
         }
-    }
-
-    /* ==========================================
-       FALLING LEAVES
-    ========================================== */
-    .leaves-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        overflow: hidden;
     }
 
     .leaf {
@@ -300,145 +268,24 @@
         }
     }
 
-    /* ==========================================
-       LANDSCAPE
-    ========================================== */
-    .landscape {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 280px;
-        z-index: 1;
-    }
-
-    .mountains {
-        position: absolute;
-        bottom: 60px;
-        width: 100%;
-    }
-
-    .mountain {
-        position: absolute;
-        bottom: 0;
-        border-style: solid;
-    }
-
-    .mountain-1 {
-        left: -10%;
-        border-width: 0 220px 180px 220px;
-        border-color: transparent transparent #1a472a transparent;
-    }
-
-    .mountain-2 {
-        left: 15%;
-        border-width: 0 160px 140px 160px;
-        border-color: transparent transparent #2d5a3d transparent;
-    }
-
-    .mountain-3 {
-        right: -10%;
-        border-width: 0 260px 200px 260px;
-        border-color: transparent transparent #1a472a transparent;
-    }
-
-    .mountain-4 {
-        right: 20%;
-        border-width: 0 180px 150px 180px;
-        border-color: transparent transparent #234d35 transparent;
-    }
-
-    .ground {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        height: 70px;
-        background: linear-gradient(180deg, #2d5a3d 0%, #1a472a 100%);
-    }
-
-    /* ==========================================
-       TREES
-    ========================================== */
-    .trees-container {
-        position: absolute;
-        bottom: 55px;
-        width: 100%;
-        z-index: 2;
-    }
-
-    .tree {
-        position: absolute;
-        bottom: 0;
-        animation: treeSway 4s infinite ease-in-out;
-    }
-
-    .tree-trunk {
-        width: 12px;
-        height: 35px;
-        background: linear-gradient(90deg, #4a3728 0%, #6b4423 50%, #4a3728 100%);
-        margin: 0 auto;
-        border-radius: 3px;
-    }
-
-    .tree-leaves {
-        width: 0;
-        height: 0;
-        border-left: 30px solid transparent;
-        border-right: 30px solid transparent;
-        border-bottom: 50px solid #2d7a3a;
-        position: relative;
-        margin-bottom: -10px;
-    }
-
-    .tree-leaves::before {
-        content: '';
-        position: absolute;
-        top: 15px;
-        left: -25px;
-        width: 0;
-        height: 0;
-        border-left: 25px solid transparent;
-        border-right: 25px solid transparent;
-        border-bottom: 40px solid #3f9e4d;
-    }
-
-    @keyframes treeSway {
-        0%, 100% { transform: rotate(-1deg); }
-        50% { transform: rotate(1deg); }
-    }
-
-    .tree:nth-child(1) { left: 5%; transform: scale(0.8); animation-delay: 0s; }
-    .tree:nth-child(2) { left: 12%; transform: scale(1.1); animation-delay: -1s; }
-    .tree:nth-child(3) { right: 8%; transform: scale(0.9); animation-delay: -2s; }
-    .tree:nth-child(4) { right: 15%; transform: scale(1); animation-delay: -0.5s; }
-
-    /* ==========================================
-       MAIN CONTAINER
-    ========================================== */
     .login-container {
-        min-height: calc(100vh - 80px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
+        width: 100%;
+        max-width: 1120px;
         position: relative;
         z-index: 10;
     }
 
-    /* ==========================================
-       GLASS CARD
-    ========================================== */
     .login-glass {
         display: flex;
-        max-width: 1050px;
         width: 100%;
+        min-height: 720px;
         background: rgba(255, 255, 255, 0.06);
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
         border-radius: 30px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         overflow: hidden;
-        box-shadow: 
+        box-shadow:
             0 30px 60px rgba(0, 0, 0, 0.4),
             inset 0 1px 0 rgba(255, 255, 255, 0.1);
         animation: cardAppear 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -457,9 +304,6 @@
         }
     }
 
-    /* ==========================================
-       ILLUSTRATION PANEL
-    ========================================== */
     .illustration-panel {
         flex: 1;
         padding: 50px;
@@ -488,7 +332,6 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Logo */
     .logo-container {
         position: relative;
         margin-bottom: 35px;
@@ -520,7 +363,7 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        box-shadow: 
+        box-shadow:
             0 20px 50px rgba(139, 195, 74, 0.5),
             inset 0 -5px 20px rgba(0, 0, 0, 0.2),
             inset 0 5px 20px rgba(255, 255, 255, 0.2);
@@ -576,9 +419,6 @@
         text-align: center;
         margin-bottom: 8px;
         text-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
-        animation: textFadeUp 0.7s ease-out 0.6s forwards;
-        opacity: 0;
-        transform: translateY(20px);
     }
 
     .brand-tagline {
@@ -586,23 +426,8 @@
         font-size: 1rem;
         text-align: center;
         margin-bottom: 45px;
-        animation: textFadeUp 0.7s ease-out 0.75s forwards;
-        opacity: 0;
-        transform: translateY(20px);
     }
 
-    @keyframes textFadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Features */
     .features {
         display: flex;
         flex-direction: column;
@@ -618,33 +443,6 @@
         background: rgba(255, 255, 255, 0.06);
         border-radius: 18px;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        animation: featureSlide 0.6s ease-out forwards;
-        opacity: 0;
-        transform: translateX(-40px);
-        cursor: pointer;
-    }
-
-    .feature-card:nth-child(1) { animation-delay: 0.9s; }
-    .feature-card:nth-child(2) { animation-delay: 1.05s; }
-    .feature-card:nth-child(3) { animation-delay: 1.2s; }
-
-    @keyframes featureSlide {
-        from {
-            opacity: 0;
-            transform: translateX(-40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    .feature-card:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateX(10px) scale(1.02);
-        border-color: rgba(139, 195, 74, 0.4);
-        box-shadow: 0 10px 40px rgba(139, 195, 74, 0.15);
     }
 
     .feature-icon {
@@ -658,12 +456,7 @@
         font-size: 22px;
         color: #1a472a;
         flex-shrink: 0;
-        transition: all 0.4s ease;
         box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
-    }
-
-    .feature-card:hover .feature-icon {
-        transform: rotate(360deg) scale(1.1);
     }
 
     .feature-text h4 {
@@ -679,9 +472,6 @@
         margin: 0;
     }
 
-    /* ==========================================
-       FORM PANEL
-    ========================================== */
     .form-panel {
         flex: 1;
         padding: 55px 50px;
@@ -693,19 +483,6 @@
 
     .form-header {
         margin-bottom: 38px;
-        animation: formFadeIn 0.7s ease-out 0.4s forwards;
-        opacity: 0;
-    }
-
-    @keyframes formFadeIn {
-        from {
-            opacity: 0;
-            transform: translateX(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
     }
 
     .welcome-text {
@@ -720,16 +497,6 @@
 
     .welcome-emoji {
         font-size: 2.2rem;
-        animation: waveHand 2.5s infinite;
-        transform-origin: 70% 70%;
-    }
-
-    @keyframes waveHand {
-        0%, 60%, 100% { transform: rotate(0deg); }
-        10%, 30% { transform: rotate(16deg); }
-        20% { transform: rotate(-8deg); }
-        40% { transform: rotate(-6deg); }
-        50% { transform: rotate(12deg); }
     }
 
     .subtitle {
@@ -737,7 +504,6 @@
         font-size: 1rem;
     }
 
-    /* Alerts */
     .alert {
         padding: 16px 22px;
         border-radius: 14px;
@@ -745,13 +511,6 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        animation: alertPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes alertPop {
-        0% { transform: scale(0.9); opacity: 0; }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); opacity: 1; }
     }
 
     .alert-danger {
@@ -766,25 +525,8 @@
         color: #155724;
     }
 
-    /* Form Groups */
     .input-group {
         margin-bottom: 28px;
-        animation: inputFadeIn 0.6s ease-out forwards;
-        opacity: 0;
-    }
-
-    .input-group:nth-child(1) { animation-delay: 0.55s; }
-    .input-group:nth-child(2) { animation-delay: 0.7s; }
-
-    @keyframes inputFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     .input-label {
@@ -800,12 +542,6 @@
     .input-label i {
         color: #3f9e4d;
         font-size: 1.1rem;
-        transition: all 0.3s ease;
-    }
-
-    .input-group:focus-within .input-label i {
-        transform: scale(1.2);
-        color: #2d7a3a;
     }
 
     .input-label .required {
@@ -825,7 +561,7 @@
         border-radius: 16px;
         background: #f9fafb;
         color: #1a472a;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.3s ease;
     }
 
     .input-field::placeholder {
@@ -836,19 +572,11 @@
         outline: none;
         border-color: #3f9e4d;
         background: white;
-        box-shadow: 0 0 0 5px rgba(63, 158, 77, 0.12), 0 10px 30px rgba(63, 158, 77, 0.08);
-        transform: translateY(-2px);
+        box-shadow: 0 0 0 5px rgba(63, 158, 77, 0.12);
     }
 
     .input-field.error {
         border-color: #ef4444;
-        animation: inputShake 0.5s ease-out;
-    }
-
-    @keyframes inputShake {
-        0%, 100% { transform: translateX(0); }
-        20%, 60% { transform: translateX(-8px); }
-        40%, 80% { transform: translateX(8px); }
     }
 
     .input-highlight {
@@ -867,14 +595,27 @@
         width: calc(100% - 4px);
     }
 
-    /* Options Row */
+    .recaptcha-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #f9fafb;
+        border-radius: 16px;
+        border: 2px dashed #e5e7eb;
+    }
+
+    .g-recaptcha {
+        transform: scale(0.95);
+        transform-origin: center;
+    }
+
     .options-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 32px;
-        animation: inputFadeIn 0.6s ease-out 0.85s forwards;
-        opacity: 0;
+        gap: 16px;
     }
 
     .remember-me {
@@ -893,17 +634,13 @@
     .custom-checkbox input {
         position: absolute;
         opacity: 0;
-        cursor: pointer;
         width: 100%;
         height: 100%;
     }
 
     .checkmark {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 22px;
-        height: 22px;
+        inset: 0;
         background: #f3f4f6;
         border: 2px solid #d1d5db;
         border-radius: 7px;
@@ -913,13 +650,6 @@
     .custom-checkbox input:checked ~ .checkmark {
         background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 100%);
         border-color: #3f9e4d;
-        animation: checkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes checkPop {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.25); }
-        100% { transform: scale(1); }
     }
 
     .checkmark::after {
@@ -937,12 +667,6 @@
 
     .custom-checkbox input:checked ~ .checkmark::after {
         display: block;
-        animation: checkDraw 0.3s ease-out forwards;
-    }
-
-    @keyframes checkDraw {
-        from { height: 0; }
-        to { height: 10px; }
     }
 
     .remember-me span {
@@ -955,33 +679,8 @@
         text-decoration: none;
         font-weight: 600;
         font-size: 0.92rem;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.3s ease;
-        position: relative;
     }
 
-    .forgot-password::after {
-        content: '';
-        position: absolute;
-        bottom: -3px;
-        left: 0;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #3f9e4d, #8bc34a);
-        transition: width 0.3s ease;
-    }
-
-    .forgot-password:hover {
-        color: #2d7a3a;
-    }
-
-    .forgot-password:hover::after {
-        width: 100%;
-    }
-
-    /* Submit Button */
     .submit-btn {
         width: 100%;
         padding: 18px;
@@ -990,7 +689,6 @@
         font-family: 'Poppins', sans-serif;
         color: white;
         background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 50%, #1a472a 100%);
-        background-size: 200% 200%;
         border: none;
         border-radius: 16px;
         cursor: pointer;
@@ -998,53 +696,18 @@
         align-items: center;
         justify-content: center;
         gap: 12px;
-        transition: all 0.4s ease;
-        animation: inputFadeIn 0.6s ease-out 1s forwards;
-        opacity: 0;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .submit-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-        transition: left 0.6s ease;
+        transition: all 0.3s ease;
     }
 
     .submit-btn:hover {
-        background-position: 100% 100%;
-        transform: translateY(-4px);
-        box-shadow: 0 15px 45px rgba(63, 158, 77, 0.45);
-    }
-
-    .submit-btn:hover::before {
-        left: 100%;
-    }
-
-    .submit-btn:active {
         transform: translateY(-2px);
+        box-shadow: 0 15px 45px rgba(63, 158, 77, 0.35);
     }
 
     .submit-btn:disabled {
         cursor: not-allowed;
         opacity: 0.8;
         transform: none;
-    }
-
-    .submit-btn i,
-    .submit-btn .btn-icon {
-        font-size: 1.2rem;
-        transition: transform 0.3s ease;
-    }
-
-    .submit-btn:hover i,
-    .submit-btn:hover .btn-icon {
-        transform: translateX(6px);
     }
 
     .submit-btn .spinner {
@@ -1060,14 +723,11 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Divider */
     .divider {
         display: flex;
         align-items: center;
         gap: 18px;
         margin: 38px 0;
-        animation: inputFadeIn 0.6s ease-out 1.15s forwards;
-        opacity: 0;
     }
 
     .divider::before,
@@ -1084,10 +744,39 @@
         white-space: nowrap;
     }
 
-    /* Register Section */
+    .face-login-option {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .btn-face-login {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, rgba(139, 195, 74, 0.1), rgba(63, 158, 77, 0.2));
+        border: 2px solid #8bc34a;
+        border-radius: 16px;
+        color: #2d7a3a;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-face-login:hover {
+        background: linear-gradient(135deg, #8bc34a, #689f38);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(139, 195, 74, 0.3);
+        border-color: transparent;
+    }
+
+    .btn-face-login i {
+        font-size: 1.5rem;
+    }
+
     .register-section {
-        animation: inputFadeIn 0.6s ease-out 1.3s forwards;
-        opacity: 0;
+        margin-top: 10px;
     }
 
     .register-title {
@@ -1114,27 +803,7 @@
         align-items: center;
         justify-content: center;
         gap: 12px;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .register-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.25);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: all 0.5s ease;
-    }
-
-    .register-btn:hover::before {
-        width: 350px;
-        height: 350px;
+        transition: all 0.3s ease;
     }
 
     .btn-farmer {
@@ -1146,9 +815,7 @@
     .btn-farmer:hover {
         background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%);
         color: white;
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 15px 40px rgba(139, 195, 74, 0.4);
-        border-color: transparent;
+        transform: translateY(-3px);
     }
 
     .btn-bank {
@@ -1160,40 +827,26 @@
     .btn-bank:hover {
         background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
         color: white;
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 15px 40px rgba(255, 193, 7, 0.4);
-        border-color: transparent;
+        transform: translateY(-3px);
     }
 
-    .register-btn i {
-        font-size: 1.3rem;
-        transition: transform 0.3s ease;
-    }
-
-    .register-btn:hover i {
-        transform: scale(1.2) rotate(8deg);
-    }
-
-    /* Footer */
     .form-footer {
         text-align: center;
         margin-top: 32px;
         padding-top: 22px;
         border-top: 1px solid #f3f4f6;
-        animation: inputFadeIn 0.6s ease-out 1.45s forwards;
-        opacity: 0;
     }
 
     .form-footer p {
         color: #999;
         font-size: 0.82rem;
+        margin-bottom: 0;
     }
 
     .form-footer a {
         color: #3f9e4d;
         text-decoration: none;
         font-weight: 500;
-        transition: color 0.3s ease;
     }
 
     .form-footer a:hover {
@@ -1201,13 +854,12 @@
         text-decoration: underline;
     }
 
-    /* ==========================================
-       RESPONSIVE
-    ========================================== */
     @media (max-width: 900px) {
         .login-glass {
             flex-direction: column;
-            max-width: 480px;
+            max-width: 520px;
+            min-height: auto;
+            margin: 0 auto;
         }
 
         .illustration-panel {
@@ -1225,33 +877,54 @@
         .moon {
             width: 60px;
             height: 60px;
-            top: 60px;
+            top: 40px;
             right: 5%;
         }
 
         .options-row {
             flex-direction: column;
-            gap: 18px;
             align-items: flex-start;
+        }
+
+        .g-recaptcha {
+            transform: scale(0.85);
         }
     }
 
     @media (max-width: 480px) {
+        .login-universe {
+            padding: 20px 12px;
+        }
+
         .form-panel {
-            padding: 35px 25px;
+            padding: 30px 20px;
         }
 
         .welcome-text {
             font-size: 1.6rem;
+        }
+
+        .g-recaptcha {
+            transform: scale(0.77);
+            transform-origin: 0 0;
+        }
+
+        .recaptcha-wrapper {
+            padding: 5px;
+            overflow: hidden;
+        }
+
+        .btn-face-login {
+            width: 100%;
+            justify-content: center;
+            padding: 14px 18px;
         }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-    {% include 'partials/_navbar.html.twig' %}
-
-    <!-- Loading Overlay -->
+<div class="login-page-shell">
     <div class="login-loading-overlay" id="loginLoadingOverlay">
         <div class="loading-logo">
             <i class="bi bi-tree-fill"></i>
@@ -1268,75 +941,40 @@
     </div>
 
     <div class="login-universe">
-        <!-- Stars -->
         <div class="stars-container">
             {% for i in 1..60 %}
-                <div class="star {% if i % 3 == 0 %}large{% elseif i % 2 == 0 %}small{% endif %}" 
+                <div class="star {% if i % 3 == 0 %}large{% elseif i % 2 == 0 %}small{% endif %}"
                      style="top: {{ random(3, 95) }}%; left: {{ random(0, 100) }}%; animation-delay: {{ random(0, 30) / 10 }}s; animation-duration: {{ random(20, 40) / 10 }}s;"></div>
             {% endfor %}
         </div>
 
-        <!-- Shooting Stars -->
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
         <div class="shooting-star"></div>
 
-        <!-- Fireflies -->
         <div class="fireflies-container">
             {% for i in 1..8 %}
                 <div class="firefly" style="top: {{ random(15, 75) }}%; left: {{ random(5, 95) }}%; animation-delay: {{ random(0, 70) / 10 }}s; animation-duration: {{ random(60, 100) / 10 }}s;"></div>
             {% endfor %}
         </div>
 
-        <!-- Falling Leaves -->
         <div class="leaves-container">
             {% for i in 1..12 %}
                 <div class="leaf" style="left: {{ random(0, 100) }}%; animation-duration: {{ random(12, 22) }}s; animation-delay: {{ random(0, 100) / 10 }}s;"></div>
             {% endfor %}
         </div>
 
-        <!-- Moon -->
         <div class="moon"></div>
 
-        <!-- Landscape -->
-        <div class="landscape">
-            <div class="mountains">
-                <div class="mountain mountain-1"></div>
-                <div class="mountain mountain-2"></div>
-                <div class="mountain mountain-3"></div>
-                <div class="mountain mountain-4"></div>
-            </div>
-            <div class="trees-container">
-                <div class="tree">
-                    <div class="tree-leaves"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-                <div class="tree">
-                    <div class="tree-leaves"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-                <div class="tree">
-                    <div class="tree-leaves"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-                <div class="tree">
-                    <div class="tree-leaves"></div>
-                    <div class="tree-trunk"></div>
-                </div>
-            </div>
-            <div class="ground"></div>
-        </div>
-
-        <!-- Main Container -->
         <div class="login-container">
             <div class="login-glass">
-                <!-- Illustration Panel -->
                 <div class="illustration-panel">
                     <div class="logo-container">
                         <div class="logo-circle">
                             <i class="bi bi-tree-fill logo-icon"></i>
                         </div>
                     </div>
+
                     <h1 class="brand-name">AgriFund</h1>
                     <p class="brand-tagline">L'avenir de l'agriculture commence ici</p>
 
@@ -1350,6 +988,7 @@
                                 <p>Suivez vos cultures intelligemment</p>
                             </div>
                         </div>
+
                         <div class="feature-card">
                             <div class="feature-icon">
                                 <i class="bi bi-cash-stack"></i>
@@ -1359,6 +998,7 @@
                                 <p>Des solutions sur mesure pour vous</p>
                             </div>
                         </div>
+
                         <div class="feature-card">
                             <div class="feature-icon">
                                 <i class="bi bi-shield-check"></i>
@@ -1371,7 +1011,6 @@
                     </div>
                 </div>
 
-                <!-- Form Panel -->
                 <div class="form-panel">
                     <div class="form-header">
                         <h2 class="welcome-text">
@@ -1390,6 +1029,13 @@
                     {% for message in app.flashes('success') %}
                         <div class="alert alert-success">
                             <i class="bi bi-check-circle-fill"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
                             <span>{{ message }}</span>
                         </div>
                     {% endfor %}
@@ -1430,6 +1076,14 @@
                             </div>
                         </div>
 
+                        <div class="input-group">
+                            <div class="recaptcha-wrapper">
+                                <div class="g-recaptcha"
+                                     data-sitekey="{{ recaptcha_site_key }}"
+                                     data-theme="light"></div>
+                            </div>
+                        </div>
+
                         <div class="options-row">
                             <label class="remember-me">
                                 <div class="custom-checkbox">
@@ -1438,6 +1092,7 @@
                                 </div>
                                 <span>Se souvenir de moi</span>
                             </label>
+
                             <a href="{{ path('app_password_reset_request') }}" class="forgot-password">
                                 <i class="bi bi-key-fill"></i>
                                 Mot de passe oublié ?
@@ -1450,6 +1105,17 @@
                             <span id="btnText">Se connecter</span>
                             <i class="bi bi-arrow-right-circle-fill btn-icon" id="btnIcon"></i>
                         </button>
+
+                        <div class="divider">
+                            <span>Ou</span>
+                        </div>
+
+                        <div class="face-login-option">
+                            <a href="{{ path('app_login_face') }}" class="btn-face-login">
+                                <i class="bi bi-person-bounding-box"></i>
+                                <span>Se connecter avec la reconnaissance faciale</span>
+                            </a>
+                        </div>
                     </form>
 
                     <div class="divider">
@@ -1481,73 +1147,55 @@
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    {% include 'partials/_footer.html.twig' %}
+{% block javascripts %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const loadingOverlay = document.getElementById('loginLoadingOverlay');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('loginForm');
-            const loadingOverlay = document.getElementById('loginLoadingOverlay');
-            const submitBtn = document.getElementById('submitBtn');
-            const btnText = document.getElementById('btnText');
-            const btnIcon = document.getElementById('btnIcon');
-
-            // Parallax effect on moon
-            document.addEventListener('mousemove', function(e) {
-                const moon = document.querySelector('.moon');
-                if (moon) {
-                    const moveX = (e.clientX - window.innerWidth / 2) * 0.015;
-                    const moveY = (e.clientY - window.innerHeight / 2) * 0.015;
-                    moon.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
-                }
-            });
-
-            // Form submit handler
-            loginForm.addEventListener('submit', function(e) {
-                // Show loading overlay
-                loadingOverlay.classList.add('active');
-                
-                // Update button state
-                submitBtn.disabled = true;
-                btnText.textContent = 'Connexion...';
-                btnIcon.className = 'spinner';
-            });
-
-            // Add ripple effect to buttons
-            document.querySelectorAll('.register-btn, .submit-btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    if (this.classList.contains('submit-btn') && this.disabled) return;
-                    
-                    const rect = this.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    const ripple = document.createElement('span');
-                    ripple.style.cssText = 'position:absolute;background:rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;left:' + (x - 50) + 'px;top:' + (y - 50) + 'px;transform:scale(0);animation:rippleEffect 0.6s ease-out;pointer-events:none;';
-                    
-                    this.appendChild(ripple);
-                    setTimeout(function() { ripple.remove(); }, 600);
-                });
-            });
-
-            // Input focus animations
-            document.querySelectorAll('.input-field').forEach(function(input) {
-                input.addEventListener('focus', function() {
-                    this.parentElement.parentElement.classList.add('focused');
-                });
-                input.addEventListener('blur', function() {
-                    this.parentElement.parentElement.classList.remove('focused');
-                });
-            });
-        });
-    </script>
-
-    <style>
-        @keyframes rippleEffect {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+    document.addEventListener('mousemove', function(e) {
+        const moon = document.querySelector('.moon');
+        if (moon) {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.015;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.015;
+            moon.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
         }
-    </style>
+    });
+
+    loginForm.addEventListener('submit', function(e) {
+        const recaptchaResponse = grecaptcha.getResponse();
+
+        if (!recaptchaResponse) {
+            e.preventDefault();
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger';
+            alertDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i><span>Veuillez cocher la case "Je ne suis pas un robot"</span>';
+
+            const formHeader = document.querySelector('.form-header');
+            formHeader.parentNode.insertBefore(alertDiv, formHeader.nextSibling);
+
+            document.querySelector('.g-recaptcha').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+
+            return false;
+        }
+
+        loadingOverlay.classList.add('active');
+        submitBtn.disabled = true;
+        btnText.textContent = 'Connexion...';
+        btnIcon.className = 'spinner';
+    });
+});
+</script>
 {% endblock %}

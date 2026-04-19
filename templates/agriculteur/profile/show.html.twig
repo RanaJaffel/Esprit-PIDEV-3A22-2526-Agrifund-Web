@@ -438,10 +438,209 @@
             box-shadow: 0 3px 10px rgba(239, 68, 68, 0.2);
         }
 
-        .badge.bg-info {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, var(--gris) 0%, #6b7280 100%) !important;
             color: white;
-            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* ==========================================
+           FACE RECOGNITION SECTION
+        ========================================== */
+        .face-recognition-section {
+            background: linear-gradient(135deg, rgba(71, 108, 26, 0.05) 0%, rgba(178, 217, 68, 0.05) 100%);
+            border: 2px dashed rgba(71, 108, 26, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .face-recognition-section::before {
+            content: '\f2bd';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 8rem;
+            color: var(--vert-olive-fonce);
+            opacity: 0.03;
+        }
+
+        .face-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .face-status-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .face-icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .face-icon-circle.active {
+            background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+            color: white;
+            animation: pulse-face 2s infinite;
+        }
+
+        .face-icon-circle.inactive {
+            background: linear-gradient(135deg, var(--gris), #6b7280);
+            color: white;
+        }
+
+        @keyframes pulse-face {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(8, 150, 71, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(8, 150, 71, 0.4); }
+        }
+
+        .face-status-info h6 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--vert-tres-fonce);
+        }
+
+        .face-status-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--gris);
+        }
+
+        .face-badge {
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .face-badge.active {
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.15), rgba(8, 150, 71, 0.1));
+            color: var(--vert-fonce);
+            border: 2px solid var(--vert-vif);
+        }
+
+        .face-badge.inactive {
+            background: rgba(132, 138, 134, 0.1);
+            color: var(--gris);
+            border: 2px solid var(--gris);
+        }
+
+        .face-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .face-info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .face-info-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .face-info-item strong {
+            display: block;
+            color: var(--gris);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .face-info-item span {
+            color: var(--vert-tres-fonce);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .face-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-face-setup {
+            flex: 1;
+            background: linear-gradient(135deg, var(--vert-olive-fonce), var(--vert-foret)) !important;
+            border: none !important;
+            color: white !important;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(71, 108, 26, 0.25);
+        }
+
+        .btn-face-setup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(71, 108, 26, 0.35);
+        }
+
+        .btn-face-test {
+            flex: 1;
+            background: rgba(71, 108, 26, 0.1) !important;
+            border: 2px solid var(--vert-olive-fonce) !important;
+            color: var(--vert-olive-fonce) !important;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-face-test:hover {
+            background: var(--vert-olive-fonce) !important;
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-face-delete {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border: 2px solid #ef4444 !important;
+            color: #dc2626 !important;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-face-delete:hover {
+            background: #ef4444 !important;
+            color: white !important;
         }
 
         /* ==========================================
@@ -462,7 +661,8 @@
             gap: 15px !important;
         }
 
-        .d-grid .btn-primary.btn-lg {
+        .d-grid .btn-primary.btn-lg,
+        .d-grid .btn-outline-success.btn-lg {
             background: linear-gradient(135deg, var(--vert-olive-fonce) 0%, var(--vert-foret) 100%) !important;
             border: none !important;
             border-radius: 14px;
@@ -480,6 +680,18 @@
             color: white;
         }
 
+        .d-grid .btn-outline-success.btn-lg {
+            background: rgba(71, 108, 26, 0.1) !important;
+            border: 2px solid var(--vert-olive-fonce) !important;
+            color: var(--vert-olive-fonce) !important;
+            box-shadow: none;
+        }
+
+        .d-grid .btn-outline-success.btn-lg:hover {
+            background: linear-gradient(135deg, var(--vert-olive-fonce) 0%, var(--vert-foret) 100%) !important;
+            color: white !important;
+        }
+
         .d-grid .btn-primary.btn-lg::before {
             content: '';
             position: absolute;
@@ -495,7 +707,8 @@
             left: 100%;
         }
 
-        .d-grid .btn-primary.btn-lg:hover {
+        .d-grid .btn-primary.btn-lg:hover,
+        .d-grid .btn-outline-success.btn-lg:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(71, 108, 26, 0.35);
         }
@@ -628,6 +841,16 @@
             .d-grid .btn-primary.btn-lg {
                 padding: 14px 20px;
                 font-size: 0.9rem;
+            }
+
+            .face-actions {
+                flex-direction: column;
+            }
+
+            .face-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
             }
         }
 
@@ -772,6 +995,20 @@
                                 <th>Date d'inscription:</th>
                                 <td>{{ utilisateur.dateInscrit|date('d/m/Y à H:i') }}</td>
                             </tr>
+                            <tr>
+                                <th>Authentification 2FA:</th>
+                                <td>
+                                    {% if utilisateur.parametres2fa and utilisateur.parametres2fa.estActive %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-shield-check me-1"></i>Activée
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-shield-slash me-1"></i>Désactivée
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
                         </table>
                     </div>
                     
@@ -809,12 +1046,80 @@
                                 </td>
                             </tr>
                         </table>
+
+                        {# ==========================================
+                           SECTION RECONNAISSANCE FACIALE
+                        ========================================== #}
+                        <div class="face-recognition-section">
+                            <div class="face-status">
+                                <div class="face-status-left">
+                                    <div class="face-icon-circle {% if utilisateur.faceEnabled %}active{% else %}inactive{% endif %}">
+                                        <i class="fas fa-user-lock"></i>
+                                    </div>
+                                    <div class="face-status-info">
+                                        <h6>Reconnaissance faciale</h6>
+                                        <p>{{ utilisateur.faceEnrollmentStatus }}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if utilisateur.faceEnabled %}
+                                        <span class="face-badge active">
+                                            <i class="fas fa-check-circle"></i>
+                                            Activée
+                                        </span>
+                                    {% else %}
+                                        <span class="face-badge inactive">
+                                            <i class="fas fa-times-circle"></i>
+                                            Désactivée
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if utilisateur.faceEnabled and utilisateur.faceEnrolledAt %}
+                                <div class="face-info-grid">
+                                    <div class="face-info-item">
+                                        <strong><i class="fas fa-calendar-check"></i> Configuré le</strong>
+                                        <span>{{ utilisateur.faceEnrolledAt|date('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="face-info-item">
+                                        <strong><i class="fas fa-clock"></i> Heure</strong>
+                                        <span>{{ utilisateur.faceEnrolledAt|date('H:i') }}</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="face-actions">
+                                {% if utilisateur.faceEnabled %}
+                                    <a href="{{ path('face_setup') }}" class="btn btn-face-setup">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Mettre à jour
+                                    </a>
+                                    <a href="{{ path('app_login_face') }}" class="btn btn-face-test" target="_blank">
+                                        <i class="fas fa-vial"></i>
+                                        Tester
+                                    </a>
+                                    <button class="btn btn-face-delete" onclick="deleteFaceData()">
+                                        <i class="fas fa-trash-alt"></i>
+                                        Supprimer
+                                    </button>
+                                {% else %}
+                                    <a href="{{ path('face_setup') }}" class="btn btn-face-setup">
+                                        <i class="fas fa-user-plus"></i>
+                                        Configurer la reconnaissance faciale
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
                         
                         <hr class="my-4">
                         
                         <div class="d-grid gap-2">
                             <a href="{{ path('agriculteur_profile_edit') }}" class="btn btn-primary btn-lg">
                                 <i class="fas fa-edit"></i>Modifier mes Informations
+                            </a>
+                            <a href="{{ path('agriculteur_profile_2fa') }}" class="btn btn-outline-success btn-lg">
+                                <i class="fas fa-shield-alt"></i>Sécurité 2FA
                             </a>
                             <a href="{{ path('agriculteur_dashboard') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left"></i>Retour au Tableau de Bord
@@ -911,7 +1216,61 @@
                     this.style.transform = 'translateY(0)';
                 });
             });
+
+            // Animate face recognition section
+            const faceSection = document.querySelector('.face-recognition-section');
+            if (faceSection) {
+                const faceObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                }, { threshold: 0.2 });
+
+                faceSection.style.opacity = '0';
+                faceSection.style.transform = 'translateY(20px)';
+                faceSection.style.transition = 'all 0.6s ease 0.3s';
+                faceObserver.observe(faceSection);
+            }
         });
+
+        // Function to delete face data
+        async function deleteFaceData() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer vos données de reconnaissance faciale ? Cette action est irréversible.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ path('face_delete') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success';
+                    alert.innerHTML = '<i class="fas fa-check-circle"></i> Données faciales supprimées avec succès';
+                    document.querySelector('.main-content').insertBefore(alert, document.querySelector('.row'));
+                    
+                    // Reload page after 2 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    alert('❌ Erreur: ' + (result.error || 'Une erreur est survenue'));
+                }
+            } catch (error) {
+                alert('❌ Erreur de connexion au serveur');
+                console.error(error);
+            }
+        }
     </script>
     <style>
         @keyframes ripple {

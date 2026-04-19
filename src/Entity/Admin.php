@@ -10,8 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Admin
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'admin', targetEntity: Utilisateur::class, cascade: ['persist'])]
@@ -31,6 +31,7 @@ class Admin
     public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 }

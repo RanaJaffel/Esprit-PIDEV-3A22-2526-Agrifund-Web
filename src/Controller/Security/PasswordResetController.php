@@ -17,6 +17,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
+use Psr\Log\LoggerInterface;
 
 class PasswordResetController extends AbstractController
 {
@@ -26,7 +27,8 @@ class PasswordResetController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         TokenReinitialisationRepository $tokenRepository,
         EntityManagerInterface $em,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        LoggerInterface $logger
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_login');
@@ -40,41 +42,60 @@ class PasswordResetController extends AbstractController
             $utilisateur = $utilisateurRepository->findOneByEmail($email);
 
             if ($utilisateur) {
-                // Invalider les anciens tokens
-                $tokenRepository->invalidateUserTokens($utilisateur);
-
-                // Créer un nouveau token
-                $token = new TokenReinitialisation();
-                $token->setUtilisateur($utilisateur);
-                $token->setToken(Uuid::v4()->toRfc4122());
-                
-                $expirationDate = new \DateTime();
-                $expirationDate->modify('+1 hour');
-                $token->setDateExpiration($expirationDate);
-
-                $em->persist($token);
-                $em->flush();
-
-                // Envoyer l'email
-                $resetUrl = $this->generateUrl('app_password_reset', [
-                    'token' => $token->getToken()
-                ], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
-
-                $emailMessage = (new Email())
-                    ->from('noreply@gestion-utilisateurs.com')
-                    ->to($utilisateur->getEmail())
-                    ->subject('Réinitialisation de votre mot de passe')
-                    ->html($this->renderView('email/password_reset.html.twig', [
-                        'utilisateur' => $utilisateur,
-                        'resetUrl' => $resetUrl,
-                        'expirationDate' => $expirationDate,
-                    ]));
-
                 try {
+                    // Invalider les anciens tokens
+                    $tokenRepository->invalidateUserTokens($utilisateur);
+
+                    // Créer un nouveau token
+                    $token = new TokenReinitialisation();
+                    $token->setUtilisateur($utilisateur);
+                    $token->setToken(Uuid::v4()->toRfc4122());
+                    
+                    $expirationDate = new \DateTime();
+                    $expirationDate->modify('+1 hour');
+                    $token->setDateExpiration($expirationDate);
+
+                    $em->persist($token);
+                    $em->flush();
+
+                    // Générer l'URL de réinitialisation
+                    $resetUrl = $this->generateUrl('app_password_reset', [
+                        'token' => $token->getToken()
+                    ], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
+
+                    // Créer l'email
+                    $emailMessage = (new Email())
+                        ->from('souleimab945@gmail.com')
+                        ->to($utilisateur->getEmail())
+                        ->subject('Réinitialisation de votre mot de passe')
+                        ->html($this->renderView('email/password_reset.html.twig', [
+                            'utilisateur' => $utilisateur,
+                            'resetUrl' => $resetUrl,
+                            'expirationDate' => $expirationDate,
+                        ]));
+
+                    // Envoyer l'email
                     $mailer->send($emailMessage);
+                    
+                    $logger->info('Email de réinitialisation envoyé', [
+                        'email' => $utilisateur->getEmail(),
+                        'token' => $token->getToken()
+                    ]);
+
                     $this->addFlash('success', 'Un email de réinitialisation a été envoyé à votre adresse.');
+                    
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    $logger->error('Erreur Transport Email', [
+                        'message' => $e->getMessage(),
+                        'email' => $email
+                    ]);
+                    $this->addFlash('error', 'Erreur de connexion au serveur email : ' . $e->getMessage());
                 } catch (\Exception $e) {
-                    $this->addFlash('warning', 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+                    $logger->error('Erreur envoi email', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    $this->addFlash('error', 'Erreur technique : ' . $e->getMessage());
                 }
             } else {
                 // Pour des raisons de sécurité, on affiche le même message
