@@ -230,6 +230,15 @@
             justify-content: center;
         }
     }
+
+    /* Places autocomplete dropdown must appear above everything */
+    .pac-container {
+        z-index: 99999 !important;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        font-family: 'Open Sans', sans-serif;
+    }
+    .pac-item:hover { background: #E8F5E9; }
 </style>
 {% endblock %}
 
@@ -262,7 +271,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
-            {# Current status — read-only ── #}
+            {# Current status — read-only #}
             <div class="alert status-info-alert d-flex align-items-center gap-3 mb-4 border-0">
                 <i class="bi bi-lock-fill text-success fs-4"></i>
                 <div>
@@ -328,17 +337,38 @@ document.addEventListener('DOMContentLoaded', function () {
     const wrapper = document.querySelector('.main-content-wrapper');
 
     if (sidebar && wrapper) {
-        // React to sidebar collapse toggle
         new MutationObserver(function () {
             wrapper.style.marginLeft =
                 sidebar.classList.contains('collapsed') ? '80px' : '280px';
         }).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
 
-        // Apply on load
         if (sidebar.classList.contains('collapsed')) {
             wrapper.style.marginLeft = '80px';
         }
     }
 });
 </script>
+
+{#
+    Google Maps — identical setup to new.html.twig.
+    window.initFarmMap is defined in the included _form.html.twig partial,
+    so it exists before this callback fires.
+    `loading=async` suppresses the "loaded without async" console warning.
+#}
+{% set has_google_maps_key = google_maps_api_key is defined and google_maps_api_key is not empty and google_maps_api_key != 'your_google_maps_api_key_here' %}
+{% if has_google_maps_key %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initFarmMap&loading=async"
+    async
+    defer>
+</script>
+{% else %}
+<script>
+window.addEventListener('load', function () {
+    if (typeof window.initFarmMap === 'function') {
+        window.initFarmMap();
+    }
+});
+</script>
+{% endif %}
 {% endblock %}
