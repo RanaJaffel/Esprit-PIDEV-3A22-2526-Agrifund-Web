@@ -1,0 +1,571 @@
+{% extends 'base.html.twig' %}
+{% block title %}Agriculture Newspaper{% endblock %}
+{% block hide_preloader %}true{% endblock %}
+{% block body_class %}agriculteur-page{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --news-bg: #f4f8f5;
+        --news-ink: #143423;
+        --news-accent: #1d4ed8;
+        --news-accent-2: #0ea5a4;
+        --news-card: #ffffff;
+        --news-soft: #e6efea;
+    }
+
+    .news-main {
+        margin-left: 280px;
+        min-height: 100vh;
+        padding: 30px;
+        background: radial-gradient(circle at 10% 10%, #f7fbf9 0%, var(--news-bg) 55%, #eef5f1 100%);
+    }
+
+    .news-hero {
+        background: linear-gradient(132deg, #0f3d2e, #175f48 45%, #1d4ed8);
+        color: #fff;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 10px 28px rgba(16, 52, 35, 0.25);
+        margin-bottom: 18px;
+    }
+
+    .news-toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .news-input,
+    .news-select,
+    .news-btn {
+        border-radius: 10px;
+        border: 1px solid #d5e5dd;
+        height: 42px;
+        font-size: .92rem;
+    }
+
+    .news-input,
+    .news-select {
+        background: #fff;
+        color: #274536;
+        padding: 0 12px;
+    }
+
+    .news-btn {
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        padding: 0 16px;
+        cursor: pointer;
+    }
+
+    .news-btn-primary {
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+    }
+
+    .news-btn-secondary {
+        background: linear-gradient(135deg, #2e7d32, #43a047);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .news-meta {
+        color: #587566;
+        font-size: .9rem;
+        margin-bottom: 10px;
+    }
+
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .news-card {
+        background: var(--news-card);
+        border: 1px solid var(--news-soft);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, .06);
+        display: flex;
+        flex-direction: column;
+        min-height: 330px;
+    }
+
+    .news-cover {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #ebf1ed;
+    }
+
+    .news-body {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        height: 100%;
+    }
+
+    .news-title {
+        color: var(--news-ink);
+        font-weight: 700;
+        font-size: .98rem;
+        line-height: 1.35;
+        margin: 0;
+    }
+
+    .news-desc {
+        color: #466555;
+        font-size: .88rem;
+        line-height: 1.4;
+        margin: 0;
+        flex: 1;
+    }
+
+    .news-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        color: #6c8477;
+        font-size: .78rem;
+    }
+
+    .news-link {
+        background: #eef5ff;
+        color: #1d4ed8;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 9px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .news-state {
+        text-align: center;
+        padding: 36px 12px;
+        color: #5c7667;
+        background: #fff;
+        border: 1px solid var(--news-soft);
+        border-radius: 14px;
+    }
+
+    .news-more-wrap {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .news-more {
+        border: none;
+        border-radius: 10px;
+        height: 42px;
+        padding: 0 16px;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #0f766e, #14b8a6);
+        cursor: pointer;
+        display: none;
+    }
+
+    .news-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(8, 23, 16, .58);
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    .news-modal.is-open {
+        display: flex;
+    }
+
+    .news-modal-dialog {
+        width: min(920px, 100%);
+        max-height: calc(100vh - 32px);
+        overflow: auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 14px 36px rgba(0,0,0,.25);
+    }
+
+    .news-modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5efe9;
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 1;
+    }
+
+    .news-modal-title {
+        margin: 0;
+        color: var(--news-ink);
+        font-size: 1.05rem;
+        line-height: 1.35;
+    }
+
+    .news-modal-close {
+        border: none;
+        background: #eef2f1;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #345146;
+    }
+
+    .news-modal-body {
+        padding: 14px 16px 18px;
+    }
+
+    .news-modal-meta {
+        color: #648173;
+        font-size: .86rem;
+        margin-bottom: 10px;
+    }
+
+    .news-modal-cover {
+        width: 100%;
+        max-height: 360px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        background: #edf3ef;
+    }
+
+    .news-modal-content {
+        color: #284839;
+        line-height: 1.62;
+        white-space: pre-wrap;
+    }
+
+    @media (max-width: 991.98px) {
+        .news-main {
+            margin-left: 0;
+            padding: 70px 14px 20px;
+        }
+
+        .news-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .news-toolbar {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'components/_sidebar_agriculteur.html.twig' %}
+
+    <main class="news-main">
+        <section class="news-hero">
+            <div style="font-size:.82rem;opacity:.86;">GNews Agriculture Feed</div>
+            <h2 style="margin:6px 0 8px 0;font-size:1.6rem;color:#FF8C00;">Newspaper Agricole</h2>
+            <p style="margin:0;opacity:.93;max-width:760px;">
+                Restez a jour avec les actualites agriculture & farming: marches, meteo, technologies, politiques, cultures et elevage.
+            </p>
+        </section>
+
+        <section class="news-toolbar">
+            <input id="q" class="news-input" type="text" placeholder="Mot-cle (ex: irrigation, olive, blé, livestock)">
+            <select id="language" class="news-select">
+                <option value="fr">Francais</option>
+                <option value="en">English</option>
+                <option value="ar">Arabic</option>
+            </select>
+            <button id="searchBtn" class="news-btn news-btn-primary" type="button">Rechercher</button>
+            <a href="{{ path('agriculteur_project_agricole_index') }}" class="news-btn news-btn-secondary">Retour Projets</a>
+        </section>
+
+        <div id="meta" class="news-meta">Chargement des actualites...</div>
+        <div id="warn" class="news-meta" style="display:none;color:#9a4d00;background:#fff3cd;border:1px solid #ffe69c;padding:8px 10px;border-radius:8px;margin-bottom:10px;"></div>
+
+        <div id="state" class="news-state">Connexion a GNews en cours...</div>
+        <section id="grid" class="news-grid" style="display:none;"></section>
+
+        <div class="news-more-wrap">
+            <button id="moreBtn" class="news-more" type="button">Charger plus d'articles</button>
+        </div>
+    </main>
+
+    <div id="articleModal" class="news-modal" aria-hidden="true">
+        <div class="news-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="news-modal-head">
+                <h3 id="modalTitle" class="news-modal-title">Article</h3>
+                <button id="closeModalBtn" type="button" class="news-modal-close" aria-label="Fermer">X</button>
+            </div>
+            <div class="news-modal-body">
+                <div id="modalMeta" class="news-modal-meta"></div>
+                <img id="modalImage" class="news-modal-cover" alt="Article image" style="display:none;">
+                <div id="modalContent" class="news-modal-content"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    const endpoint = '{{ path('agriculteur_project_agricole_newspaper_articles') }}';
+    const articleContentEndpoint = '{{ path('agriculteur_project_agricole_newspaper_article_content') }}';
+    const grid = document.getElementById('grid');
+    const state = document.getElementById('state');
+    const meta = document.getElementById('meta');
+    const warn = document.getElementById('warn');
+    const qInput = document.getElementById('q');
+    const languageSelect = document.getElementById('language');
+    const searchBtn = document.getElementById('searchBtn');
+    const moreBtn = document.getElementById('moreBtn');
+    const articleModal = document.getElementById('articleModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalImage = document.getElementById('modalImage');
+    const modalContent = document.getElementById('modalContent');
+
+    let page = 1;
+    let hasNext = false;
+    let loading = false;
+    const articlesById = new Map();
+
+    function articleCard(article) {
+        const title = article.title || 'Sans titre';
+        const desc = article.description || 'Aucune description disponible.';
+        const img = article.image || '';
+        const articleId = article.id || '';
+        const source = article.source || 'Source inconnue';
+        const published = article.published_at ? new Date(article.published_at).toLocaleString() : 'Date inconnue';
+
+        const imagePart = img
+            ? '<img class="news-cover" src="' + img + '" alt="news image" loading="lazy">'
+            : '<div class="news-cover" style="display:flex;align-items:center;justify-content:center;color:#7a9386;">Image indisponible</div>';
+
+        return '' +
+            '<article class="news-card">' +
+                imagePart +
+                '<div class="news-body">' +
+                    '<h3 class="news-title">' + escapeHtml(title) + '</h3>' +
+                    '<p class="news-desc">' + escapeHtml(desc) + '</p>' +
+                    '<div class="news-foot">' +
+                        '<span>' + escapeHtml(source) + ' · ' + escapeHtml(published) + '</span>' +
+                        '<button class="news-link js-read-article" data-article-id="' + escapeHtml(articleId) + '" type="button">Lire</button>' +
+                    '</div>' +
+                '</div>' +
+            '</article>';
+    }
+
+    function escapeHtml(text) {
+        return String(text)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function normalizeArticleText(article) {
+        const description = article.description || '';
+        const content = article.content || '';
+        const text = content.trim() !== '' ? content : description;
+        return text.trim() !== '' ? text : 'Le contenu complet n\'est pas fourni par GNews pour cet article.';
+    }
+
+    async function openArticle(articleId) {
+        const article = articlesById.get(articleId);
+        if (!article) {
+            return;
+        }
+
+        const source = article.source || 'Source inconnue';
+        const published = article.published_at ? new Date(article.published_at).toLocaleString() : 'Date inconnue';
+
+        modalTitle.textContent = article.title || 'Article';
+        modalMeta.textContent = source + ' · ' + published;
+        modalContent.textContent = 'Chargement du contenu complet...';
+
+        if (article.image) {
+            modalImage.src = article.image;
+            modalImage.style.display = 'block';
+        } else {
+            modalImage.removeAttribute('src');
+            modalImage.style.display = 'none';
+        }
+
+        articleModal.classList.add('is-open');
+        articleModal.setAttribute('aria-hidden', 'false');
+
+        try {
+            if (!article.url) {
+                modalContent.textContent = normalizeArticleText(article);
+                return;
+            }
+
+            const params = new URLSearchParams({ url: article.url });
+            const response = await fetch(articleContentEndpoint + '?' + params.toString(), { method: 'GET' });
+            const data = await response.json();
+
+            if (response.ok && data.ok && data.content) {
+                modalContent.textContent = data.content;
+                return;
+            }
+
+            modalContent.textContent = normalizeArticleText(article);
+        } catch (e) {
+            modalContent.textContent = normalizeArticleText(article);
+        }
+    }
+
+    function closeArticleModal() {
+        articleModal.classList.remove('is-open');
+        articleModal.setAttribute('aria-hidden', 'true');
+    }
+
+    async function loadArticles(reset) {
+        if (loading) {
+            return;
+        }
+
+        loading = true;
+        searchBtn.disabled = true;
+        moreBtn.disabled = true;
+
+        if (reset) {
+            page = 1;
+            hasNext = false;
+            grid.innerHTML = '';
+            grid.style.display = 'none';
+            state.style.display = 'block';
+            state.textContent = 'Recherche des actualites...';
+        }
+
+        const params = new URLSearchParams({
+            page: String(page),
+            per_page: '12',
+            language: languageSelect.value || 'fr'
+        });
+
+        const q = qInput.value.trim();
+        if (q) {
+            params.set('q', q);
+        }
+
+        try {
+            const response = await fetch(endpoint + '?' + params.toString(), { method: 'GET' });
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                const details = data && data.details ? ('\n' + data.details) : '';
+                throw new Error((data.error || 'Erreur de chargement des actualites.') + details);
+            }
+
+            if (data.warning) {
+                warn.style.display = 'block';
+                warn.textContent = data.warning;
+            } else {
+                warn.style.display = 'none';
+                warn.textContent = '';
+            }
+
+            const articles = Array.isArray(data.articles) ? data.articles : [];
+            articles.forEach(function (article) {
+                if (article && article.id) {
+                    articlesById.set(article.id, article);
+                }
+            });
+            hasNext = Boolean(data.has_next_pages);
+
+            if (articles.length === 0 && page === 1) {
+                state.style.display = 'block';
+                state.textContent = 'Aucun article trouve. Essayez un autre mot-cle ou une autre langue.';
+                grid.style.display = 'none';
+                meta.textContent = '0 article.';
+                moreBtn.style.display = 'none';
+            } else {
+                const html = articles.map(articleCard).join('');
+                grid.insertAdjacentHTML('beforeend', html);
+                grid.style.display = 'grid';
+                state.style.display = 'none';
+                meta.textContent = 'Page ' + String(page) + ' · ' + String(articles.length) + ' article(s) charges.';
+                moreBtn.style.display = hasNext ? 'inline-block' : 'none';
+            }
+        } catch (error) {
+            state.style.display = 'block';
+            state.textContent = error.message || 'Erreur de communication avec GNews.';
+            grid.style.display = grid.children.length > 0 ? 'grid' : 'none';
+            moreBtn.style.display = 'none';
+        } finally {
+            loading = false;
+            searchBtn.disabled = false;
+            moreBtn.disabled = false;
+        }
+    }
+
+    searchBtn.addEventListener('click', function () {
+        loadArticles(true);
+    });
+
+    qInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            loadArticles(true);
+        }
+    });
+
+    languageSelect.addEventListener('change', function () {
+        loadArticles(true);
+    });
+
+    moreBtn.addEventListener('click', function () {
+        if (!hasNext) {
+            return;
+        }
+        page += 1;
+        loadArticles(false);
+    });
+
+    grid.addEventListener('click', function (event) {
+        const button = event.target.closest('.js-read-article');
+        if (!button) {
+            return;
+        }
+        const articleId = button.getAttribute('data-article-id') || '';
+        openArticle(articleId);
+    });
+
+    closeModalBtn.addEventListener('click', closeArticleModal);
+
+    articleModal.addEventListener('click', function (event) {
+        if (event.target === articleModal) {
+            closeArticleModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && articleModal.classList.contains('is-open')) {
+            closeArticleModal();
+        }
+    });
+
+    loadArticles(true);
+})();
+</script>
+{% endblock %}
+

@@ -95,6 +95,19 @@
             </div>
         </div>
 
+        <div class="chart-card">
+            <div class="chart-head">
+                <div class="section-label" style="margin:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#16a34a" viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0z"/><path d="M2 13h2V7H2zm4 0h2V3H6zm4 0h2V9h-2z"/></svg>
+                    Répartition des statuts
+                </div>
+                <span class="chart-total">Total: {{ totalCount }}</span>
+            </div>
+            <div class="chart-wrap">
+                {{ render_chart(statusChart) }}
+            </div>
+        </div>
+
         {# ══════════════ PROJECT CARDS ══════════════ #}
         <div class="section-label">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#16a34a" viewBox="0 0 16 16"><path d="M2 0a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 5a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 5a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2z"/></svg> Tous les Projets
@@ -241,6 +254,10 @@
         @media (max-width: 600px)  { .stats-grid { grid-template-columns: 1fr; } }
         .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.4rem 1.6rem; display: flex; align-items: center; gap: 1rem; transition: transform .2s, box-shadow .2s; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+        .chart-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,.06); padding:1rem 1.2rem 1.2rem; margin-bottom:1.8rem; }
+        .chart-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.7rem; flex-wrap:wrap; gap:.5rem; }
+        .chart-total { color:#6b7280; font-size:.85rem; font-weight:600; }
+        .chart-wrap { height: 320px; }
         .stat-icon { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
         .stat-label { color: #6b7280; font-size: .8rem; font-weight: 600; margin-bottom: 4px; }
         .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
@@ -273,4 +290,8 @@
         .footer-stat-value { color: #166534; font-size: 1rem; font-weight: 700; }
         @media (max-width: 991px) { .admin-main { margin-left: 0; padding: 1rem; } }
     </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
 {% endblock %}

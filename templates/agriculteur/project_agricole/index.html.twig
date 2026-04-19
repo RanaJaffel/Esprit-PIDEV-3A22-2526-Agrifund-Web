@@ -56,14 +56,24 @@
                     <div style="font-weight:700;color:#1B5E20;font-size:1.05rem;">🌾 Liste des Projets</div>
                     <div style="color:#6b7280;font-size:.82rem;">Visualisez et gérez tous vos projets agricoles</div>
                 </div>
-                <a href="{{ path('agriculteur_project_agricole_new') }}"
-                   style="background:linear-gradient(135deg,#2E7D32,#43A047);color:#fff;border:none;
-                          border-radius:10px;padding:.6rem 1.4rem;font-weight:700;font-size:.92rem;
-                          text-decoration:none;white-space:nowrap;height:42px;flex-shrink:0;
-                          display:inline-flex;align-items:center;gap:.4rem;
-                          box-shadow:0 3px 12px rgba(46,125,50,.35);">
-                    + Nouveau Projet
-                </a>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+                    <a href="{{ path('agriculteur_project_agricole_newspaper') }}"
+                       style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);color:#fff;border:none;
+                              border-radius:10px;padding:.6rem 1.1rem;font-weight:700;font-size:.9rem;
+                              text-decoration:none;white-space:nowrap;height:42px;flex-shrink:0;
+                              display:inline-flex;align-items:center;gap:.45rem;
+                              box-shadow:0 3px 12px rgba(29,78,216,.35);">
+                        <i class="bi bi-newspaper" style="font-size:15px;"></i> Newspaper
+                    </a>
+                    <a href="{{ path('agriculteur_project_agricole_new') }}"
+                       style="background:linear-gradient(135deg,#2E7D32,#43A047);color:#fff;border:none;
+                              border-radius:10px;padding:.6rem 1.4rem;font-weight:700;font-size:.92rem;
+                              text-decoration:none;white-space:nowrap;height:42px;flex-shrink:0;
+                              display:inline-flex;align-items:center;gap:.4rem;
+                              box-shadow:0 3px 12px rgba(46,125,50,.35);">
+                        + Nouveau Projet
+                    </a>
+                </div>
             </div>
 
             {# Row 2: Search input + Status filter + Reset #}
@@ -81,8 +91,8 @@
                                font-size:.9rem;cursor:pointer;min-width:160px;font-family:inherit;">
                     <option value="">Tous les statuts</option>
                     <option value="en cours">⏳ En cours</option>
-                    <option value="accepté">✅ Accepté</option>
-                    <option value="refusé">❌ Refusé</option>
+                    <option value="accepte">✅ Accepté</option>
+                    <option value="refuse">❌ Refusé</option>
                 </select>
 
                 <button id="resetBtn" onclick="resetFilters()"
@@ -101,9 +111,9 @@
         </div>
 
         {% set myTotal    = projects|length %}
-        {% set myApprouve = projects|filter(p => p.statut == 'Accepté')|length %}
-        {% set myEncours  = projects|filter(p => p.statut == 'En cours')|length %}
-        {% set myRefuse   = projects|filter(p => p.statut == 'Refusé')|length %}
+        {% set myApprouve = projects|filter(p => (p.statut|lower|replace({'é':'e'})) == 'accepte')|length %}
+        {% set myEncours  = projects|filter(p => (p.statut|lower|replace({'é':'e'})) == 'en cours')|length %}
+        {% set myRefuse   = projects|filter(p => (p.statut|lower|replace({'é':'e'})) == 'refuse')|length %}
 
         <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem;">
 
@@ -120,7 +130,7 @@
                 </div>
             </div>
 
-            <div class="stat-filter-card" data-statut="accepté" title="Filtrer : Acceptés"
+            <div class="stat-filter-card" data-statut="accepte" title="Filtrer : Acceptés"
                  style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .15s;padding:1.4rem;">
                 <div style="display:flex;align-items:center;gap:1rem;">
                     <div style="width:60px;height:60px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -146,7 +156,7 @@
                 </div>
             </div>
 
-            <div class="stat-filter-card" data-statut="refusé" title="Filtrer : Refusés"
+            <div class="stat-filter-card" data-statut="refuse" title="Filtrer : Refusés"
                  style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:transform .15s;padding:1.4rem;">
                 <div style="display:flex;align-items:center;gap:1rem;">
                     <div style="width:60px;height:60px;border-radius:50%;background:#FFEBEE;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -201,9 +211,10 @@
 
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;" id="projectsGrid">
                 {% for project in projects %}
+                {% set statutNorm = project.statut|lower|replace({'é':'e'}) %}
                 <div class="project-card-col"
                      data-name="{{ project.nomproject|lower }}"
-                     data-statut="{{ project.statut|lower }}">
+                     data-statut="{{ statutNorm }}">
                     <div style="background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.08);
                                 transition:transform .2s,box-shadow .2s;height:100%;display:flex;flex-direction:column;"
                          onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,.14)'"
@@ -212,8 +223,8 @@
                         <div style="padding:1.4rem;flex:1;">
                             <div style="display:flex;align-items:flex-start;gap:.9rem;margin-bottom:1rem;">
                                 <div style="font-size:1.6rem;flex-shrink:0;margin-top:2px;">
-                                    {% if project.statut == 'Accepté' %}✅
-                                    {% elseif project.statut == 'Refusé' %}❌
+                                    {% if statutNorm == 'accepte' %}✅
+                                    {% elseif statutNorm == 'refuse' %}❌
                                     {% else %}⏳{% endif %}
                                 </div>
                                 <div>
@@ -224,7 +235,7 @@
 
                             <div style="margin-bottom:1rem;">
                                 <span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:600;
-                                    background:{% if project.statut == 'Accepté' %}#2E7D32{% elseif project.statut == 'Refusé' %}#C62828{% elseif project.statut == 'Terminé' %}#455A64{% else %}#E65100{% endif %};
+                                    background:{% if statutNorm == 'accepte' %}#2E7D32{% elseif statutNorm == 'refuse' %}#C62828{% elseif statutNorm == 'termine' %}#455A64{% else %}#E65100{% endif %};
                                     color:#fff;">{{ project.statut }}</span>
                             </div>
 
@@ -251,6 +262,20 @@
 
                         {# Card action buttons #}
                         <div style="padding:1rem 1.4rem 1.4rem;display:flex;gap:.5rem;border-top:1px solid #f0f0f0;background:#fafafa;border-radius:0 0 16px 16px;">
+                            <a href="{{ path('agriculteur_project_agricole_project_advice', {id: project.idproject}) }}"
+                               title="Conseils du projet"
+                               style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;
+                                      display:flex;align-items:center;justify-content:center;
+                                      text-decoration:none;font-size:1rem;">
+                                🌱
+                            </a>
+                            <a href="{{ path('agriculteur_project_agricole_plant_disease_assistant', {id: project.idproject}) }}"
+                               title="Plant Disease Assistant"
+                               style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0f766e,#0ea5a4);color:#fff;
+                                      display:flex;align-items:center;justify-content:center;
+                                      text-decoration:none;font-size:1rem;">
+                                <i class="bi bi-robot" style="font-size:15px;"></i>
+                            </a>
                             <a href="{{ path('agriculteur_project_agricole_show', {id: project.idproject}) }}"
                                title="Voir"
                                style="width:44px;height:44px;border-radius:10px;background:#1B5E20;color:#fff;
