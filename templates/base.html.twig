@@ -24,6 +24,44 @@
     <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css" rel="stylesheet">
 
+<style>
+    :root {
+        /* AgriConnect Harmonized Tokens */
+        --nature-green: #089647; /* Harmonized with Portal */
+        --meadow-green: #0aab51;
+        --harvest-gold: #E1B323; /* Same gold as Portal */
+        --earth-cream: #FDFBF7;
+        --deep-forest: #133D03; /* Harmonized with Portal */
+        --soft-white: #FFFFFF;
+        --vert-vif: #089647;
+    }
+
+    /* Marketing Design System - Public Pages */
+    body.index-page {
+        background-color: var(--earth-cream);
+        color: var(--deep-forest);
+    }
+
+    .marketing-nav {
+        transition: all 0.4s;
+        padding: 20px 0;
+    }
+
+    .marketing-nav.scrolled {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+        padding: 10px 0;
+    }
+
+    .marketing-logo {
+        font-family: 'Marcellus', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--nature-green);
+        text-decoration: none;
+    }
+</style>
     <!-- Main CSS File -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
 
@@ -34,7 +72,7 @@
     {% block body %}{% endblock %}
 
     <!-- Scroll Top -->
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center" data-controller="scroll-top" data-action="click->scroll-top#toTop" data-scroll-top-threshold-value="100"><i class="bi bi-arrow-up-short"></i></a>
 
     <!-- Preloader - Seulement pour les pages publiques -->
     {% if block('hide_preloader') is not defined %}
@@ -46,6 +84,8 @@
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/js/glightbox.min.js"></script>
+
+    {{ importmap('app') }}
 
     <!-- Main JS File -->
     <script src="{{ asset('js/main.js') }}" defer></script>
