@@ -32,9 +32,6 @@
             min-height: 100vh;
         }
 
-        /* ==========================================
-           LAYOUT
-        ========================================== */
         .dashboard-container {
             display: flex;
             min-height: 100vh;
@@ -49,15 +46,13 @@
         }
 
         @media (max-width: 991.98px) {
-            .main-content {
-                margin-left: 0;
-            }
+            .main-content { margin-left: 0; }
         }
 
         /* ==========================================
            HEADER
         ========================================== */
-        .main-content > .d-flex.justify-content-between:first-of-type {
+        .page-header {
             background: linear-gradient(135deg, var(--bank-dark) 0%, var(--vert-foret) 50%, var(--vert-tres-fonce) 100%);
             padding: 28px 35px;
             margin: 0 0 30px 0;
@@ -65,29 +60,24 @@
             overflow: hidden;
         }
 
-        .main-content > .d-flex.justify-content-between:first-of-type::before {
+        .page-header::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='30' y='30' width='20' height='20' fill='%23E1B323' fill-opacity='0.06' rx='3'/%3E%3C/svg%3E");
             pointer-events: none;
         }
 
-        .main-content > .d-flex.justify-content-between:first-of-type::after {
+        .page-header::after {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 400px;
-            height: 400px;
+            top: -50%; right: -10%;
+            width: 400px; height: 400px;
             background: radial-gradient(circle, rgba(225, 179, 35, 0.12) 0%, transparent 70%);
             pointer-events: none;
         }
 
-        .main-content > .d-flex.justify-content-between:first-of-type h1 {
+        .page-header h1 {
             color: white !important;
             font-size: 1.8rem;
             font-weight: 700;
@@ -100,7 +90,7 @@
             gap: 15px;
         }
 
-        .main-content > .d-flex.justify-content-between:first-of-type h1 i {
+        .page-header h1 i {
             width: 50px;
             height: 50px;
             background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--jaune-fonce) 100%);
@@ -109,16 +99,39 @@
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
-            box-shadow:
-                0 8px 20px rgba(225, 179, 35, 0.35),
-                0 0 30px rgba(225, 179, 35, 0.15);
-            margin-right: 0 !important;
+            box-shadow: 0 8px 20px rgba(225, 179, 35, 0.35);
         }
 
-        /* ==========================================
-           BACK BUTTON
-        ========================================== */
-        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary {
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--jaune-fonce) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 6px 20px rgba(225, 179, 35, 0.4);
+        }
+
+        .btn-pdf:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(225, 179, 35, 0.5);
+            color: white;
+        }
+
+        .btn-back {
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -130,39 +143,25 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            position: relative;
-            z-index: 1;
+            text-decoration: none;
         }
 
-        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary:hover {
+        .btn-back:hover {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
             transform: translateX(-5px);
-        }
-
-        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary i {
-            transition: transform 0.3s ease;
-        }
-
-        .main-content > .d-flex.justify-content-between:first-of-type .btn-secondary:hover i {
-            transform: translateX(-3px);
+            color: white;
         }
 
         /* ==========================================
            CONTENT AREA
         ========================================== */
-        .main-content > .row,
-        .main-content > *:not(.d-flex.justify-content-between):not(script):not(.modal) {
-            margin-left: 35px;
-            margin-right: 35px;
+        .content-area {
+            padding: 0 35px 35px 35px;
         }
 
         @media (max-width: 768px) {
-            .main-content > .row,
-            .main-content > *:not(.d-flex.justify-content-between):not(script):not(.modal) {
-                margin-left: 20px;
-                margin-right: 20px;
-            }
+            .content-area { padding: 0 20px 20px 20px; }
         }
 
         /* ==========================================
@@ -178,6 +177,8 @@
             overflow: hidden;
             height: 100%;
             transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
         }
 
         .dashboard-section:hover {
@@ -188,55 +189,52 @@
         .dashboard-section::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 5px;
         }
 
-        /* Section top colors */
-        .col-md-6:first-child .dashboard-section::before {
+        .section-info-generale::before {
             background: linear-gradient(90deg, var(--jaune-moutarde), var(--jaune-fonce));
         }
 
-        .col-md-6:last-child .dashboard-section::before {
+        .section-info-bancaire::before {
             background: linear-gradient(90deg, var(--vert-vif), var(--vert-clair));
         }
 
-        .col-12 .dashboard-section::before {
+        .section-documents::before {
             background: linear-gradient(90deg, var(--vert-olive-fonce), var(--vert-foret));
         }
 
-        /* Watermark decorations */
-        .col-md-6:first-child .dashboard-section::after {
+        .section-info-generale::after {
             content: '🏦';
             position: absolute;
-            bottom: 20px;
-            right: 25px;
+            bottom: 20px; right: 25px;
             font-size: 3.5rem;
             opacity: 0.05;
             pointer-events: none;
         }
 
-        .col-md-6:last-child .dashboard-section::after {
+        .section-info-bancaire::after {
             content: '🏢';
             position: absolute;
-            bottom: 20px;
-            right: 25px;
+            bottom: 20px; right: 25px;
             font-size: 3.5rem;
             opacity: 0.05;
             pointer-events: none;
         }
 
-        .col-12 .dashboard-section::after {
+        .section-documents::after {
             content: '📋';
             position: absolute;
-            bottom: 20px;
-            right: 25px;
+            bottom: 20px; right: 25px;
             font-size: 3.5rem;
             opacity: 0.05;
             pointer-events: none;
         }
+
+        .section-delay-1 { animation-delay: 0.1s; }
+        .section-delay-2 { animation-delay: 0.2s; }
+        .section-delay-3 { animation-delay: 0.3s; }
 
         /* ==========================================
            SECTION TITLES
@@ -261,54 +259,64 @@
             align-items: center;
             justify-content: center;
             font-size: 1rem;
-            margin-right: 0 !important;
         }
 
-        .col-md-6:first-child .section-title i {
+        .icon-generale {
             background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--jaune-fonce) 100%);
             color: white;
             box-shadow: 0 6px 15px rgba(225, 179, 35, 0.3);
         }
 
-        .col-md-6:last-child .section-title i {
+        .icon-bancaire {
             background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
             color: white;
             box-shadow: 0 6px 15px rgba(8, 150, 71, 0.25);
         }
 
-        .col-12 .section-title i {
+        .icon-docs {
             background: linear-gradient(135deg, var(--vert-olive-fonce) 0%, var(--vert-foret) 100%);
             color: white;
             box-shadow: 0 6px 15px rgba(71, 108, 26, 0.25);
         }
 
         /* ==========================================
-           BANK LOGO / IMAGE
+           BANK LOGO
         ========================================== */
-        .text-center.mb-4 {
+        .logo-wrapper {
             position: relative;
             padding: 25px 0;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .text-center.mb-4 .img-thumbnail {
-            max-width: 200px !important;
-            max-height: 150px !important;
-            border: 3px solid rgba(225, 179, 35, 0.2) !important;
-            border-radius: 20px !important;
-            padding: 15px !important;
-            background: white !important;
+        .logo-wrapper img {
+            max-width: 200px;
+            max-height: 150px;
+            border: 3px solid rgba(225, 179, 35, 0.2);
+            border-radius: 20px;
+            padding: 15px;
+            background: white;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
             transition: all 0.4s ease;
             object-fit: contain;
         }
 
-        .text-center.mb-4 .img-thumbnail:hover {
+        .logo-wrapper img:hover {
             transform: scale(1.05) rotate(-1deg);
             box-shadow: 0 20px 50px rgba(225, 179, 35, 0.2);
-            border-color: var(--jaune-moutarde) !important;
+            border-color: var(--jaune-moutarde);
         }
 
-        .text-center.mb-4::after {
+        .logo-wrapper .fa-university {
+            font-size: 7rem;
+            background: linear-gradient(135deg, var(--jaune-moutarde), var(--jaune-fonce));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.5;
+        }
+
+        .logo-wrapper::after {
             content: '';
             position: absolute;
             bottom: 15px;
@@ -320,15 +328,6 @@
             border-radius: 50%;
         }
 
-        .text-center.mb-4 .fa-university {
-            font-size: 7rem !important;
-            background: linear-gradient(135deg, var(--jaune-moutarde), var(--jaune-fonce));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            opacity: 0.5;
-        }
-
         /* ==========================================
            INFO TABLES
         ========================================== */
@@ -338,11 +337,11 @@
 
         .table-borderless tr {
             transition: all 0.3s ease;
-            border-radius: 10px;
         }
 
         .table-borderless tr:hover {
             background: linear-gradient(90deg, rgba(225, 179, 35, 0.06) 0%, rgba(8, 150, 71, 0.03) 100%);
+            transform: translateX(5px);
         }
 
         .table-borderless th {
@@ -367,25 +366,19 @@
             font-weight: 700;
         }
 
-        /* ==========================================
-           BANK CODE
-        ========================================== */
-        .table-borderless td code {
+        .code-badge {
             background: linear-gradient(135deg, rgba(225, 179, 35, 0.12) 0%, rgba(225, 179, 35, 0.06) 100%);
-            color: var(--jaune-fonce) !important;
+            color: var(--jaune-fonce);
             padding: 8px 18px;
             border-radius: 10px;
             font-weight: 700;
-            font-size: 1.1rem !important;
+            font-size: 1.1rem;
             border: 2px solid rgba(225, 179, 35, 0.2);
             letter-spacing: 2px;
             display: inline-block;
         }
 
-        /* ==========================================
-           WEBSITE LINK
-        ========================================== */
-        .table-borderless td a.text-decoration-none {
+        .link-site {
             color: var(--jaune-fonce);
             font-weight: 600;
             padding: 6px 14px;
@@ -395,22 +388,12 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            text-decoration: none;
         }
 
-        .table-borderless td a.text-decoration-none:hover {
+        .link-site:hover {
             background: rgba(225, 179, 35, 0.15);
             color: var(--jaune-fonce);
-            transform: translateX(3px);
-        }
-
-        .table-borderless td a.text-decoration-none i {
-            font-size: 0.75rem;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .table-borderless td a.text-decoration-none:hover i {
-            opacity: 1;
             transform: translateX(3px);
         }
 
@@ -426,10 +409,6 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .badge i {
-            font-size: 0.7rem;
         }
 
         .badge.bg-success {
@@ -462,26 +441,23 @@
         }
 
         /* ==========================================
-           VERIFICATION ACTIONS
+           ACTIONS VERIFICATION
         ========================================== */
-        .mt-4 h6 {
+        .actions-header {
             color: var(--vert-tres-fonce);
             font-weight: 700;
             font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 20px !important;
+            margin-bottom: 20px;
             padding: 14px 18px;
             background: linear-gradient(135deg, rgba(225, 179, 35, 0.08) 0%, rgba(8, 150, 71, 0.05) 100%);
             border-radius: 12px;
             border-left: 4px solid var(--jaune-moutarde);
         }
 
-        .mt-4 h6::before {
-            content: '\f0e7';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
+        .actions-header i {
             width: 34px;
             height: 34px;
             background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--jaune-fonce) 100%);
@@ -494,17 +470,14 @@
             box-shadow: 0 4px 12px rgba(225, 179, 35, 0.25);
         }
 
-        .d-grid.gap-2 {
-            gap: 15px !important;
-        }
-
-        .d-grid .btn-success {
+        .btn-approve {
             background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
             border: none;
             border-radius: 14px;
             padding: 16px 25px;
             font-weight: 600;
             font-size: 0.95rem;
+            color: white;
             box-shadow: 0 8px 25px rgba(8, 150, 71, 0.3);
             transition: all 0.4s ease;
             display: flex;
@@ -513,35 +486,34 @@
             gap: 10px;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            cursor: pointer;
         }
 
-        .d-grid .btn-success::before {
+        .btn-approve::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s ease;
         }
 
-        .d-grid .btn-success:hover {
+        .btn-approve:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(8, 150, 71, 0.4);
         }
 
-        .d-grid .btn-success:hover::before {
-            left: 100%;
-        }
+        .btn-approve:hover::before { left: 100%; }
 
-        .d-grid .btn-danger {
+        .btn-reject {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             border: none;
             border-radius: 14px;
             padding: 16px 25px;
             font-weight: 600;
             font-size: 0.95rem;
+            color: white;
             box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
             transition: all 0.4s ease;
             display: flex;
@@ -550,45 +522,40 @@
             gap: 10px;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            cursor: pointer;
         }
 
-        .d-grid .btn-danger::before {
+        .btn-reject::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s ease;
         }
 
-        .d-grid .btn-danger:hover {
+        .btn-reject:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(239, 68, 68, 0.4);
         }
 
-        .d-grid .btn-danger:hover::before {
-            left: 100%;
-        }
+        .btn-reject:hover::before { left: 100%; }
 
         /* ==========================================
            DOCUMENTS TABLE
         ========================================== */
-        .table-custom,
-        .col-12 .table {
+        .table-custom {
             margin: 0;
             border-collapse: collapse;
             width: 100%;
         }
 
-        .table-custom thead,
-        .col-12 .table thead {
+        .table-custom thead {
             background: linear-gradient(90deg, var(--bank-dark) 0%, var(--vert-foret) 100%);
         }
 
-        .table-custom thead th,
-        .col-12 .table thead th {
+        .table-custom thead th {
             color: white !important;
             font-weight: 600;
             font-size: 0.78rem;
@@ -596,28 +563,22 @@
             letter-spacing: 0.5px;
             padding: 16px 18px;
             border: none !important;
-            position: relative;
-        }
-
-        .table-custom thead th:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.15);
         }
 
         .table-custom tbody tr {
             transition: all 0.3s ease;
             border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            opacity: 0;
+            animation: fadeInRow 0.4s ease-out forwards;
         }
 
-        .table-custom tbody tr:last-child {
-            border-bottom: none;
-        }
+        .table-custom tbody tr:nth-child(1) { animation-delay: 0.4s; }
+        .table-custom tbody tr:nth-child(2) { animation-delay: 0.45s; }
+        .table-custom tbody tr:nth-child(3) { animation-delay: 0.5s; }
+        .table-custom tbody tr:nth-child(4) { animation-delay: 0.55s; }
+        .table-custom tbody tr:nth-child(5) { animation-delay: 0.6s; }
+
+        .table-custom tbody tr:last-child { border-bottom: none; }
 
         .table-custom tbody tr:hover {
             background: linear-gradient(90deg, rgba(225, 179, 35, 0.06) 0%, rgba(8, 150, 71, 0.03) 100%);
@@ -643,6 +604,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            text-decoration: none;
         }
 
         .btn-outline-primary:hover {
@@ -656,13 +618,17 @@
         /* ==========================================
            EMPTY STATE
         ========================================== */
-        .text-center.text-muted.py-4 {
-            padding: 50px 20px !important;
+        .empty-state {
+            padding: 50px 20px;
+            text-align: center;
+            color: var(--gris);
         }
 
-        .text-center.text-muted.py-4 i {
+        .empty-state i {
             color: var(--jaune-moutarde);
             opacity: 0.3;
+            margin-bottom: 15px;
+            display: block;
         }
 
         /* ==========================================
@@ -672,7 +638,7 @@
             border-radius: 14px;
             border: none;
             padding: 16px 24px;
-            margin: 0 35px 20px 35px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
@@ -698,35 +664,45 @@
         }
 
         /* ==========================================
+           ANIMATIONS
+        ========================================== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ==========================================
            RESPONSIVE
         ========================================== */
         @media (max-width: 768px) {
-            .main-content > .d-flex.justify-content-between:first-of-type {
+            .page-header {
                 padding: 20px;
                 flex-direction: column;
                 gap: 15px;
-                align-items: flex-start !important;
             }
 
-            .main-content > .d-flex.justify-content-between:first-of-type h1 {
-                font-size: 1.4rem;
+            .page-header h1 { font-size: 1.4rem; }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
             }
 
-            .main-content > .d-flex.justify-content-between:first-of-type h1 i {
-                width: 42px;
-                height: 42px;
-                font-size: 1.1rem;
-            }
+            .btn-pdf, .btn-back { justify-content: center; }
 
             .dashboard-section {
                 padding: 25px 20px;
                 border-radius: 18px;
                 margin-bottom: 20px;
+                height: auto;
             }
 
-            .text-center.mb-4 .img-thumbnail {
-                max-width: 160px !important;
-            }
+            .logo-wrapper img { max-width: 160px; }
 
             .table-borderless th,
             .table-borderless td {
@@ -734,98 +710,10 @@
                 font-size: 0.85rem;
             }
 
-            .table-borderless td code {
-                font-size: 0.95rem !important;
+            .code-badge {
+                font-size: 0.95rem;
                 padding: 6px 14px;
             }
-
-            .table-custom thead th {
-                padding: 12px 14px;
-                font-size: 0.72rem;
-            }
-
-            .table-custom tbody td {
-                padding: 12px 14px;
-                font-size: 0.85rem;
-            }
-
-            .col-md-6.mb-4 .dashboard-section {
-                height: auto;
-            }
-        }
-
-        /* ==========================================
-           ANIMATIONS
-        ========================================== */
-        .dashboard-section {
-            animation: fadeInUp 0.6s ease-out forwards;
-            opacity: 0;
-        }
-
-        .col-md-6:first-child .dashboard-section {
-            animation-delay: 0.1s;
-        }
-
-        .col-md-6:last-child .dashboard-section {
-            animation-delay: 0.2s;
-        }
-
-        .col-12 .dashboard-section {
-            animation-delay: 0.3s;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(25px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Table row animation */
-        .table-custom tbody tr {
-            opacity: 0;
-            animation: fadeInRow 0.4s ease-out forwards;
-        }
-
-        .table-custom tbody tr:nth-child(1) { animation-delay: 0.4s; }
-        .table-custom tbody tr:nth-child(2) { animation-delay: 0.45s; }
-        .table-custom tbody tr:nth-child(3) { animation-delay: 0.5s; }
-        .table-custom tbody tr:nth-child(4) { animation-delay: 0.55s; }
-        .table-custom tbody tr:nth-child(5) { animation-delay: 0.6s; }
-
-        @keyframes fadeInRow {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* ==========================================
-           CUSTOM SCROLLBAR
-        ========================================== */
-        .main-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .main-content::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .main-content::-webkit-scrollbar-thumb {
-            background: var(--jaune-moutarde);
-            border-radius: 4px;
-        }
-
-        .main-content::-webkit-scrollbar-thumb:hover {
-            background: var(--jaune-fonce);
         }
     </style>
 {% endblock %}
@@ -833,231 +721,252 @@
 {% block body %}
     <div class="dashboard-container">
         {% include 'components/_sidebar_admin.html.twig' %}
-        
+
         <div class="main-content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+
+            {# HEADER #}
+            <div class="page-header d-flex justify-content-between align-items-center">
                 <h1 class="mb-0">
-                    <i class="fas fa-university me-2"></i>Détails de la banque
+                    <i class="fas fa-university"></i>
+                    Détails de la banque
                 </h1>
-                <a href="{{ path('admin_banques_index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Retour
-                </a>
+                <div class="header-actions">
+                    <a href="{{ path('admin_banques_pdf', {id: banque.id}) }}"
+                       class="btn-pdf">
+                        <i class="fas fa-file-pdf"></i>Télécharger PDF
+                    </a>
+                    <a href="{{ path('admin_banques_index') }}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i>Retour
+                    </a>
+                </div>
             </div>
-            
-            {% include 'components/_flash_messages.html.twig' %}
-            
-            <div class="row">
-                {# Informations générales #}
-                <div class="col-md-6 mb-4">
-                    <div class="dashboard-section">
-                        <h5 class="section-title">
-                            <i class="fas fa-info-circle me-2"></i>Informations générales
-                        </h5>
-                        
-                        <div class="text-center mb-4">
-                            {% if banque.logo %}
-                                <img src="{{ asset(banque.logo) }}" 
-                                     alt="{{ banque.utilisateur.nom }}" 
-                                     class="img-thumbnail"
-                                     style="max-width: 200px; max-height: 150px; object-fit: contain;">
-                            {% else %}
-                                <i class="fas fa-university fa-10x text-muted"></i>
-                            {% endif %}
-                        </div>
-                        
-                        <table class="table table-borderless">
-                            <tr>
-                                <th width="40%">Nom de la banque:</th>
-                                <td><strong>{{ banque.utilisateur.nom }}</strong></td>
-                            </tr>
-                            <tr>
-                                <th>Code banque:</th>
-                                <td><code class="fs-5">{{ banque.codebanque }}</code></td>
-                            </tr>
-                            <tr>
-                                <th>Email:</th>
-                                <td>{{ banque.utilisateur.email }}</td>
-                            </tr>
-                            <tr>
-                                <th>Téléphone:</th>
-                                <td>{{ banque.utilisateur.tel ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Site web:</th>
-                                <td>
-                                    {% if banque.siteweb %}
-                                        <a href="{{ banque.siteweb }}" target="_blank" class="text-decoration-none">
-                                            {{ banque.siteweb }}
-                                            <i class="fas fa-external-link-alt ms-1"></i>
-                                        </a>
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Inscription:</th>
-                                <td>{{ banque.utilisateur.dateInscrit|date('d/m/Y H:i') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Dernière connexion:</th>
-                                <td>{{ banque.utilisateur.derniereConnexion|date('d/m/Y H:i') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Statut connexion:</th>
-                                <td>
-                                    {% if banque.utilisateur.estEnLigne %}
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>En ligne
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">
-                                            <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Hors ligne
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                
-                {# Informations bancaires #}
-                <div class="col-md-6 mb-4">
-                    <div class="dashboard-section">
-                        <h5 class="section-title">
-                            <i class="fas fa-building me-2"></i>Informations bancaires
-                        </h5>
-                        
-                        <table class="table table-borderless">
-                            <tr>
-                                <th width="40%">Adresse siège:</th>
-                                <td>{{ banque.addresseSiege ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Adresse agence:</th>
-                                <td>{{ banque.adresseAgence ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Représentant légal:</th>
-                                <td>
-                                    {% if banque.representantLegal %}
-                                        <strong>{{ banque.representantLegal }}</strong>
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Statut compte:</th>
-                                <td>
-                                    {% if banque.statusCompte == 'actif' %}
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check-circle me-1"></i>Active
-                                        </span>
-                                    {% elseif banque.statusCompte == 'en_attente' %}
-                                        <span class="badge bg-warning">
-                                            <i class="fas fa-clock me-1"></i>En attente
-                                        </span>
-                                    {% elseif banque.statusCompte == 'refuse' %}
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-times-circle me-1"></i>Refusée
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">{{ banque.statusCompte }}</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Compte vérifié:</th>
-                                <td>
-                                    {% if banque.compteVerfiee %}
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-shield-alt me-1"></i>Oui
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-warning">
-                                            <i class="fas fa-exclamation-triangle me-1"></i>Non
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        </table>
-                        
-                        {# Actions de vérification #}
-                        {% if banque.statusCompte == 'en_attente' %}
-                        <div class="mt-4">
-                            <h6 class="mb-3">Actions de vérification</h6>
-                            <div class="d-grid gap-2">
-                                <form method="post" action="{{ path('admin_banques_verify', {id: banque.id}) }}">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ banque.id) }}">
-                                    <input type="hidden" name="action" value="approve">
-                                    <button type="submit" class="btn btn-success w-100">
-                                        <i class="fas fa-check me-2"></i>Approuver la banque
-                                    </button>
-                                </form>
-                                <form method="post" action="{{ path('admin_banques_verify', {id: banque.id}) }}">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ banque.id) }}">
-                                    <input type="hidden" name="action" value="reject">
-                                    <button type="submit" class="btn btn-danger w-100">
-                                        <i class="fas fa-times me-2"></i>Refuser la banque
-                                    </button>
-                                </form>
+
+            {# FLASH MESSAGES #}
+            <div class="content-area" style="padding-bottom: 0; padding-top: 0;">
+                {% include 'components/_flash_messages.html.twig' %}
+            </div>
+
+            {# CONTENT #}
+            <div class="content-area">
+                <div class="row">
+
+                    {# Informations générales #}
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-section section-info-generale section-delay-1">
+                            <h5 class="section-title">
+                                <i class="fas fa-info-circle icon-generale"></i>
+                                Informations générales
+                            </h5>
+
+                            <div class="logo-wrapper">
+                                {% if banque.logo %}
+                                    <img src="{{ asset(banque.logo) }}"
+                                         alt="{{ banque.utilisateur.nom }}">
+                                {% else %}
+                                    <i class="fas fa-university"></i>
+                                {% endif %}
                             </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                {# Documents #}
-                <div class="col-12">
-                    <div class="dashboard-section">
-                        <h5 class="section-title">
-                            <i class="fas fa-file-alt me-2"></i>Documents
-                        </h5>
-                        
-                        {% set documents = banque.utilisateur.documents %}
-                        
-                        {% if documents|length > 0 %}
-                        <div class="table-responsive">
-                            <table class="table table-custom">
-                                <thead>
-                                    <tr>
-                                        <th>Nom</th>
-                                        <th>Type</th>
-                                        <th>Date d'envoi</th>
-                                        <th>Statut</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for document in documents %}
-                                    <tr>
-                                        <td><strong>{{ document.nom }}</strong></td>
-                                        <td><span class="badge bg-info">{{ document.typeDocument }}</span></td>
-                                        <td>{{ document.dateUpload|date('d/m/Y H:i') }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ document.statutBadgeClass }}">
-                                                {{ document.statut }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a href="{{ path('admin_documents_review', {id: document.id}) }}" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-eye me-1"></i>Voir
+
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Nom de la banque :</th>
+                                    <td><strong>{{ banque.utilisateur.nom }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Code banque :</th>
+                                    <td><span class="code-badge">{{ banque.codebanque }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Email :</th>
+                                    <td>{{ banque.utilisateur.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Téléphone :</th>
+                                    <td>{{ banque.utilisateur.tel ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Site web :</th>
+                                    <td>
+                                        {% if banque.siteweb %}
+                                            <a href="{{ banque.siteweb }}" target="_blank" class="link-site">
+                                                {{ banque.siteweb }}
+                                                <i class="fas fa-external-link-alt"></i>
                                             </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Inscription :</th>
+                                    <td>{{ banque.utilisateur.dateInscrit|date('d/m/Y H:i') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Dernière connexion :</th>
+                                    <td>{{ banque.utilisateur.derniereConnexion|date('d/m/Y H:i') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Statut connexion :</th>
+                                    <td>
+                                        {% if banque.utilisateur.estEnLigne %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>En ligne
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>Hors ligne
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
                             </table>
                         </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-file-alt fa-3x mb-3 d-block"></i>
-                            <p class="mb-0">Aucun document envoyé</p>
-                        </div>
-                        {% endif %}
                     </div>
+
+                    {# Informations bancaires #}
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-section section-info-bancaire section-delay-2">
+                            <h5 class="section-title">
+                                <i class="fas fa-building icon-bancaire"></i>
+                                Informations bancaires
+                            </h5>
+
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Adresse siège :</th>
+                                    <td>{{ banque.addresseSiege ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Adresse agence :</th>
+                                    <td>{{ banque.adresseAgence ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Représentant légal :</th>
+                                    <td>
+                                        {% if banque.representantLegal %}
+                                            <strong>{{ banque.representantLegal }}</strong>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Statut compte :</th>
+                                    <td>
+                                        {% if banque.statusCompte == 'actif' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle"></i>Active
+                                            </span>
+                                        {% elseif banque.statusCompte == 'en_attente' %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock"></i>En attente
+                                            </span>
+                                        {% elseif banque.statusCompte == 'refuse' %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times-circle"></i>Refusée
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ banque.statusCompte }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Compte vérifié :</th>
+                                    <td>
+                                        {% if banque.compteVerfiee %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-shield-alt"></i>Oui
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-exclamation-triangle"></i>Non
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {# Actions de vérification #}
+                            {% if banque.statusCompte == 'en_attente' %}
+                            <div class="mt-4">
+                                <div class="actions-header">
+                                    <i class="fas fa-bolt"></i>
+                                    Actions de vérification
+                                </div>
+                                <div class="d-grid gap-3">
+                                    <form method="post" action="{{ path('admin_banques_verify', {id: banque.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ banque.id) }}">
+                                        <input type="hidden" name="action" value="approve">
+                                        <button type="submit" class="btn-approve">
+                                            <i class="fas fa-check"></i>Approuver la banque
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{{ path('admin_banques_verify', {id: banque.id}) }}" style="margin-top: 12px;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('verify' ~ banque.id) }}">
+                                        <input type="hidden" name="action" value="reject">
+                                        <button type="submit" class="btn-reject">
+                                            <i class="fas fa-times"></i>Refuser la banque
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Documents #}
+                    <div class="col-12">
+                        <div class="dashboard-section section-documents section-delay-3">
+                            <h5 class="section-title">
+                                <i class="fas fa-file-alt icon-docs"></i>
+                                Documents
+                            </h5>
+
+                            {% set documents = banque.utilisateur.documents %}
+
+                            {% if documents|length > 0 %}
+                                <div class="table-responsive">
+                                    <table class="table-custom">
+                                        <thead>
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Type</th>
+                                                <th>Date d'envoi</th>
+                                                <th>Statut</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for document in documents %}
+                                            <tr>
+                                                <td><strong>{{ document.nom }}</strong></td>
+                                                <td><span class="badge bg-info">{{ document.typeDocument }}</span></td>
+                                                <td>{{ document.dateUpload|date('d/m/Y H:i') }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ document.statutBadgeClass }}">
+                                                        {{ document.statut }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ path('admin_documents_review', {id: document.id}) }}"
+                                                       class="btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>Voir
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-file-alt fa-3x"></i>
+                                    <p class="mb-0">Aucun document envoyé</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -1067,32 +976,11 @@
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Info rows hover effect
-            document.querySelectorAll('.table-borderless tr').forEach(function(row) {
-                row.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateX(5px)';
-                    this.style.transition = 'transform 0.3s ease';
-                });
-                row.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateX(0)';
-                });
-            });
+        document.addEventListener('DOMContentLoaded', function () {
 
-            // Logo hover effect
-            const logo = document.querySelector('.text-center.mb-4 .img-thumbnail');
-            if (logo) {
-                logo.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05) rotate(-1deg)';
-                });
-                logo.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1) rotate(0)';
-                });
-            }
-
-            // Button ripple effect
-            document.querySelectorAll('.d-grid .btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
+            // Ripple effect
+            document.querySelectorAll('.btn-approve, .btn-reject').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
                     const ripple = document.createElement('span');
                     const rect = this.getBoundingClientRect();
                     const size = Math.max(rect.width, rect.height);
@@ -1105,12 +993,11 @@
                         border-radius:50%;transform:scale(0);
                         animation:ripple .6s ease-out;pointer-events:none;
                     `;
-                    this.style.position = 'relative';
-                    this.style.overflow = 'hidden';
                     this.appendChild(ripple);
                     setTimeout(() => ripple.remove(), 600);
                 });
             });
+
         });
 
         const s = document.createElement('style');

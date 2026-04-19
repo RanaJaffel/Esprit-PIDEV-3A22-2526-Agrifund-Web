@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 13px;
+            color: #2d3748;
+            background: #fff;
+        }
+
+        /* ===== WATERMARK ===== */
+        .watermark {
+            position: fixed;
+            top: 35%;
+            left: 10%;
+            font-size: 90px;
+            color: rgba(7, 106, 57, 0.04);
+            transform: rotate(-35deg);
+            font-weight: bold;
+            letter-spacing: 5px;
+            z-index: -1;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #076A39, #095032);
+            color: white;
+            padding: 25px 30px;
+            margin-bottom: 0;
+        }
+
+        .header-top {
+            display: table;
+            width: 100%;
+        }
+
+        .header-left {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #B2D944;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            margin: 2px 0;
+        }
+
+        .reference-badge {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 8px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #B2D944;
+            letter-spacing: 2px;
+        }
+
+        /* ===== DIVIDER ===== */
+        .divider {
+            height: 4px;
+            background: linear-gradient(90deg, #B2D944, #E1B323, #B2D944);
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 25px 30px;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #076A39;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 15px;
+            background: rgba(7, 106, 57, 0.06);
+            border-left: 4px solid #076A39;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        /* ===== INFO TABLE ===== */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .info-table tr:nth-child(even) {
+            background: #f8fdf9;
+        }
+
+        .info-table tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        .info-table td {
+            padding: 11px 15px;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .info-table .label {
+            font-weight: bold;
+            color: #4a5568;
+            width: 35%;
+            background: #f0faf4;
+            font-size: 12px;
+        }
+
+        .info-table .value {
+            color: #2d3748;
+            font-size: 13px;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-actif {
+            background: #c6f6d5;
+            color: #276749;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-attente {
+            background: #fefcbf;
+            color: #744210;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-refuse {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* ===== DOCUMENTS TABLE ===== */
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .docs-table thead tr {
+            background: #076A39;
+            color: white;
+        }
+
+        .docs-table thead th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .docs-table tbody tr:nth-child(even) {
+            background: #f8fdf9;
+        }
+
+        .docs-table tbody tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        .docs-table tbody td {
+            padding: 9px 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #2d3748;
+        }
+
+        /* ===== SIGNATURE ===== */
+        .signature-section {
+            margin-top: 40px;
+            display: table;
+            width: 100%;
+        }
+
+        .signature-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+
+        .signature-right {
+            display: table-cell;
+            width: 50%;
+            text-align: right;
+            vertical-align: bottom;
+        }
+
+        .signature-box {
+            border-top: 2px solid #076A39;
+            padding-top: 10px;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .signature-box p {
+            font-size: 11px;
+            color: #4a5568;
+            margin: 3px 0;
+        }
+
+        .signature-box .sig-title {
+            font-weight: bold;
+            color: #076A39;
+            font-size: 12px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f7fafc;
+            border-top: 2px solid #076A39;
+            padding: 10px 30px;
+            display: table;
+            width: 100%;
+        }
+
+        .footer-left {
+            display: table-cell;
+            font-size: 10px;
+            color: #718096;
+            vertical-align: middle;
+        }
+
+        .footer-right {
+            display: table-cell;
+            text-align: right;
+            font-size: 10px;
+            color: #718096;
+            vertical-align: middle;
+        }
+
+        /* ===== VERIFIED SEAL ===== */
+        .verified-seal {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px dashed #076A39;
+            border-radius: 10px;
+            background: rgba(7, 106, 57, 0.03);
+        }
+
+        .verified-seal p {
+            color: #076A39;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .verified-seal .seal-date {
+            color: #718096;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+{# WATERMARK #}
+<div class="watermark">AGRIFUND</div>
+
+{# HEADER #}
+<div class="header">
+    <div class="header-top">
+        <div class="header-left">
+            <h1>🌿 AGRIFUND</h1>
+            <p>Plateforme de Financement Agricole</p>
+            <p>Rapport Officiel — Dossier Agriculteur</p>
+        </div>
+        <div class="header-right">
+            <div class="reference-badge">{{ reference }}</div>
+            <p style="margin-top: 8px; font-size: 11px;">Émis le {{ date|date('d/m/Y à H:i') }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+{# CONTENT #}
+<div class="content">
+
+    {# Informations personnelles #}
+    <div class="section-title">👤 Informations Personnelles</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Nom complet</td>
+            <td class="value"><strong>{{ agriculteur.utilisateur.nomComplet }}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">Email</td>
+            <td class="value">{{ agriculteur.utilisateur.email }}</td>
+        </tr>
+        <tr>
+            <td class="label">Téléphone</td>
+            <td class="value">{{ agriculteur.utilisateur.tel ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Date d'inscription</td>
+            <td class="value">{{ agriculteur.utilisateur.dateInscrit|date('d/m/Y H:i') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Dernière connexion</td>
+            <td class="value">{{ agriculteur.utilisateur.derniereConnexion|date('d/m/Y H:i') }}</td>
+        </tr>
+    </table>
+
+    {# Informations agricoles #}
+    <div class="section-title">🚜 Informations Agricoles</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Adresse ferme</td>
+            <td class="value">{{ agriculteur.adresseferme ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Superficie</td>
+            <td class="value">
+                {% if agriculteur.superficieferme %}
+                    <strong>{{ agriculteur.superficieferme }} hectares</strong>
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Type de culture</td>
+            <td class="value">{{ agriculteur.typeCulture ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Statut du compte</td>
+            <td class="value">
+                {% if agriculteur.statuscompte == 'actif' %}
+                    <span class="status-actif">✓ Actif</span>
+                {% elseif agriculteur.statuscompte == 'en_attente' %}
+                    <span class="status-attente">⏳ En attente</span>
+                {% elseif agriculteur.statuscompte == 'refuse' %}
+                    <span class="status-refuse">✗ Refusé</span>
+                {% else %}
+                    {{ agriculteur.statuscompte }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Compte vérifié</td>
+            <td class="value">
+                {% if agriculteur.compteverifie %}
+                    <span class="status-actif">✓ Vérifié</span>
+                {% else %}
+                    <span class="status-attente">⚠ Non vérifié</span>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {# Documents #}
+    {% set documents = agriculteur.utilisateur.documents %}
+    {% if documents|length > 0 %}
+    <div class="section-title">📄 Documents Soumis</div>
+    <table class="docs-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Date d'envoi</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for document in documents %}
+            <tr>
+                <td>{{ document.nom }}</td>
+                <td>{{ document.typeDocument }}</td>
+                <td>{{ document.dateUpload|date('d/m/Y') }}</td>
+                <td>{{ document.statut }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {# Verified seal #}
+    {% if agriculteur.compteverifie %}
+    <div class="verified-seal">
+        <p>✅ COMPTE OFFICIELLEMMENT VÉRIFIÉ PAR L'ADMINISTRATION</p>
+        <p class="seal-date">Référence : {{ reference }} — {{ date|date('d/m/Y') }}</p>
+    </div>
+    {% endif %}
+
+    {# Signature #}
+    <div class="signature-section">
+        <div class="signature-left">
+            <div class="signature-box">
+                <p style="height: 40px;"></p>
+                <p class="sig-title">L'Agriculteur</p>
+                <p>{{ agriculteur.utilisateur.nomComplet }}</p>
+            </div>
+        </div>
+        <div class="signature-right">
+            <div class="signature-box">
+                <p style="height: 40px;"></p>
+                <p class="sig-title">L'Administration</p>
+                <p>AGRIFUND</p>
+                <p>{{ date|date('d/m/Y') }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# FOOTER #}
+<div class="footer">
+    <div class="footer-left">
+        🌿 AGRIFUND — Plateforme de Financement Agricole<br>
+        Document généré automatiquement — Ne nécessite pas de signature manuscrite
+    </div>
+    <div class="footer-right">
+        Réf : {{ reference }}<br>
+        Généré le {{ date|date('d/m/Y à H:i') }}
+    </div>
+</div>
+
+</body>
+</html>
