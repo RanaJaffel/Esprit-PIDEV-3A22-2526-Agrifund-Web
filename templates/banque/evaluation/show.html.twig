@@ -1,142 +1,140 @@
 {% extends 'base.html.twig' %}
-{% block title %}Évaluation #{{ evaluation.idEvaluation }}{% endblock %}
+{% block title %}Détail Évaluation #{{ evaluation.idEvaluation }}{% endblock %}
 
 {% block stylesheets %}
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('admin') }}
     <style>
-        :root { --vert-vif: #089647; --vert-fonce: #076A39; --vert-foret: #095032; --vert-tres-fonce: #133D03; --vert-clair: #B2D944; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%); min-height: 100vh; }
-        .dashboard-container { display: flex; min-height: 100vh; }
-        .main-content { flex: 1; margin-left: 280px; padding: 0; background: transparent; transition: margin-left 0.4s; }
-        @media (max-width: 991.98px) { .main-content { margin-left: 0; } }
-        .page-header { background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 100%); padding: 28px 35px; position: relative; overflow: hidden; }
-        .show-card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); overflow: hidden; }
-        .score-section { padding: 28px; text-align: center; }
-        .score-circle { width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0 auto 16px; font-weight: 800; }
-        .score-circle.faible { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; border: 4px solid #22c55e; }
-        .score-circle.moyen { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border: 4px solid #f59e0b; }
-        .score-circle.eleve { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #7f1d1d; border: 4px solid #ef4444; }
-        .score-number { font-size: 2.5rem; line-height: 1; }
-        .score-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
-        .score-bar { height: 12px; border-radius: 6px; background: #f0f0f0; overflow: hidden; margin: 16px 28px; }
-        .score-fill { height: 100%; border-radius: 6px; transition: width 0.8s ease; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-        .info-cell { padding: 20px 28px; border-bottom: 1px solid #f0f0f0; }
-        .info-cell:nth-child(odd) { border-right: 1px solid #f0f0f0; }
-        .info-cell-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; font-weight: 700; margin-bottom: 6px; }
-        .info-cell-value { font-size: 1rem; font-weight: 600; color: #1f2937; }
-        .facteur-section { padding: 24px 28px; border-bottom: 1px solid #f0f0f0; }
-        .actions-section { padding: 24px 28px; display: flex; gap: 12px; flex-wrap: wrap; }
-        .btn-action-lg { padding: 14px 24px; border-radius: 14px; font-weight: 700; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; border: none; cursor: pointer; }
-        .btn-edit-lg { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; box-shadow: 0 4px 15px rgba(217,119,6,0.3); }
-        .btn-edit-lg:hover { transform: translateY(-2px); color: white; }
-        .btn-delete-lg { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 4px 15px rgba(220,38,38,0.3); }
-        .btn-delete-lg:hover { transform: translateY(-2px); color: white; }
-        .btn-back { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 10px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; }
-        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
-        .badge-niveau { padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
-        .badge-faible { background: #22c55e; color: white; }
-        .badge-moyen { background: #f59e0b; color: white; }
-        .badge-eleve { background: #ef4444; color: white; }
-        .main-content > *:not(.page-header):not(script) { padding-left: 35px; padding-right: 35px; }
+        .detail-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .detail-header {
+            padding: 30px 35px;
+            color: white;
+            background: linear-gradient(135deg, #0a3d1f, #1a5c35);
+        }
+        .detail-header.faible { background: linear-gradient(135deg, #166534, #22c55e); }
+        .detail-header.moyen { background: linear-gradient(135deg, #92400e, #f59e0b); }
+        .detail-header.eleve { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: white;
+            border: 12px solid rgba(255,255,255,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 0 auto 15px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            padding: 35px;
+        }
+        .info-item {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 14px;
+        }
+        .info-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e2937;
+        }
+        .facteur-box {
+            background: #f0fdf4;
+            border-left: 5px solid #22c55e;
+            padding: 25px;
+            border-radius: 14px;
+            margin: 0 35px 35px;
+        }
+        @media (max-width: 768px) {
+            .info-grid { grid-template-columns: 1fr; }
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="dashboard-container">
     {% include 'components/_sidebar_banque.html.twig' %}
-    <div class="main-content">
 
+    <div class="main-content">
         <div class="page-header">
             <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h2 class="text-white fw-bold mb-1" style="font-size:1.6rem;">👁️ Évaluation #{{ evaluation.idEvaluation }}</h2>
-                    <p class="mb-0" style="color:rgba(255,255,255,0.65); font-size:0.85rem;">Détails de l'évaluation de risque</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-light d-md-none" id="mobileSidebarToggle"><i class="fas fa-bars"></i></button>
-                    <a href="{{ path('banque_evaluation_index') }}" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Retour
-                    </a>
-                </div>
+                <h2 class="text-white fw-bold">📋 Détail de l'Évaluation #{{ evaluation.idEvaluation }}</h2>
+                <a href="{{ path('banque_evaluation_index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
             </div>
         </div>
 
-        <div class="py-4">
-            <div class="row justify-content-center">
-                <div class="col-xl-8 col-lg-10">
-                    <div class="show-card">
-
-                        <div class="score-section">
-                            <div class="score-circle {{ evaluation.niveauRisque }}">
-                                <div class="score-number">{{ evaluation.scoreGlobal }}</div>
-                                <div class="score-label">Score</div>
-                            </div>
-                            <span class="badge-niveau badge-{{ evaluation.niveauRisque }}">
-                                {% if evaluation.niveauRisque == 'faible' %}✅ Risque Faible
-                                {% elseif evaluation.niveauRisque == 'moyen' %}⚠️ Risque Moyen
-                                {% else %}🔴 Risque Élevé{% endif %}
-                            </span>
+        <div class="py-4 px-4">
+            <div class="detail-card">
+                <!-- Header -->
+                <div class="detail-header {{ evaluation.niveauRisqueNormalized }}">
+                    <div class="text-center">
+                        <div class="score-circle" style="background: {% if evaluation.scoreGlobal >= 70 %}#22c55e{% elseif evaluation.scoreGlobal >= 40 %}#f59e0b{% else %}#ef4444{% endif %};">
+                            {{ evaluation.scoreGlobal }}
                         </div>
+                        <h3 class="mb-1">Score Global</h3>
+                        <span class="badge fs-5 px-4 py-2" style="background:rgba(255,255,255,0.25);">
+                            {{ evaluation.niveauRisqueNormalized|capitalize }} Risque
+                        </span>
+                    </div>
+                </div>
 
-                        <div class="score-bar">
-                            <div class="score-fill" style="width:{{ evaluation.scoreGlobal }}%; background:{% if evaluation.scoreGlobal >= 70 %}#22c55e{% elseif evaluation.scoreGlobal >= 40 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
-                        </div>
+                <!-- Contenu -->
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Projet Agricole</div>
+                        <div class="info-value">{{ evaluation.projet ? evaluation.projet.nomproject : 'N/A' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Date d'Évaluation</div>
+                        <div class="info-value">{{ evaluation.dateEvaluation|date('d/m/Y à H:i') }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Niveau de Risque</div>
+                        <div class="info-value">{{ evaluation.niveauRisque }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Fiabilité des Données</div>
+                        <div class="info-value">{{ evaluation.fiabiliteDonnees }}</div>
+                    </div>
+                </div>
 
-                        <div class="info-grid">
-                            <div class="info-cell">
-                                <div class="info-cell-label">🌱 Projet</div>
-                                <div class="info-cell-value">{{ evaluation.projet ? evaluation.projet.nomproject : 'N/A' }}</div>
-                            </div>
-                            <div class="info-cell">
-                                <div class="info-cell-label">📋 Fiabilité des données</div>
-                                <div class="info-cell-value">{{ evaluation.fiabiliteDonnees }}</div>
-                            </div>
-                            <div class="info-cell">
-                                <div class="info-cell-label">💡 Recommandation</div>
-                                <div class="info-cell-value">{{ evaluation.recommandation }}/100</div>
-                            </div>
-                            <div class="info-cell">
-                                <div class="info-cell-label">📅 Date d'évaluation</div>
-                                <div class="info-cell-value">{{ evaluation.dateEvaluation|date('d/m/Y à H:i') }}</div>
-                            </div>
-                        </div>
+                <!-- Recommandation -->
+                <div class="px-5 pb-4">
+                    <div class="info-label">💡 Recommandation IA</div>
+                    <div class="info-value" style="font-size:1.05rem; line-height:1.6;">
+                        {{ evaluation.recommandation|nl2br }}
+                    </div>
+                </div>
 
-                        <div class="facteur-section">
-                            <div class="info-cell-label mb-2">🔍 Facteur Principal</div>
-                            <div style="background:#f8faf5; border-radius:12px; padding:16px; line-height:1.7; color:#374151; border-left:4px solid #22c55e;">
-                                {{ evaluation.facteurPrincipal }}
-                            </div>
-                        </div>
-
-                        <div class="actions-section">
-                            <a href="{{ path('banque_evaluation_edit', {id: evaluation.idEvaluation}) }}" class="btn-action-lg btn-edit-lg">
-                                <i class="fas fa-edit"></i> Modifier
-                            </a>
-                            <form method="post" action="{{ path('banque_evaluation_delete', {id: evaluation.idEvaluation}) }}"
-                                  onsubmit="return confirm('Supprimer définitivement ?')">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evaluation.idEvaluation) }}">
-                                <button type="submit" class="btn-action-lg btn-delete-lg">
-                                    <i class="fas fa-trash"></i> Supprimer
-                                </button>
-                            </form>
-                        </div>
-
+                <!-- Facteur Principal -->
+                <div class="facteur-box">
+                    <div class="info-label mb-3">🔍 Analyse Détaillée & Conseils</div>
+                    <div style="white-space: pre-line; line-height:1.7;">
+                        {{ evaluation.facteurPrincipal }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block javascripts %}
-    {{ encore_entry_script_tags('sidebar') }}
-    <script>
-        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('show');
-        });
-    </script>
 {% endblock %}

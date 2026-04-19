@@ -91,12 +91,12 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->dateInscrit === null) {
             $this->dateInscrit = new \DateTime();
         }
+
         if ($this->derniereConnexion === null) {
             $this->derniereConnexion = new \DateTime();
         }
     }
 
-    // Getters et Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -272,6 +272,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->documents->add($document);
             $document->setUtilisateur($this);
         }
+
         return $this;
     }
 
@@ -282,6 +283,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $document->setUtilisateur(null);
             }
         }
+
         return $this;
     }
 
@@ -312,7 +314,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // Méthodes UserInterface
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
@@ -320,14 +321,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->admin !== null) {
             $roles[] = 'ROLE_ADMIN';
         }
+
         if ($this->agriculteur !== null) {
             $roles[] = 'ROLE_AGRICULTEUR';
         }
+
         if ($this->banque !== null) {
             $roles[] = 'ROLE_BANQUE';
         }
 
-        return array_unique($roles);
+        return array_values(array_unique($roles));
     }
 
     public function eraseCredentials(): void
@@ -342,7 +345,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getNomComplet(): string
     {
-        return $this->prenom . ' ' . $this->nom;
+        return trim(($this->prenom ?? '') . ' ' . ($this->nom ?? ''));
     }
 
     public function getTypeUtilisateur(): string
@@ -350,12 +353,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->admin !== null) {
             return 'Admin';
         }
+
         if ($this->agriculteur !== null) {
             return 'Agriculteur';
         }
+
         if ($this->banque !== null) {
             return 'Banque';
         }
+
         return 'Utilisateur';
     }
 }

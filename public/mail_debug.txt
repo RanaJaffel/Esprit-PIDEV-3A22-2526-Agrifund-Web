@@ -1,0 +1,8 @@
+FUNCTION CALLED
+ERROR: An exception occurred while executing a query: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'agrifund_pidev.messenger_messages' doesn't exist
+FUNCTION CALLED
+EMAIL SENT
+FUNCTION CALLED
+EMAIL SENT
+FUNCTION CALLED
+EMAIL SENT

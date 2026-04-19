@@ -26,38 +26,98 @@
         .search-input:focus { border-color: #2d8a50; box-shadow: 0 0 0 4px rgba(45,138,80,0.1); outline: none; }
         .search-wrapper { position: relative; }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+
         .filter-select { border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; transition: all 0.3s; cursor: pointer; width: 100%; }
         .filter-select:focus { border-color: #2d8a50; outline: none; }
+
         .eval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
         .eval-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s; border: 1px solid #f0f0f0; }
         .eval-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
-        .eval-card-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .eval-card-header.faible { background: linear-gradient(135deg, #0a3d1f, #1a5c35); }
+
+        .eval-card-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: linear-gradient(135deg, #0a3d1f, #1a5c35); }
         .eval-card-header.moyen { background: linear-gradient(135deg, #92400e, #b45309); }
         .eval-card-header.eleve { background: linear-gradient(135deg, #7f1d1d, #991b1b); }
-        .eval-card-header .title { color: white; font-weight: 700; font-size: 1rem; }
-        .badge-risque { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .badge-faible { background: #22c55e; color: white; }
-        .badge-moyen { background: #f59e0b; color: white; }
-        .badge-eleve { background: #ef4444; color: white; }
+        .eval-card-header .title { color: white; font-weight: 700; font-size: 1.1rem; flex: 1; }
+        .id-evaluation { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 6px; font-weight: 800; margin-left: 5px; }
+        .badge-risque { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+
         .eval-card-body { padding: 20px; }
         .score-bar { height: 8px; border-radius: 4px; background: #f0f0f0; overflow: hidden; margin: 8px 0; }
         .score-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
         .info-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
         .info-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; font-weight: 600; }
-        .info-value { font-size: 0.88rem; color: #374151; font-weight: 500; }
-        .eval-card-footer { padding: 14px 20px; background: #fafafa; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; }
-        .btn-action { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-view { background: #eff6ff; color: #3b82f6; }
-        .btn-view:hover { background: #3b82f6; color: white; }
-        .btn-edit { background: #fffbeb; color: #d97706; }
-        .btn-edit:hover { background: #d97706; color: white; }
-        .btn-delete { background: #fef2f2; color: #ef4444; }
-        .btn-delete:hover { background: #ef4444; color: white; }
-        .btn-new { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 14px; padding: 12px 24px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
-        .btn-new:hover { transform: translateY(-2px); color: white; }
-        .main-content > *:not(.page-header):not(script) { padding-left: 35px; padding-right: 35px; }
-        @media (max-width: 768px) { .main-content > *:not(.page-header):not(script) { padding-left: 20px; padding-right: 20px; } }
+        .info-value { font-size: 0.88rem; color: #374151; font-weight: 500; word-break: break-word; }
+
+        .fiabilite-faible { color: #ef4444; font-weight: 600; }
+        .fiabilite-moyenne { color: #f59e0b; font-weight: 600; }
+        .fiabilite-elevee { color: #22c55e; font-weight: 600; }
+
+        /* === BOUTONS PLUS SOFT === */
+        .btn-action { 
+            flex: 1; 
+            padding: 10px 16px; 
+            border-radius: 12px; 
+            border: none; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-align: center; 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
+        }
+        .btn-view { 
+            background: #f0f9ff; 
+            color: #0284c8; 
+        }
+        .btn-view:hover { 
+            background: #0ea5e9; 
+            color: white; 
+            transform: translateY(-2px); 
+        }
+
+        .btn-edit { 
+            background: #fefce8; 
+            color: #ca8a04; 
+        }
+        .btn-edit:hover { 
+            background: #eab308; 
+            color: white; 
+            transform: translateY(-2px); 
+        }
+
+        .btn-delete { 
+            background: #fef2f2; 
+            color: #ef4444; 
+        }
+        .btn-delete:hover { 
+            background: #f87171; 
+            color: white; 
+            transform: translateY(-2px); 
+        }
+
+        .btn-new { 
+            background: linear-gradient(135deg, #4ade80, #22c55e); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            padding: 12px 24px; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 15px rgba(74,222,128,0.3); 
+        }
+        .btn-new:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 25px rgba(74,222,128,0.4); 
+        }
+
+        .no-results { display: none; text-align: center; padding: 40px 0; }
+        .no-results.visible { display: block; }
     </style>
 {% endblock %}
 
@@ -65,7 +125,6 @@
 <div class="dashboard-container">
     {% include 'components/_sidebar_banque.html.twig' %}
     <div class="main-content">
-
         <div class="page-header">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
@@ -89,17 +148,15 @@
                 </div>
             {% endfor %}
 
-            {% set total = evaluations|length %}
-            {% set faibles = evaluations|filter(e => e.niveauRisque == 'faible')|length %}
-            {% set moyens = evaluations|filter(e => e.niveauRisque == 'moyen')|length %}
-            {% set eleves = evaluations|filter(e => e.niveauRisque == 'eleve')|length %}
-
             <div class="row g-3 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card total">
                         <div class="d-flex align-items-center gap-3">
                             <div style="font-size:1.8rem;">📊</div>
-                            <div><div class="stat-number" style="color:#0a3d1f;">{{ total }}</div><div class="stat-label">Total</div></div>
+                            <div>
+                                <div class="stat-number" style="color:#0a3d1f;">{{ evaluations|length }}</div>
+                                <div class="stat-label">Total</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -107,7 +164,10 @@
                     <div class="stat-card faible">
                         <div class="d-flex align-items-center gap-3">
                             <div style="font-size:1.8rem;">✅</div>
-                            <div><div class="stat-number" style="color:#16a34a;">{{ faibles }}</div><div class="stat-label">Risque faible</div></div>
+                            <div>
+                                <div class="stat-number" style="color:#16a34a;">{{ stats.faible }}</div>
+                                <div class="stat-label">Risque faible</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -115,7 +175,10 @@
                     <div class="stat-card moyen">
                         <div class="d-flex align-items-center gap-3">
                             <div style="font-size:1.8rem;">⚠️</div>
-                            <div><div class="stat-number" style="color:#d97706;">{{ moyens }}</div><div class="stat-label">Risque moyen</div></div>
+                            <div>
+                                <div class="stat-number" style="color:#d97706;">{{ stats.moyen }}</div>
+                                <div class="stat-label">Risque moyen</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -123,7 +186,10 @@
                     <div class="stat-card eleve">
                         <div class="d-flex align-items-center gap-3">
                             <div style="font-size:1.8rem;">🔴</div>
-                            <div><div class="stat-number" style="color:#dc2626;">{{ eleves }}</div><div class="stat-label">Risque élevé</div></div>
+                            <div>
+                                <div class="stat-number" style="color:#dc2626;">{{ stats.eleve }}</div>
+                                <div class="stat-label">Risque élevé</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -169,20 +235,23 @@
                 <div class="eval-grid mt-4" id="evalGrid">
                     {% for eval in evaluations %}
                     <div class="eval-card"
-                         data-niveau="{{ eval.niveauRisque }}"
+                         data-niveau="{{ eval.niveauRisqueNormalized }}"
                          data-facteur="{{ eval.facteurPrincipal|lower }}"
+                         data-projet="{{ eval.projet ? eval.projet.nomproject|lower : '' }}"
                          data-score="{{ eval.scoreGlobal }}"
                          data-date="{{ eval.dateEvaluation|date('Y-m-d') }}">
-
-                        <div class="eval-card-header {{ eval.niveauRisque }}">
-                            <div class="title"><i class="fas fa-chart-bar me-2"></i>Évaluation #{{ eval.idEvaluation }}</div>
-                            <span class="badge-risque badge-{{ eval.niveauRisque }}">
-                                {% if eval.niveauRisque == 'faible' %}✅ Faible
-                                {% elseif eval.niveauRisque == 'moyen' %}⚠️ Moyen
+                       
+                        <div class="eval-card-header {{ eval.niveauRisqueNormalized }}">
+                            <div class="title">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Évaluation <span class="id-evaluation">#{{ eval.idEvaluation }}</span>
+                            </div>
+                            <span class="badge-risque">
+                                {% if eval.niveauRisqueNormalized == 'faible' %}✅ Faible
+                                {% elseif eval.niveauRisqueNormalized == 'moyen' %}⚠️ Moyen
                                 {% else %}🔴 Élevé{% endif %}
                             </span>
                         </div>
-
                         <div class="eval-card-body">
                             <div class="info-row">
                                 <span>🎯</span>
@@ -205,7 +274,9 @@
                                 <span>📋</span>
                                 <div>
                                     <div class="info-label">Fiabilité des données</div>
-                                    <div class="info-value">{{ eval.fiabiliteDonnees }}</div>
+                                    <div class="info-value fiabilite-{{ eval.fiabiliteDonnees|lower }}">
+                                        <strong>{{ eval.fiabiliteDonnees }}</strong>
+                                    </div>
                                 </div>
                             </div>
                             <div class="info-row">
@@ -223,7 +294,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="eval-card-footer">
                             <a href="{{ path('banque_evaluation_show', {id: eval.idEvaluation}) }}" class="btn-action btn-view">
                                 <i class="fas fa-eye"></i> Voir
@@ -231,8 +301,7 @@
                             <a href="{{ path('banque_evaluation_edit', {id: eval.idEvaluation}) }}" class="btn-action btn-edit">
                                 <i class="fas fa-edit"></i> Modifier
                             </a>
-                            <form method="post" action="{{ path('banque_evaluation_delete', {id: eval.idEvaluation}) }}"
-                                  style="flex:1;" onsubmit="return confirm('Supprimer ?')">
+                            <form method="post" action="{{ path('banque_evaluation_delete', {id: eval.idEvaluation}) }}" style="flex:1;" onsubmit="return confirm('Supprimer cette évaluation ?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ eval.idEvaluation) }}">
                                 <button type="submit" class="btn-action btn-delete w-100">
                                     <i class="fas fa-trash"></i> Supprimer
@@ -241,6 +310,10 @@
                         </div>
                     </div>
                     {% endfor %}
+                </div>
+                <div class="no-results" id="noResults">
+                    <div style="font-size:3rem; opacity:0.3;">🔍</div>
+                    <h5 class="text-muted mt-2">Aucun résultat pour cette recherche</h5>
                 </div>
             {% endif %}
         </div>
@@ -251,43 +324,52 @@
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
     <script>
-        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('show');
         });
         const searchInput = document.getElementById('searchInput');
         const filterNiveau = document.getElementById('filterNiveau');
         const sortSelect = document.getElementById('sortSelect');
         const grid = document.getElementById('evalGrid');
-
-        function filterCards() {
+        const noResults = document.getElementById('noResults');
+        function normalize(str) {
+            return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+        }
+        function filterAndSort() {
             if (!grid) return;
-            const search = searchInput.value.toLowerCase().trim();
+            const search = normalize(searchInput.value);
             const niveau = filterNiveau.value.trim();
             let cards = [...grid.querySelectorAll('.eval-card')];
-
+            let visibleCount = 0;
             cards.forEach(card => {
-                const facteur = (card.dataset.facteur || '').toLowerCase();
                 const cardNiveau = (card.dataset.niveau || '').trim();
-                const matchSearch = !search || facteur.includes(search) || cardNiveau.includes(search);
-                const matchFilter = !niveau || cardNiveau === niveau;
-                card.style.display = (matchSearch && matchFilter) ? '' : 'none';
+                const cardFacteur = normalize(card.dataset.facteur);
+                const cardProjet = normalize(card.dataset.projet);
+                const matchNiveau = !niveau || cardNiveau === niveau;
+                const matchSearch = !search ||
+                    cardFacteur.includes(search) ||
+                    cardProjet.includes(search) ||
+                    normalize(cardNiveau).includes(search);
+                const visible = matchNiveau && matchSearch;
+                card.style.display = visible ? '' : 'none';
+                if (visible) visibleCount++;
             });
-
+            if (noResults) noResults.classList.toggle('visible', visibleCount === 0);
             const sort = sortSelect.value;
             if (sort) {
-                cards.sort((a, b) => {
+                const visibleCards = cards.filter(c => c.style.display !== 'none');
+                visibleCards.sort((a, b) => {
                     if (sort === 'score-desc') return parseInt(b.dataset.score) - parseInt(a.dataset.score);
                     if (sort === 'score-asc') return parseInt(a.dataset.score) - parseInt(b.dataset.score);
                     if (sort === 'date-desc') return b.dataset.date.localeCompare(a.dataset.date);
                     if (sort === 'date-asc') return a.dataset.date.localeCompare(b.dataset.date);
                     return 0;
                 });
-                cards.forEach(card => grid.appendChild(card));
+                visibleCards.forEach(card => grid.appendChild(card));
             }
         }
-
-        searchInput?.addEventListener('input', filterCards);
-        filterNiveau?.addEventListener('change', filterCards);
-        sortSelect?.addEventListener('change', filterCards);
+        searchInput?.addEventListener('input', filterAndSort);
+        filterNiveau?.addEventListener('change', filterAndSort);
+        sortSelect?.addEventListener('change', filterAndSort);
     </script>
 {% endblock %}
