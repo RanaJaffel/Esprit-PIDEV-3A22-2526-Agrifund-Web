@@ -139,11 +139,13 @@
     .news-link {
         background: #eef5ff;
         color: #1d4ed8;
+        border: none;
         border-radius: 8px;
         padding: 5px 9px;
         font-weight: 700;
         text-decoration: none;
         white-space: nowrap;
+        cursor: pointer;
     }
 
     .news-state {
@@ -173,6 +175,86 @@
         display: none;
     }
 
+    .news-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(8, 23, 16, .58);
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    .news-modal.is-open {
+        display: flex;
+    }
+
+    .news-modal-dialog {
+        width: min(920px, 100%);
+        max-height: calc(100vh - 32px);
+        overflow: auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 14px 36px rgba(0,0,0,.25);
+    }
+
+    .news-modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5efe9;
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 1;
+    }
+
+    .news-modal-title {
+        margin: 0;
+        color: var(--news-ink);
+        font-size: 1.05rem;
+        line-height: 1.35;
+    }
+
+    .news-modal-close {
+        border: none;
+        background: #eef2f1;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #345146;
+    }
+
+    .news-modal-body {
+        padding: 14px 16px 18px;
+    }
+
+    .news-modal-meta {
+        color: #648173;
+        font-size: .86rem;
+        margin-bottom: 10px;
+    }
+
+    .news-modal-cover {
+        width: 100%;
+        max-height: 360px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        background: #edf3ef;
+    }
+
+    .news-modal-content {
+        color: #284839;
+        line-height: 1.62;
+        white-space: pre-wrap;
+    }
+
     @media (max-width: 991.98px) {
         .news-main {
             margin-left: 0;
@@ -196,7 +278,7 @@
     <main class="news-main">
         <section class="news-hero">
             <div style="font-size:.82rem;opacity:.86;">GNews Agriculture Feed</div>
-            <h2 style="margin:6px 0 8px 0;font-size:1.6rem;">Newspaper Agricole</h2>
+            <h2 style="margin:6px 0 8px 0;font-size:1.6rem;color:#FF8C00;">Newspaper Agricole</h2>
             <p style="margin:0;opacity:.93;max-width:760px;">
                 Restez a jour avec les actualites agriculture & farming: marches, meteo, technologies, politiques, cultures et elevage.
             </p>
@@ -223,12 +305,27 @@
             <button id="moreBtn" class="news-more" type="button">Charger plus d'articles</button>
         </div>
     </main>
+
+    <div id="articleModal" class="news-modal" aria-hidden="true">
+        <div class="news-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="news-modal-head">
+                <h3 id="modalTitle" class="news-modal-title">Article</h3>
+                <button id="closeModalBtn" type="button" class="news-modal-close" aria-label="Fermer">X</button>
+            </div>
+            <div class="news-modal-body">
+                <div id="modalMeta" class="news-modal-meta"></div>
+                <img id="modalImage" class="news-modal-cover" alt="Article image" style="display:none;">
+                <div id="modalContent" class="news-modal-content"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
 <script>
 (function () {
     const endpoint = '{{ path('agriculteur_project_agricole_newspaper_articles') }}';
+    const articleContentEndpoint = '{{ path('agriculteur_project_agricole_newspaper_article_content') }}';
     const grid = document.getElementById('grid');
     const state = document.getElementById('state');
     const meta = document.getElementById('meta');
@@ -237,16 +334,23 @@
     const languageSelect = document.getElementById('language');
     const searchBtn = document.getElementById('searchBtn');
     const moreBtn = document.getElementById('moreBtn');
+    const articleModal = document.getElementById('articleModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalImage = document.getElementById('modalImage');
+    const modalContent = document.getElementById('modalContent');
 
     let page = 1;
     let hasNext = false;
     let loading = false;
+    const articlesById = new Map();
 
     function articleCard(article) {
         const title = article.title || 'Sans titre';
         const desc = article.description || 'Aucune description disponible.';
         const img = article.image || '';
-        const link = article.url || '#';
+        const articleId = article.id || '';
         const source = article.source || 'Source inconnue';
         const published = article.published_at ? new Date(article.published_at).toLocaleString() : 'Date inconnue';
 
@@ -262,7 +366,7 @@
                     '<p class="news-desc">' + escapeHtml(desc) + '</p>' +
                     '<div class="news-foot">' +
                         '<span>' + escapeHtml(source) + ' · ' + escapeHtml(published) + '</span>' +
-                        '<a class="news-link" href="' + encodeURI(link) + '" target="_blank" rel="noopener">Lire</a>' +
+                        '<button class="news-link js-read-article" data-article-id="' + escapeHtml(articleId) + '" type="button">Lire</button>' +
                     '</div>' +
                 '</div>' +
             '</article>';
@@ -275,6 +379,63 @@
             .replaceAll('>', '&gt;')
             .replaceAll('"', '&quot;')
             .replaceAll("'", '&#39;');
+    }
+
+    function normalizeArticleText(article) {
+        const description = article.description || '';
+        const content = article.content || '';
+        const text = content.trim() !== '' ? content : description;
+        return text.trim() !== '' ? text : 'Le contenu complet n\'est pas fourni par GNews pour cet article.';
+    }
+
+    async function openArticle(articleId) {
+        const article = articlesById.get(articleId);
+        if (!article) {
+            return;
+        }
+
+        const source = article.source || 'Source inconnue';
+        const published = article.published_at ? new Date(article.published_at).toLocaleString() : 'Date inconnue';
+
+        modalTitle.textContent = article.title || 'Article';
+        modalMeta.textContent = source + ' · ' + published;
+        modalContent.textContent = 'Chargement du contenu complet...';
+
+        if (article.image) {
+            modalImage.src = article.image;
+            modalImage.style.display = 'block';
+        } else {
+            modalImage.removeAttribute('src');
+            modalImage.style.display = 'none';
+        }
+
+        articleModal.classList.add('is-open');
+        articleModal.setAttribute('aria-hidden', 'false');
+
+        try {
+            if (!article.url) {
+                modalContent.textContent = normalizeArticleText(article);
+                return;
+            }
+
+            const params = new URLSearchParams({ url: article.url });
+            const response = await fetch(articleContentEndpoint + '?' + params.toString(), { method: 'GET' });
+            const data = await response.json();
+
+            if (response.ok && data.ok && data.content) {
+                modalContent.textContent = data.content;
+                return;
+            }
+
+            modalContent.textContent = normalizeArticleText(article);
+        } catch (e) {
+            modalContent.textContent = normalizeArticleText(article);
+        }
+    }
+
+    function closeArticleModal() {
+        articleModal.classList.remove('is-open');
+        articleModal.setAttribute('aria-hidden', 'true');
     }
 
     async function loadArticles(reset) {
@@ -324,6 +485,11 @@
             }
 
             const articles = Array.isArray(data.articles) ? data.articles : [];
+            articles.forEach(function (article) {
+                if (article && article.id) {
+                    articlesById.set(article.id, article);
+                }
+            });
             hasNext = Boolean(data.has_next_pages);
 
             if (articles.length === 0 && page === 1) {
@@ -375,7 +541,31 @@
         loadArticles(false);
     });
 
+    grid.addEventListener('click', function (event) {
+        const button = event.target.closest('.js-read-article');
+        if (!button) {
+            return;
+        }
+        const articleId = button.getAttribute('data-article-id') || '';
+        openArticle(articleId);
+    });
+
+    closeModalBtn.addEventListener('click', closeArticleModal);
+
+    articleModal.addEventListener('click', function (event) {
+        if (event.target === articleModal) {
+            closeArticleModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && articleModal.classList.contains('is-open')) {
+            closeArticleModal();
+        }
+    });
+
     loadArticles(true);
 })();
 </script>
 {% endblock %}
+

@@ -8,6 +8,8 @@ use App\Repository\ProjectAgricoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use DOMDocument;
+use DOMXPath;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -150,6 +152,7 @@ class ProjectAgricoleController extends AbstractController
                     'id' => sha1((string) ($item['url'] ?? $item['title'] ?? uniqid('news_', true))),
                     'title' => (string) ($item['title'] ?? 'Sans titre'),
                     'description' => (string) ($item['description'] ?? ''),
+                    'content' => (string) ($item['content'] ?? ''),
                     'url' => (string) ($item['url'] ?? ''),
                     'image' => (string) ($item['image'] ?? ''),
                     'published_at' => (string) ($item['publishedAt'] ?? ''),
@@ -173,6 +176,118 @@ class ProjectAgricoleController extends AbstractController
                 'details' => (bool) $this->getParameter('kernel.debug') ? $e->getMessage() : null,
             ], 502);
         }
+    }
+
+    #[Route('/newspaper/article-content', name: 'newspaper_article_content', methods: ['GET'])]
+    public function newspaperArticleContent(Request $request, HttpClientInterface $httpClient): JsonResponse
+    {
+        $url = trim((string) $request->query->get('url', ''));
+        if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'URL article invalide.',
+            ], 400);
+        }
+
+        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'Seules les URLs HTTP/HTTPS sont autorisees.',
+            ], 400);
+        }
+
+        try {
+            $response = $httpClient->request('GET', $url, [
+                'headers' => [
+                    'Accept' => 'text/html,application/xhtml+xml',
+                    'User-Agent' => 'Agrifund-NewsReader/1.0',
+                ],
+                'timeout' => 20,
+                'max_redirects' => 5,
+            ]);
+
+            $html = $response->getContent(false);
+            $statusCode = $response->getStatusCode();
+
+            if ($statusCode >= 400 || trim($html) === '') {
+                return $this->json([
+                    'ok' => false,
+                    'error' => 'Impossible de recuperer cet article pour le moment.',
+                ], 502);
+            }
+
+            $content = $this->extractReadableArticleText($html);
+            if ($content === '') {
+                return $this->json([
+                    'ok' => false,
+                    'error' => 'Le texte complet de cet article n\'est pas extractible automatiquement.',
+                ], 422);
+            }
+
+            return $this->json([
+                'ok' => true,
+                'content' => $content,
+            ]);
+        } catch (\Throwable $e) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'Erreur lors de la lecture de l\'article.',
+                'details' => (bool) $this->getParameter('kernel.debug') ? $e->getMessage() : null,
+            ], 502);
+        }
+    }
+
+    private function extractReadableArticleText(string $html): string
+    {
+        $doc = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($html);
+        libxml_clear_errors();
+
+        $xpath = new DOMXPath($doc);
+
+        $candidates = [
+            '//article//p',
+            '//*[contains(@class,"article")]//p',
+            '//*[contains(@class,"content")]//p',
+            '//*[contains(@class,"post")]//p',
+            '//main//p',
+            '//p',
+        ];
+
+        $best = [];
+        foreach ($candidates as $query) {
+            $nodes = $xpath->query($query);
+            if (!$nodes || $nodes->length === 0) {
+                continue;
+            }
+
+            $parts = [];
+            foreach ($nodes as $node) {
+                $text = trim(preg_replace('/\s+/u', ' ', (string) $node->textContent));
+                if (mb_strlen($text) < 60) {
+                    continue;
+                }
+                $parts[] = $text;
+            }
+
+            if (count($parts) >= 2) {
+                $best = $parts;
+                break;
+            }
+        }
+
+        if (!empty($best)) {
+            return trim(implode("\n\n", $best));
+        }
+
+        $metaDescription = $xpath->query('//meta[@name="description"]/@content');
+        if ($metaDescription && $metaDescription->length > 0) {
+            return trim((string) $metaDescription->item(0)?->nodeValue);
+        }
+
+        return '';
     }
 
     #[Route('/{id}/conseils-projet', name: 'project_advice', methods: ['GET'], requirements: ['id' => '\\d+'])]
