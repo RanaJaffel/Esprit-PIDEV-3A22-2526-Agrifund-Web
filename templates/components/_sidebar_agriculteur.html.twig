@@ -1,6 +1,5 @@
 {# templates/components/_sidebar_agriculteur.html.twig #}
-
-<aside class="agriculteur-sidebar" id="sidebar">
+<aside class="client-sidebar" id="sidebar">
     <!-- Sidebar Background Effects -->
     <div class="sidebar-bg-effects">
         <div class="sidebar-glow"></div>
@@ -15,896 +14,179 @@
             </div>
             <div class="logo-text">
                 <span class="brand-name">AgriFund</span>
-                <span class="brand-type">Espace Agriculteur</span>
+                <span class="brand-type">Client Portal</span>
             </div>
         </div>
-        <button class="sidebar-toggle-btn d-lg-none" id="sidebarClose">
-            <i class="fas fa-times"></i>
+        <button class="d-lg-none border-0 bg-transparent text-white fs-4" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
         </button>
     </div>
 
-    <!-- User Profile Section -->
+    <!-- User Section (Glassmorphism) -->
     <div class="sidebar-user-section">
-        <div class="user-card">
+        <div class="user-card-glass">
             <div class="user-avatar-wrapper">
-                <div class="user-avatar">
-                    {% if app.user.photo %}
-                        <img src="{{ asset(app.user.photo) }}" alt="{{ app.user.nomComplet }}">
-                    {% else %}
-                        <div class="avatar-placeholder">
-                            {{ app.user.prenom|slice(0,1)|upper }}{{ app.user.nom|slice(0,1)|upper }}
-                        </div>
-                    {% endif %}
-                </div>
-                <span class="user-status online"></span>
+                <img src="{{ app.user.photo ? asset(app.user.photo) : 'https://ui-avatars.com/api/?name=' ~ app.user.nomComplet ~ '&background=b2d944&color=fff' }}" class="user-avatar" alt="User">
+                <span class="status-indicator online"></span>
             </div>
-            <div class="user-details">
-                <h6 class="user-name">{{ app.user.nomComplet }}</h6>
-                {% set agriculteur = app.user.agriculteur %}
-                {% if agriculteur %}
-                    <span class="user-role">
-                        {% if agriculteur.statuscompte == 'actif' %}
-                            <i class="fas fa-check-circle"></i>
-                            Compte actif
-                        {% elseif agriculteur.statuscompte == 'en_attente' %}
-                            <i class="fas fa-clock"></i>
-                            En attente
-                        {% else %}
-                            <i class="fas fa-exclamation-circle"></i>
-                            {{ agriculteur.statuscompte }}
-                        {% endif %}
-                    </span>
-                {% else %}
-                    <span class="user-role">
-                        <i class="fas fa-tractor"></i>
-                        Agriculteur
-                    </span>
-                {% endif %}
-            </div>
-            <div class="user-actions">
-                <a href="{{ path('agriculteur_profile_show') }}" class="user-action-btn" title="Mon profil">
-                    <i class="fas fa-cog"></i>
-                </a>
+            <div class="user-info">
+                <span class="name">{{ app.user.nomComplet|default('Agriculteur') }}</span>
+                <span class="role"><i class="fas fa-check-circle me-1"></i>Vérifié</span>
             </div>
         </div>
     </div>
 
-    <!-- Navigation Menu -->
+    <!-- Navigation -->
     <nav class="sidebar-nav">
-        <div class="nav-section">
-            <span class="nav-section-title">Principal</span>
-            <ul class="nav-menu">
-                <li class="nav-item {{ app.request.get('_route') == 'agriculteur_dashboard' ? 'active' : '' }}">
-                    <a href="{{ path('agriculteur_dashboard') }}" class="nav-link">
-                        <span class="nav-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </span>
-                        <span class="nav-text">Tableau de bord</span>
-                        <span class="nav-indicator"></span>
+        <div class="nav-group">
+            <span class="nav-group-title">Menu Principal</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_dashboard' ? 'active' : '' }}">
+                        <i class="fas fa-th-large"></i>
+                        <span>Tableau de Bord</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_produits') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_produit' ? 'active' : '' }}">
+                        <i class="fas fa-shopping-basket"></i>
+                        <span>Marketplace</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_offres') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_offres' ? 'active' : '' }}">
+                        <i class="fas fa-percentage"></i>
+                        <span>Offres Spéciales</span>
                     </a>
                 </li>
             </ul>
         </div>
 
-        <div class="nav-section">
-            <span class="nav-section-title">Gestion</span>
-            <ul class="nav-menu">
-                <li class="nav-item {{ app.request.get('_route') starts with 'agriculteur_documents' ? 'active' : '' }}">
-                    <a href="{{ path('agriculteur_documents_index') }}" class="nav-link">
-                        <span class="nav-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </span>
-                        <span class="nav-text">Mes documents</span>
-                        <span class="nav-indicator"></span>
+        <div class="nav-group">
+            <span class="nav-group-title">Mon Dossier</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_documents_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_documents' ? 'active' : '' }}">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Mes Documents</span>
                     </a>
                 </li>
-            </ul>
-        </div>
-
-        <div class="nav-section">
-            <span class="nav-section-title">Communication</span>
-            <ul class="nav-menu">
-                <li class="nav-item {{ app.request.get('_route') starts with 'agriculteur_messagerie' ? 'active' : '' }}">
-                    <a href="{{ path('agriculteur_messagerie_index') }}" class="nav-link">
-                        <span class="nav-icon">
-                            <i class="fas fa-envelope"></i>
-                        </span>
-                        <span class="nav-text">Messagerie</span>
-                        <span class="nav-badge notification" id="unread-messages-badge" style="display: none;">0</span>
-                        <span class="nav-indicator"></span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="nav-section">
-            <span class="nav-section-title">Mon compte</span>
-            <ul class="nav-menu">
-                <li class="nav-item {{ app.request.get('_route') starts with 'agriculteur_profile' ? 'active' : '' }}">
-                    <a href="{{ path('agriculteur_profile_show') }}" class="nav-link">
-                        <span class="nav-icon">
-                            <i class="fas fa-user-cog"></i>
-                        </span>
-                        <span class="nav-text">Mon profil</span>
-                        <span class="nav-indicator"></span>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_messagerie_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_messagerie' ? 'active' : '' }}">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Messagerie</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <!-- Sidebar Footer -->
+    <!-- Footer -->
     <div class="sidebar-footer">
-        <a href="{{ path('app_logout') }}" class="logout-btn">
-            <span class="logout-icon">
-                <i class="fas fa-sign-out-alt"></i>
-            </span>
-            <span class="logout-text">Déconnexion</span>
+        <a href="{{ path('app_logout') }}" class="logout-link">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
         </a>
-        <div class="sidebar-version">
-            <span>AgriConnect v2.0</span>
-        </div>
     </div>
 </aside>
 
-<!-- Mobile Overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <style>
-    :root {
-        --sidebar-width: 280px;
-        --sidebar-collapsed-width: 80px;
-        --vert-vif: #089647;
-        --vert-fonce: #076A39;
-        --vert-foret: #095032;
-        --gris: #848A86;
-        --vert-tres-fonce: #133D03;
-        --jaune-moutarde: #E1B323;
-        --vert-clair: #B2D944;
-        --olive: #9A951F;
-        --vert-olive-fonce: #476C1A;
-    }
-
-    /* ==========================================
-       SIDEBAR BASE
-    ========================================== */
-    .agriculteur-sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
+    .client-sidebar {
         width: var(--sidebar-width);
         height: 100vh;
-        background: linear-gradient(180deg, var(--vert-tres-fonce) 0%, var(--vert-foret) 50%, var(--vert-fonce) 100%);
+        background: var(--sidebar-gradient);
+        position: fixed;
+        left: 0;
+        top: 0;
         z-index: 1000;
         display: flex;
         flex-direction: column;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: white;
         overflow: hidden;
     }
 
-    /* Background Effects */
-    .sidebar-bg-effects {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-        overflow: hidden;
-    }
-
+    .sidebar-bg-effects { position: absolute; inset: 0; pointer-events: none; }
     .sidebar-glow {
         position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at 30% 20%, rgba(178, 217, 68, 0.08) 0%, transparent 50%);
-        animation: glowMove 15s ease-in-out infinite;
+        top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle at 30% 20%, rgba(178, 217, 68, 0.1) 0%, transparent 60%);
+        animation: glowPulse 20s ease-in-out infinite alternate;
     }
-
-    @keyframes glowMove {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        50% { transform: translate(10%, 10%) rotate(180deg); }
-    }
-
+    @keyframes glowPulse { from { transform: rotate(0deg); } to { transform: rotate(180deg); } }
+    
     .sidebar-pattern {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 15 30 25 Q25 15 30 5' fill='%23B2D944' fill-opacity='0.03'/%3E%3Cpath d='M30 25 L30 40' stroke='%23B2D944' stroke-opacity='0.03' stroke-width='2'/%3E%3C/svg%3E");
-        background-size: 60px 60px;
+        position: absolute; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 15 L30 25 L25 15 Z' fill='%23B2D944' fill-opacity='0.03'/%3E%3C/svg%3E");
     }
 
-    /* ==========================================
-       SIDEBAR HEADER
-    ========================================== */
     .sidebar-header {
-        position: relative;
-        z-index: 1;
-        padding: 20px;
+        padding: 30px 25px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        z-index: 2;
     }
 
-    .brand-logo {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
+    .brand-logo { display: flex; align-items: center; gap: 15px; }
     .logo-icon {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-vif) 100%);
+        width: 45px; height: 45px;
+        background: linear-gradient(135deg, var(--vert-clair), var(--vert-vif));
         border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 
-            0 8px 20px rgba(0, 0, 0, 0.25),
-            0 0 20px rgba(178, 217, 68, 0.2);
-        transition: all 0.3s ease;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
+    .brand-name { font-size: 1.4rem; font-weight: 800; }
+    .brand-type { display: block; font-size: 0.65rem; color: var(--vert-clair); text-transform: uppercase; letter-spacing: 2px; }
 
-    .logo-icon:hover {
-        transform: rotate(-5deg) scale(1.05);
-    }
-
-    .logo-icon i {
-        font-size: 24px;
-        color: white;
-    }
-
-    .logo-text {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .brand-name {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: white;
-        letter-spacing: 0.5px;
-    }
-
-    .brand-type {
-        font-size: 0.7rem;
-        color: var(--vert-clair);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 500;
-    }
-
-    .sidebar-toggle-btn {
-        width: 36px;
-        height: 36px;
-        border: none;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        color: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .sidebar-toggle-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: rotate(90deg);
-    }
-
-    /* ==========================================
-       USER SECTION
-    ========================================== */
-    .sidebar-user-section {
-        position: relative;
-        z-index: 1;
-        padding: 20px;
-    }
-
-    .user-card {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+    .sidebar-user-section { padding: 0 20px 25px; position: relative; z-index: 2; }
+    .user-card-glass {
+        background: rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-    }
-
-    .user-card:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-    }
-
-    .user-avatar-wrapper {
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    .user-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        overflow: hidden;
-        background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-olive-fonce) 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .user-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .avatar-placeholder {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: white;
-    }
-
-    .user-status {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        border: 3px solid var(--vert-foret);
-        transition: all 0.3s ease;
-    }
-
-    .user-status.online {
-        background: var(--vert-clair);
-        box-shadow: 0 0 10px rgba(178, 217, 68, 0.5);
-    }
-
-    .user-status.offline {
-        background: var(--gris);
-    }
-
-    .user-status.pending {
-        background: var(--jaune-moutarde);
-        box-shadow: 0 0 10px rgba(225, 179, 35, 0.5);
-    }
-
-    .user-details {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .user-name {
-        color: white;
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin: 0 0 4px 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-role {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 0.72rem;
-        color: var(--vert-clair);
-        font-weight: 500;
-    }
-
-    .user-role i {
-        font-size: 0.65rem;
-    }
-
-    .user-actions {
-        flex-shrink: 0;
-    }
-
-    .user-action-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .user-action-btn:hover {
-        background: var(--vert-clair);
-        color: white;
-        transform: rotate(90deg);
-    }
-
-    /* ==========================================
-       NAVIGATION
-    ========================================== */
-    .sidebar-nav {
-        position: relative;
-        z-index: 1;
-        flex: 1;
-        overflow-y: auto;
-        padding: 10px 0;
-    }
-
-    .sidebar-nav::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .sidebar-nav::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .sidebar-nav::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-    }
-
-    .sidebar-nav::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .nav-section {
-        margin-bottom: 10px;
-        padding: 0 16px;
-    }
-
-    .nav-section-title {
-        display: block;
-        font-size: 0.68rem;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: rgba(255, 255, 255, 0.35);
-        font-weight: 600;
-        padding: 12px 12px 8px;
-        margin-bottom: 4px;
-    }
-
-    .nav-menu {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    .nav-item {
-        margin-bottom: 4px;
-    }
-
-    .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 12px 14px;
-        border-radius: 12px;
-        text-decoration: none;
-        color: rgba(255, 255, 255, 0.7);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .nav-link::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, var(--vert-vif), var(--vert-clair));
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: -1;
-    }
-
-    .nav-link:hover {
-        color: white;
-        background: rgba(255, 255, 255, 0.08);
-        transform: translateX(4px);
-    }
-
-    .nav-item.active .nav-link {
-        color: white;
-        background: linear-gradient(90deg, rgba(8, 150, 71, 0.3), rgba(178, 217, 68, 0.15));
-    }
-
-    .nav-item.active .nav-link::before {
-        opacity: 0.15;
-    }
-
-    .nav-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.08);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-    }
-
-    .nav-link:hover .nav-icon {
-        background: rgba(255, 255, 255, 0.15);
-        transform: scale(1.1);
-    }
-
-    .nav-item.active .nav-icon {
-        background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-clair) 100%);
-        box-shadow: 0 4px 15px rgba(8, 150, 71, 0.3);
-    }
-
-    .nav-text {
-        flex: 1;
-        font-size: 0.9rem;
-        font-weight: 500;
-        white-space: nowrap;
-    }
-
-    .nav-badge {
-        padding: 3px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-    }
-
-    .nav-badge.notification {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        animation: pulse-badge 2s infinite;
-    }
-
-    @keyframes pulse-badge {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-
-    .nav-indicator {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 0;
-        background: linear-gradient(180deg, var(--vert-clair), var(--vert-vif));
-        border-radius: 2px 0 0 2px;
-        transition: height 0.3s ease;
-    }
-
-    .nav-item.active .nav-indicator {
-        height: 60%;
-    }
-
-    /* ==========================================
-       SIDEBAR FOOTER
-    ========================================== */
-    .sidebar-footer {
-        position: relative;
-        z-index: 1;
-        padding: 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(0, 0, 0, 0.1);
-    }
-
-    .logout-btn {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-        padding: 14px 16px;
-        border-radius: 12px;
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        color: #fca5a5;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .logout-btn:hover {
-        background: rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.4);
-        color: #fecaca;
-        transform: translateY(-2px);
-    }
-
-    .logout-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: rgba(239, 68, 68, 0.15);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-
-    .logout-btn:hover .logout-icon {
-        background: rgba(239, 68, 68, 0.3);
-    }
-
-    .logout-text {
-        font-size: 0.9rem;
-    }
-
-    .sidebar-version {
-        text-align: center;
-        margin-top: 15px;
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.25);
-    }
-
-    /* ==========================================
-       MOBILE OVERLAY
-    ========================================== */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        z-index: 999;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* ==========================================
-       COLLAPSED STATE
-    ========================================== */
-    .agriculteur-sidebar.collapsed {
-        width: var(--sidebar-collapsed-width);
-    }
-
-    .agriculteur-sidebar.collapsed .logo-text,
-    .agriculteur-sidebar.collapsed .user-details,
-    .agriculteur-sidebar.collapsed .user-actions,
-    .agriculteur-sidebar.collapsed .nav-section-title,
-    .agriculteur-sidebar.collapsed .nav-text,
-    .agriculteur-sidebar.collapsed .nav-badge,
-    .agriculteur-sidebar.collapsed .logout-text,
-    .agriculteur-sidebar.collapsed .sidebar-version {
-        opacity: 0;
-        visibility: hidden;
-        width: 0;
-    }
-
-    .agriculteur-sidebar.collapsed .brand-logo,
-    .agriculteur-sidebar.collapsed .user-card,
-    .agriculteur-sidebar.collapsed .nav-link,
-    .agriculteur-sidebar.collapsed .logout-btn {
-        justify-content: center;
-    }
-
-    .agriculteur-sidebar.collapsed .user-card {
-        padding: 12px;
-    }
-
-    .agriculteur-sidebar.collapsed .nav-link {
-        padding: 12px;
-    }
-
-    .agriculteur-sidebar.collapsed .logout-btn {
-        padding: 12px;
-    }
-
-    .agriculteur-sidebar.collapsed .nav-icon,
-    .agriculteur-sidebar.collapsed .logout-icon {
-        margin: 0;
-    }
-
-    /* ==========================================
-       RESPONSIVE
-    ========================================== */
-    @media (max-width: 991.98px) {
-        .agriculteur-sidebar {
-            transform: translateX(-100%);
-        }
-
-        .agriculteur-sidebar.show {
-            transform: translateX(0);
-        }
-    }
-
-    @media (max-width: 575.98px) {
-        .agriculteur-sidebar {
-            width: 100%;
-            max-width: 300px;
-        }
-    }
-
-    /* ==========================================
-       TOOLTIPS FOR COLLAPSED STATE
-    ========================================== */
-    .agriculteur-sidebar.collapsed .nav-link {
-        position: relative;
-    }
-
-    .agriculteur-sidebar.collapsed .nav-link::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        left: calc(100% + 15px);
-        top: 50%;
-        transform: translateY(-50%);
-        background: var(--vert-tres-fonce);
-        color: white;
-        padding: 8px 14px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        z-index: 1001;
-    }
-
-    .agriculteur-sidebar.collapsed .nav-link:hover::after {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* ==========================================
-       HOVER EFFECTS
-    ========================================== */
-    .nav-link .nav-icon i {
+        padding: 15px;
+        display: flex; align-items: center; gap: 12px;
         transition: transform 0.3s ease;
     }
-
-    .nav-link:hover .nav-icon i {
-        transform: scale(1.15);
+    .user-card-glass:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.12); }
+    
+    .user-avatar-wrapper { position: relative; }
+    .user-avatar { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
+    .status-indicator {
+        position: absolute; bottom: -2px; right: -2px;
+        width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--vert-foret);
     }
+    .status-indicator.online { background: var(--vert-clair); box-shadow: 0 0 10px var(--vert-clair); }
 
-    .nav-item.active .nav-icon i {
-        animation: iconBounce 0.5s ease;
+    .user-info .name { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+    .user-info .role { font-size: 0.7rem; color: var(--vert-clair); font-weight: 600; text-transform: uppercase; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 0 10px; position: relative; z-index: 2; }
+    .nav-group-title {
+        display: block; padding: 15px 15px 8px;
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.4;
     }
-
-    @keyframes iconBounce {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-    }
-
-    /* Ripple Effect */
+    .nav-list { list-style: none; padding: 0; margin: 0; }
     .nav-link {
-        position: relative;
-        overflow: hidden;
+        display: flex; align-items: center; gap: 15px;
+        padding: 12px 15px; border-radius: 15px;
+        color: rgba(255, 255, 255, 0.7); font-weight: 500;
+        text-decoration: none; transition: var(--transition-smooth);
+    }
+    .nav-link i { font-size: 1.1rem; width: 24px; text-align: center; }
+    .nav-link:hover { background: rgba(255, 255, 255, 0.08); color: white; transform: translateX(5px); }
+    .nav-link.active {
+        background: linear-gradient(90deg, rgba(178, 217, 68, 0.2), transparent);
+        border-left: 3px solid var(--vert-clair);
+        color: white;
     }
 
-    .nav-link .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(0);
-        animation: ripple 0.6s linear;
-        pointer-events: none;
+    .sidebar-footer { padding: 25px; border-top: 1px solid rgba(255, 255, 255, 0.05); position: relative; z-index: 2; }
+    .logout-link {
+        display: flex; align-items: center; gap: 12px;
+        color: #fca5a5; text-decoration: none; font-weight: 600;
+        padding: 12px; border-radius: 12px; transition: var(--transition-smooth);
     }
-
-    @keyframes ripple {
-        to {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
+    .logout-link:hover { background: rgba(239, 68, 68, 0.1); color: #f87171; }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const closeBtn = document.getElementById('sidebarClose');
-    const toggleBtn = document.getElementById('mobileSidebarToggle');
-
-    // Toggle sidebar on mobile
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.add('show');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-    }
-
-    // Close sidebar
-    function closeSidebar() {
-        sidebar.classList.remove('show');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeSidebar);
-    }
-
-    if (overlay) {
-        overlay.addEventListener('click', closeSidebar);
-    }
-
-    // Ripple effect on nav links
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            const ripple = document.createElement('span');
-            ripple.classList.add('ripple');
-            
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            
-            this.appendChild(ripple);
-            
-            setTimeout(() => ripple.remove(), 600);
-        });
-
-        // Add tooltip data attribute for collapsed state
-        const text = link.querySelector('.nav-text');
-        if (text) {
-            link.setAttribute('data-tooltip', text.textContent.trim());
-        }
-    });
-
-    // Collapse sidebar on desktop with double-click on logo
-    const logoIcon = document.querySelector('.logo-icon');
-    if (logoIcon) {
-        logoIcon.addEventListener('dblclick', () => {
-            if (window.innerWidth > 991) {
-                sidebar.classList.toggle('collapsed');
-                localStorage.setItem('agriculteur-sidebar-collapsed', sidebar.classList.contains('collapsed'));
-            }
-        });
-    }
-
-    // Restore collapsed state
-    if (localStorage.getItem('agriculteur-sidebar-collapsed') === 'true' && window.innerWidth > 991) {
-        sidebar.classList.add('collapsed');
-    }
-
-    // Update unread messages badge
-    function updateUnreadBadge() {
-        fetch('/api/messages/unread-count')
-            .then(response => response.json())
-            .then(data => {
-                const badge = document.getElementById('unread-messages-badge');
-                if (badge) {
-                    if (data.count > 0) {
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                        badge.style.display = 'inline-flex';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
-            })
-            .catch(err => console.log('Could not fetch unread count'));
-    }
-
-    // Update badge periodically
-    updateUnreadBadge();
-    setInterval(updateUnreadBadge, 60000);
-});
-</script>

@@ -73,20 +73,26 @@ class ProduitFinancierRepository extends ServiceEntityRepository
         }
 
         if ($montantMin !== null) {
-            $qb->andWhere('p.montantMin >= :montantFilterMin')
+            $qb->andWhere('p.montant >= :montantFilterMin')
                ->setParameter('montantFilterMin', $montantMin);
         }
 
         if ($montantMax !== null) {
-            $qb->andWhere('p.montantMax <= :montantFilterMax')
+            $qb->andWhere('p.montant <= :montantFilterMax')
                ->setParameter('montantFilterMax', $montantMax);
         }
 
         // Tri dynamique
-        $allowedSorts = ['nomProduit', 'typeFinancement', 'tauxInteret', 'montantMin', 'montantMax'];
-        if (!in_array($sortBy, $allowedSorts)) {
-            $sortBy = 'nomProduit';
-        }
+        $allowedSorts = [
+            'nomProduit' => 'nomProduit',
+            'typeFinancement' => 'typeFinancement',
+            'tauxInteret' => 'tauxInteret',
+            'montant' => 'montant',
+            // Backward compatibility for existing query strings.
+            'montantMin' => 'montant',
+            'montantMax' => 'montant',
+        ];
+        $sortBy = $allowedSorts[$sortBy] ?? 'nomProduit';
         $sortOrder = strtoupper($sortOrder) === 'DESC' ? 'DESC' : 'ASC';
         $qb->orderBy('p.' . $sortBy, $sortOrder);
 
@@ -103,19 +109,21 @@ class ProduitFinancierRepository extends ServiceEntityRepository
             ->addSelect('AVG(p.tauxInteret) as avgTaux')
             ->addSelect('MIN(p.tauxInteret) as minTaux')
             ->addSelect('MAX(p.tauxInteret) as maxTaux')
-            ->addSelect('AVG(p.montantMin) as avgMontantMin')
-            ->addSelect('AVG(p.montantMax) as avgMontantMax')
-            ->addSelect('MAX(p.montantMax) as maxMontant')
+            ->addSelect('AVG(p.montant) as avgMontant')
+            ->addSelect('MAX(p.montant) as maxMontant')
             ->getQuery()
             ->getSingleResult();
+
+        $avgMontant = round((float)($stats['avgMontant'] ?? 0), 0);
 
         return [
             'totalProduits' => (int)$stats['total'],
             'avgTaux' => round((float)$stats['avgTaux'], 2),
             'minTaux' => round((float)($stats['minTaux'] ?? 0), 2),
             'maxTaux' => round((float)($stats['maxTaux'] ?? 0), 2),
-            'avgMontantMin' => round((float)($stats['avgMontantMin'] ?? 0), 0),
-            'avgMontantMax' => round((float)($stats['avgMontantMax'] ?? 0), 0),
+            'avgMontant' => $avgMontant,
+            'avgMontantMin' => $avgMontant,
+            'avgMontantMax' => $avgMontant,
             'maxMontant' => round((float)($stats['maxMontant'] ?? 0), 0),
         ];
     }

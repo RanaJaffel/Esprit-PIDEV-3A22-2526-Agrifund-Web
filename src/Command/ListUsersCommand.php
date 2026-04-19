@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Entity\User;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -24,7 +24,7 @@ class ListUsersCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $users = $this->entityManager->getRepository(User::class)->findAll();
+        $users = $this->entityManager->getRepository(Utilisateur::class)->findAll();
 
         if (empty($users)) {
             $output->writeln('<comment>No users found in the database.</comment>');
@@ -41,7 +41,7 @@ class ListUsersCommand extends Command
                 $user->getFirstname(),
                 $user->getLastname(),
                 implode(', ', $user->getRoles()),
-                $user->isActive() ? 'Yes' : 'No',
+                $user->isIsActive() ? 'Yes' : 'No',
                 $user->getCreatedAt()->format('Y-m-d H:i:s'),
             ]);
         }

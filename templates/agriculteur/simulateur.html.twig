@@ -1,0 +1,279 @@
+{# templates/agriculteur/simulateur.html.twig #}
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}AgriFund - Simulateur de Financement{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .page-header { margin-bottom: 30px; }
+    
+    .simulator-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .glass-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .form-label-custom {
+        display: block;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .form-control-custom {
+        border-radius: 12px;
+        border: 2px solid #f1f5f9;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: var(--transition-smooth);
+    }
+
+    .form-control-custom:focus {
+        border-color: var(--vert-clair);
+        box-shadow: 0 0 0 4px rgba(178, 217, 68, 0.1);
+        outline: none;
+    }
+
+    .btn-simulate {
+        background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 30px;
+        font-weight: 700;
+        width: 100%;
+        transition: var(--transition-smooth);
+    }
+
+    .btn-simulate:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(8, 150, 71, 0.3);
+    }
+
+    /* Result styling */
+    .result-widget {
+        background: linear-gradient(135deg, var(--vert-fonce), var(--vert-tres-fonce));
+        color: white;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .main-mensualite {
+        font-size: 2.8rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .label-mensualite {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        opacity: 0.8;
+    }
+
+    .stat-mini-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .stat-mini-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        text-align: left;
+    }
+
+    .stat-mini-card .val { font-weight: 700; font-size: 1.1rem; display: block; }
+    .stat-mini-card .lab { font-size: 0.7rem; opacity: 0.7; text-transform: uppercase; }
+
+    .amort-table-wrapper {
+        margin-top: 25px;
+        max-height: 350px;
+        overflow-y: auto;
+    }
+
+    .amort-table {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .amort-table th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gris);
+        padding: 10px;
+    }
+
+    .amort-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    @media (max-width: 991.98px) {
+        .simulator-container { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h2>Simulateur de Financement</h2>
+        <p>Estimez vos mensualités et préparez votre dossier en quelques clics.</p>
+    </div>
+
+    <div class="simulator-container">
+        <!-- Form -->
+        <div class="glass-card">
+            <form method="post" id="simulatorForm">
+                <div class="mb-4">
+                    <label class="form-label-custom">Solution de Financement</label>
+                    <select name="produit_id" class="form-select form-control-custom" id="produitSelect">
+                        <option value="0">— Sélectionner un produit —</option>
+                        {% for p in produits %}
+                            <option value="{{ p.id }}"
+                                    data-taux="{{ p.tauxInteret }}"
+                                    data-amount="{{ p.montant }}"
+                                    {{ produitSelectionne and produitSelectionne.id == p.id ? 'selected' : '' }}>
+                                {{ p.nomProduit }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-custom">Montant du financement (DT)</label>
+                    <input type="number" name="montant" class="form-control form-control-custom" id="montantInput"
+                           value="{{ simulation ? simulation.montant : (produitSelectionne ? produitSelectionne.montant : '') }}" required>
+                    <small id="montantHint" class="text-muted mt-2 d-block"></small>
+                </div>
+
+                <div class="mb-4" id="tauxGroup">
+                    <label class="form-label-custom">Taux d'intérêt annuel (%)</label>
+                    <input type="number" name="taux" class="form-control form-control-custom" id="tauxInput"
+                           value="{{ simulation ? simulation.tauxAnnuel : (produitSelectionne ? produitSelectionne.tauxInteret : '') }}" step="0.1" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-custom">Durée du remboursement (mois)</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" name="duree" class="form-range flex-grow-1" id="dureeRange"
+                               min="6" max="120" step="6" value="{{ simulation ? simulation.dureeMois : 60 }}">
+                        <span id="dureeValue" class="badge bg-success p-2 fs-6" style="min-width: 80px;">{{ simulation ? simulation.dureeMois : 60 }} mois</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-simulate mb-3">
+                    <i class="fas fa-calculator me-2"></i>Calculer
+                </button>
+
+                {% if simulation %}
+                    <button type="submit" formaction="{{ path('agriculteur_produit_simulateur_pdf') }}" class="btn btn-outline-danger w-100 py-3 rounded-4">
+                        <i class="fas fa-file-pdf me-2"></i>Télécharger le plan en PDF
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Results -->
+        <div class="results-area">
+            {% if simulation and simulation.error is not defined %}
+                <div class="result-widget animate__animated animate__fadeIn">
+                    <div class="label-mensualite">Mensualité Estimée</div>
+                    <div class="main-mensualite">{{ simulation.mensualite|number_format(2, ',', ' ') }} <small class="fs-4">DT</small></div>
+                    
+                    <div class="stat-mini-grid mt-4">
+                        <div class="stat-mini-card">
+                            <span class="lab">Coût de l'emprunt</span>
+                            <span class="val">{{ simulation.totalInterets|number_format(2, ',', ' ') }} DT</span>
+                        </div>
+                        <div class="stat-mini-card">
+                            <span class="lab">Coût Total</span>
+                            <span class="val">{{ simulation.coutTotal|number_format(2, ',', ' ') }} DT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-list-ol me-2 text-success"></i>Amortissement (12 premiers mois)</h5>
+                    <div class="amort-table-wrapper">
+                        <table class="amort-table">
+                            <thead>
+                                <tr>
+                                    <th>Mois</th>
+                                    <th>Capital</th>
+                                    <th>Intérêts</th>
+                                    <th>Restant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in simulation.tableau|slice(0, 12) %}
+                                    <tr>
+                                        <td class="fw-bold">Mois {{ row.mois }}</td>
+                                        <td>{{ row.capital|number_format(2, ',', ' ') }}</td>
+                                        <td class="text-danger">{{ row.interet|number_format(2, ',', ' ') }}</td>
+                                        <td class="fw-bold">{{ row.capitalRestant|number_format(2, ',', ' ') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="glass-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-5">
+                    <div class="mb-4 opacity-25">
+                        <i class="fas fa-chart-pie fa-5x"></i>
+                    </div>
+                    <h4 class="text-muted">Prêt à simuler ?</h4>
+                    <p class="text-muted px-4">Choisissez un produit ou entrez vos propres paramètres pour voir votre plan de remboursement.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const produitSelect = document.getElementById('produitSelect');
+        const tauxInput = document.getElementById('tauxInput');
+        const montantInput = document.getElementById('montantInput');
+        const montantHint = document.getElementById('montantHint');
+        const dureeRange = document.getElementById('dureeRange');
+        const dureeValue = document.getElementById('dureeValue');
+
+        dureeRange.addEventListener('input', function() {
+            dureeValue.textContent = this.value + ' mois';
+        });
+
+        produitSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            if (this.value !== '0') {
+                tauxInput.value = opt.dataset.taux;
+                montantHint.textContent = `Montant maximum autorisé : ${parseFloat(opt.dataset.amount).toLocaleString()} DT`;
+                montantInput.min = '1';
+                montantInput.max = opt.dataset.amount;
+            } else {
+                montantHint.textContent = '';
+            }
+        });
+
+        if (produitSelect.value !== '0') {
+            produitSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}

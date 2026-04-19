@@ -42,10 +42,12 @@
                         {{ form_ui.field(form.tauxInteret, 'Taux (%)', 'icon-amber', {icon: 'fa-percentage', attr: {class: 'form-control'}}) }}
                     </div>
                     <div class="col-md-4">
-                        {{ form_ui.field(form.montantMin, 'Min (DT)', 'icon-emerald', {icon: 'fa-arrow-down', attr: {class: 'form-control'}}) }}
+                        {{ form_ui.field(form.montant, 'Montant (DT)', 'icon-emerald', {icon: 'fa-coins', attr: {class: 'form-control'}}) }}
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-4">
-                        {{ form_ui.field(form.montantMax, 'Max (DT)', 'icon-emerald', {icon: 'fa-arrow-up', attr: {class: 'form-control'}}) }}
+                        {{ form_ui.field(form.prixFixe, 'Prix Fixe Payable (DT)', 'icon-amber', {icon: 'fa-money-bill-wave', attr: {class: 'form-control', min: '0.01', step: '0.01', inputmode: 'decimal'}}) }}
                     </div>
                 </div>
 

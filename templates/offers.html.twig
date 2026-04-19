@@ -1,129 +1,171 @@
+{# templates/offers.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Offres Spéciales - AgriFund{% endblock %}
 
-{% block page_intro %}
-<div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 60px 20px; margin-bottom: 40px;">
-    <div style="max-width: 1200px; margin: 0 auto;">
-        <h1 style="margin: 0 0 20px 0; font-size: 2.5em; font-weight: bold;">🎁 Offres Spéciales & Promotions</h1>
-        <p style="font-size: 1.15em; margin: 0; max-width: 600px;">Profitez de réductions exceptionnelles et d'offres exclusives limitées dans le temps!</p>
-    </div>
-</div>
+{% block stylesheets %}
+<style>
+    :root {
+        --vert-vif: #089647;
+        --vert-fonce: #076A39;
+        --vert-tres-fonce: #133D03;
+        --vert-clair: #B2D944;
+        --jaune: #E1B323;
+        --gris: #64748b;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8faf5 0%, #fffbf2 100%);
+    }
+
+    .promo-header {
+        background: linear-gradient(135deg, var(--vert-tres-fonce) 0%, #1a4a04 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 50px;
+    }
+
+    .promo-header::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 15 L30 25 L25 15 Z' fill='%23E1B323' fill-opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    .offer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 80px;
+    }
+
+    .offer-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .offer-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(225, 179, 35, 0.15);
+        border-color: var(--jaune);
+    }
+
+    .active-badge {
+        position: absolute;
+        top: 20px; right: 20px;
+        background: #f0fdf4; color: var(--vert-vif);
+        padding: 5px 12px; border-radius: 100px;
+        font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(8, 150, 71, 0.1);
+    }
+
+    .card-banner {
+        height: 120px;
+        background: linear-gradient(135deg, var(--jaune) 0%, #D4A817 100%);
+        padding: 30px;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .offer-icon {
+        width: 60px; height: 60px;
+        background: white; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: -60px;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        font-size: 1.6rem; color: var(--vert-fonce);
+        position: relative; z-index: 5;
+    }
+
+    .card-content { padding: 50px 30px 30px; flex: 1; }
+    .offer-title { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+    
+    .product-ref {
+        display: flex; align-items: center; gap: 8px;
+        background: #f8fafc; padding: 10px 15px; border-radius: 12px;
+        font-size: 0.8rem; color: var(--vert-vif); font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .offer-desc { font-size: 0.9rem; color: var(--gris); line-height: 1.6; margin-bottom: 20px; }
+
+    .btn-apply {
+        display: block; width: 100%; padding: 14px;
+        background: var(--vert-tres-fonce); color: white;
+        text-align: center; border-radius: 14px; text-decoration: none;
+        font-weight: 700; transition: all 0.3s;
+    }
+    .btn-apply:hover { background: var(--vert-fonce); color: white; transform: scale(1.02); }
+
+    .urgent-tag {
+        display: inline-block; padding: 4px 10px; border-radius: 6px;
+        background: #fff7ed; color: #c2410c; font-size: 0.7rem; font-weight: 700;
+        margin-bottom: 10px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
-    <!-- Filter Section -->
-    <div style="background: #f8f9fa; padding: 30px; border-radius: 12px; margin-bottom: 50px;">
-        <h3 style="margin: 0 0 20px 0; color: #1B7E4C;">🔍 Filtrer les Offres</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div>
-                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Statut</label>
-                <select id="filterStatus" onchange="filterOffers()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; cursor: pointer;">
-                    <option value="">Tous les statuts</option>
-                    <option value="Active">Active</option>
-                    <option value="En attente">En attente</option>
-                </select>
-            </div>
-            <div>
-                <label style="display: block; font-weight: bold; color: #1B7E4C; margin-bottom: 8px; font-size: 0.95em;">Type de Produit</label>
-                <select id="filterType" onchange="filterOffers()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; cursor: pointer;">
-                    <option value="">Tous les types</option>
-                    <option value="Crédit">Crédit</option>
-                    <option value="Prêt">Prêt</option>
-                    <option value="Leasing">Leasing</option>
-                    <option value="Subvention">Subvention</option>
-                    <option value="Microfinance">Microfinance</option>
-                </select>
-            </div>
-            <div style="display: flex; align-items: flex-end;">
-                <button onclick="resetOfferFilters()" style="padding: 12px 20px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">↻ Réinitialiser</button>
-            </div>
+    <header class="promo-header">
+        <div class="container" style="position: relative; z-index: 2;">
+            <span style="background: var(--jaune); color: var(--vert-tres-fonce); padding: 5px 15px; border-radius: 100px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;">Promotions Actuelles</span>
+            <h1 style="font-size: 3rem; font-weight: 900; margin: 15px 0;">Offres Spéciales AgriFund</h1>
+            <p style="font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">Bénéficiez de conditions préférentielles pour vos investissements saisonniers.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="offer-grid">
+            {% for o in offers %}
+                <div class="offer-card">
+                    <div class="active-badge">{{ o.statut }}</div>
+                    <div class="card-banner">
+                        <div class="offer-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <span class="urgent-tag"><i class="fas fa-clock me-1"></i> Offre à durée limitée</span>
+                        <h3 class="offer-title">{{ o.nomOffre }}</h3>
+                        
+                        <div class="product-ref">
+                            <i class="fas fa-tag"></i> {{ o.produitFinancier.nomProduit }}
+                        </div>
+
+                        <div class="product-ref">
+                            <i class="fas fa-money-bill-wave"></i> {{ o.prix|number_format(2, ',', ' ') }} DT
+                        </div>
+
+                        <p class="offer-desc">{{ o.conditions|slice(0, 150) }}...</p>
+                        
+                        <a href="{{ path('agriculteur_offre_checkout', {id: o.id}) }}" class="btn-apply">PROFITER DE L'OFFRE</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-muted">Aucune offre spéciale pour le moment.</h4>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Secondary CTA -->
+        <div style="background: white; border-radius: 24px; padding: 60px; text-align: center; box-shadow: 0 4px 25px rgba(0,0,0,0.03); margin-bottom: 80px;">
+            <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--vert-tres-fonce); margin-bottom: 20px;">Vous ne trouvez pas votre bonheur ?</h2>
+            <p style="color: var(--gris); font-size: 1.1rem; margin-bottom: 30px;">Nos conseillers peuvent vous proposer des solutions personnalisées adaptées à votre dossier.</p>
+            <a href="{{ path('app_contact') }}" class="btn btn-outline-success px-5 py-3 rounded-4 fw-bold">Contactez un expert</a>
         </div>
     </div>
-
-    <!-- Offers Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 30px; margin-bottom: 60px;" id="offersGrid">
-        {% for offer in offers %}
-        <div class="offer-card" data-status="{{ offer.statut }}" data-type="{{ offer.produitFinancier.typeFinancement }}" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; position: relative;">
-            <!-- Status Badge -->
-            <div style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; background: {% if offer.statut == 'Active' %}#1B7E4C{% else %}#F4C430{% endif %}; color: {% if offer.statut == 'Active' %}white{% else %}#1B7E4C{% endif %}; border-radius: 20px; font-weight: bold; font-size: 0.85em; text-transform: uppercase;">
-                {{ offer.statut }}
-            </div>
-
-            <!-- Card Header - Yellow/Gold -->
-            <div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 25px; padding-top: 40px;">
-                <h3 style="margin: 0; font-size: 1.3em; font-weight: bold;">{{ offer.nomOffre }}</h3>
-            </div>
-
-            <!-- Card Body -->
-            <div style="padding: 25px;">
-                <!-- Product Reference -->
-                {% if offer.produitFinancier %}
-                <div style="background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1B7E4C;">
-                    <p style="margin: 0 0 8px 0; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Produit</p>
-                    <p style="margin: 0; color: #1B7E4C; font-weight: bold;">{{ offer.produitFinancier.nomProduit }}</p>
-                    <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">{{ offer.produitFinancier.typeFinancement }}</p>
-                </div>
-                {% endif %}
-
-                <!-- Conditions -->
-                <div style="margin-bottom: 20px;">
-                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #333; font-size: 0.95em;">📋 Conditions de l'Offre</p>
-                    <p style="margin: 0; color: #666; font-size: 0.95em; line-height: 1.6;">{{ offer.conditions }}</p>
-                </div>
-
-                <!-- Highlights -->
-                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #F4C430;">
-                    <p style="margin: 0; font-size: 0.9em; color: #666;">✨ <strong>Offre spéciale limitée</strong> — Profitez-en maintenant avant que ce ne soit trop tard!</p>
-                </div>
-            </div>
-
-            <!-- Card Footer -->
-            <div style="padding: 20px; background: #f9f9f9; border-top: 1px solid #e0e0e0; display: flex; gap: 12px;">
-                <a href="{{ path('app_offer_detail', {'id': offer.id}) }}" style="flex: 1; padding: 12px; background: #F4C430; color: #1B7E4C; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; transition: background 0.3s; border: 2px solid #F4C430;">
-                    DÉTAILS
-                </a>
-                <a href="{{ path('app_offer_detail', {'id': offer.id}) }}" style="flex: 1; padding: 12px; background: transparent; color: #F4C430; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; border: 2px solid #F4C430; transition: all 0.3s;">
-                    PROFITER
-                </a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- CTA Banner -->
-    <div style="background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; padding: 50px; border-radius: 12px; text-align: center; margin-bottom: 40px;">
-        <h2 style="margin: 0 0 15px 0; font-size: 2em; font-weight: bold;">⏰ Offres à Durée Limitée!</h2>
-        <p style="margin: 0 0 30px 0; font-size: 1.05em; max-width: 600px; margin-left: auto; margin-right: auto;">
-            Ces promotions exceptionnelles ne sont disponibles que pour une période limitée. Ne manquez pas cette chance d'accéder à des financement avantageux!
-        </p>
-        <a href="{{ path('app_products') }}" style="display: inline-block; padding: 15px 40px; background: #F4C430; color: #1B7E4C; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.05em;">
-            Voir Tous les Produits
-        </a>
-    </div>
-</div>
-
-<script>
-function filterOffers() {
-    const status = document.getElementById('filterStatus').value.toLowerCase();
-    const type = document.getElementById('filterType').value.toLowerCase();
-    
-    document.querySelectorAll('.offer-card').forEach(card => {
-        const cardStatus = card.dataset.status.toLowerCase();
-        const cardType = card.dataset.type.toLowerCase();
-        
-        const statusMatch = !status || cardStatus.includes(status);
-        const typeMatch = !type || cardType.includes(type);
-        
-        card.style.display = statusMatch && typeMatch ? '' : 'none';
-    });
-}
-
-function resetOfferFilters() {
-    document.getElementById('filterStatus').value = '';
-    document.getElementById('filterType').value = '';
-    document.querySelectorAll('.offer-card').forEach(card => card.style.display = '');
-}
-</script>
 {% endblock %}

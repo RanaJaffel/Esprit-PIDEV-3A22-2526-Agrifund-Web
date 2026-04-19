@@ -37,8 +37,7 @@ class AdminProduitController extends AbstractController
         $typeFinancement = $request->query->get('type', '');
         $tauxMin = $request->query->get('taux_min') !== null && $request->query->get('taux_min') !== '' ? (float)$request->query->get('taux_min') : null;
         $tauxMax = $request->query->get('taux_max') !== null && $request->query->get('taux_max') !== '' ? (float)$request->query->get('taux_max') : null;
-        $montantMin = $request->query->get('montant_min') !== null && $request->query->get('montant_min') !== '' ? (float)$request->query->get('montant_min') : null;
-        $montantMax = $request->query->get('montant_max') !== null && $request->query->get('montant_max') !== '' ? (float)$request->query->get('montant_max') : null;
+        $montant = $request->query->get('montant') !== null && $request->query->get('montant') !== '' ? (float)$request->query->get('montant') : null;
         $sortBy = $request->query->get('sort', 'nomProduit');
         $sortOrder = $request->query->get('order', 'ASC');
 
@@ -48,8 +47,8 @@ class AdminProduitController extends AbstractController
             $typeFinancement ?: null,
             $tauxMin,
             $tauxMax,
-            $montantMin,
-            $montantMax,
+            null,
+            $montant,
             $sortBy,
             $sortOrder
         );
@@ -74,8 +73,7 @@ class AdminProduitController extends AbstractController
             'typeFinancement' => $typeFinancement,
             'tauxMin' => $tauxMin,
             'tauxMax' => $tauxMax,
-            'montantMin' => $montantMin,
-            'montantMax' => $montantMax,
+            'montant' => $montant,
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
             'dashboardStats' => $dashboardStats,

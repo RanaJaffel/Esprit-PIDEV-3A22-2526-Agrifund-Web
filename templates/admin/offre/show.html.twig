@@ -184,6 +184,13 @@
                 </div>
             </div>
 
+            <div class="detail-row">
+                <div class="detail-label">Prix de l'Offre</div>
+                <div class="detail-value">
+                    <span class="highlight-value">{{ offre.prix|number_format(2, ',', ' ') }} DT</span>
+                </div>
+            </div>
+
             <div class="actions-bar">
                 <a href="{{ path('admin_offre_index') }}" class="btn-action btn-back">
                     <i class="fas fa-arrow-left"></i> Retour

@@ -85,8 +85,7 @@
                                     {% for p in produits %}
                                         <option value="{{ p.id }}"
                                                 data-taux="{{ p.tauxInteret }}"
-                                                data-min="{{ p.montantMin }}"
-                                                data-max="{{ p.montantMax }}"
+                                                data-amount="{{ p.montant }}"
                                                 {{ produitSelectionne and produitSelectionne.id == p.id ? 'selected' : '' }}>
                                             {{ p.nomProduit }} ({{ p.tauxInteret }}%)
                                         </option>
@@ -266,15 +265,13 @@
                 const selected = this.options[this.selectedIndex];
                 if (this.value !== '0') {
                     const taux = selected.dataset.taux;
-                    const min = selected.dataset.min;
-                    const max = selected.dataset.max;
+                    const amount = selected.dataset.amount;
                     tauxInput.value = taux;
                     tauxInput.readOnly = true;
                     tauxGroup.style.opacity = '0.6';
                     montantHint.style.display = 'block';
-                    montantHint.textContent = 'Montant autorisé : ' +
-                        parseFloat(min).toLocaleString('fr-FR') + ' DT — ' +
-                        parseFloat(max).toLocaleString('fr-FR') + ' DT';
+                    montantHint.textContent = 'Montant maximum autorisé : ' +
+                        parseFloat(amount).toLocaleString('fr-FR') + ' DT';
                 } else {
                     tauxInput.readOnly = false;
                     tauxInput.value = '';

@@ -139,7 +139,7 @@
                     <div class="stat-lbl">Financement Max (DT)</div>
                 </td>
                 <td class="stat-item">
-                    <div class="stat-val">{{ (stats.avgMontantMax)|number_format(0, ',', ' ') }}</div>
+                    <div class="stat-val">{{ (stats.avgMontant|default(stats.avgMontantMax))|number_format(0, ',', ' ') }}</div>
                     <div class="stat-lbl">Moyenne de financement</div>
                 </td>
             </tr>
@@ -161,8 +161,7 @@
                     <th style="width: 25%;">Désignation</th>
                     <th style="width: 12%;">Type</th>
                     <th style="width: 10%;">Taux</th>
-                    <th style="width: 13%;">Min (DT)</th>
-                    <th style="width: 15%;">Max (DT)</th>
+                    <th style="width: 15%;">Montant (DT)</th>
                     <th style="width: 25%;">Règles</th>
                 </tr>
             </thead>
@@ -176,8 +175,7 @@
                         </span>
                     </td>
                     <td style="font-weight: 700;">{{ p.tauxInteret }}%</td>
-                    <td>{{ p.montantMin|number_format(0, ',', ' ') }}</td>
-                    <td style="font-weight: 700; color: #089647;">{{ p.montantMax|number_format(0, ',', ' ') }}</td>
+                    <td style="font-weight: 700; color: #089647;">{{ p.montant|number_format(0, ',', ' ') }}</td>
                     <td style="font-size: 7px; color: #777; width: 30%;">{{ p.reglesFinancieres|slice(0, 80) }}...</td>
                 </tr>
                 {% endfor %}

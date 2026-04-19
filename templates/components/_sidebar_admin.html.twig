@@ -138,6 +138,16 @@
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
+
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_payment' ? 'active' : '' }}">
+                    <a href="{{ path('admin_payment_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </span>
+                        <span class="nav-text">Validation Paiements</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
             </ul>
         </div>
 

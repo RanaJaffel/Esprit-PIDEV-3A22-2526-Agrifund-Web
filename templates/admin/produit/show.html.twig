@@ -43,11 +43,14 @@
                 <div class="detail-value"><span class="highlight-value">{{ produit.tauxInteret }}%</span></div>
             </div>
             <div class="detail-row">
-                <div class="detail-label">Montant Alloué</div>
+                <div class="detail-label">Montant</div>
                 <div class="detail-value">
-                    De <strong style="color: #076A39;">{{ produit.montantMin|number_format(0, ',', ' ') }} DT</strong>
-                    à <strong style="color: #089647;">{{ produit.montantMax|number_format(0, ',', ' ') }} DT</strong>
+                    <strong style="color: #089647;">{{ produit.montant|number_format(0, ',', ' ') }} DT</strong>
                 </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Prix Fixe Payable</div>
+                <div class="detail-value"><span class="highlight-value">{{ produit.prixFixe|number_format(2, ',', ' ') }} DT</span></div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Règles Financières</div>

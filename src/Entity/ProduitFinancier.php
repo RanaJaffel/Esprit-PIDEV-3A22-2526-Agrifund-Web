@@ -47,16 +47,19 @@ class ProduitFinancier
     #[Assert\LessThanOrEqual(value: 100, message: 'Le taux d\'intérêt ne peut pas dépasser 100%.')]
     private ?float $tauxInteret = null;
 
-    #[ORM\Column(name: 'montant_min')]
-    #[Assert\NotBlank(message: 'Le montant minimum est obligatoire.')]
-    #[Assert\Positive(message: 'Le montant minimum doit être supérieur à 0.')]
-    private ?float $montantMin = null;
+    #[ORM\Column(name: 'montant')]
+    #[Assert\NotBlank(message: 'Le montant est obligatoire.')]
+    #[Assert\Positive(message: 'Le montant doit être supérieur à 0.')]
+    private ?float $montant = null;
 
-    #[ORM\Column(name: 'montant_max')]
-    #[Assert\NotBlank(message: 'Le montant maximum est obligatoire.')]
-    #[Assert\Positive(message: 'Le montant maximum doit être supérieur à 0.')]
-    #[Assert\GreaterThan(propertyPath: 'montantMin', message: 'Le montant maximum doit être supérieur au montant minimum.')]
-    private ?float $montantMax = null;
+    #[ORM\Column(name: 'prix_fixe', type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
+    #[Assert\NotBlank(message: 'Le prix fixe est obligatoire.')]
+    #[Assert\Positive(message: 'Le prix fixe doit être supérieur à 0.')]
+    #[Assert\Regex(
+        pattern: '/^\d+(?:\.\d{1,2})?$/',
+        message: 'Le prix fixe doit contenir au maximum 2 décimales.'
+    )]
+    private string $prixFixe = '0.00';
 
     #[ORM\Column(name: 'regles_financieres', type: 'text', nullable: true)]
     #[Assert\Length(
@@ -111,25 +114,59 @@ class ProduitFinancier
         return $this;
     }
 
+    public function getMontant(): ?float
+    {
+        return $this->montant;
+    }
+
+    public function setMontant(float $montant): static
+    {
+        $this->montant = $montant;
+        return $this;
+    }
+
+    // Compatibility accessors kept temporarily to avoid breaking older callers.
     public function getMontantMin(): ?float
     {
-        return $this->montantMin;
+        return $this->montant;
     }
 
     public function setMontantMin(float $montantMin): static
     {
-        $this->montantMin = $montantMin;
+        $this->montant = $montantMin;
         return $this;
     }
 
     public function getMontantMax(): ?float
     {
-        return $this->montantMax;
+        return $this->montant;
     }
 
     public function setMontantMax(float $montantMax): static
     {
-        $this->montantMax = $montantMax;
+        $this->montant = $montantMax;
+        return $this;
+    }
+
+    public function getPrixFixe(): string
+    {
+        return $this->prixFixe;
+    }
+
+    public function setPrixFixe(string $prixFixe): static
+    {
+        $normalized = str_replace(',', '.', trim($prixFixe));
+
+        if (preg_match('/^\d+(?:\.\d{1,2})?$/', $normalized) === 1) {
+            if (!str_contains($normalized, '.')) {
+                $normalized .= '.00';
+            } else {
+                [$integerPart, $decimalPart] = explode('.', $normalized, 2);
+                $normalized = $integerPart . '.' . str_pad(substr($decimalPart, 0, 2), 2, '0');
+            }
+        }
+
+        $this->prixFixe = $normalized;
         return $this;
     }
 

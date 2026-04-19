@@ -174,20 +174,12 @@
                     <div class="chart-card h-100 d-flex flex-column justify-content-center align-items-center">
                         <h5 class="chart-title"><i class="fas fa-coins me-2" style="color: var(--vert-vif);"></i>Montants Moyens</h5>
                         <div class="row g-3 w-100">
-                            <div class="col-6 text-center">
+                            <div class="col-12 text-center">
                                 <div class="p-3 rounded-3" style="background: #f0f7f4;">
                                     <div style="font-size: 1.5rem; font-weight: 800; color: var(--vert-fonce);">
-                                        {{ dashboardStats.stats.avgMontantMin|number_format(0, ',', ' ') }}
+                                        {{ dashboardStats.stats.avgMontant|default(dashboardStats.stats.avgMontantMax)|number_format(0, ',', ' ') }}
                                     </div>
-                                    <small class="text-muted fw-bold">DT — Montant Min Moyen</small>
-                                </div>
-                            </div>
-                            <div class="col-6 text-center">
-                                <div class="p-3 rounded-3" style="background: #fff8e1;">
-                                    <div style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;">
-                                        {{ dashboardStats.stats.avgMontantMax|number_format(0, ',', ' ') }}
-                                    </div>
-                                    <small class="text-muted fw-bold">DT — Montant Max Moyen</small>
+                                    <small class="text-muted fw-bold">DT — Montant Moyen</small>
                                 </div>
                             </div>
                             <div class="col-12 text-center mt-2">

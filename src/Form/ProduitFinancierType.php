@@ -37,17 +37,28 @@ class ProduitFinancierType extends AbstractType
                 'scale' => 2,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., 7.50'],
             ])
-            ->add('montantMin', MoneyType::class, [
-                'label' => 'Minimum Amount (DT)',
+            ->add('montant', MoneyType::class, [
+                'label' => 'Amount (DT)',
                 'currency' => 'TND',
                 'scale' => 2,
-                'attr' => ['class' => 'form-control'],
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'e.g., 50000',
+                ],
             ])
-            ->add('montantMax', MoneyType::class, [
-                'label' => 'Maximum Amount (DT)',
+            ->add('prixFixe', MoneyType::class, [
+                'label' => 'Fixed Payable Price (DT)',
                 'currency' => 'TND',
+                'input' => 'string',
                 'scale' => 2,
-                'attr' => ['class' => 'form-control'],
+                'invalid_message' => 'Le prix fixe doit contenir au maximum 2 décimales.',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'e.g., 150.00',
+                    'min' => '0.01',
+                    'step' => '0.01',
+                    'inputmode' => 'decimal',
+                ],
             ])
             ->add('reglesFinancieres', TextareaType::class, [
                 'label' => 'Financial Rules',

@@ -35,6 +35,11 @@
                     <span style="font-size: 1.8em;">📝</span>
                     <h2 style="margin: 0; color: #1B7E4C; font-size: 1.5em;">Conditions de l'Offre</h2>
                 </div>
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #f0f7f4; border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;">
+                    <span style="font-size: 1.2em;">💵</span>
+                    <span style="font-weight: bold; color: #1B7E4C;">Prix de l'offre :</span>
+                    <span style="font-weight: 800; color: #1B7E4C;">{{ offer.prix|number_format(2, ',', ' ') }} DT</span>
+                </div>
                 <div style="color: #333; line-height: 1.9; font-size: 1.05em;">
                     <p>{{ offer.conditions }}</p>
                 </div>
@@ -58,18 +63,14 @@
                     </div>
 
                     <!-- Product Metrics -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                         <div style="text-align: center; padding: 15px; background: #f0f7f4; border-radius: 6px;">
                             <p style="margin: 0 0 5px 0; color: #999; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Taux</p>
                             <p style="margin: 0; font-size: 1.6em; font-weight: bold; color: #1B7E4C;">{{ offer.produitFinancier.tauxInteret }}%</p>
                         </div>
                         <div style="text-align: center; padding: 15px; background: #f0f7f4; border-radius: 6px;">
-                            <p style="margin: 0 0 5px 0; color: #999; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Min</p>
-                            <p style="margin: 0; font-size: 1.4em; font-weight: bold; color: #1B7E4C;">{{ offer.produitFinancier.montantMin|number_format(0, ',', ' ') }}<span style="font-size: 0.55em;"> DT</span></p>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: #f0f7f4; border-radius: 6px;">
-                            <p style="margin: 0 0 5px 0; color: #999; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Max</p>
-                            <p style="margin: 0; font-size: 1.4em; font-weight: bold; color: #1B7E4C;">{{ offer.produitFinancier.montantMax|number_format(0, ',', ' ') }}<span style="font-size: 0.55em;"> DT</span></p>
+                            <p style="margin: 0 0 5px 0; color: #999; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Montant</p>
+                            <p style="margin: 0; font-size: 1.4em; font-weight: bold; color: #1B7E4C;">{{ offer.produitFinancier.montant|number_format(0, ',', ' ') }}<span style="font-size: 0.55em;"> DT</span></p>
                         </div>
                     </div>
 

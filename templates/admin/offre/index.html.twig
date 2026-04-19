@@ -588,7 +588,7 @@
                                         </div>
                                         {% if offre.produitFinancier %}
                                             <div class="product-meta">
-                                                {{ offre.produitFinancier.typeFinancement }} · {{ offre.produitFinancier.tauxInteret }}% · {{ offre.produitFinancier.montantMin|number_format(0, ',', ' ') }} — {{ offre.produitFinancier.montantMax|number_format(0, ',', ' ') }} DT
+                                                {{ offre.produitFinancier.typeFinancement }} · {{ offre.produitFinancier.tauxInteret }}% · {{ offre.produitFinancier.montant|number_format(0, ',', ' ') }} DT · Prix {{ offre.prix|number_format(2, ',', ' ') }} DT
                                             </div>
                                         {% endif %}
                                     </div>

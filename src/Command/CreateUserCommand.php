@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Entity\User;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -58,7 +58,7 @@ class CreateUserCommand extends Command
         }
 
         // Check if user already exists
-        $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        $existingUser = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
         if ($existingUser) {
             $output->writeln('<error>A user with this email already exists.</error>');
             return Command::FAILURE;
@@ -88,7 +88,7 @@ class CreateUserCommand extends Command
         }
 
         // Create user
-        $user = new User();
+        $user = new Utilisateur();
         $user->setEmail($email);
         $user->setFirstname($firstname);
         $user->setLastname($lastname);

@@ -180,8 +180,7 @@ class OfferService
                 'nom' => $produit->getNomProduit(),
                 'type' => $produit->getTypeFinancement(),
                 'taux' => $produit->getTauxInteret(),
-                'montantMin' => $produit->getMontantMin(),
-                'montantMax' => $produit->getMontantMax(),
+                'montant' => $produit->getMontant(),
             ] : null,
         ];
     }

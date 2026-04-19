@@ -50,6 +50,11 @@ class OffreFinanciere
     #[Assert\NotNull(message: 'Le produit financier associé est obligatoire.')]
     private ?ProduitFinancier $produitFinancier = null;
 
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
+    #[Assert\NotBlank(message: 'Le prix est obligatoire.')]
+    #[Assert\Positive(message: 'Le prix doit être supérieur à 0.')]
+    private string $prix = '0.00';
+
     public function getId(): ?int
     {
         return $this->id;
@@ -96,6 +101,17 @@ class OffreFinanciere
     public function setProduitFinancier(?ProduitFinancier $produitFinancier): static
     {
         $this->produitFinancier = $produitFinancier;
+        return $this;
+    }
+
+    public function getPrix(): string
+    {
+        return $this->prix;
+    }
+
+    public function setPrix(string $prix): static
+    {
+        $this->prix = $prix;
         return $this;
     }
 }

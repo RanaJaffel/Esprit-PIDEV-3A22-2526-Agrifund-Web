@@ -32,14 +32,13 @@ class ProductService
     /**
      * Create a new product
      */
-    public function createProduct(string $nomProduit, string $typeFinancement, float $tauxInteret, float $montantMin, float $montantMax, string $reglesFinancieres): ProduitFinancier
+    public function createProduct(string $nomProduit, string $typeFinancement, float $tauxInteret, float $montant, string $reglesFinancieres): ProduitFinancier
     {
         $product = new ProduitFinancier();
         $product->setNomProduit($nomProduit);
         $product->setTypeFinancement($typeFinancement);
         $product->setTauxInteret($tauxInteret);
-        $product->setMontantMin($montantMin);
-        $product->setMontantMax($montantMax);
+        $product->setMontant($montant);
         $product->setReglesFinancieres($reglesFinancieres);
 
         $this->entityManager->persist($product);
@@ -51,13 +50,12 @@ class ProductService
     /**
      * Update product
      */
-    public function updateProduct(ProduitFinancier $product, string $nomProduit, string $typeFinancement, float $tauxInteret, float $montantMin, float $montantMax, string $reglesFinancieres): ProduitFinancier
+    public function updateProduct(ProduitFinancier $product, string $nomProduit, string $typeFinancement, float $tauxInteret, float $montant, string $reglesFinancieres): ProduitFinancier
     {
         $product->setNomProduit($nomProduit);
         $product->setTypeFinancement($typeFinancement);
         $product->setTauxInteret($tauxInteret);
-        $product->setMontantMin($montantMin);
-        $product->setMontantMax($montantMax);
+        $product->setMontant($montant);
         $product->setReglesFinancieres($reglesFinancieres);
 
         $this->entityManager->flush();
@@ -173,20 +171,16 @@ class ProductService
                 'nom' => $produit1->getNomProduit(),
                 'type' => $produit1->getTypeFinancement(),
                 'taux' => $produit1->getTauxInteret(),
-                'montantMin' => $produit1->getMontantMin(),
-                'montantMax' => $produit1->getMontantMax(),
+                'montant' => $produit1->getMontant(),
                 'nbOffres' => $produit1->getOffres()->count(),
-                'plage' => $produit1->getMontantMax() - $produit1->getMontantMin(),
             ],
             'produit2' => [
                 'id' => $produit2->getId(),
                 'nom' => $produit2->getNomProduit(),
                 'type' => $produit2->getTypeFinancement(),
                 'taux' => $produit2->getTauxInteret(),
-                'montantMin' => $produit2->getMontantMin(),
-                'montantMax' => $produit2->getMontantMax(),
+                'montant' => $produit2->getMontant(),
                 'nbOffres' => $produit2->getOffres()->count(),
-                'plage' => $produit2->getMontantMax() - $produit2->getMontantMin(),
             ],
             'differencesTaux' => round($diffTaux, 2),
             'meilleureOption' => $diffTaux <= 0 ? $produit1->getNomProduit() : $produit2->getNomProduit(),
@@ -216,22 +210,18 @@ class ProductService
      */
     public function verifierEligibilite(ProduitFinancier $produit, float $montantDemande): array
     {
-        $eligible = $montantDemande >= $produit->getMontantMin()
-                 && $montantDemande <= $produit->getMontantMax();
+        $eligible = $montantDemande > 0
+                 && $montantDemande <= (float) $produit->getMontant();
 
         $raisons = [];
-        if ($montantDemande < $produit->getMontantMin()) {
-            $raisons[] = sprintf(
-                'Le montant demandé (%.0f DT) est inférieur au minimum requis (%.0f DT)',
-                $montantDemande,
-                $produit->getMontantMin()
-            );
+        if ($montantDemande <= 0) {
+            $raisons[] = 'Le montant demande doit etre superieur a 0 DT.';
         }
-        if ($montantDemande > $produit->getMontantMax()) {
+        if ($montantDemande > (float) $produit->getMontant()) {
             $raisons[] = sprintf(
-                'Le montant demandé (%.0f DT) dépasse le maximum autorisé (%.0f DT)',
+                'Le montant demande (%.0f DT) depasse le montant autorise pour ce produit (%.0f DT).',
                 $montantDemande,
-                $produit->getMontantMax()
+                $produit->getMontant()
             );
         }
 
@@ -265,9 +255,7 @@ class ProductService
                 'Nom' => $produit->getNomProduit(),
                 'Type' => $produit->getTypeFinancement(),
                 'Taux' => $produit->getTauxInteret() . '%',
-                'Montant Min' => number_format($produit->getMontantMin(), 0, ',', ' ') . ' DT',
-                'Montant Max' => number_format($produit->getMontantMax(), 0, ',', ' ') . ' DT',
-                'Plage' => number_format($produit->getMontantMax() - $produit->getMontantMin(), 0, ',', ' ') . ' DT',
+                'Montant' => number_format((float) $produit->getMontant(), 0, ',', ' ') . ' DT',
                 'Nb Offres' => $produit->getOffres()->count(),
                 'Règles' => $produit->getReglesFinancieres() ?? 'N/A',
             ];

@@ -46,10 +46,12 @@
                         {{ form_ui.field(form.tauxInteret, "Taux d'Intérêt (%)", 'icon-amber', {icon: 'fa-percentage', attr: {class: 'form-control', placeholder: 'Ex: 7.50'}}) }}
                     </div>
                     <div class="col-md-4">
-                        {{ form_ui.field(form.montantMin, 'Montant Min (DT)', 'icon-emerald', {icon: 'fa-arrow-down', attr: {class: 'form-control', placeholder: '1 000'}}) }}
+                        {{ form_ui.field(form.montant, 'Montant (DT)', 'icon-emerald', {icon: 'fa-coins', attr: {class: 'form-control', placeholder: '50 000'}}) }}
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-4">
-                        {{ form_ui.field(form.montantMax, 'Montant Max (DT)', 'icon-emerald', {icon: 'fa-arrow-up', attr: {class: 'form-control', placeholder: '500 000'}}) }}
+                        {{ form_ui.field(form.prixFixe, 'Prix Fixe Payable (DT)', 'icon-amber', {icon: 'fa-money-bill-wave', attr: {class: 'form-control', placeholder: 'Ex: 150.00', min: '0.01', step: '0.01', inputmode: 'decimal'}}) }}
                     </div>
                 </div>
 

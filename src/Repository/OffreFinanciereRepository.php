@@ -27,6 +27,46 @@ class OffreFinanciereRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findActiveOffersLimited(int $limit = 8): array
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.produitFinancier', 'p')
+            ->addSelect('p')
+            ->andWhere('o.statut = :statut')
+            ->setParameter('statut', 'Active')
+            ->orderBy('o.nomOffre', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOneActiveOfferByName(string $name): ?OffreFinanciere
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.produitFinancier', 'p')
+            ->addSelect('p')
+            ->andWhere('o.statut = :statut')
+            ->andWhere('LOWER(o.nomOffre) = :name')
+            ->setParameter('statut', 'Active')
+            ->setParameter('name', mb_strtolower(trim($name)))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findFirstActiveOffer(): ?OffreFinanciere
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.produitFinancier', 'p')
+            ->addSelect('p')
+            ->andWhere('o.statut = :statut')
+            ->setParameter('statut', 'Active')
+            ->orderBy('o.nomOffre', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findByProduit($produitId): array
     {
         return $this->createQueryBuilder('o')

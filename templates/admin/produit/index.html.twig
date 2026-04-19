@@ -497,7 +497,7 @@
                         <select name="sort" class="form-select filter-select" onchange="this.form.submit()">
                             <option value="nomProduit" {{ sortBy == 'nomProduit' ? 'selected' : '' }}>Tri: Nom</option>
                             <option value="tauxInteret" {{ sortBy == 'tauxInteret' ? 'selected' : '' }}>Tri: Taux</option>
-                            <option value="montantMax" {{ sortBy == 'montantMax' ? 'selected' : '' }}>Tri: Montant</option>
+                            <option value="montant" {{ (sortBy == 'montant' or sortBy == 'montantMax') ? 'selected' : '' }}>Tri: Montant</option>
                         </select>
                     </div>
                     <div class="col-md-1 d-flex justify-content-center">
@@ -526,14 +526,9 @@
                                    value="{{ tauxMax }}" placeholder="100">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label small fw-bold text-muted">Montant Min (DT)</label>
-                            <input type="number" name="montant_min" class="form-control filter-select auto-filter"
-                                   value="{{ montantMin }}" placeholder="0">
-                        </div>
-                        <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Montant Max (DT)</label>
-                            <input type="number" name="montant_max" class="form-control filter-select auto-filter"
-                                   value="{{ montantMax }}" placeholder="Illimité">
+                            <input type="number" name="montant" class="form-control filter-select auto-filter"
+                                   value="{{ montant }}" placeholder="Ex: 100000">
                         </div>
                     </div>
                 </div>
@@ -580,12 +575,13 @@
                                     </div>
 
                                     <div class="mb-4 p-3 rounded-3" style="background: #f8faf5; border-left: 4px solid var(--jaune-moutarde);">
-                                        <small class="text-muted fw-bold text-uppercase d-block mb-1">Montant Alloué</small>
-                                        <div class="d-flex justify-content-between align-items-end">
-                                            <span class="fs-6 fw-bold" style="color: var(--vert-fonce);">{{ produit.montantMin|number_format(0, ',', ' ') }}</span>
-                                            <i class="fas fa-arrow-right text-muted mx-2" style="font-size: 0.8rem;"></i>
-                                            <span class="fs-5 fw-bold" style="color: var(--vert-vif);">{{ produit.montantMax|number_format(0, ',', ' ') }} DT</span>
-                                        </div>
+                                        <small class="text-muted fw-bold text-uppercase d-block mb-1">Montant</small>
+                                        <span class="fs-5 fw-bold" style="color: var(--vert-vif);">{{ produit.montant|number_format(0, ',', ' ') }} DT</span>
+                                    </div>
+
+                                    <div class="mb-4 p-3 rounded-3" style="background: #fffaf0; border-left: 4px solid var(--vert-vif);">
+                                        <small class="text-muted fw-bold text-uppercase d-block mb-1">Prix Fixe Payable</small>
+                                        <span class="fs-5 fw-bold" style="color: var(--vert-fonce);">{{ produit.prixFixe|number_format(2, ',', ' ') }} DT</span>
                                     </div>
 
                                     <div class="row g-2">
@@ -678,11 +674,10 @@
             // Auto-show advanced filters if values are set
             const tauxMin = document.querySelector('[name="taux_min"]');
             const tauxMax = document.querySelector('[name="taux_max"]');
-            const montantMin = document.querySelector('[name="montant_min"]');
-            const montantMax = document.querySelector('[name="montant_max"]');
+            const montant = document.querySelector('[name="montant"]');
 
             if ((tauxMin && tauxMin.value) || (tauxMax && tauxMax.value) ||
-                (montantMin && montantMin.value) || (montantMax && montantMax.value)) {
+                (montant && montant.value)) {
                 document.getElementById('advancedFilters').classList.add('show');
             }
         });

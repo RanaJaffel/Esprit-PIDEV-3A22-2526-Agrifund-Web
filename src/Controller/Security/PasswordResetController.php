@@ -10,6 +10,7 @@ use App\Repository\TokenReinitialisationRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -26,7 +27,8 @@ class PasswordResetController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         TokenReinitialisationRepository $tokenRepository,
         EntityManagerInterface $em,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        #[Autowire('%env(MAILER_FROM_ADDRESS)%')] string $mailerFromAddress
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_login');
@@ -61,7 +63,7 @@ class PasswordResetController extends AbstractController
                 ], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
 
                 $emailMessage = (new Email())
-                    ->from('noreply@gestion-utilisateurs.com')
+                    ->from($mailerFromAddress)
                     ->to($utilisateur->getEmail())
                     ->subject('Réinitialisation de votre mot de passe')
                     ->html($this->renderView('email/password_reset.html.twig', [

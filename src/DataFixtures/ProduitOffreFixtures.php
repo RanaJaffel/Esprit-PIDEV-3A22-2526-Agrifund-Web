@@ -95,15 +95,28 @@ class ProduitOffreFixtures extends Fixture
             ],
         ];
 
+        $prixFixes = [
+            '250.00',
+            '150.00',
+            '450.00',
+            '120.00',
+            '60.00',
+            '500.00',
+            '180.00',
+            '320.00',
+            '210.00',
+            '75.00',
+        ];
+
         $produits = [];
-        foreach ($produitsData as $data) {
+        foreach ($produitsData as $index => $data) {
             $produit = new ProduitFinancier();
             $produit->setNomProduit($data['nom']);
             $produit->setTypeFinancement($data['type']);
             $produit->setTauxInteret($data['taux']);
-            $produit->setMontantMin($data['min']);
-            $produit->setMontantMax($data['max']);
+            $produit->setMontant((float) $data['max']);
             $produit->setReglesFinancieres($data['regles']);
+            $produit->setPrixFixe($prixFixes[$index] ?? '0.00');
 
             $manager->persist($produit);
             $produits[] = $produit;
@@ -128,12 +141,31 @@ class ProduitOffreFixtures extends Fixture
             ['nom' => 'Micro-Investissement Apicole', 'conditions' => 'Financement de ruches et matériel apicole. Formation incluse.', 'statut' => 'Active', 'produit' => 9],
         ];
 
-        foreach ($offresData as $data) {
+        $offresPrix = [
+            '99.00',
+            '120.00',
+            '165.00',
+            '110.00',
+            '55.00',
+            '220.00',
+            '130.00',
+            '90.00',
+            '115.00',
+            '75.00',
+            '140.00',
+            '105.00',
+            '65.00',
+            '160.00',
+            '70.00',
+        ];
+
+        foreach ($offresData as $index => $data) {
             $offre = new OffreFinanciere();
             $offre->setNomOffre($data['nom']);
             $offre->setConditions($data['conditions']);
             $offre->setStatut($data['statut']);
             $offre->setProduitFinancier($produits[$data['produit']]);
+            $offre->setPrix($offresPrix[$index] ?? '0.00');
 
             $manager->persist($offre);
         }
