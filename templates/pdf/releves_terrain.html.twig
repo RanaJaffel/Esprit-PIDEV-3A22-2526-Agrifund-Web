@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #111; }
+    .head { display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; }
+    .title { font-size: 18px; font-weight: 700; }
+    .muted { color:#666; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border:1px solid #ddd; padding:6px; }
+    th { background:#f3f4f6; text-align:left; }
+    .badge-ok { color:#065f46; font-weight:700; }
+    .badge-warn { color:#92400e; font-weight:700; }
+  </style>
+</head>
+<body>
+
+<div class="head">
+  <div>
+    <div class="title">Relevés Terrain (Bruts)</div>
+    <div class="muted">
+      Projet #{{ idproject }} —
+      Période : {{ from|date('Y-m-d') }} → {{ to|date('Y-m-d') }}
+      {% if type %} — Type: {{ type }}{% endif %}
+      {% if qualite %} — Qualité: {{ qualite }}{% endif %}
+    </div>
+  </div>
+  <div class="muted">Généré le {{ generatedAt|date('Y-m-d H:i') }}</div>
+</div>
+
+{% if mesures is empty %}
+  <p class="muted">Aucune mesure sur cette période.</p>
+{% else %}
+  <table>
+    <thead>
+      <tr>
+        <th>Date/Heure</th>
+        <th>Capteur</th>
+        <th>Type</th>
+        <th>Valeur</th>
+        <th>Qualité</th>
+        <th>Source</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in mesures %}
+        <tr>
+          <td>{{ m.dateHeure|date('Y-m-d H:i') }}</td>
+          <td>#{{ m.idCapteur }}</td>
+          <td>{{ m.typeMesure }}</td>
+          <td>{{ m.valeurMesuree }} {{ m.unite }}</td>
+          <td>
+            {% if m.qualite == 'OK' %}
+              <span class="badge-ok">OK</span>
+            {% else %}
+              <span class="badge-warn">{{ m.qualite }}</span>
+            {% endif %}
+          </td>
+          <td>{{ m.sourceDonnee }}</td>
+          <td>{{ m.note ?? '' }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+</body>
+</html>

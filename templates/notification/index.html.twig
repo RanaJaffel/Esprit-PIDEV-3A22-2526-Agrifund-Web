@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+{% block title %}Notifications — Projet #{{ idproject }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h3 class="mb-0">Notifications — Projet #{{ idproject }}</h3>
+    <a class="btn btn-outline-dark" href="{{ path('capteur_dashboard', {idproject: idproject}) }}">
+      Retour dashboard
+    </a>
+  </div>
+
+  <div class="mt-3">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Sévérité</th>
+          <th>Message</th>
+          <th>État</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for n in notifs %}
+        {% set badge = 'secondary' %}
+        {% if n.severity == 'CRITICAL' %}{% set badge = 'danger' %}{% endif %}
+        {% if n.severity == 'WARN' %}{% set badge = 'warning' %}{% endif %}
+        {% if n.severity == 'INFO' %}{% set badge = 'info' %}{% endif %}
+
+        <tr class="{{ n.isRead ? '' : 'table-warning' }}">
+          <td>{{ n.createdAt|date('Y-m-d H:i') }}</td>
+          <td class="fw-semibold">{{ n.type }}</td>
+          <td><span class="badge bg-{{ badge }}">{{ n.severity }}</span></td>
+          <td>
+            {{ n.message }}
+            {% if n.capteurId %}
+              <div class="text-muted small">Capteur #{{ n.capteurId }}</div>
+            {% endif %}
+          </td>
+          <td>
+            {% if n.isRead %}
+              <span class="badge bg-success">Lu</span>
+            {% else %}
+              <span class="badge bg-secondary">Non lu</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if not n.isRead %}
+              <form method="post" action="{{ path('notif_read', {id: n.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('read' ~ n.id) }}">
+                <button class="btn btn-sm btn-outline-success">Marquer lu</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="text-center text-muted">Aucune notification</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

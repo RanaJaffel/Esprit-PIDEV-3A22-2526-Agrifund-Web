@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Capteur;
 use App\Form\CapteurType;
 use App\Repository\CapteurRepository;
+use App\Repository\NotificationRepository;
 use App\Repository\ReleveTerrainRepository;
 use App\Repository\RapportJournalierRepository;
 use App\Repository\ReleveHebdomadaireRepository;
@@ -12,7 +13,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/capteur')]
 class CapteurController extends AbstractController
@@ -21,22 +24,18 @@ class CapteurController extends AbstractController
     // 📡 LISTE DES CAPTEURS (Agriculteur)
     // ==========================================
     #[Route('/', name: 'capteur_index')]
-    public function index(
-        CapteurRepository $capteurRepo
-    ): Response {
+    public function index(CapteurRepository $capteurRepo): Response
+    {
         $user = $this->getUser();
-        $capteurs = $capteurRepo->findByUser($user->getId());
+        if (!$user || !method_exists($user, 'getId')) {
+            throw $this->createAccessDeniedException("Vous devez être connecté.");
+        }
 
-        // ✅ Calculs en PHP
-        $projetsUniques = array_unique(
-            array_map(fn($c) => $c->getIdproject(), $capteurs)
-        );
-        $nbActifs = count(array_filter(
-            $capteurs, fn($c) => $c->getStatut() === 'ACTIF'
-        ));
-        $nbInactifs = count(array_filter(
-            $capteurs, fn($c) => $c->getStatut() === 'INACTIF'
-        ));
+        $capteurs = $capteurRepo->findByUser((int)$user->getId());
+
+        $projetsUniques = array_unique(array_map(fn($c) => $c->getIdproject(), $capteurs));
+        $nbActifs = count(array_filter($capteurs, fn($c) => $c->getStatut() === 'ACTIF'));
+        $nbInactifs = count(array_filter($capteurs, fn($c) => $c->getStatut() === 'INACTIF'));
 
         return $this->render('agriculteur/capteur/index.html.twig', [
             'capteurs'   => $capteurs,
@@ -47,34 +46,47 @@ class CapteurController extends AbstractController
     }
 
     // ==========================================
-    // ➕ AJOUTER UN CAPTEUR
+    // ➕ AJOUTER UN CAPTEUR (Agriculteur)
     // ==========================================
-   #[Route('/new', name: 'capteur_new')]
-public function new(
-    Request $request,
-    EntityManagerInterface $em
-): Response {
-    $user    = $this->getUser();
-    $capteur = new Capteur();
-    $capteur->setIdUser($user->getId());
+    #[Route('/new', name: 'capteur_new')]
+    public function new(Request $request, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        if (!$user || !method_exists($user, 'getId')) {
+            throw $this->createAccessDeniedException("Vous devez être connecté.");
+        }
 
-    $form = $this->createForm(CapteurType::class, $capteur);
-    $form->handleRequest($request);
+        $capteur = new Capteur();
+        $capteur->setIdUser((int)$user->getId());
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $em->persist($capteur);
-        $em->flush();
-        $this->addFlash('success', '✅ Capteur ajouté !');
-        return $this->redirectToRoute('capteur_index');
+        $form = $this->createForm(CapteurType::class, $capteur);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $em->persist($capteur);
+                $em->flush();
+
+                $this->addFlash('success', '✅ Capteur ajouté !');
+                return $this->redirectToRoute('capteur_index');
+            } catch (\Throwable $e) {
+                $this->addFlash('error', "Erreur lors de l'enregistrement : " . $e->getMessage());
+            }
+        }
+
+        return $this->render('agriculteur/capteur/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
-    return $this->render('agriculteur/capteur/new.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
-
     // ==========================================
-    // ✏️ MODIFIER UN CAPTEUR
+    // ✏️ MODIFIER UN CAPTEUR (Agriculteur)
     // ==========================================
     #[Route('/edit/{id}', name: 'capteur_edit')]
     public function edit(
@@ -84,13 +96,28 @@ public function new(
         EntityManagerInterface $em
     ): Response {
         $capteur = $capteurRepo->find($id);
-
         if (!$capteur) {
             throw $this->createNotFoundException('Capteur introuvable');
         }
 
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $user = $this->getUser();
+            if (!$user || !method_exists($user, 'getId')) {
+                throw $this->createAccessDeniedException("Vous devez être connecté.");
+            }
+            if ($capteur->getIdUser() !== (int)$user->getId()) {
+                throw $this->createAccessDeniedException("Accès refusé.");
+            }
+        }
+
         $form = $this->createForm(CapteurType::class, $capteur);
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
@@ -105,7 +132,7 @@ public function new(
     }
 
     // ==========================================
-    // 🗑️ SUPPRIMER UN CAPTEUR
+    // 🗑️ SUPPRIMER UN CAPTEUR (Agriculteur)
     // ==========================================
     #[Route('/delete/{id}', name: 'capteur_delete', methods: ['POST'])]
     public function delete(
@@ -115,15 +142,21 @@ public function new(
         Request $request
     ): Response {
         $capteur = $capteurRepo->find($id);
-
         if (!$capteur) {
             throw $this->createNotFoundException('Capteur introuvable');
         }
 
-        if ($this->isCsrfTokenValid(
-            'delete' . $id,
-            $request->request->get('_token')
-        )) {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $user = $this->getUser();
+            if (!$user || !method_exists($user, 'getId')) {
+                throw $this->createAccessDeniedException("Vous devez être connecté.");
+            }
+            if ($capteur->getIdUser() !== (int)$user->getId()) {
+                throw $this->createAccessDeniedException("Accès refusé.");
+            }
+        }
+
+        if ($this->isCsrfTokenValid('delete' . $id, (string)$request->request->get('_token'))) {
             $em->remove($capteur);
             $em->flush();
             $this->addFlash('success', '🗑️ Capteur supprimé !');
@@ -133,110 +166,66 @@ public function new(
     }
 
     // ==========================================
-    // 📊 DASHBOARD IoT
+    // 📊 DASHBOARD IoT + Notifications
     // ==========================================
     #[Route('/dashboard/{idproject}', name: 'capteur_dashboard')]
-public function dashboard(
-    int $idproject,
-    CapteurRepository $capteurRepo,
-    ReleveTerrainRepository $releveRepo,
-    RapportJournalierRepository $rapportRepo,
-    ReleveHebdomadaireRepository $hebdoRepo
-): Response {
-    $user = $this->getUser();
-
-    // 🔐 Sécurité : vérifier que ce projet appartient à cet agriculteur
-    $count = $capteurRepo->count([
-        'idproject' => $idproject,
-        'idUser'    => $user->getId(),
-    ]);
-
-    if ($count === 0) {
-        throw $this->createAccessDeniedException("Accès refusé : projet non autorisé.");
-    }
-
-    // Capteurs du projet (pour cet utilisateur)
-    $capteurs = $capteurRepo->findBy([
-        'idproject' => $idproject,
-        'idUser'    => $user->getId(),
-    ]);
-
-    $dernieresMesures = $releveRepo->findDernieresMesures($idproject);
-
-    $rapportsJour = $rapportRepo->findByProjectAndDate(
-        $idproject,
-        new \DateTime('today')
-    );
-
-    // ✅ ICI la vraie correction
-    $releveHebdo = $hebdoRepo->findLatestByProject($idproject);
-
-    return $this->render('agriculteur/capteur/dashboard.html.twig', [
-        'capteurs'         => $capteurs,
-        'dernieresMesures' => $dernieresMesures,
-        'rapportsJour'     => $rapportsJour,
-        'releveHebdo'      => $releveHebdo,
-        'idproject'        => $idproject,
-    ]);
-}
-
-    // ==========================================
-    // 📅 RAPPORT JOURNALIER
-    // ==========================================
-    #[Route('/rapport/{idproject}', name: 'capteur_rapport')]
-    public function rapport(
+    public function dashboard(
         int $idproject,
-        Request $request,
-        RapportJournalierRepository $rapportRepo
+        CapteurRepository $capteurRepo,
+        ReleveTerrainRepository $releveRepo,
+        RapportJournalierRepository $rapportRepo,
+        ReleveHebdomadaireRepository $hebdoRepo,
+        NotificationRepository $notifRepo
     ): Response {
-        $dateStr  = $request->query->get(
-            'date',
-            (new \DateTime())->format('Y-m-d')
-        );
-        $date     = new \DateTime($dateStr);
-        $rapports = $rapportRepo->findByProjectAndDate($idproject, $date);
+        $user = $this->getUser();
+        if (!$user || !method_exists($user, 'getId')) {
+            throw $this->createAccessDeniedException("Vous devez être connecté.");
+        }
 
-        return $this->render('agriculteur/capteur/rapport.html.twig', [
-            'rapports'  => $rapports,
-            'date'      => $date,
+        // 🔐 sécurité projet via capteurs
+        $count = $capteurRepo->count([
             'idproject' => $idproject,
+            'idUser'    => (int)$user->getId(),
         ]);
-    }
 
-    // ==========================================
-    // 📅 RELEVÉ HEBDOMADAIRE
-    // ==========================================
-    #[Route('/releve-hebdo/{idproject}', name: 'capteur_releve_hebdo')]
-    public function releveHebdo(
-        int $idproject,
-        ReleveHebdomadaireRepository $hebdoRepo
-    ): Response {
-        $releves = $hebdoRepo->findByProject($idproject);
+        if ($count === 0 && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException("Accès refusé : projet non autorisé.");
+        }
 
-        return $this->render('agriculteur/capteur/releve_hebdo.html.twig', [
-            'releves'   => $releves,
-            'idproject' => $idproject,
+        $capteurs = $this->isGranted('ROLE_ADMIN')
+            ? $capteurRepo->findBy(['idproject' => $idproject])
+            : $capteurRepo->findBy(['idproject' => $idproject, 'idUser' => (int)$user->getId()]);
+
+        $dernieresMesures = $releveRepo->findDernieresMesures($idproject);
+        $rapportsJour = $rapportRepo->findByProjectAndDate($idproject, new \DateTime('today'));
+        $releveHebdo = $hebdoRepo->findLatestByProject($idproject);
+
+        $latestNotifs = $notifRepo->findUnreadByProjet($idproject, 8);
+        $unreadCount  = $notifRepo->countUnreadByProjet($idproject);
+
+        return $this->render('agriculteur/capteur/dashboard.html.twig', [
+            'capteurs'         => $capteurs,
+            'dernieresMesures' => $dernieresMesures,
+            'rapportsJour'     => $rapportsJour,
+            'releveHebdo'      => $releveHebdo,
+            'idproject'        => $idproject,
+            'latestNotifs'     => $latestNotifs,
+            'unreadCount'      => $unreadCount,
         ]);
     }
 
     // ==========================================
     // 🔐 ADMIN — TOUS LES CAPTEURS
     // ==========================================
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin', name: 'admin_capteur_index')]
-    public function adminIndex(
-        CapteurRepository $capteurRepo
-    ): Response {
+    public function adminIndex(CapteurRepository $capteurRepo): Response
+    {
         $capteurs = $capteurRepo->findAll();
 
-        $projetsUniques = array_unique(
-            array_map(fn($c) => $c->getIdproject(), $capteurs)
-        );
-        $nbActifs = count(array_filter(
-            $capteurs, fn($c) => $c->getStatut() === 'ACTIF'
-        ));
-        $nbInactifs = count(array_filter(
-            $capteurs, fn($c) => $c->getStatut() === 'INACTIF'
-        ));
+        $projetsUniques = array_unique(array_map(fn($c) => $c->getIdproject(), $capteurs));
+        $nbActifs = count(array_filter($capteurs, fn($c) => $c->getStatut() === 'ACTIF'));
+        $nbInactifs = count(array_filter($capteurs, fn($c) => $c->getStatut() === 'INACTIF'));
 
         return $this->render('admin/capteur/index.html.twig', [
             'capteurs'   => $capteurs,
@@ -247,8 +236,39 @@ public function dashboard(
     }
 
     // ==========================================
+    // 🔐 ADMIN — LANCER ANALYSE IA (Module 4)
+    // ==========================================
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/admin/ai-scan', name: 'admin_ai_scan', methods: ['POST'])]
+    public function adminAiScan(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('ai_scan', (string)$request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('admin_capteur_index');
+        }
+
+        try {
+            $process = new Process(['php', 'bin/console', 'iot:ai-scan'], $this->getParameter('kernel.project_dir'));
+            $process->setTimeout(120);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $this->addFlash('error', "Erreur IA : " . $process->getErrorOutput());
+            } else {
+                $out = trim($process->getOutput());
+                $this->addFlash('success', "✅ Analyse IA terminée : " . ($out ?: 'OK'));
+            }
+        } catch (\Throwable $e) {
+            $this->addFlash('error', "Exception IA : " . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('admin_capteur_index');
+    }
+
+    // ==========================================
     // 🔐 ADMIN — MODIFIER CAPTEUR
     // ==========================================
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/edit/{id}', name: 'admin_capteur_edit')]
     public function adminEdit(
         int $id,
@@ -265,6 +285,12 @@ public function dashboard(
         $form = $this->createForm(CapteurType::class, $capteur);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
             $this->addFlash('success', '✅ Capteur modifié !');
@@ -280,9 +306,8 @@ public function dashboard(
     // ==========================================
     // 🔐 ADMIN — SUPPRIMER CAPTEUR
     // ==========================================
-    #[Route('/admin/delete/{id}', 
-             name: 'admin_capteur_delete', 
-             methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/admin/delete/{id}', name: 'admin_capteur_delete', methods: ['POST'])]
     public function adminDelete(
         int $id,
         CapteurRepository $capteurRepo,
@@ -291,10 +316,7 @@ public function dashboard(
     ): Response {
         $capteur = $capteurRepo->find($id);
 
-        if ($capteur && $this->isCsrfTokenValid(
-            'delete' . $id,
-            $request->request->get('_token')
-        )) {
+        if ($capteur && $this->isCsrfTokenValid('delete' . $id, (string)$request->request->get('_token'))) {
             $em->remove($capteur);
             $em->flush();
             $this->addFlash('success', '🗑️ Capteur supprimé !');

@@ -33,12 +33,22 @@
           </div>
         </div>
 
+        {# ✅ ACTIONS DROITE (avec bouton IA) #}
         <div class="d-flex flex-wrap gap-2 align-items-center">
           <span class="iot-pill">
             <span class="iot-dot"></span>
             <span class="fw-semibold">Live</span>
             <span class="opacity-75 small">Simulation</span>
           </span>
+
+          {# ✅ BOUTON IA #}
+          <form method="post" action="{{ path('admin_ai_scan') }}" class="m-0">
+            <input type="hidden" name="_token" value="{{ csrf_token('ai_scan') }}">
+            <button type="submit" class="btn btn-warning btn-iot"
+                    onclick="return confirm('Lancer l’analyse IA sur les mesures récentes ?');">
+              <i class="fas fa-brain me-2"></i> Lancer analyse IA
+            </button>
+          </form>
 
           <a href="{{ path('admin_dashboard') }}" class="btn btn-light btn-iot">
             <i class="fas fa-chart-line me-2"></i> Dashboard
@@ -51,6 +61,13 @@
     {% for message in app.flashes('success') %}
       <div class="alert alert-success alert-dismissible fade show reveal" role="alert">
         <strong>Succès :</strong> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+      <div class="alert alert-danger alert-dismissible fade show reveal" role="alert">
+        <strong>Erreur :</strong> {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}

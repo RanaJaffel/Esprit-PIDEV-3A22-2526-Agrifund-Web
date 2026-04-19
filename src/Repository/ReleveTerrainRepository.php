@@ -127,4 +127,84 @@ public function findAllTypes(): array
 
     return array_map(fn($x) => $x['type'], $rows);
 }
+public function findSuspectsSince(\DateTimeImmutable $since, int $limit = 300): array
+{
+    return $this->createQueryBuilder('r')
+        ->andWhere('r.qualite = :q')
+        ->andWhere('r.dateHeure >= :since')
+        ->setParameter('q', 'SUSPECT')
+        ->setParameter('since', $since)
+        ->orderBy('r.dateHeure', 'DESC')
+        ->setMaxResults($limit)
+        ->getQuery()->getResult();
+}
+public function findByProjectFilters(
+    int $idproject,
+    \DateTimeImmutable $from,
+    \DateTimeImmutable $to,
+    string $type = '',
+    string $qualite = ''
+): array {
+    $qb = $this->createQueryBuilder('r')
+        ->andWhere('r.idproject = :pid')
+        ->andWhere('r.dateHeure BETWEEN :from AND :to')
+        ->setParameter('pid', $idproject)
+        ->setParameter('from', $from)
+        ->setParameter('to', $to)
+        ->orderBy('r.dateHeure', 'DESC');
+
+    if ($type !== '') {
+        $qb->andWhere('r.typeMesure = :t')->setParameter('t', $type);
+    }
+    if ($qualite !== '') {
+        $qb->andWhere('r.qualite = :q')->setParameter('q', $qualite);
+    }
+
+    return $qb->getQuery()->getResult();
+}
+public function findHistoryValues(int $idproject, int $idCapteur, string $typeMesure, \DateTimeImmutable $since, int $limit = 200): array
+{
+    $rows = $this->createQueryBuilder('r')
+        ->select('r.valeurMesuree AS v')
+        ->andWhere('r.idproject = :pid')
+        ->andWhere('r.idCapteur = :cid')
+        ->andWhere('r.typeMesure = :tm')
+        ->andWhere('r.dateHeure >= :since')
+        ->andWhere('r.qualite IN (:q)')        // on apprend sur OK + SUSPECT (option)
+        ->setParameter('pid', $idproject)
+        ->setParameter('cid', $idCapteur)
+        ->setParameter('tm', $typeMesure)
+        ->setParameter('since', $since)
+        ->setParameter('q', ['OK', 'SUSPECT'])
+        ->orderBy('r.dateHeure', 'DESC')
+        ->setMaxResults($limit)
+        ->getQuery()
+        ->getArrayResult();
+
+    return array_map(fn($r) => (float)$r['v'], $rows);
+}
+
+public function findRecentOkMeasures(\DateTimeImmutable $since, int $limit = 200): array
+{
+    return $this->createQueryBuilder('r')
+        ->andWhere('r.dateHeure >= :since')
+        ->andWhere('r.qualite = :q')
+        ->setParameter('since', $since)
+        ->setParameter('q', 'OK')
+        ->orderBy('r.dateHeure', 'DESC')
+        ->setMaxResults($limit)
+        ->getQuery()
+        ->getResult();
+}
+public function findLast24Hours(int $idproject): array
+{
+    return $this->createQueryBuilder('r')
+        ->where('r.idproject = :idproject')
+        ->andWhere('r.dateHeure >= :since')
+        ->setParameter('idproject', $idproject)
+        ->setParameter('since', new \DateTimeImmutable('-24 hours'))
+        ->orderBy('r.dateHeure', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
 }

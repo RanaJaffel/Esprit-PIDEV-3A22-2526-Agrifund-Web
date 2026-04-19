@@ -1,0 +1,231 @@
+/* ==========================================
+   🔐 BLOCKCHAIN PAGE - DESIGN PRO
+   ========================================== */
+
+.blockchain-page {
+  background: linear-gradient(135deg, #2d3436 0%, #000000 100%);
+  min-height: 100vh;
+}
+
+.blockchain-page .iot-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.blockchain-page .iot-hero-title {
+  color: white;
+}
+
+.blockchain-page .iot-hero-sub {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== STATS CARDS ===== */
+.blockchain-stat {
+  background: white;
+  border-radius: 15px;
+  transition: all 0.3s;
+}
+
+.blockchain-stat:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+}
+
+.stat-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 28px;
+}
+
+/* ===== GENESIS INFO ===== */
+.genesis-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.genesis-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.genesis-row .label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.genesis-row .value {
+  font-size: 0.9rem;
+  color: #2d3436;
+}
+
+.hash-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #667eea;
+}
+
+/* ===== BLOCKCHAIN VISUALISATION ===== */
+.blockchain-visual {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 15px;
+}
+
+.block-node {
+  min-width: 200px;
+  background: white;
+  border-radius: 12px;
+  border: 3px solid #dfe6e9;
+  overflow: hidden;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.block-node:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.block-node.genesis {
+  border-color: #00b894;
+  background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+}
+
+.block-node.invalid {
+  border-color: #d63031;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.block-node.more {
+  border-style: dashed;
+  border-color: #b2bec3;
+  background: transparent;
+}
+
+.block-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.block-node.genesis .block-header {
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+}
+
+.block-node.invalid .block-header {
+  background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+}
+
+.block-id {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.badge-genesis {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+
+.block-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.block-hash, .block-prev-hash, .block-date {
+  font-size: 0.75rem;
+  color: #2d3436;
+  display: flex;
+  align-items: center;
+  font-family: 'Courier New', monospace;
+}
+
+.block-hash {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.block-prev-hash {
+  color: #b2bec3;
+}
+
+.block-footer {
+  padding: 10px 15px;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+.block-connector {
+  font-size: 1.5rem;
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+/* ===== TABLE ===== */
+.hash-display {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #667eea;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+
+.hash-display.prev {
+  color: #b2bec3;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .blockchain-visual {
+    flex-direction: column;
+  }
+
+  .block-connector {
+    transform: rotate(90deg);
+    margin: 10px 0;
+  }
+
+  .block-node {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+  }
+}
+
+.block-node.genesis {
+  animation: pulse-glow 3s infinite;
+}

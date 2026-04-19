@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #111; }
+    .head { display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; }
+    .title { font-size: 18px; font-weight: 700; }
+    .muted { color:#666; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border:1px solid #ddd; padding:8px; }
+    th { background:#f3f4f6; text-align:left; }
+  </style>
+</head>
+<body>
+
+<div class="head">
+  <div>
+    <div class="title">Rapport Journalier IoT</div>
+    <div class="muted">Projet #{{ idproject }} — Date : {{ date|date('Y-m-d') }}</div>
+  </div>
+  <div class="muted">Généré le {{ generatedAt|date('Y-m-d H:i') }}</div>
+</div>
+
+{% if rapports is empty %}
+  <p class="muted">Aucun rapport disponible pour cette date.</p>
+{% else %}
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Moyenne</th>
+        <th>Min</th>
+        <th>Max</th>
+        <th>Nb mesures</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rapports %}
+        <tr>
+          <td>{{ r.typeMesure }}</td>
+          <td>{{ r.moyenne }}</td>
+          <td>{{ r.min }}</td>
+          <td>{{ r.max }}</td>
+          <td>{{ r.nbMesures }}</td>
+          <td>{{ r.conditionDominante }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+</body>
+</html>

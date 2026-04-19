@@ -1,0 +1,380 @@
+{% extends 'base.html.twig' %}
+{% block title %}Irrigation IA — Projet #{{ idproject }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
+  <link rel="stylesheet" href="{{ asset('ui/iot-advanced.css') }}">
+  <link rel="stylesheet" href="{{ asset('ui/irrigation-page.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="iot-page irrigation-page">
+  <div class="container-fluid py-4">
+
+    {# HERO #}
+    <div class="iot-hero reveal mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-droplet me-2"></i>
+            Irrigation Intelligente — Projet #{{ idproject }}
+          </h2>
+          <div class="iot-hero-sub">Analyse IA + Recommandations + Prévisions météo</div>
+        </div>
+
+        <a class="btn btn-outline-success" href="{{ path('app_dashboard', {idproject: idproject}) }}">
+          <i class="fas fa-arrow-left me-2"></i> Retour dashboard
+        </a>
+      </div>
+    </div>
+
+    {# ANALYSE PRINCIPALE #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-8">
+        <div class="panel panel-main-analysis">
+          <div class="panel-h">
+            <span><i class="fas fa-brain me-2"></i> Analyse IA en temps réel</span>
+            <span class="badge bg-success">Confiance: {{ (analysis.analysis.confidence * 100)|round }}%</span>
+          </div>
+
+          <div class="panel-b">
+            {# Décision principale #}
+            <div class="main-decision {{ analysis.analysis.decision|lower|replace({'_': '-'}) }}">
+              <div class="decision-icon">
+                {% if 'URGENT' in analysis.analysis.decision %}
+                  <i class="fas fa-circle-exclamation"></i>
+                {% elseif 'IRRIGUER' in analysis.analysis.decision %}
+                  <i class="fas fa-droplet"></i>
+                {% elseif 'SURVEILLER' in analysis.analysis.decision %}
+                  <i class="fas fa-eye"></i>
+                {% else %}
+                  <i class="fas fa-check-circle"></i>
+                {% endif %}
+              </div>
+
+              <div class="decision-content">
+                <h3 class="decision-title">{{ analysis.analysis.decision|replace({'_': ' '}) }}</h3>
+                <p class="decision-quantity">{{ analysis.analysis.quantite }}</p>
+                <p class="decision-explanation">{{ analysis.analysis.explication }}</p>
+              </div>
+            </div>
+
+            {# Métriques détaillées #}
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-gauge-high"></i></div>
+                <div class="metric-content">
+                  <div class="metric-label">Score d'urgence</div>
+                  <div class="metric-value">{{ analysis.analysis.urgence }}%</div>
+                  <div class="progress-bar-custom mt-2">
+                    <div class="progress-fill" style="width: {{ analysis.analysis.urgence }}%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-water"></i></div>
+                <div class="metric-content">
+                  <div class="metric-label">Évapotranspiration (ET₀)</div>
+                  <div class="metric-value">{{ analysis.analysis.et0 }} mm/j</div>
+                  <div class="metric-sub">Besoin: {{ analysis.analysis.besoin_eau }} mm</div>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-brain"></i></div>
+                <div class="metric-content">
+                  <div class="metric-label">Confiance IA</div>
+                  <div class="metric-value">{{ (analysis.analysis.confidence * 100)|round }}%</div>
+                  <div class="metric-sub">
+                    {% if analysis.analysis.confidence >= 0.8 %}
+                      <span class="text-success">Excellente</span>
+                    {% elseif analysis.analysis.confidence >= 0.6 %}
+                      <span class="text-warning">Bonne</span>
+                    {% else %}
+                      <span class="text-danger">Faible</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-leaf"></i></div>
+                <div class="metric-content">
+                  <div class="metric-label">Économie d'eau</div>
+                  <div class="metric-value">{{ analysis.waterSavings.liters }}L</div>
+                  <div class="metric-sub">{{ analysis.waterSavings.message }}</div>
+                </div>
+              </div>
+            </div>
+
+            {# Données d'entrée #}
+            <div class="input-data-box">
+              <h5><i class="fas fa-database me-2"></i> Données terrain actuelles</h5>
+              <div class="data-grid">
+                <div class="data-item">
+                  <i class="fas fa-temperature-high text-danger"></i>
+                  <span class="label">Température</span>
+                  <span class="value">{{ currentData.temperature }}°C</span>
+                </div>
+
+                <div class="data-item">
+                  <i class="fas fa-droplet text-info"></i>
+                  <span class="label">Humidité sol</span>
+                  <span class="value">{{ currentData.humidite }}%</span>
+                </div>
+
+                <div class="data-item">
+                  <i class="fas fa-cloud-rain text-primary"></i>
+                  <span class="label">Pluie</span>
+                  <span class="value">{{ currentData.pluie }} mm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# COLONNE DROITE #}
+      <div class="col-12 col-lg-4">
+
+        {# Recommandation #}
+        <div class="panel mb-3">
+          <div class="panel-h">
+            <span><i class="fas fa-lightbulb me-2"></i> Recommandation</span>
+            <span class="badge bg-warning text-dark">{{ analysis.recommendation.action }}</span>
+          </div>
+
+          <div class="panel-b">
+            <div class="recommendation-card">
+              <div class="rec-action">
+                {% if analysis.recommendation.action == 'IMMEDIATE' %}
+                  <i class="fas fa-bolt text-danger"></i>
+                  <span class="text-danger fw-bold">ACTION IMMÉDIATE</span>
+                {% elseif analysis.recommendation.action == 'SCHEDULE' %}
+                  <i class="fas fa-clock text-success"></i>
+                  <span class="text-success fw-bold">PROGRAMMER</span>
+                {% elseif analysis.recommendation.action == 'DELAY' %}
+                  <i class="fas fa-pause text-warning"></i>
+                  <span class="text-warning fw-bold">REPORTER</span>
+                {% else %}
+                  <i class="fas fa-times-circle text-muted"></i>
+                  <span class="text-muted fw-bold">ANNULER</span>
+                {% endif %}
+              </div>
+
+              <div class="rec-date">
+                <i class="fas fa-calendar-alt me-2"></i>
+                {{ analysis.recommendation.scheduled_date|date('d/m/Y H:i') }}
+              </div>
+
+              <div class="rec-reasoning">
+                {{ analysis.recommendation.reasoning }}
+              </div>
+
+              <div class="rec-quantity">
+                <i class="fas fa-droplet me-2"></i>
+                {{ analysis.recommendation.quantity }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Prévisions météo #}
+        <div class="panel mb-3">
+          <div class="panel-h">
+            <span><i class="fas fa-cloud-sun me-2"></i> Prévisions météo</span>
+            <span class="badge bg-info">Confiance: {{ (analysis.weatherForecast.confidence * 100)|round }}%</span>
+          </div>
+
+          <div class="panel-b">
+            <div class="weather-forecast">
+              <div class="weather-item">
+                <i class="fas fa-temperature-high text-danger"></i>
+                <span>{{ analysis.weatherForecast.temperature_forecast }}°C</span>
+              </div>
+
+              <div class="weather-item">
+                <i class="fas fa-cloud-rain text-primary"></i>
+                <span>{{ analysis.weatherForecast.rain_forecast }} mm</span>
+              </div>
+
+              <div class="weather-item">
+                <i class="fas fa-droplet text-info"></i>
+                <span>{{ analysis.weatherForecast.humidity_forecast }}%</span>
+              </div>
+
+              {% if analysis.weatherForecast.next_rain_date %}
+                <div class="weather-alert">
+                  <i class="fas fa-umbrella me-2"></i>
+                  Pluie prévue: {{ analysis.weatherForecast.next_rain_date|date('d/m/Y') }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {# Conseils d'optimisation #}
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-star me-2"></i> Conseils IA</span>
+          </div>
+
+          <div class="panel-b p-0">
+            <ul class="tips-list">
+              {% for tip in analysis.optimizationTips %}
+                <li class="tip-item">{{ tip }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {# STATISTIQUES #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="panel stats-card">
+          <div class="panel-b text-center">
+            <i class="fas fa-chart-pie fa-3x text-success mb-3"></i>
+            <h4>Économie totale (30j)</h4>
+            <div class="display-4 fw-bold text-success">{{ totalWaterSavings }}L</div>
+            <p class="text-muted">{{ (totalWaterSavings / 1000)|round(1) }} m³ économisés</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="panel stats-card">
+          <div class="panel-b text-center">
+            <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+            <h4>Décisions IA (30j)</h4>
+            <div class="display-4 fw-bold text-primary">
+              {% set total = 0 %}
+              {% for stat in stats %}
+                {% set total = total + stat.total %}
+              {% endfor %}
+              {{ total }}
+            </div>
+            <p class="text-muted">analyses automatiques</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="panel stats-card">
+          <div class="panel-b text-center">
+            <i class="fas fa-check-circle fa-3x text-info mb-3"></i>
+            <h4>Précision moyenne</h4>
+            <div class="display-4 fw-bold text-info">
+              {% set avgConf = 0 %}
+              {% for stat in stats %}
+                {% set avgConf = avgConf + stat.avg_confidence %}
+              {% endfor %}
+              {{ ((avgConf / stats|length) * 100)|round }}%
+            </div>
+            <p class="text-muted">confiance IA</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# HISTORIQUE RÉCENT #}
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-history me-2"></i> Historique des décisions</span>
+            <a class="btn btn-sm btn-outline-success" href="{{ path('irrigation_historique', {idproject: idproject}) }}">
+              Voir tout
+            </a>
+          </div>
+
+          <div class="panel-b">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Date</th>
+                    <th>Décision</th>
+                    <th>Quantité</th>
+                    <th>Confiance</th>
+                    <th>Détails</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for decision in historiqueDecisions %}
+                    <tr>
+                      <td>{{ decision.createdAt|date('d/m/Y H:i') }}</td>
+                      <td>
+                        <span class="badge decision-badge {{ decision.decision|lower|replace({'_': '-'}) }}">
+                          {{ decision.decision|replace({'_': ' '}) }}
+                        </span>
+                      </td>
+                      <td>{{ decision.quantite }}</td>
+                      <td>
+                        <div class="progress" style="height: 8px;">
+                          <div class="progress-bar bg-success" style="width: {{ (decision.confidence * 100) }}%"></div>
+                        </div>
+                        <small>{{ (decision.confidence * 100)|round }}%</small>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="showDetails({{ decision.inputData|json_encode }})">
+                          <i class="fas fa-eye"></i> Voir
+                        </button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# MODAL DÉTAILS #}
+<div class="modal fade" id="detailsModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Détails de la décision</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Contenu dynamique -->
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    function showDetails(data) {
+      const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+      const body = document.getElementById('modalBody');
+      
+      body.innerHTML = `
+        <div class="detail-item">
+          <strong>Température:</strong> ${data.temperature}°C
+        </div>
+        <div class="detail-item">
+          <strong>Humidité:</strong> ${data.humidite}%
+        </div>
+        <div class="detail-item">
+          <strong>Pluie:</strong> ${data.pluie} mm
+        </div>
+      `;
+      
+      modal.show();
+    }
+  </script>
+{% endblock %}

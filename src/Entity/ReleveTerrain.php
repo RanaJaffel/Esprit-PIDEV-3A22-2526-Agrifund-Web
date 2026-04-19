@@ -83,10 +83,10 @@ class ReleveTerrain
     #[ORM\Column(name: 'source_donnee', length: 20)]
     #[Assert\NotBlank(message: 'La source de données est obligatoire')]
     #[Assert\Choice(
-        choices: ['MANUEL', 'AUTOMATIQUE', 'IMPORT', 'API'],
-        message: 'La source doit être : MANUEL, AUTOMATIQUE, IMPORT ou API'
-    )]
-    private ?string $sourceDonnee = null;
+    choices: ['MANUEL', 'AUTOMATIQUE', 'IMPORT', 'API', 'SIMULATEUR'],
+    message: 'La source doit être : MANUEL, AUTOMATIQUE, IMPORT, API ou SIMULATEUR'
+)]
+private ?string $sourceDonnee = null;
 
     #[ORM\Column(name: 'qualite', length: 20)]
     #[Assert\NotBlank(message: 'La qualité est obligatoire')]

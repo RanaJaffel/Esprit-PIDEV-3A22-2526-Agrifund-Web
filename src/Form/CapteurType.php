@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class CapteurType extends AbstractType
 {
@@ -70,7 +71,10 @@ class CapteurType extends AbstractType
                 'attr'  => [
                     'class' => 'btn btn-success w-100 mt-3'
                 ]
-            ]);
+            ])
+            
+
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

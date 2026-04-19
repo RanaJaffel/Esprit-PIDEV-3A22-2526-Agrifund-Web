@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Météo — Projet #{{ idproject }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <h3>Météo du projet #{{ idproject }}</h3>
+  <div class="alert alert-warning mt-3">
+    Aucune coordonnée (latitude/longitude) n’a été trouvée pour ce projet.
+    <br>Ajoute des coordonnées sur un capteur du projet pour afficher la météo.
+  </div>
+  <a class="btn btn-outline-dark" href="{{ path('capteur_dashboard', {idproject: idproject}) }}">Retour dashboard</a>
+</div>
+{% endblock %}

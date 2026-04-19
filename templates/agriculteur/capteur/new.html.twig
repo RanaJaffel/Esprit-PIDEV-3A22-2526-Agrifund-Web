@@ -12,22 +12,73 @@
       <div class="iot-hero-sub">Création rapide — affectation au projet + statut.</div>
     </div>
 
+    {# ✅ FLASH messages (success/error) #}
+    {% for message in app.flashes('success') %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+
     <div class="iot-card reveal">
       <div class="iot-card-header">Formulaire</div>
       <div class="iot-card-body">
+
         {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+          {# ✅ erreurs globales du formulaire #}
+          {% if form.vars.errors|length > 0 %}
+            <div class="alert alert-danger">
+              {{ form_errors(form) }}
+            </div>
+          {% endif %}
+
           <div class="row g-3">
-            <div class="col-md-6">{{ form_row(form.typeCapteur) }}</div>
-            <div class="col-md-6">{{ form_row(form.statut) }}</div>
-            <div class="col-md-6">{{ form_row(form.modele) }}</div>
-            <div class="col-md-6">{{ form_row(form.localisation) }}</div>
-            <div class="col-md-6">{{ form_row(form.idproject) }}</div>
+            <div class="col-md-6">
+              {{ form_row(form.typeCapteur) }}
+              {{ form_errors(form.typeCapteur) }}
+            </div>
+
+            <div class="col-md-6">
+              {{ form_row(form.statut) }}
+              {{ form_errors(form.statut) }}
+            </div>
+
+            <div class="col-md-6">
+              {{ form_row(form.modele) }}
+              {{ form_errors(form.modele) }}
+            </div>
+
+            <div class="col-md-6">
+              {{ form_row(form.localisation) }}
+              {{ form_errors(form.localisation) }}
+            </div>
+
+            <div class="col-md-6">
+              {{ form_row(form.idproject) }}
+              {{ form_errors(form.idproject) }}
+            </div>
+
+            {# ✅ si tu as un champ serial dans CapteurType, affiche-le #}
+            {% if form.serial is defined %}
+              <div class="col-md-6">
+                {{ form_row(form.serial) }}
+                {{ form_errors(form.serial) }}
+              </div>
+            {% endif %}
 
             <div class="col-12 d-flex gap-2 mt-2">
               {{ form_widget(form.enregistrer, {'attr': {'class': 'btn btn-success btn-iot w-100'}}) }}
               <a href="{{ path('capteur_index') }}" class="btn btn-outline-secondary btn-iot w-100">Retour</a>
             </div>
           </div>
+
         {{ form_end(form) }}
       </div>
     </div>

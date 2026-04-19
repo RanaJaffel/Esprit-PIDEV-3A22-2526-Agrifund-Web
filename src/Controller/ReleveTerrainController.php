@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\SensorAiAnalysisService;
 
 class ReleveTerrainController extends AbstractController
 {
@@ -87,9 +88,8 @@ class ReleveTerrainController extends AbstractController
         $userId = (int) $user->getId();
 
         $capteurs = $capteurRepo->findBy([
-            'idproject' => $idproject,
-            'idUser'    => $userId,
-        ], ['idCapteur' => 'DESC']);
+    'idproject' => $idproject,
+], ['idCapteur' => 'DESC']);
 
         $choices = [];
         foreach ($capteurs as $c) {
@@ -145,58 +145,37 @@ class ReleveTerrainController extends AbstractController
     public function new(
         int $idproject,
         Request $request,
-        EntityManagerInterface $em,
-        CapteurRepository $capteurRepo
+        EntityManagerInterface $em
     ): Response {
-        // ✅ Flash + redirect
-        if (!$this->isProjectOwned($idproject, $capteurRepo)) {
-            $this->addFlash('error', 'Accès refusé : ce projet ne vous appartient pas.');
-            return $this->redirectToRoute('agriculteur_dashboard');
-        }
 
         $releve = new ReleveTerrain();
-        $releve->setIdproject($idproject);
-        $releve->setSourceDonnee('MANUEL');
-
-        $capteurChoices = $this->buildCapteurChoices($capteurRepo, $idproject);
-
-        // ✅ Vérifier qu'il a des capteurs disponibles
-        if (empty($capteurChoices)) {
-            $this->addFlash('warning', '⚠️ Aucun capteur disponible pour ce projet. Veuillez d\'abord ajouter un capteur.');
-            return $this->redirectToRoute('agriculteur_releve_terrain', ['idproject' => $idproject]);
-        }
-
-        $form = $this->createForm(ReleveTerrainType::class, $releve, [
-            'capteur_choices' => $capteurChoices,
-        ]);
+        $form = $this->createForm(ReleveTerrainType::class, $releve);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // ✅ Vérification capteur avec flash
-            if (!$this->isCapteurAllowed($releve->getIdCapteur(), $idproject, $capteurRepo)) {
-                $this->addFlash('error', '❌ Capteur non autorisé pour ce projet.');
-                return $this->redirectToRoute('agriculteur_releve_terrain', ['idproject' => $idproject]);
-            }
-
-            $releve->setIdproject($idproject);
-            $releve->setSourceDonnee('MANUEL');
-
             $em->persist($releve);
             $em->flush();
 
-            $this->addFlash('success', '✅ Mesure manuelle ajoutée !');
+            // ✅ IA appelée ici
+            $this->sensorAiAnalysisService->analyze(
+                $releve->getIdproject(),
+                $releve->getIdCapteur(),
+                $releve->getTypeMesure(),
+                $releve->getValeurMesuree()
+            );
 
             return $this->redirectToRoute('agriculteur_releve_terrain', [
-                'idproject' => $idproject,
+                'idproject' => $idproject
             ]);
         }
 
         return $this->render('agriculteur/releve_terrain/new.html.twig', [
-            'form'      => $form->createView(),
-            'idproject' => $idproject,
-        ]);
+    'form' => $form->createView(),
+    'idproject' => $idproject   // ✅ AJOUTER CETTE LIGNE
+]);
     }
+
 
     // =========================================================
     // AGRICULTEUR — EDIT (MANUEL UNIQUEMENT)

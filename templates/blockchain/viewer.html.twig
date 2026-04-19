@@ -1,0 +1,454 @@
+{% extends 'base.html.twig' %}
+{% block title %}Blockchain Viewer — Projet #{{ idproject }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
+  <link rel="stylesheet" href="{{ asset('ui/iot-advanced.css') }}">
+  <link rel="stylesheet" href="{{ asset('ui/blockchain-page.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="iot-page blockchain-page">
+  <div class="container-fluid py-4">
+
+    {# HERO #}
+    <div class="iot-hero reveal mb-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-cubes me-2"></i>
+            Blockchain Viewer — Projet #{{ idproject }}
+          </h2>
+          <div class="iot-hero-sub">Traçabilité et intégrité des données IoT</div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-success" href="{{ path('app_dashboard', {idproject: idproject}) }}">
+            <i class="fas fa-arrow-left me-2"></i> Dashboard
+          </a>
+
+          <button class="btn btn-outline-primary" onclick="verifyChain()">
+            <i class="fas fa-check-double me-2"></i> Vérifier chaîne
+          </button>
+
+          <a class="btn btn-outline-warning" href="{{ path('blockchain_export') }}">
+            <i class="fas fa-download me-2"></i> Export JSON
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {# STATUS & STATS #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-3">
+        <div class="panel stats-card blockchain-stat">
+          <div class="panel-b text-center">
+            <div class="stat-icon">
+              <i class="fas fa-cubes"></i>
+            </div>
+            <h4>Blocs totaux</h4>
+            <div class="display-4 fw-bold text-primary">{{ chain_length }}</div>
+            <p class="text-muted small">dans la chaîne</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="panel stats-card blockchain-stat">
+          <div class="panel-b text-center">
+            <div class="stat-icon">
+              {% if verification.valid %}
+                <i class="fas fa-shield-check text-success"></i>
+              {% else %}
+                <i class="fas fa-shield-exclamation text-danger"></i>
+              {% endif %}
+            </div>
+            <h4>Intégrité</h4>
+            <div class="display-6 fw-bold {{ verification.valid ? 'text-success' : 'text-danger' }}">
+              {{ verification.valid ? 'VALIDE' : 'COMPROMIS' }}
+            </div>
+            <p class="text-muted small">{{ verification.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="panel stats-card blockchain-stat">
+          <div class="panel-b text-center">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h4>Premier bloc</h4>
+            <div class="fs-6 fw-bold">
+              {{ stats.first_block_date|date('d/m/Y H:i') }}
+            </div>
+            <p class="text-muted small">Genesis block</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="panel stats-card blockchain-stat">
+          <div class="panel-b text-center">
+            <div class="stat-icon">
+              <i class="fas fa-database"></i>
+            </div>
+            <h4>Taille moyenne</h4>
+            <div class="display-6 fw-bold text-info">
+              {{ stats.avg_data_size|round }} bytes
+            </div>
+            <p class="text-muted small">par bloc</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# VERIFICATION RESULT #}
+    {% if not verification.valid %}
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <div class="alert alert-danger d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+              <h5 class="mb-1">⚠️ Anomalies détectées dans la chaîne</h5>
+              <p class="mb-0">{{ verification.errors|length }} erreur(s) trouvée(s)</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h">
+              <span><i class="fas fa-bug me-2"></i> Détails des erreurs</span>
+            </div>
+            <div class="panel-b p-0">
+              <ul class="list-group list-group-flush">
+                {% for error in verification.errors %}
+                  <li class="list-group-item">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge bg-danger">{{ error.type }}</span>
+                      <span class="fw-bold">Bloc #{{ error.block_id }}</span>
+                    </div>
+                    <div class="small text-muted mt-1">{{ error.message }}</div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {# ACTIVITY CHART #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-chart-bar me-2"></i> Activité (7 derniers jours)</span>
+          </div>
+          <div class="panel-b">
+            <canvas id="chartActivity" height="120"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-info-circle me-2"></i> Genesis Block</span>
+          </div>
+          <div class="panel-b">
+            {% if genesis_block %}
+              <div class="genesis-info">
+                <div class="genesis-row">
+                  <span class="label">ID</span>
+                  <span class="value">#{{ genesis_block.id }}</span>
+                </div>
+
+                <div class="genesis-row">
+                  <span class="label">Hash</span>
+                  <span class="value hash-mono">{{ genesis_block.dataHash|slice(0, 32) }}...</span>
+                </div>
+
+                <div class="genesis-row">
+                  <span class="label">Previous Hash</span>
+                  <span class="value hash-mono">{{ genesis_block.previousHash|slice(0, 32) }}...</span>
+                </div>
+
+                <div class="genesis-row">
+                  <span class="label">Date</span>
+                  <span class="value">{{ genesis_block.createdAt|date('d/m/Y H:i:s') }}</span>
+                </div>
+
+                <div class="d-grid mt-3">
+                  <a class="btn btn-sm btn-outline-primary" href="{{ path('blockchain_block_details', {id: genesis_block.id}) }}">
+                    <i class="fas fa-eye me-2"></i> Voir détails
+                  </a>
+                </div>
+              </div>
+            {% else %}
+              <p class="text-muted text-center">Aucun bloc genesis</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# BLOCKCHAIN VISUALISATION #}
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-network-wired me-2"></i> Visualisation de la chaîne</span>
+            <span class="badge bg-primary">{{ blocks|length }} blocs</span>
+          </div>
+
+          <div class="panel-b">
+            <div class="blockchain-visual">
+              {% for block in blocks|slice(0, 10) %}
+                <div class="block-node {{ loop.first ? 'genesis' : '' }} {{ not verification.valid and block.id in verification.errors|map(e => e.block_id) ? 'invalid' : '' }}">
+                  <div class="block-header">
+                    <span class="block-id">#{{ block.id }}</span>
+                    {% if loop.first %}
+                      <span class="badge badge-genesis">GENESIS</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="block-body">
+                    <div class="block-hash">
+                      <i class="fas fa-fingerprint me-2"></i>
+                      {{ block.dataHash|slice(0, 16) }}...
+                    </div>
+
+                    <div class="block-prev-hash">
+                      <i class="fas fa-link me-2"></i>
+                      {{ block.previousHash|slice(0, 16) }}...
+                    </div>
+
+                    <div class="block-date">
+                      <i class="fas fa-clock me-2"></i>
+                      {{ block.createdAt|date('d/m H:i') }}
+                    </div>
+                  </div>
+
+                  <div class="block-footer">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ path('blockchain_block_details', {id: block.id}) }}">
+                      Détails
+                    </a>
+                  </div>
+                </div>
+
+                {% if not loop.last %}
+                  <div class="block-connector">
+                    <i class="fas fa-arrow-right"></i>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              {% if blocks|length > 10 %}
+                <div class="block-node more">
+                  <div class="block-body text-center">
+                    <i class="fas fa-ellipsis-h fa-2x text-muted"></i>
+                    <div class="mt-2 small text-muted">
+                      +{{ blocks|length - 10 }} blocs
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# TABLE COMPLÈTE #}
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-table me-2"></i> Liste complète des blocs</span>
+
+            {# Recherche #}
+            <form method="get" action="{{ path('blockchain_search') }}" class="d-flex gap-2">
+              <input type="text" name="q" class="form-control form-control-sm" placeholder="Rechercher hash, données..." style="width: 250px;">
+              <button class="btn btn-sm btn-primary">
+                <i class="fas fa-search"></i>
+              </button>
+            </form>
+          </div>
+
+          <div class="panel-b">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Hash</th>
+                    <th>Previous Hash</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for block in blocks|reverse %}
+                    <tr>
+                      <td>
+                        <span class="fw-bold">#{{ block.id }}</span>
+                        {% if loop.last %}
+                          <span class="badge bg-info ms-2">GENESIS</span>
+                        {% endif %}
+                      </td>
+
+                      <td>
+                        <code class="hash-display">{{ block.dataHash|slice(0, 20) }}...</code>
+                      </td>
+
+                      <td>
+                        <code class="hash-display prev">{{ block.previousHash|slice(0, 20) }}...</code>
+                      </td>
+
+                      <td>{{ block.createdAt|date('d/m/Y H:i:s') }}</td>
+
+                      <td>
+                        {% set isValid = true %}
+                        {% if not verification.valid %}
+                          {% for error in verification.errors %}
+                            {% if error.block_id == block.id %}
+                              {% set isValid = false %}
+                            {% endif %}
+                          {% endfor %}
+                        {% endif %}
+
+                        {% if isValid %}
+                          <span class="badge bg-success">
+                            <i class="fas fa-check-circle"></i> Valide
+                          </span>
+                        {% else %}
+                          <span class="badge bg-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Invalide
+                          </span>
+                        {% endif %}
+                      </td>
+
+                      <td>
+                        <a class="btn btn-sm btn-outline-primary" href="{{ path('blockchain_block_details', {id: block.id}) }}">
+                          <i class="fas fa-eye"></i> Détails
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# MODAL VERIFICATION #}
+<div class="modal fade" id="verificationModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-shield-check me-2"></i>
+          Vérification de la blockchain
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="verificationResult">
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Vérification en cours...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    // GRAPHIQUE ACTIVITÉ
+    const activityData = {{ activity|json_encode|raw }};
+    
+    new Chart(document.getElementById('chartActivity'), {
+      type: 'bar',
+      data: {
+        labels: activityData.map(a => {
+          const date = new Date(a.date);
+          return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        }),
+        datasets: [{
+          label: 'Blocs créés',
+          data: activityData.map(a => a.blocks_count),
+          backgroundColor: 'rgba(102, 126, 234, 0.6)',
+          borderColor: 'rgba(102, 126, 234, 1)',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+
+    // VÉRIFICATION CHAÎNE
+    function verifyChain() {
+      const modal = new bootstrap.Modal(document.getElementById('verificationModal'));
+      modal.show();
+
+      fetch('/blockchain/api/verify')
+        .then(r => r.json())
+        .then(data => {
+          const resultDiv = document.getElementById('verificationResult');
+          
+          if (data.valid) {
+            resultDiv.innerHTML = `
+              <div class="text-center">
+                <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+                <h3 class="text-success">Blockchain valide ✓</h3>
+                <p class="text-muted">${data.total_blocks} blocs vérifiés</p>
+                <p>${data.message}</p>
+              </div>
+            `;
+          } else {
+            resultDiv.innerHTML = `
+              <div class="text-center">
+                <i class="fas fa-exclamation-triangle fa-5x text-danger mb-3"></i>
+                <h3 class="text-danger">Anomalies détectées !</h3>
+                <p class="text-muted">${data.errors.length} erreur(s) trouvée(s)</p>
+                <div class="alert alert-danger mt-3">
+                  <strong>Intégrité compromise</strong>
+                  <ul class="mt-2">
+                    ${data.errors.map(e => `<li>Bloc #${e.block_id}: ${e.message}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
+            `;
+          }
+
+          setTimeout(() => location.reload(), 3000);
+        });
+    }
+  </script>
+{% endblock %}

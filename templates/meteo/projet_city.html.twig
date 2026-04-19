@@ -1,0 +1,180 @@
+{% extends 'base.html.twig' %}
+{% block title %}Météo — {{ ville }} (Projet #{{ idproject }}){% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/meteo-pro-light.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="meteo-page">
+  <div class="container-fluid py-4">
+
+    {# ===== HEADER / HERO ===== #}
+    <div class="meteo-hero mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <div class="meteo-kicker">Module 4 — IoT & Terrain</div>
+          <h2 class="meteo-title mb-1">
+            Météo — {{ ville }} <span class="meteo-muted">(Projet #{{ idproject }})</span>
+          </h2>
+          <div class="meteo-sub">Source : OpenWeather • Mise en cache (10–30 min)</div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-secondary meteo-btn"
+             href="{{ path('meteo_projet', {idproject: idproject}) }}">
+            Changer ville
+          </a>
+          <a class="btn btn-primary meteo-btn"
+             href="{{ path('capteur_dashboard', {idproject: idproject}) }}">
+            Retour dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% set desc = current.weather[0].description|default('')|capitalize %}
+    {% set icon = current.weather[0].icon|default('01d') %}
+    {% set main = current.weather[0].main|default('') %}
+    {% set temp = current.main.temp|default(null) %}
+    {% set feels = current.main.feels_like|default(null) %}
+    {% set hum = current.main.humidity|default(null) %}
+    {% set wind = current.wind.speed|default(null) %}
+    {% set pressure = current.main.pressure|default(null) %}
+
+    {# ===== KPI ROW ===== #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-3">
+        <div class="meteo-card kpi">
+          <div class="kpi-label">Température</div>
+          <div class="kpi-value">{{ temp is not null ? (temp|round(1) ~ '°C') : '-' }}</div>
+          <div class="kpi-sub">{{ desc }}</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="meteo-card kpi">
+          <div class="kpi-label">Ressenti</div>
+          <div class="kpi-value">{{ feels is not null ? (feels|round(1) ~ '°C') : '-' }}</div>
+          <div class="kpi-sub">Confort</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="meteo-card kpi">
+          <div class="kpi-label">Humidité</div>
+          <div class="kpi-value">{{ hum is not null ? (hum ~ '%') : '-' }}</div>
+          <div class="kpi-sub">Air</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="meteo-card kpi">
+          <div class="kpi-label">Vent</div>
+          <div class="kpi-value">{{ wind is not null ? (wind|round(1) ~ ' m/s') : '-' }}</div>
+          <div class="kpi-sub">Vitesse</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+
+      {# ===== CURRENT CARD ===== #}
+      <div class="col-12 col-xl-4">
+        <div class="meteo-card">
+          <div class="meteo-card-head">
+            <div class="d-flex align-items-center gap-2">
+              <span class="meteo-dot"></span>
+              <div class="fw-semibold">Actuelle</div>
+              <span class="badge rounded-pill text-bg-light border">{{ main ?: '—' }}</span>
+            </div>
+            <div class="meteo-small">{{ "now"|date("d/m/Y H:i") }}</div>
+          </div>
+
+          <div class="meteo-card-body">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="meteo-icon-wrap">
+                <img src="https://openweathermap.org/img/wn/{{ icon }}@2x.png" alt="icon" />
+              </div>
+              <div>
+                <div class="meteo-temp">{{ temp is not null ? (temp|round(1) ~ '°C') : '-' }}</div>
+                <div class="meteo-desc">{{ desc }}</div>
+              </div>
+            </div>
+
+            <div class="meteo-specs">
+              <div class="spec">
+                <div class="spec-label">Ressenti</div>
+                <div class="spec-value">{{ feels is not null ? (feels|round(1) ~ '°C') : '-' }}</div>
+              </div>
+              <div class="spec">
+                <div class="spec-label">Humidité</div>
+                <div class="spec-value">{{ hum is not null ? (hum ~ '%') : '-' }}</div>
+              </div>
+              <div class="spec">
+                <div class="spec-label">Pression</div>
+                <div class="spec-value">{{ pressure is not null ? (pressure ~ ' hPa') : '-' }}</div>
+              </div>
+              <div class="spec">
+                <div class="spec-label">Vent</div>
+                <div class="spec-value">{{ wind is not null ? (wind|round(1) ~ ' m/s') : '-' }}</div>
+              </div>
+            </div>
+
+            {% if current.wind.deg is defined %}
+              <div class="meteo-foot">Direction vent : {{ current.wind.deg }}°</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# ===== FORECAST TABLE ===== #}
+      <div class="col-12 col-xl-8">
+        <div class="meteo-card">
+          <div class="meteo-card-head">
+            <div class="fw-semibold">Prévisions (par 3h)</div>
+            <div class="meteo-small">Affichage : 12 prochaines tranches (≈36h)</div>
+          </div>
+
+          <div class="meteo-card-body p-0">
+            <div class="table-responsive meteo-table">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Temp</th>
+                    <th>Temps</th>
+                    <th>Hum</th>
+                    <th>Vent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for item in forecast.list|slice(0, 12) %}
+                  {% set fdesc = item.weather[0].description|default('') %}
+                  {% set ficon = item.weather[0].icon|default('01d') %}
+                  <tr>
+                    <td class="text-nowrap">{{ item.dt_txt }}</td>
+                    <td class="fw-semibold">{{ item.main.temp|round(1) }}°C</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="https://openweathermap.org/img/wn/{{ ficon }}.png" width="26" height="26" alt="">
+                        <span>{{ fdesc }}</span>
+                      </div>
+                    </td>
+                    <td>{{ item.main.humidity }}%</td>
+                    <td>{{ item.wind.speed|round(1) }} m/s</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

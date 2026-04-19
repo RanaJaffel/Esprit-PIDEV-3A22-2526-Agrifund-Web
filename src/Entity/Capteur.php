@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CapteurRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -18,14 +19,7 @@ class Capteur
     #[ORM\Column(name: 'typeCapteur', length: 50)]
     #[Assert\NotBlank(message: 'Le type de capteur est obligatoire')]
     #[Assert\Choice(
-        choices: [
-            'TEMPERATURE', 
-            'HUMIDITE_SOL', 
-            'PH_SOL', 
-            'PLUVIOMETRIE', 
-            'LUMINOSITE', 
-            'VENT'
-        ],
+        choices: ['TEMPERATURE','HUMIDITE_SOL','PH_SOL','PLUVIOMETRIE','LUMINOSITE','VENT'],
         message: 'Le type doit être l\'un des suivants : TEMPERATURE, HUMIDITE_SOL, PH_SOL, PLUVIOMETRIE, LUMINOSITE, VENT'
     )]
     private ?string $typeCapteur = null;
@@ -62,11 +56,11 @@ class Capteur
     )]
     private ?string $statut = null;
 
-    #[ORM\Column(name: 'date_installation')]
+    #[ORM\Column(name: 'date_installation', type: Types::DATETIME_IMMUTABLE)]
     #[Assert\NotNull(message: 'La date d\'installation est obligatoire')]
     #[Assert\Type(\DateTimeImmutable::class, message: 'La date doit être une date valide')]
     #[Assert\LessThanOrEqual(
-        'today',
+        'now',
         message: 'La date d\'installation ne peut pas être dans le futur'
     )]
     private ?\DateTimeImmutable $dateInstallation = null;
@@ -80,14 +74,15 @@ class Capteur
     #[Assert\PositiveOrZero(message: 'L\'identifiant utilisateur doit être un nombre positif ou zéro')]
     private ?int $idUser = null;
 
+    #[ORM\Column(name: 'last_seen_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastSeenAt = null;
+
     public function __construct()
     {
-        $this->dateInstallation = new \DateTimeImmutable();
+        $this->dateInstallation = new \DateTimeImmutable(); // maintenant (autorisé car <= now)
         $this->statut = 'ACTIF';
         $this->modele = 'Simulateur Python';
     }
-
-    // Getters et Setters...
 
     public function getIdCapteur(): ?int
     {
@@ -168,6 +163,17 @@ class Capteur
     public function setIdUser(?int $idUser): self
     {
         $this->idUser = $idUser;
+        return $this;
+    }
+
+    public function getLastSeenAt(): ?\DateTimeInterface
+    {
+        return $this->lastSeenAt;
+    }
+
+    public function setLastSeenAt(?\DateTimeInterface $dt): self
+    {
+        $this->lastSeenAt = $dt;
         return $this;
     }
 }

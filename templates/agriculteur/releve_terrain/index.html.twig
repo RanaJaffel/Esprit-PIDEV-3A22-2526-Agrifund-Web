@@ -66,6 +66,7 @@
           <div class="iot-hero-sub">Projet #{{ idproject }} — Brut + annotations (SIMULATEUR verrouillé).</div>
         </div>
 
+        {# ✅ ACTIONS + EXPORT PDF #}
         <div class="d-flex flex-wrap gap-2 align-items-center">
           <span class="iot-pill">
             <span class="iot-dot"></span>
@@ -79,6 +80,19 @@
 
           <a class="btn btn-outline-light btn-iot" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
             Reset
+          </a>
+
+          {# ✅ Export PDF Relevés (7 derniers jours + type filtre courant) #}
+          <a class="btn btn-danger btn-iot"
+             href="{{ path('pdf_releves_terrain', {
+               idproject: idproject,
+               from: ('now'|date_modify('-7 day'))|date('Y-m-d'),
+               to: 'now'|date('Y-m-d'),
+               type: typeMesure|default(''),
+               qualite: ''
+             }) }}"
+             target="_blank">
+            <i class="fas fa-file-pdf me-2"></i> Export PDF
           </a>
         </div>
       </div>
@@ -146,9 +160,9 @@
       </form>
     </div>
 
-    <div class="row g-3">
+    {# === le reste de ta page (graph + timeline) inchangé === #}
 
-      {# Graphe dynamique + Donut #}
+    <div class="row g-3">
       <div class="col-12 col-xl-8 reveal">
         <div class="chart-wrap">
           <div class="chart-head">
@@ -190,7 +204,7 @@
         </div>
       </div>
 
-      {# Timeline cards premium #}
+      {# Timeline #}
       <div class="col-12 reveal">
         <div class="panel">
           <div class="panel-h">
@@ -288,7 +302,6 @@
       return g;
     }
 
-    // Main chart (type select)
     const canvasMain = document.getElementById('chartReleveAgri');
     let mainChart = null;
 
@@ -331,7 +344,6 @@
       select.addEventListener('change', () => renderMain(select.value));
     }
 
-    // Donut qualité
     const donut = document.getElementById('chartQualiteAgri');
     if(donut){
       new Chart(donut, {

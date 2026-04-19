@@ -21,6 +21,11 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+    App\Service\Weather\OpenWeatherClient:
+        arguments:
+            $apiKey: '%env(OPENWEATHER_API_KEY)%'
+            $baseUrl: '%env(OPENWEATHER_BASE_URL)%'
+    
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

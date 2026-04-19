@@ -39,13 +39,23 @@
             Synthèse quotidienne par type de mesure &amp; capteur — Date : <b>{{ date|date('d/m/Y') }}</b>
           </div>
         </div>
-        <div class="d-flex gap-2">
+
+        {# ✅ ACTIONS + EXPORT PDF #}
+        <div class="d-flex gap-2 flex-wrap">
           <a class="btn btn-light btn-iot" href="{{ path('agriculteur_rapport_journalier_home') }}">
             <i class="fas fa-layer-group me-2"></i> Projets
           </a>
+
           <a class="btn btn-outline-light btn-iot"
              href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
             <i class="fas fa-wave-square me-2"></i> Données brutes
+          </a>
+
+          {# ✅ Export PDF du rapport affiché (date courante) #}
+          <a class="btn btn-danger btn-iot"
+             href="{{ path('pdf_rapport_journalier', {idproject: idproject, date: date|date('Y-m-d')}) }}"
+             target="_blank">
+            <i class="fas fa-file-pdf me-2"></i> Export PDF
           </a>
         </div>
       </div>
@@ -179,7 +189,6 @@
               {% for r in rapports %}
                 {% set cond  = r.conditionDominante %}
                 {% set isOk  = (cond == 'NORMAL') %}
-                {% set isAlerte = cond starts with 'ALERTE' %}
                 <div class="rapport-card">
                   <div class="rapport-inner">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">

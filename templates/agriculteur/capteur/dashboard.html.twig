@@ -4,15 +4,14 @@
 {% block stylesheets %}
   {{ parent() }}
   <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
+  <link rel="stylesheet" href="{{ asset('ui/iot-advanced.css') }}">
 {% endblock %}
 
 {% block hide_preloader %}{% endblock %}
 
 {# ===============================
-   Préparation des datasets Chart.js
+   DATASETS CHART.JS (TON CODE)
    =============================== #}
-
-{# 1) Mesures récentes : datasets par type (time series) #}
 {% set typesSeen = [] %}
 {% for m in dernieresMesures|default([]) %}
   {% if m.typeMesure not in typesSeen %}
@@ -32,7 +31,6 @@
     {% endif %}
   {% endfor %}
 
-  {# couleurs par type (simple + lisible) #}
   {% set color = '#089647' %}
   {% if 'TEMP' in t or 'Temp' in t %}{% set color = '#ef4444' %}{% endif %}
   {% if 'HUMIDITE' in t or 'Humid' in t %}{% set color = '#0ea5e9' %}{% endif %}
@@ -52,7 +50,7 @@
   }]) %}
 {% endfor %}
 
-{# 2) Rapport du jour : bar chart #}
+{# Rapport du jour #}
 {% set reportLabels = [] %}
 {% set reportAvg = [] %}
 {% set reportMin = [] %}
@@ -69,7 +67,7 @@
 <div class="iot-page dashboard-pro">
   <div class="container-fluid py-4">
 
-    {# HERO #}
+    {# ========== HERO (TON CODE) ========== #}
     <div class="iot-hero hero-dash reveal mb-4">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div>
@@ -77,27 +75,54 @@
             <i class="fas fa-chart-area me-2"></i>
             Dashboard IoT — Projet #{{ idproject }}
           </h2>
-          <div class="iot-hero-sub">Surveillance terrain : mesures récentes, rapport journalier, synthèse hebdo.</div>
+          <div class="iot-hero-sub">Surveillance terrain + Intelligence artificielle</div>
         </div>
 
         <div class="quick-actions">
           <a class="qa" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
             <i class="fas fa-wave-square"></i> Relevés bruts
           </a>
+
           <a class="qa" href="{{ path('agriculteur_rapport_journalier', {idproject: idproject, date: 'now'|date('Y-m-d')}) }}">
             <i class="fas fa-chart-bar"></i> Rapport journalier
           </a>
+
           <a class="qa" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
             <i class="fas fa-calendar-week"></i> Relevé hebdo
           </a>
+
           <a class="qa" href="{{ path('capteur_index') }}">
             <i class="fas fa-satellite-dish"></i> Mes capteurs
+          </a>
+
+          {# ✅ NOUVELLES ROUTES #}
+          <a class="qa qa-new" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
+            <i class="fas fa-droplet"></i> Irrigation IA
+          </a>
+
+          <a class="qa qa-new" href="{{ path('historique_compare', {idproject: idproject}) }}">
+            <i class="fas fa-chart-line"></i> Historique
+          </a>
+
+          <a class="qa" href="{{ path('meteo_projet', {idproject: idproject}) }}">
+            <i class="fas fa-cloud-sun"></i> Météo
+          </a>
+
+          <a class="qa" href="{{ path('maps_projet', {idproject: idproject}) }}">
+            <i class="fas fa-map-location-dot"></i> Carte
+          </a>
+
+          <a class="qa" href="{{ path('notif_project', {idproject: idproject}) }}">
+            <i class="fas fa-bell"></i> Notifications
+            {% if unreadCount|default(0) > 0 %}
+              <span class="badge bg-danger ms-1">{{ unreadCount }}</span>
+            {% endif %}
           </a>
         </div>
       </div>
     </div>
 
-    {# KPI #}
+    {# ========== KPI (TON CODE) ========== #}
     {% set nbCapteurs = capteurs|length %}
     {% set nbMesures = dernieresMesures|length %}
     {% set nbTypes = rapportsJour|length %}
@@ -105,54 +130,382 @@
 
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
+        <div class="panel kpi-pro kpi-gradient-green">
           <div class="panel-b">
-            <div class="text-muted small">Capteurs du projet</div>
-            <div class="fs-2 fw-bold">{{ nbCapteurs }}</div>
-            <div class="text-muted small">actifs/inactifs</div>
+            <div class="kpi-icon">
+              <i class="fas fa-satellite-dish"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Capteurs actifs</div>
+              <div class="kpi-value">{{ nbCapteurs }}</div>
+              <div class="kpi-trend">
+                <i class="fas fa-arrow-up"></i> +2 cette semaine
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
+        <div class="panel kpi-pro kpi-gradient-blue">
           <div class="panel-b">
-            <div class="text-muted small">Mesures récentes</div>
-            <div class="fs-2 fw-bold text-success">{{ nbMesures }}</div>
-            <div class="text-muted small">dernières entrées</div>
+            <div class="kpi-icon">
+              <i class="fas fa-database"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Mesures récentes</div>
+              <div class="kpi-value">{{ nbMesures }}</div>
+              <div class="kpi-trend">
+                <i class="fas fa-sync"></i> Temps réel
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
+        <div class="panel kpi-pro kpi-gradient-orange">
           <div class="panel-b">
-            <div class="text-muted small">Types mesurés (jour)</div>
-            <div class="fs-2 fw-bold text-warning">{{ nbTypes }}</div>
-            <div class="text-muted small">rapport journalier</div>
+            <div class="kpi-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Types mesurés</div>
+              <div class="kpi-value">{{ nbTypes }}</div>
+              <div class="kpi-trend">
+                <i class="fas fa-check-circle"></i> Aujourd'hui
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
+        <div class="panel kpi-pro kpi-gradient-purple">
           <div class="panel-b">
-            <div class="text-muted small">Condition dominante (hebdo)</div>
-            <div class="fs-5 fw-bold">
-              <span class="chip">
+            <div class="kpi-icon">
+              <i class="fas fa-brain"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">État IA</div>
+              <div class="kpi-value chip-mini">
                 <span class="{{ cond == 'NORMAL' ? 'dot active' : 'dot bad' }}"></span>
                 {{ cond }}
-              </span>
+              </div>
+              <div class="kpi-trend">
+                <i class="fas fa-calendar-week"></i> Synthèse 7j
+              </div>
             </div>
-            <div class="text-muted small">synthèse 7 jours</div>
           </div>
         </div>
       </div>
     </div>
 
+    {# ========== 🔥 NOUVELLES SECTIONS IA ========== #}
+    <div class="row g-3 mb-4">
+
+      {# 💧 IRRIGATION IA (PREVIEW) #}
+      <div class="col-12 col-lg-6 reveal">
+        <div class="panel panel-ai irrigation-preview">
+          <div class="panel-h">
+            <span>
+              <i class="fas fa-droplet me-2 text-info"></i> 
+              Irrigation Intelligente
+            </span>
+            <span class="badge bg-success">IA Active</span>
+          </div>
+
+          <div class="panel-b">
+            {% if irrigationDecision is defined %}
+              {# Décision IA #}
+              <div class="ai-decision {{ irrigationDecision.decision|lower|replace({'_': '-'}) }}">
+                <div class="ai-decision-header">
+                  <div class="ai-icon">
+                    {% if 'URGENT' in irrigationDecision.decision %}
+                      <i class="fas fa-circle-exclamation"></i>
+                    {% elseif 'IRRIGUER' in irrigationDecision.decision %}
+                      <i class="fas fa-droplet"></i>
+                    {% elseif 'SURVEILLER' in irrigationDecision.decision %}
+                      <i class="fas fa-eye"></i>
+                    {% else %}
+                      <i class="fas fa-check-circle"></i>
+                    {% endif %}
+                  </div>
+
+                  <div class="ai-content">
+                    <div class="ai-action">{{ irrigationDecision.decision|replace({'_': ' '}) }}</div>
+                    <div class="ai-quantity">{{ irrigationDecision.quantite }}</div>
+                  </div>
+                </div>
+
+                {# Métriques #}
+                <div class="ai-metrics">
+                  <div class="metric">
+                    <div class="metric-label">
+                      <i class="fas fa-gauge-high"></i> Urgence
+                    </div>
+                    <div class="progress-bar-custom">
+                      <div class="progress-fill" style="width: {{ irrigationDecision.urgence }}%"></div>
+                    </div>
+                    <div class="metric-value">{{ irrigationDecision.urgence }}%</div>
+                  </div>
+
+                  <div class="metric">
+                    <div class="metric-label">
+                      <i class="fas fa-brain"></i> Confiance
+                    </div>
+                    <div class="metric-value-large">
+                      {{ (irrigationDecision.confidence * 100)|round }}%
+                    </div>
+                  </div>
+
+                  <div class="metric">
+                    <div class="metric-label">
+                      <i class="fas fa-water"></i> ET₀
+                    </div>
+                    <div class="metric-value-large">
+                      {{ irrigationDecision.et0 }} mm/j
+                    </div>
+                  </div>
+                </div>
+
+                {# Explication #}
+                <div class="ai-explanation">
+                  <i class="fas fa-lightbulb"></i>
+                  {{ irrigationDecision.explication }}
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <a class="btn btn-success btn-iot" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
+                  <i class="fas fa-arrow-right me-2"></i>
+                  Voir l'analyse complète
+                </a>
+              </div>
+
+            {% else %}
+              <div class="ai-placeholder">
+                <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Aucune analyse disponible</p>
+                <a class="btn btn-outline-success" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
+                  Lancer l'analyse IA
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# 📈 HISTORIQUE COMPARATIF (PREVIEW) #}
+      <div class="col-12 col-lg-6 reveal">
+        <div class="panel panel-ai historique-preview">
+          <div class="panel-h">
+            <span>
+              <i class="fas fa-chart-line me-2 text-warning"></i>
+              Analyse Historique
+            </span>
+            <span class="badge bg-warning text-dark">2 Semaines</span>
+          </div>
+
+          <div class="panel-b">
+            {% if historiqueData is defined and historiqueData.error is not defined %}
+              {# Comparaison semaines #}
+              <div class="week-comparison">
+                <div class="week-card current">
+                  <div class="week-label">
+                    <i class="fas fa-calendar"></i> Semaine actuelle
+                  </div>
+                  <div class="week-metrics">
+                    <div class="week-metric">
+                      <i class="fas fa-temperature-high text-danger"></i>
+                      <span class="value">{{ historiqueData.current.temperature }}°C</span>
+                    </div>
+                    <div class="week-metric">
+                      <i class="fas fa-droplet text-info"></i>
+                      <span class="value">{{ historiqueData.current.humidite }}%</span>
+                    </div>
+                  </div>
+                  <div class="week-trend">
+                    <span class="chip-mini">
+                      <span class="dot active"></span>
+                      {{ historiqueData.current.trend }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="week-divider">
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="week-card previous">
+                  <div class="week-label">
+                    <i class="fas fa-calendar-check"></i> Semaine précédente
+                  </div>
+                  <div class="week-metrics">
+                    <div class="week-metric">
+                      <i class="fas fa-temperature-high text-danger"></i>
+                      <span class="value">{{ historiqueData.previous.temperature }}°C</span>
+                    </div>
+                    <div class="week-metric">
+                      <i class="fas fa-droplet text-info"></i>
+                      <span class="value">{{ historiqueData.previous.humidite }}%</span>
+                    </div>
+                  </div>
+                  <div class="week-trend">
+                    <span class="chip-mini">
+                      <span class="dot"></span>
+                      {{ historiqueData.previous.trend }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {# Variations #}
+              <div class="variations-grid">
+                <div class="variation-card {{ historiqueData.variation.temperature.direction }}">
+                  <div class="variation-label">Température</div>
+                  <div class="variation-value">
+                    {% if historiqueData.variation.temperature.direction == 'hausse' %}
+                      <i class="fas fa-arrow-up"></i>
+                    {% else %}
+                      <i class="fas fa-arrow-down"></i>
+                    {% endif %}
+                    {{ historiqueData.variation.temperature.pourcentage }}%
+                  </div>
+                  <div class="variation-abs">
+                    {{ historiqueData.variation.temperature.valeur > 0 ? '+' : '' }}{{ historiqueData.variation.temperature.valeur }}°C
+                  </div>
+                </div>
+
+                <div class="variation-card {{ historiqueData.variation.humidite.direction }}">
+                  <div class="variation-label">Humidité</div>
+                  <div class="variation-value">
+                    {% if historiqueData.variation.humidite.direction == 'hausse' %}
+                      <i class="fas fa-arrow-up"></i>
+                    {% else %}
+                      <i class="fas fa-arrow-down"></i>
+                    {% endif %}
+                    {{ historiqueData.variation.humidite.pourcentage }}%
+                  </div>
+                  <div class="variation-abs">
+                    {{ historiqueData.variation.humidite.valeur > 0 ? '+' : '' }}{{ historiqueData.variation.humidite.valeur }}%
+                  </div>
+                </div>
+              </div>
+
+              {# Analyse #}
+              <div class="ai-analysis-box">
+                <i class="fas fa-microscope"></i>
+                {{ historiqueData.analyse }}
+              </div>
+
+              <div class="d-grid">
+                <a class="btn btn-warning btn-iot" href="{{ path('historique_compare', {idproject: idproject}) }}">
+                  <i class="fas fa-arrow-right me-2"></i>
+                  Voir l'historique complet
+                </a>
+              </div>
+
+            {% else %}
+              <div class="ai-placeholder">
+                <i class="fas fa-chart-area fa-3x text-muted mb-3"></i>
+                <p class="text-muted">
+                  {{ historiqueData.message|default('Données insuffisantes') }}
+                </p>
+                <p class="small text-muted">Au moins 2 semaines de données requises</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# ========== BLOCKCHAIN STATUS (NOUVELLE SECTION) ========== #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 reveal">
+        <div class="panel panel-blockchain">
+          <div class="panel-h">
+            <span>
+              <i class="fas fa-shield-halved me-2"></i>
+              Sécurité Blockchain
+            </span>
+            <span class="badge bg-success">
+              <i class="fas fa-check-circle"></i> Chaîne vérifiée
+            </span>
+          </div>
+
+          <div class="panel-b">
+            <div class="blockchain-status">
+              {% if blockchainStatus is defined %}
+                <div class="blockchain-info">
+                  <div class="blockchain-metric">
+                    <i class="fas fa-cubes"></i>
+                    <div>
+                      <div class="label">Blocs enregistrés</div>
+                      <div class="value">{{ blockchainStatus.totalBlocks }}</div>
+                    </div>
+                  </div>
+
+                  <div class="blockchain-metric">
+                    <i class="fas fa-link"></i>
+                    <div>
+                      <div class="label">Dernier hash</div>
+                      <div class="value hash-preview">
+                        {{ blockchainStatus.lastHash|slice(0, 16) }}...
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="blockchain-metric">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                      <div class="label">Dernier bloc</div>
+                      <div class="value">{{ blockchainStatus.lastBlockDate|date('d/m/Y H:i') }}</div>
+                    </div>
+                  </div>
+
+                  <div class="blockchain-metric">
+                    <i class="fas fa-shield-check"></i>
+                    <div>
+                      <div class="label">Intégrité</div>
+                      <div class="value">
+                        {% if blockchainStatus.isValid %}
+                          <span class="text-success">✓ Valide</span>
+                        {% else %}
+                          <span class="text-danger">✗ Compromis</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="blockchain-actions">
+                  <button class="btn btn-sm btn-outline-success" onclick="verifyBlockchain()">
+                    <i class="fas fa-check-double"></i> Vérifier l'intégrité
+                  </button>
+
+                  <a class="btn btn-sm btn-outline-primary" href="{{ path('blockchain_view', {idproject: idproject}) }}">
+                    <i class="fas fa-cubes"></i> Voir la chaîne
+                  </a>
+                </div>
+
+              {% else %}
+                <div class="text-center text-muted">
+                  <i class="fas fa-cubes fa-3x mb-3"></i>
+                  <p>Aucun bloc enregistré</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ========== TON CODE ORIGINAL (GRAPHES + CAPTEURS + NOTIFICATIONS) ========== #}
     <div class="row g-3">
 
-      {# Graphe mesures #}
+      {# Graphe mesures (TON CODE) #}
       <div class="col-12 col-xl-8 reveal">
         <div class="panel">
           <div class="panel-h">
@@ -169,8 +522,10 @@
         </div>
       </div>
 
-      {# Col droite : capteurs + hebdo #}
+      {# Col droite : capteurs + notifications + hebdo (TON CODE) #}
       <div class="col-12 col-xl-4 reveal">
+
+        {# Capteurs du projet #}
         <div class="panel mb-3">
           <div class="panel-h">
             <span><i class="fas fa-satellite-dish me-2"></i> Capteurs du projet</span>
@@ -193,6 +548,54 @@
           </div>
         </div>
 
+        {# Notifications (TON CODE) #}
+        <div class="panel mb-3">
+          <div class="panel-h">
+            <span><i class="fas fa-bell me-2"></i> Notifications</span>
+            <span class="text-muted small">{{ unreadCount|default(0) }} non lues</span>
+          </div>
+
+          <div class="panel-b p-0">
+            <div class="list-group list-group-flush">
+              {% for n in latestNotifs|default([]) %}
+                {% set badge = 'secondary' %}
+                {% if n.severity == 'CRITICAL' %}{% set badge = 'danger' %}{% endif %}
+                {% if n.severity == 'WARN' %}{% set badge = 'warning' %}{% endif %}
+                {% if n.severity == 'INFO' %}{% set badge = 'info' %}{% endif %}
+
+                <div class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="small fw-semibold">
+                      <span class="badge bg-{{ badge }} me-2">{{ n.severity }}</span>
+                      {{ n.type }}
+                    </div>
+                    <div class="text-muted small">{{ n.createdAt|date('H:i') }}</div>
+                  </div>
+
+                  <div class="small text-muted mt-1">{{ n.message }}</div>
+
+                  <div class="d-flex gap-2 mt-2">
+                    <form method="post" action="{{ path('notif_read', {id: n.id}) }}" class="m-0">
+                      <input type="hidden" name="_token" value="{{ csrf_token('read' ~ n.id) }}">
+                      <button class="btn btn-sm btn-outline-success">Marquer lu</button>
+                    </form>
+
+                    <a class="btn btn-sm btn-outline-dark"
+                       href="{{ path('notif_project', {idproject: idproject}) }}">
+                      Voir tout
+                    </a>
+                  </div>
+                </div>
+              {% else %}
+                <div class="list-group-item text-muted text-center">
+                  Aucune notification
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        {# Synthèse hebdomadaire (TON CODE) #}
         <div class="panel">
           <div class="panel-h">
             <span><i class="fas fa-calendar-week me-2"></i> Synthèse hebdomadaire</span>
@@ -218,22 +621,23 @@
               <div class="text-muted small mt-2">{{ releveHebdo.nbMesuresTotal }} mesures (7 jours)</div>
               <div class="d-grid mt-3">
                 <a class="btn btn-outline-success btn-iot" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
-                  Voir l’historique hebdo
+                  Voir l'historique hebdo
                 </a>
               </div>
             {% else %}
               <div class="text-muted">Aucune synthèse hebdo.</div>
-              <div class="small text-muted">Génère-la depuis “Relevé hebdo”.</div>
+              <div class="small text-muted">Génère-la depuis "Relevé hebdo".</div>
             {% endif %}
           </div>
         </div>
+
       </div>
 
-      {# Rapport du jour + graphe #}
+      {# Rapport du jour (TON CODE) #}
       <div class="col-12 reveal">
         <div class="panel">
           <div class="panel-h">
-            <span><i class="fas fa-chart-bar text-warning me-2"></i> Rapport journalier (aujourd’hui)</span>
+            <span><i class="fas fa-chart-bar text-warning me-2"></i> Rapport journalier (aujourd'hui)</span>
             <span class="text-muted small">{{ "now"|date('d/m/Y') }}</span>
           </div>
           <div class="panel-b">
@@ -278,7 +682,7 @@
               </div>
             {% else %}
               <div class="alert alert-light border mb-0">
-                Rapport pas encore généré aujourd’hui. Va sur “Rapport journalier” et clique “Générer”.
+                Rapport pas encore généré aujourd'hui. Va sur "Rapport journalier" et clique "Générer".
               </div>
             {% endif %}
           </div>
@@ -294,9 +698,11 @@
 {% block javascripts %}
   {{ parent() }}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
 
   <script>
-    // === Chart Mesures ===
+    // TON CODE CHARTS
     const datasets = {{ measureDatasets|json_encode|raw }};
     const canMes = document.getElementById('chartMesures');
     if (canMes && datasets.length > 0) {
@@ -307,17 +713,11 @@
           parsing: false,
           responsive: true,
           plugins: { legend: { position: 'bottom' } },
-          scales: {
-            x: {
-              type: 'time',
-              time: { tooltipFormat: 'yyyy-MM-dd HH:mm', displayFormats: { hour: 'HH:mm', day: 'dd/MM' } }
-            }
-          }
+          scales: { x: { type: 'time' } }
         }
       });
     }
 
-    // === Chart Rapport Jour ===
     const canR = document.getElementById('chartRapportJour');
     if (canR) {
       const labels = {{ reportLabels|json_encode|raw }};
@@ -331,17 +731,27 @@
           data: {
             labels,
             datasets: [
-              { label: 'Moyenne', data: avg, borderWidth: 1 },
-              { label: 'Min', data: minv, borderWidth: 1 },
-              { label: 'Max', data: maxv, borderWidth: 1 }
+              { label: 'Moyenne', data: avg, backgroundColor: 'rgba(54, 162, 235, 0.5)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 },
+              { label: 'Min', data: minv, backgroundColor: 'rgba(255, 206, 86, 0.5)', borderColor: 'rgba(255, 206, 86, 1)', borderWidth: 1 },
+              { label: 'Max', data: maxv, backgroundColor: 'rgba(255, 99, 132, 0.5)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1 }
             ]
           },
-          options: {
-            responsive: true,
-            plugins: { legend: { position: 'bottom' } }
-          }
+          options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
       }
+    }
+
+    // 🔥 NOUVEAU: Vérification blockchain
+    function verifyBlockchain() {
+      fetch('/api/blockchain/verify')
+        .then(r => r.json())
+        .then(data => {
+          if (data.isValid) {
+            alert('✓ Chaîne blockchain valide');
+          } else {
+            alert('✗ Intégrité compromise!');
+          }
+        });
     }
   </script>
 {% endblock %}

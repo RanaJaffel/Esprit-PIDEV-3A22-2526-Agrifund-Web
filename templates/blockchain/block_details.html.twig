@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+{% block title %}Détails Bloc #{{ block.id }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
+  <link rel="stylesheet" href="{{ asset('ui/blockchain-page.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="iot-page blockchain-page">
+  <div class="container-fluid py-4">
+
+    <div class="iot-hero reveal mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="iot-hero-title mb-0">
+            <i class="fas fa-cube me-2"></i>
+            Détails du Bloc #{{ block.id }}
+          </h2>
+          <div class="iot-hero-sub">Informations complètes et vérification</div>
+        </div>
+
+        <a class="btn btn-outline-light" href="{{ path('blockchain_view', {idproject: 1}) }}">
+          <i class="fas fa-arrow-left me-2"></i> Retour
+        </a>
+      </div>
+    </div>
+
+    {# STATUS #}
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="alert {{ isValid ? 'alert-success' : 'alert-danger' }} d-flex align-items-center">
+          <i class="fas fa-{{ isValid ? 'check-circle' : 'exclamation-triangle' }} fa-3x me-3"></i>
+          <div>
+            <h4 class="mb-1">{{ isValid ? '✓ Bloc valide' : '✗ Bloc invalide' }}</h4>
+            {% if not isValid %}
+              <ul class="mb-0">
+                {% for error in validationErrors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# DÉTAILS #}
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-fingerprint me-2"></i> Hash du bloc</span>
+          </div>
+          <div class="panel-b">
+            <div class="hash-full">{{ block.dataHash }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-link me-2"></i> Hash précédent</span>
+          </div>
+          <div class="panel-b">
+            <div class="hash-full prev">{{ block.previousHash }}</div>
+            {% if previousBlock %}
+              <a class="btn btn-sm btn-outline-primary mt-2" href="{{ path('blockchain_block_details', {id: previousBlock.id}) }}">
+                <i class="fas fa-arrow-left me-2"></i> Bloc précédent
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# DATA #}
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="panel">
+          <div class="panel-h">
+            <span><i class="fas fa-database me-2"></i> Données du bloc</span>
+          </div>
+          <div class="panel-b">
+            <pre class="json-display">{{ block.data|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# NAVIGATION #}
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="d-flex justify-content-between">
+          {% if previousBlock %}
+            <a class="btn btn-outline-primary" href="{{ path('blockchain_block_details', {id: previousBlock.id}) }}">
+              <i class="fas fa-chevron-left me-2"></i> Bloc #{{ previousBlock.id }}
+            </a>
+          {% else %}
+            <span></span>
+          {% endif %}
+
+          {% if nextBlock %}
+            <a class="btn btn-outline-primary" href="{{ path('blockchain_block_details', {id: nextBlock.id}) }}">
+              Bloc #{{ nextBlock.id }} <i class="fas fa-chevron-right ms-2"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .hash-full {
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #667eea;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .hash-full.prev {
+    color: #b2bec3;
+  }
+
+  .json-display {
+    background: #2d3436;
+    color: #00b894;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.9rem;
+  }
+</style>
+{% endblock %}

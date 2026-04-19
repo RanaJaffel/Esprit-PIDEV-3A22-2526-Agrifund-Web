@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% block title %}Météo — Projet #{{ idproject }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <h3>Météo du projet #{{ idproject }}</h3>
+
+  {% if error is defined %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% else %}
+    <div class="alert alert-info mt-3">
+      Entrez une ville (ex: Rabat, Casablanca, Marrakech) pour afficher la météo.
+    </div>
+  {% endif %}
+
+  <form method="get" class="mt-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-6">
+        <input class="form-control" name="ville" placeholder="Ville (ex: Rabat)" required>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-primary w-100">Afficher météo</button>
+      </div>
+      <div class="col-md-3">
+        <a class="btn btn-outline-dark w-100" href="{{ path('capteur_dashboard', {idproject: idproject}) }}">
+          Retour dashboard
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
