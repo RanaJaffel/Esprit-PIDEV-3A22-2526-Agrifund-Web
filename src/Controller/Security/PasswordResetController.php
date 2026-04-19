@@ -3,12 +3,12 @@
 namespace App\Controller\Security;
 
 use App\Entity\TokenReinitialisation;
-use App\Entity\Utilisateur;
 use App\Form\PasswordResetRequestType;
 use App\Form\PasswordResetType;
 use App\Repository\TokenReinitialisationRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,6 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
-use Psr\Log\LoggerInterface;
 
 class PasswordResetController extends AbstractController
 {
@@ -43,14 +42,12 @@ class PasswordResetController extends AbstractController
 
             if ($utilisateur) {
                 try {
-                    // Invalider les anciens tokens
                     $tokenRepository->invalidateUserTokens($utilisateur);
 
-                    // Créer un nouveau token
                     $token = new TokenReinitialisation();
                     $token->setUtilisateur($utilisateur);
                     $token->setToken(Uuid::v4()->toRfc4122());
-                    
+
                     $expirationDate = new \DateTime();
                     $expirationDate->modify('+1 hour');
                     $token->setDateExpiration($expirationDate);
@@ -58,48 +55,43 @@ class PasswordResetController extends AbstractController
                     $em->persist($token);
                     $em->flush();
 
-                    // Générer l'URL de réinitialisation
                     $resetUrl = $this->generateUrl('app_password_reset', [
-                        'token' => $token->getToken()
+                        'token' => $token->getToken(),
                     ], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
 
-                    // Créer l'email
                     $emailMessage = (new Email())
                         ->from('souleimab945@gmail.com')
                         ->to($utilisateur->getEmail())
-                        ->subject('Réinitialisation de votre mot de passe')
+                        ->subject('Reinitialisation de votre mot de passe')
                         ->html($this->renderView('email/password_reset.html.twig', [
                             'utilisateur' => $utilisateur,
                             'resetUrl' => $resetUrl,
                             'expirationDate' => $expirationDate,
                         ]));
 
-                    // Envoyer l'email
                     $mailer->send($emailMessage);
-                    
-                    $logger->info('Email de réinitialisation envoyé', [
+
+                    $logger->info('Email de reinitialisation envoye', [
                         'email' => $utilisateur->getEmail(),
-                        'token' => $token->getToken()
+                        'token' => $token->getToken(),
                     ]);
 
-                    $this->addFlash('success', 'Un email de réinitialisation a été envoyé à votre adresse.');
-                    
+                    $this->addFlash('success', 'Un email de reinitialisation a ete envoye a votre adresse.');
                 } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
                     $logger->error('Erreur Transport Email', [
                         'message' => $e->getMessage(),
-                        'email' => $email
+                        'email' => $email,
                     ]);
                     $this->addFlash('error', 'Erreur de connexion au serveur email : ' . $e->getMessage());
                 } catch (\Exception $e) {
                     $logger->error('Erreur envoi email', [
                         'message' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
+                        'trace' => $e->getTraceAsString(),
                     ]);
                     $this->addFlash('error', 'Erreur technique : ' . $e->getMessage());
                 }
             } else {
-                // Pour des raisons de sécurité, on affiche le même message
-                $this->addFlash('success', 'Si cette adresse email existe, vous recevrez un email de réinitialisation.');
+                $this->addFlash('success', 'Si cette adresse email existe, vous recevrez un email de reinitialisation.');
             }
 
             return $this->redirectToRoute('app_login');
@@ -125,7 +117,7 @@ class PasswordResetController extends AbstractController
         $resetToken = $tokenRepository->findValidToken($token);
 
         if (!$resetToken) {
-            $this->addFlash('error', 'Ce lien de réinitialisation est invalide ou a expiré.');
+            $this->addFlash('error', 'Ce lien de reinitialisation est invalide ou a expire.');
             return $this->redirectToRoute('app_password_reset_request');
         }
 
@@ -134,21 +126,19 @@ class PasswordResetController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $utilisateur = $resetToken->getUtilisateur();
-            
-            // Hash du nouveau mot de passe
+
             $hashedPassword = $passwordHasher->hashPassword(
                 $utilisateur,
                 $form->get('plainPassword')->getData()
             );
             $utilisateur->setPassword($hashedPassword);
 
-            // Marquer le token comme utilisé
             $resetToken->setUtilise(true);
             $resetToken->setDateUtilisation(new \DateTime());
 
             $em->flush();
 
-            $this->addFlash('success', 'Votre mot de passe a été réinitialisé avec succès !');
+            $this->addFlash('success', 'Votre mot de passe a ete reinitialise avec succes !');
             return $this->redirectToRoute('app_login');
         }
 

@@ -1,0 +1,273 @@
+{# templates/agriculteur/produits.html.twig #}
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}AgriFund - Marketplace Financière{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .page-header {
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .page-header h2 {
+        font-size: 2.2rem;
+        color: var(--vert-tres-fonce);
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+    
+    .page-header p {
+        color: var(--gris);
+        font-size: 1.1rem;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 24px;
+        padding: 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        transition: var(--transition-smooth);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(8, 150, 71, 0.12);
+        border-color: var(--vert-clair);
+    }
+
+    .card-accent {
+        height: 6px;
+        width: 100%;
+        background: linear-gradient(90deg, var(--vert-vif), var(--vert-clair));
+    }
+
+    .card-inner {
+        padding: 30px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-type-badge {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 6px 14px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
+
+    .badge-credit { background: #e8f5e9; color: #2e7d32; }
+    .badge-pret { background: #e3f2fd; color: #1565c0; }
+    .badge-leasing { background: #fff3e0; color: #ef6c00; }
+    .badge-subvention { background: #f3e5f5; color: #7b1fa2; }
+
+    .product-icon-box {
+        width: 64px;
+        height: 64px;
+        background: #f8fafc;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--vert-vif);
+        margin-bottom: 25px;
+        transition: var(--transition-smooth);
+    }
+
+    .product-card:hover .product-icon-box {
+        background: var(--vert-vif);
+        color: white;
+        transform: rotate(-8deg) scale(1.1);
+    }
+
+    .product-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+
+    .product-stats {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 25px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: var(--gris);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-val {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--vert-fonce);
+    }
+
+    .stat-val.taux {
+        color: var(--vert-vif);
+        font-size: 1.2rem;
+    }
+
+    .product-actions {
+        display: grid;
+        grid-template-columns: 1fr 50px;
+        gap: 12px;
+        margin-top: auto;
+    }
+
+    .btn-details {
+        background: var(--vert-tres-fonce);
+        color: white;
+        padding: 14px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: 700;
+        text-align: center;
+        transition: var(--transition-smooth);
+    }
+
+    .btn-details:hover {
+        background: var(--vert-fonce);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .btn-quick-sim {
+        background: white;
+        border: 2px solid #f1f5f9;
+        color: #64748b;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-smooth);
+        text-decoration: none;
+    }
+
+    .btn-quick-sim:hover {
+        border-color: var(--vert-clair);
+        color: var(--vert-vif);
+        background: #f8fafc;
+    }
+
+    @media (max-width: 576px) {
+        .product-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="page-header d-flex justify-content-between align-items-end">
+        <div>
+            <h2>Marketplace Financière</h2>
+            <p>Solutions de financement sur-mesure pour votre exploitation.</p>
+        </div>
+        <a href="{{ path('agriculteur_dashboard') }}" class="btn btn-outline-success rounded-4 px-4 py-2 mb-2">
+            <i class="fas fa-th-large me-2"></i>Dashboard
+        </a>
+    </div>
+
+    <div class="product-grid">
+        {% for p in produits %}
+            <div class="product-card animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                <div class="card-accent"></div>
+                
+                <span class="product-type-badge badge-{{ p.typeFinancement|lower|replace({'é': 'e'}) }}">
+                    {{ p.typeFinancement }}
+                </span>
+                
+                <div class="card-inner">
+                    <div class="product-icon-box">
+                        {% if p.typeFinancement|lower == 'crédit' %}
+                            <i class="fas fa-university"></i>
+                        {% elseif p.typeFinancement|lower == 'prêt' %}
+                            <i class="fas fa-hand-holding-usd"></i>
+                        {% elseif p.typeFinancement|lower == 'leasing' %}
+                            <i class="fas fa-tractor"></i>
+                        {% else %}
+                            <i class="fas fa-seedling"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="product-title">{{ p.nomProduit }}</h3>
+                    
+                    <div class="product-stats">
+                        <div class="stat-box">
+                            <span class="stat-label">Taux d'intérêt</span>
+                            <span class="stat-val taux">{{ p.tauxInteret }}%</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Prix Payable</span>
+                            <span class="stat-val">{{ p.prixFixe|number_format(2, ',', ' ') }} DT</span>
+                        </div>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <a href="{{ path('agriculteur_produit_show', {id: p.id}) }}" class="btn-details">
+                            Voir les détails
+                        </a>
+                        <button
+                            type="button"
+                            class="btn-quick-sim agri-chat-trigger"
+                            title="Demander une explication de ce produit"
+                            data-context-type="produit"
+                            data-title="{{ p.nomProduit|e('html_attr') }}"
+                            data-summary="Type: {{ p.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ p.tauxInteret }}%. Prix fixe: {{ p.prixFixe|number_format(2, ',', ' ') }} DT."
+                        >
+                            <i class="fas fa-comments"></i>
+                        </button>
+                        <a href="{{ path('agriculteur_produit_postuler', {id: p.id}) }}" class="btn-quick-sim" title="Postuler maintenant">
+                            <i class="fas fa-file-signature"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="mb-4 opacity-25">
+                    <i class="fas fa-search fa-5x text-muted"></i>
+                </div>
+                <h4 class="text-muted">Aucun produit n'est disponible pour le moment.</h4>
+                <p class="text-muted">Revenez plus tard pour voir nos nouvelles offres.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
+        chatbot_context_type: 'produit',
+        chatbot_title: 'Catalogue des produits',
+        chatbot_summary: 'Liste des produits financiers pour agriculteurs avec taux et prix fixe payable.'
+    } %}
+{% endblock %}

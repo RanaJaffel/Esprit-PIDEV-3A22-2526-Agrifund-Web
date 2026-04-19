@@ -1,36 +1,35 @@
 # config/services.yaml
 parameters:
-    # dossier pour les fichiers uploadés par les agriculteurs
+    # dossier pour les fichiers uploades par les agriculteurs
     documents_directory: '%kernel.project_dir%/public/uploads/documents'
-    
+    payment_proofs_directory: '%kernel.project_dir%/public/uploads/payment-proofs'
+
     # Google reCAPTCHA
     recaptcha_site_key: '%env(RECAPTCHA_SITE_KEY)%'
     recaptcha_secret_key: '%env(RECAPTCHA_SECRET_KEY)%'
 
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Service/DocumentService.php'
+            - '../src/Service/EmailService.php'
+            - '../src/Service/FileUploader.php'
+            - '../src/Service/MessagerieService.php'
+            - '../src/Service/UserService.php'
 
     App\Service\Weather\OpenWeatherClient:
         arguments:
             $apiKey: '%env(OPENWEATHER_API_KEY)%'
             $baseUrl: '%env(OPENWEATHER_BASE_URL)%'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-
-    # Two Factor Auth Service
     App\Service\TwoFactorAuthService:
         arguments:
             $em: '@doctrine.orm.entity_manager'
@@ -38,14 +37,12 @@ services:
             $code2faRepository: '@App\Repository\Code2faRepository'
             $logger: '@logger'
 
-    # Two Factor Subscriber
     App\EventSubscriber\TwoFactorSubscriber:
         arguments:
             $tokenStorage: '@security.token_storage'
         tags:
             - { name: 'kernel.event_subscriber' }
 
-    # Face Recognition Service
     App\Service\FaceRecognitionService:
         arguments:
             $projectDir: '%kernel.project_dir%'

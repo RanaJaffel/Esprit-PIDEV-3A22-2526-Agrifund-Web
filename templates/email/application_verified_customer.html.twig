@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Dossier verifie - AgriFund</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background: #f3f5f4;
+			font-family: Arial, sans-serif;
+			color: #1f2937;
+		}
+		.wrap {
+			width: 100%;
+			padding: 24px 12px;
+		}
+		.card {
+			max-width: 620px;
+			margin: 0 auto;
+			background: #ffffff;
+			border-radius: 12px;
+			overflow: hidden;
+			border: 1px solid #e5e7eb;
+		}
+		.head {
+			background: linear-gradient(135deg, #076A39 0%, #089647 55%, #B2D944 100%);
+			color: #ffffff;
+			padding: 28px 24px;
+		}
+		.head h1 {
+			margin: 0;
+			font-size: 24px;
+			line-height: 1.3;
+		}
+		.head p {
+			margin: 8px 0 0;
+			font-size: 14px;
+			opacity: 0.95;
+		}
+		.body {
+			padding: 24px;
+		}
+		.badge {
+			display: inline-block;
+			padding: 6px 12px;
+			border-radius: 999px;
+			background: #ecfdf3;
+			color: #076A39;
+			font-size: 12px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.4px;
+		}
+		.intro {
+			margin: 16px 0 18px;
+			font-size: 15px;
+			line-height: 1.6;
+		}
+		.info {
+			background: #f9fafb;
+			border: 1px solid #e5e7eb;
+			border-radius: 10px;
+			padding: 14px;
+			margin: 14px 0;
+		}
+		.row {
+			display: block;
+			margin: 8px 0;
+			font-size: 14px;
+		}
+		.label {
+			color: #6b7280;
+			font-weight: 600;
+		}
+		.value {
+			color: #111827;
+			font-weight: 700;
+		}
+		.success {
+			margin-top: 14px;
+			padding: 12px;
+			border-radius: 8px;
+			background: #f0fdf4;
+			border: 1px solid #bbf7d0;
+			color: #166534;
+			font-size: 14px;
+			line-height: 1.6;
+		}
+		.foot {
+			border-top: 1px solid #e5e7eb;
+			padding: 16px 24px;
+			font-size: 12px;
+			color: #6b7280;
+			background: #fafafa;
+		}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<div class="card">
+			<div class="head">
+				<h1>Dossier verifie</h1>
+				<p>Validation confirmee par notre equipe admin.</p>
+			</div>
+
+			<div class="body">
+				<span class="badge">Valide</span>
+
+				<p class="intro">
+					Bonjour {{ utilisateur.prenom }},<br>
+					Votre justificatif pour <strong>{{ achat.offre ? achat.offre.nomOffre : (achat.produit ? achat.produit.nomProduit : achat.reference) }}</strong> a bien ete verifie.
+				</p>
+
+				<div class="info">
+					<div class="row"><span class="label">Reference dossier: </span><span class="value">{{ achat.reference }}</span></div>
+					<div class="row"><span class="label">Montant: </span><span class="value">{{ achat.montant|number_format(2, ',', ' ') }} {{ achat.devise }}</span></div>
+					<div class="row"><span class="label">Statut actuel: </span><span class="value">Dossier confirme</span></div>
+				</div>
+
+				<div class="success">
+					Votre dossier est maintenant confirme. Merci pour votre confiance.
+				</div>
+			</div>
+
+			<div class="foot">
+				AgriFund - Notification automatique. Merci de ne pas repondre a cet email.
+			</div>
+		</div>
+	</div>
+</body>
+</html>

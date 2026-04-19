@@ -16,6 +16,7 @@ class BanqueRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('b')
             ->join('b.utilisateur', 'u')
+            ->addSelect('u')
             ->orderBy('u.dateInscrit', 'DESC')
             ->getQuery()
             ->getResult();
@@ -24,6 +25,7 @@ class BanqueRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.utilisateur', 'u')
+            ->addSelect('u')
             ->orderBy('u.dateInscrit', 'DESC');
 
         if ($search) {
@@ -42,6 +44,7 @@ class BanqueRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('b')
             ->join('b.utilisateur', 'u')
+            ->addSelect('u')
             ->where('b.statusCompte = :status')
             ->setParameter('status', 'en_attente')
             ->orderBy('u.dateInscrit', 'ASC')
@@ -58,37 +61,34 @@ class BanqueRepository extends ServiceEntityRepository
     }
     public function getStatistics(): array
     {
-        $total = (int) $this->createQueryBuilder('b')
-            ->select('COUNT(b.id)')
+        $rows = $this->createQueryBuilder('b')
+            ->select('b.statusCompte AS status, COUNT(b.id) AS total')
+            ->groupBy('b.statusCompte')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getArrayResult();
 
-        $actives = (int) $this->createQueryBuilder('b')
-            ->select('COUNT(b.id)')
-            ->where('b.statusCompte = :status')
-            ->setParameter('status', 'actif')
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        $enAttente = (int) $this->createQueryBuilder('b')
-            ->select('COUNT(b.id)')
-            ->where('b.statusCompte = :status')
-            ->setParameter('status', 'en_attente')
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        $rejetees = (int) $this->createQueryBuilder('b')
-            ->select('COUNT(b.id)')
-            ->where('b.statusCompte = :status')
-            ->setParameter('status', 'refuse')
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return [
-            'total' => $total,
-            'actives' => $actives,
-            'en_attente' => $enAttente,
-            'rejetees' => $rejetees,
+        $stats = [
+            'total' => 0,
+            'actives' => 0,
+            'en_attente' => 0,
+            'rejetees' => 0,
         ];
+
+        foreach ($rows as $row) {
+            $count = (int) ($row['total'] ?? 0);
+            $status = (string) ($row['status'] ?? '');
+
+            $stats['total'] += $count;
+
+            if ($status === 'actif') {
+                $stats['actives'] = $count;
+            } elseif ($status === 'en_attente') {
+                $stats['en_attente'] = $count;
+            } elseif ($status === 'refuse') {
+                $stats['rejetees'] = $count;
+            }
+        }
+
+        return $stats;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Controller\Agriculteur;
 use App\Entity\Conversation;
 use App\Entity\Message;
 use App\Entity\PieceJointe;
+use App\Entity\Utilisateur;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
 use App\Repository\UtilisateurRepository;
@@ -27,21 +28,68 @@ class AgriculteurMessagerieController extends AbstractController
         UtilisateurRepository $utilisateurRepository
     ): Response {
         $currentUser = $this->getUser();
+        if (!$currentUser instanceof Utilisateur) {
+            throw $this->createAccessDeniedException('Utilisateur non autorisé.');
+        }
+
         $conversations = $conversationRepository->findUserConversations($currentUser->getId());
-        
+
+        $conversationIds = [];
+        $otherUserIds = [];
+        foreach ($conversations as $conversation) {
+            $conversationId = $conversation->getId();
+            if ($conversationId === null) {
+                continue;
+            }
+
+            $conversationIds[] = $conversationId;
+            $otherUserId = $conversation->getOtherUserId($currentUser->getId());
+            if ($otherUserId !== null) {
+                $otherUserIds[] = $otherUserId;
+            }
+        }
+
+        $lastMessagesByConversation = $messageRepository->findLatestMessagesByConversations($conversationIds);
+        $unreadCountsByConversation = $messageRepository->countUnreadMessagesByConversations($conversationIds, $currentUser->getId());
+
+        $otherUsersById = [];
+        if ($otherUserIds !== []) {
+            $otherUsers = $utilisateurRepository->findBy([
+                'id' => array_values(array_unique($otherUserIds)),
+            ]);
+
+            foreach ($otherUsers as $otherUser) {
+                $otherUserId = $otherUser->getId();
+                if ($otherUserId === null) {
+                    continue;
+                }
+
+                $otherUsersById[$otherUserId] = $otherUser;
+            }
+        }
+
         $conversationsData = [];
         foreach ($conversations as $conversation) {
+            $conversationId = $conversation->getId();
+            if ($conversationId === null) {
+                continue;
+            }
+
             $otherUserId = $conversation->getOtherUserId($currentUser->getId());
-            $otherUser = $utilisateurRepository->find($otherUserId);
-            
+            if ($otherUserId === null || !isset($otherUsersById[$otherUserId])) {
+                continue;
+            }
+
+            $otherUser = $otherUsersById[$otherUserId];
+
             $conversationsData[] = [
                 'conversation' => $conversation,
                 'otherUser' => $otherUser,
-                'lastMessage' => $conversation->getLastMessage(),
-                'unreadCount' => $conversation->getUnreadMessagesCount($currentUser->getId())
+                'lastMessage' => $lastMessagesByConversation[$conversationId] ?? null,
+                'unreadCount' => $unreadCountsByConversation[$conversationId] ?? 0,
             ];
         }
-        
+
         $messagesNonLus = $messageRepository->countAllUnreadMessages($currentUser->getId());
 
         return $this->render('agriculteur/messagerie/conversations.html.twig', [

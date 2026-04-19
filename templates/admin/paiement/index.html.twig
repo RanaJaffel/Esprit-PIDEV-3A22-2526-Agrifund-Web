@@ -1,0 +1,377 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation des paiements | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --vert-tres-fonce: #133D03;
+            --vert-clair: #B2D944;
+            --gris: #848A86;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            transition: margin-left 0.4s ease;
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 50%, var(--vert-tres-fonce) 100%);
+            padding: 28px 35px;
+            margin: 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(178, 217, 68, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-title {
+            position: relative;
+            z-index: 1;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--vert-clair), var(--vert-vif));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.15rem;
+        }
+
+        #mobileSidebarToggle {
+            background: rgba(255, 255, 255, 0.14) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: #fff !important;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-wrap {
+            margin: -18px 35px 30px 35px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .filter-card,
+        .table-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(8, 150, 71, 0.08);
+        }
+
+        .filter-card {
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .form-select {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            height: 44px;
+        }
+
+        .form-select:focus {
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 3px rgba(8, 150, 71, 0.1);
+        }
+
+        .btn-filter {
+            background: var(--vert-vif);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            height: 44px;
+            font-weight: 700;
+        }
+
+        .btn-filter:hover {
+            background: var(--vert-fonce);
+            color: #fff;
+        }
+
+        .table-card .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #4b5563;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #eef2f7;
+            white-space: nowrap;
+        }
+
+        .action-panel {
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group-text {
+            background: #f8fafc;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #4b5563;
+        }
+
+        .form-control,
+        .form-control-sm {
+            border-color: #dbe3ec;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+            color: #fff;
+            border: none;
+            font-weight: 700;
+        }
+
+        .btn-approve:hover {
+            color: #fff;
+            filter: brightness(0.96);
+        }
+
+        .btn-reject {
+            border-color: #ef4444;
+            color: #dc2626;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-reject:hover {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #dc2626;
+        }
+
+        .btn-download {
+            border-color: #1d4ed8;
+            color: #1d4ed8;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-download:hover {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .btn-delete {
+            border-color: #991b1b;
+            color: #991b1b;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+            color: #7f1d1d;
+            border-color: #7f1d1d;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrap {
+                margin: -12px 20px 24px 20px;
+            }
+
+            .page-header {
+                padding: 24px 20px;
+            }
+
+            .page-title {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <h1 class="page-title"><i class="fas fa-file-invoice-dollar"></i>Validation des paiements</h1>
+            <button class="btn d-lg-none" id="mobileSidebarToggle" type="button" aria-label="Ouvrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="content-wrap">
+            <form method="get" class="filter-card row g-2">
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Tous statuts</option>
+                        {% for s in availableStatuses %}
+                            <option value="{{ s }}" {{ selectedStatus == s ? 'selected' : '' }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="method" class="form-select">
+                        <option value="">Toutes methodes</option>
+                        {% for m in availableMethods %}
+                            <option value="{{ m }}" {{ selectedMethod == m ? 'selected' : '' }}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="provider" class="form-select">
+                        <option value="">Tous providers</option>
+                        {% for p in availableProviders %}
+                            <option value="{{ p }}" {{ selectedProvider == p ? 'selected' : '' }}>{{ p }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-filter">Filtrer</button>
+                </div>
+            </form>
+
+            <div class="table-card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Transaction</th>
+                                    <th>Achat</th>
+                                    <th>Client</th>
+                                    <th>Type</th>
+                                    <th>Mode</th>
+                                    <th>Dossier</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tx in transactions %}
+                                    <tr>
+                                        <td>{{ tx.reference }}</td>
+                                        <td>{{ tx.achat.reference }}</td>
+                                        <td>{{ tx.achat.utilisateur.prenom }} {{ tx.achat.utilisateur.nom }}</td>
+                                        <td>{{ tx.provider|upper }}</td>
+                                        <td>{{ tx.paymentMethod|upper }}</td>
+                                        <td>{{ tx.achat.offre ? tx.achat.offre.nomOffre : (tx.achat.produit ? tx.achat.produit.nomProduit : tx.achat.reference) }}</td>
+                                        <td>
+                                            <span class="badge {{ tx.statut == 'succeeded' ? 'bg-success' : (tx.statut == 'failed' ? 'bg-danger' : 'bg-secondary') }}">
+                                                {{ tx.statut }}
+                                            </span>
+                                            <div class="small text-muted mt-1">
+                                                Verif: {{ tx.verificationStatus|default('pending') }}
+                                                {% if tx.verifiedBy %}
+                                                    · {{ tx.verifiedBy }}
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>{{ tx.createdAt ? tx.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-2 mb-2">
+                                                <a href="{{ path('admin_payment_download_pdf', {reference: tx.reference}) }}" class="btn btn-sm btn-download">Télécharger PDF</a>
+                                                <form method="post" action="{{ path('admin_payment_delete', {reference: tx.reference}) }}" onsubmit="return confirm('Supprimer ce paiement ? Cette action est irreversible.');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_payment_' ~ tx.reference) }}">
+                                                    <button type="submit" class="btn btn-sm btn-delete w-100">Supprimer</button>
+                                                </form>
+                                            </div>
+                                            {% if tx.gatewayPayload is not empty and tx.gatewayPayload.proof_path is defined %}
+                                                <a href="{{ asset(tx.gatewayPayload.proof_path) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary me-2">Justificatif</a>
+                                            {% endif %}
+                                            {% if tx.provider == 'manual' and tx.statut == 'pending' %}
+                                                <div class="action-panel">
+                                                    <form method="post" action="{{ path('admin_payment_approve', {reference: tx.reference}) }}" class="d-flex flex-column gap-2">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('approve_payment_' ~ tx.reference) }}">
+                                                        <div class="input-group input-group-sm">
+                                                            <span class="input-group-text">Montant</span>
+                                                            <input type="number" name="approved_amount" class="form-control" step="0.01" min="0.01" value="{{ tx.montant }}" required>
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span class="input-group-text">Date</span>
+                                                            <input type="datetime-local" name="approved_at" class="form-control" value="" required>
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span class="input-group-text">Date vérif</span>
+                                                            <input type="datetime-local" name="verified_at" class="form-control" value="">
+                                                        </div>
+                                                        <input type="text" name="verified_by" class="form-control form-control-sm" placeholder="Vérifié par">
+                                                        <input type="text" name="review_note" class="form-control form-control-sm" placeholder="Commentaire de validation" maxlength="255" required>
+                                                        <button type="submit" class="btn btn-sm btn-approve">Approuver</button>
+                                                    </form>
+                                                    <form method="post" action="{{ path('admin_payment_reject', {reference: tx.reference}) }}" class="d-flex flex-column gap-2">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('reject_payment_' ~ tx.reference) }}">
+                                                        <input type="text" name="rejection_reason" class="form-control form-control-sm" placeholder="Motif du rejet" maxlength="255" required>
+                                                        <button type="submit" class="btn btn-sm btn-reject">Refuser</button>
+                                                    </form>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4 text-muted">Aucun paiement trouve.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-3">
+                    {{ knp_pagination_render(transactions) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

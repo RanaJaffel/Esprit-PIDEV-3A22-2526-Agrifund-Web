@@ -1,0 +1,300 @@
+{# templates/agriculteur/base.html.twig #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgriFund - Espace Client{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --gris: #848A86;
+            --vert-tres-fonce: #133D03;
+            --jaune-moutarde: #E1B323;
+            --vert-clair: #B2D944;
+            --olive: #9A951F;
+            --vert-olive-fonce: #476C1A;
+            --bg-light: #f8faf5;
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-gradient: linear-gradient(180deg, #133D03 0%, #095032 50%, #076A39 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+            color: #334155;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        /* ==========================================
+           LAYOUT
+        ========================================== */
+        .portal-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* ==========================================
+           TOP NAVIGATION
+        ========================================== */
+        .top-navbar {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 15px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-search {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .navbar-search input {
+            width: 100%;
+            padding: 10px 18px 10px 45px;
+            background: #f1f5f9;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .navbar-search input:focus {
+            background: white;
+            border-color: var(--vert-clair);
+            box-shadow: 0 0 15px rgba(178, 217, 68, 0.2);
+            outline: none;
+        }
+
+        .navbar-search i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .action-btn:hover {
+            background: #f1f5f9;
+            color: var(--vert-fonce);
+        }
+
+        .action-btn .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 5px;
+            border: 2px solid white;
+            background: var(--vert-vif);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 5px 5px 15px;
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .user-menu:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--vert-clair);
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+        }
+
+        .user-info .name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .user-info .role {
+            font-size: 0.7rem;
+            color: var(--vert-vif);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* ==========================================
+           PAGE CONTENT AREA
+        ========================================== */
+        .page-content {
+            padding: 35px;
+            flex: 1;
+        }
+
+        /* Animation */
+        .content-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Footer */
+        .portal-footer {
+            padding: 25px 35px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: white;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        /* Global Glow Background */
+        .sidebar-glow-global {
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(178, 217, 68, 0.05) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+    
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <div class="portal-wrapper">
+        <div class="sidebar-glow-global"></div>
+        {% include 'components/_sidebar_agriculteur.html.twig' %}
+        
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="navbar-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un produit, une offre...">
+                </div>
+                
+                <div class="navbar-actions">
+                    <a href="{{ path('agriculteur_messagerie_index') }}" class="action-btn">
+                        <i class="fas fa-envelope"></i>
+                        {% if messages_non_lus is defined and messages_non_lus > 0 %}
+                            <span class="badge rounded-pill"></span>
+                        {% endif %}
+                    </a>
+                    
+                    <a href="{{ path('agriculteur_profile_show') }}" class="user-menu text-decoration-none">
+                        <div class="user-info">
+                            <span class="name">{{ app.user.nomComplet|default('Agriculteur') }}</span>
+                            <span class="role">Producteur</span>
+                        </div>
+                        <img src="{{ app.user.photo ? asset(app.user.photo) : 'https://ui-avatars.com/api/?name=' ~ app.user.nomComplet ~ '&background=089647&color=fff' }}" class="user-avatar" alt="Profile">
+                    </a>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="page-content">
+                {% include 'components/_flash_messages.html.twig' %}
+                <div class="content-fade-in">
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="portal-footer">
+                &copy; {{ "now"|date("Y") }} AgriFund — Solutions de Financement Agricole. Tous droits réservés.
+            </footer>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile Sidebar Toggle (Logic to be added in sidebar component)
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            if(toggle && sidebar) {
+                toggle.addEventListener('click', () => sidebar.classList.toggle('show'));
+            }
+        });
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

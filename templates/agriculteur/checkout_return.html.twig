@@ -1,0 +1,236 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Suivi du dossier{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .return-header {
+        margin-bottom: 24px;
+    }
+
+    .return-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 6px;
+    }
+
+    .return-subtitle {
+        color: var(--gris);
+        margin-bottom: 0;
+    }
+
+    .status-card {
+        border: 0;
+        border-radius: 18px;
+        padding: 24px;
+        color: #fff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .status-paid {
+        background: linear-gradient(135deg, #076A39 0%, #089647 55%, #B2D944 100%);
+    }
+
+    .status-pending {
+        background: linear-gradient(135deg, #1f2937 0%, #076A39 60%, #089647 100%);
+    }
+
+    .status-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .status-ref {
+        font-size: 0.9rem;
+        opacity: 0.95;
+        margin-bottom: 8px;
+    }
+
+    .glass-card {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid rgba(8, 150, 71, 0.12);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 14px;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .meta-box {
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .meta-label {
+        display: block;
+        color: #64748b;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .meta-value {
+        color: #1f2937;
+        font-size: 0.95rem;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .proof-link {
+        font-weight: 700;
+        color: var(--vert-fonce);
+        text-decoration: none;
+    }
+
+    .proof-link:hover {
+        color: var(--vert-vif);
+        text-decoration: underline;
+    }
+
+    .actions-row {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .meta-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="return-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h2>Suivi du dossier</h2>
+            <p class="return-subtitle">Consultez le statut et mettez a jour votre justificatif si necessaire.</p>
+        </div>
+        <a href="{{ path('agriculteur_dashboard') }}" class="btn btn-outline-success rounded-4 px-4 py-2">Retour au dashboard</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            {% set lastTx = achat.transactions|last %}
+
+            {% if isPaid %}
+                <div class="status-card status-paid mb-4" role="status">
+                    <div class="status-title">Dossier verifie</div>
+                    <div class="status-ref">Reference dossier: <strong>{{ reference }}</strong></div>
+                    <div>Votre justificatif a bien ete valide. Un email de confirmation vous a ete envoye.</div>
+                </div>
+            {% else %}
+                <div class="status-card status-pending mb-4" role="status">
+                    <div class="status-title">Dossier en cours de verification</div>
+                    <div class="status-ref">Reference dossier: <strong>{{ reference }}</strong></div>
+                    <div>Votre justificatif a ete transmis. Vous recevrez un email apres verification par l'admin.</div>
+                </div>
+            {% endif %}
+
+            {% if lastTx and lastTx.provider == 'manual' and lastTx.gatewayPayload is not empty %}
+                <div class="glass-card mb-3">
+                    <div class="card-body p-4">
+                        <h2 class="section-title">Details du dossier</h2>
+                        <div class="meta-grid">
+                            <div class="meta-box">
+                                <span class="meta-label">Type</span>
+                                <span class="meta-value">{{ lastTx.gatewayPayload.label ?? 'Dossier offre' }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-label">Dossier</span>
+                                <span class="meta-value">{{ lastTx.gatewayPayload.offer_name ?? lastTx.gatewayPayload.product_name ?? achat.offre.nomOffre ?? achat.produit.nomProduit ?? '-' }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-label">Montant</span>
+                                <span class="meta-value">{{ achat.montant|number_format(2, ',', ' ') }} {{ achat.devise }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-label">Statut</span>
+                                <span class="meta-value">{{ achat.statut }}</span>
+                            </div>
+                        </div>
+                        {% if lastTx.gatewayPayload.proof_path is defined %}
+                            <div class="actions-row">
+                                <a href="{{ asset(lastTx.gatewayPayload.proof_path) }}" target="_blank" rel="noopener" class="proof-link">
+                                    <i class="fas fa-paperclip me-1"></i> Voir le justificatif actuel
+                                </a>
+                            </div>
+                        {% endif %}
+                        <p class="mb-0 mt-3 text-muted">Le dossier reste en attente tant qu'un administrateur n'a pas termine la verification.</p>
+                    </div>
+                </div>
+
+                {% if not isPaid %}
+                    <div class="glass-card mb-3">
+                        <div class="card-body p-4">
+                            <h2 class="section-title">Mettre a jour le justificatif</h2>
+                            <form method="post" enctype="multipart/form-data" action="{{ path('agriculteur_checkout_manual_proof_upload', {reference: reference}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('manual_proof_' ~ reference) }}">
+                                <div class="mb-3">
+                                    <label for="payment-proof" class="form-label">Fichier de preuve</label>
+                                    <input id="payment-proof" type="file" name="payment_proof" class="form-control" accept=".pdf,image/jpeg,image/png,image/webp" required>
+                                    <div class="form-text">Formats acceptes: PDF, JPG, PNG, WEBP. Taille max: 5 Mo.</div>
+                                </div>
+                                <button type="submit" class="btn btn-success px-4">Envoyer le justificatif</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% if achat.offre is not null %}
+                <div class="glass-card mb-3">
+                    <div class="card-body p-4">
+                        <h2 class="section-title">Information de l'offre</h2>
+                        <div class="meta-grid">
+                            <div class="meta-box">
+                                <span class="meta-label">Offre</span>
+                                <span class="meta-value">{{ achat.offre.nomOffre }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-label">Produit</span>
+                                <span class="meta-value">{{ achat.offre.produitFinancier.nomProduit }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% elseif achat.produit is not null %}
+                <div class="glass-card mb-3">
+                    <div class="card-body p-4">
+                        <h2 class="section-title">Information du produit</h2>
+                        <div class="meta-grid">
+                            <div class="meta-box">
+                                <span class="meta-label">Produit</span>
+                                <span class="meta-value">{{ achat.produit.nomProduit }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-label">Type</span>
+                                <span class="meta-value">{{ achat.produit.typeFinancement }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { margin: 35px 30px; }
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            color: #1f2937;
+        }
+        h1 {
+            font-size: 20px;
+            margin: 0 0 8px 0;
+            color: #076A39;
+        }
+        .muted {
+            color: #6b7280;
+            font-size: 11px;
+        }
+        .card {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            width: 33%;
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            background: #374151;
+        }
+        .ok { background: #15803d; }
+        .ko { background: #b91c1c; }
+        .pending { background: #6b7280; }
+
+        .empty-field {
+            display: inline-block;
+            min-width: 210px;
+            border-bottom: 1px solid #9ca3af;
+            height: 14px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    {% set verifierName = transaction.verifiedBy ?: payload.reviewed_by|default('') %}
+    {% set verifierDate = transaction.verifiedAt ?: (payload.reviewed_at is defined and payload.reviewed_at ? date(payload.reviewed_at) : null) %}
+
+    <h1>Recu de validation paiement</h1>
+    <div class="muted">Généré le {{ generatedAt|date('d/m/Y H:i') }}</div>
+
+    <div class="card">
+        <table>
+            <tr>
+                <th>Référence transaction</th>
+                <td>{{ transaction.reference }}</td>
+            </tr>
+            <tr>
+                <th>Référence achat</th>
+                <td>{{ achat.reference }}</td>
+            </tr>
+            <tr>
+                <th>Client</th>
+                <td>{{ achat.utilisateur.prenom }} {{ achat.utilisateur.nom }}</td>
+            </tr>
+            <tr>
+                <th>Type dossier</th>
+                <td>{{ achat.offre ? achat.offre.nomOffre : (achat.produit ? achat.produit.nomProduit : achat.reference) }}</td>
+            </tr>
+            <tr>
+                <th>Montant</th>
+                <td>{{ transaction.montant|number_format(2, ',', ' ') }} {{ transaction.devise }}</td>
+            </tr>
+            <tr>
+                <th>Provider / Méthode</th>
+                <td>{{ transaction.provider|upper }} / {{ transaction.paymentMethod|upper }}</td>
+            </tr>
+            <tr>
+                <th>Statut paiement</th>
+                <td>
+                    <span class="badge {{ transaction.statut == 'succeeded' ? 'ok' : (transaction.statut == 'failed' ? 'ko' : 'pending') }}">
+                        {{ transaction.statut }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>Statut vérification</th>
+                <td>{{ transaction.verificationStatus|default('pending') }}</td>
+            </tr>
+            <tr>
+                <th>Vérifié par</th>
+                <td>
+                    {% if verifierName %}
+                        {{ verifierName }}
+                    {% else %}
+                        <span class="empty-field"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Date vérification</th>
+                <td>
+                    {% if verifierDate %}
+                        {{ verifierDate|date('d/m/Y H:i') }}
+                    {% else %}
+                        <span class="empty-field"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Note vérification</th>
+                <td>{{ transaction.verificationNote ?: '-' }}</td>
+            </tr>
+            <tr>
+                <th>Justificatif</th>
+                <td>{{ payload.proof_path|default('-') }}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

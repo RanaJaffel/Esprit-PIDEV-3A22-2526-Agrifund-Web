@@ -1,0 +1,685 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produits Financiers | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --jaune-moutarde: #E1B323;
+            --gris: #848A86;
+            --vert-clair: #B2D944;
+            --vert-tres-fonce: #133D03;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-header-custom {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 50%, #133D03 100%);
+            padding: 28px 35px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-header-custom::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L45 25 L40 40 L35 25 Z' fill='%23B2D944' fill-opacity='0.06'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .dashboard-section {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(8, 150, 71, 0.08);
+            margin: -20px 35px 30px 35px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 0 35px 25px 35px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(8, 150, 71, 0.12);
+        }
+
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.green { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: var(--vert-vif); }
+        .stat-icon.gold { background: linear-gradient(135deg, #fff8e1, #ffecb3); color: #f59e0b; }
+        .stat-icon.blue { background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #2196f3; }
+        .stat-icon.purple { background: linear-gradient(135deg, #f3e5f5, #e1bee7); color: #9c27b0; }
+
+        .stat-info h3 { font-size: 1.5rem; font-weight: 800; margin: 0; color: #2b3531; }
+        .stat-info small { color: #6c757d; font-size: 0.8rem; font-weight: 500; }
+
+        /* ===== SEARCH & FILTER BAR ===== */
+        .filter-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            margin: 0 35px 20px 35px;
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-input-group {
+            position: relative;
+        }
+
+        .search-input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        .search-input-group input {
+            padding-left: 42px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            height: 44px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .search-input-group input:focus {
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 3px rgba(8, 150, 71, 0.1);
+        }
+
+        .filter-select {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            height: 44px;
+            font-size: 0.85rem;
+            color: #495057;
+            transition: border-color 0.3s;
+        }
+
+        .filter-select:focus {
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 3px rgba(8, 150, 71, 0.1);
+        }
+
+        .btn-filter {
+            background: var(--vert-vif);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0 20px;
+            height: 44px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: var(--vert-fonce);
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 0 16px;
+            height: 44px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-reset:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        /* Advanced filters toggle */
+        .advanced-filters {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .advanced-filters.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        .toggle-advanced {
+            color: var(--vert-vif);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .toggle-advanced:hover { color: var(--vert-fonce); }
+
+        /* ===== PRODUCT CARDS ===== */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .produit-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 4px 16px rgba(8, 150, 71, 0.06);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUpFade 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .produit-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(8, 150, 71, 0.15);
+        }
+
+        .produit-header {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .produit-header::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .badge-type {
+            background: var(--jaune-moutarde);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(225, 179, 35, 0.4);
+        }
+
+        .stat-circle {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: #f0f7f4;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border: 2px solid var(--vert-clair);
+            color: var(--vert-fonce);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .produit-card:hover .stat-circle {
+            background: var(--vert-vif);
+            color: white;
+            transform: rotate(360deg);
+        }
+
+        .action-btn {
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .btn-view { background: #e8f0ed; color: var(--vert-fonce); }
+        .btn-view:hover { background: var(--vert-clair); color: var(--vert-tres-fonce); transform: translateX(-3px); }
+
+        .btn-edit { background: var(--vert-vif); color: white; }
+        .btn-edit:hover { background: var(--vert-fonce); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(8,150,71,0.3); color: white; }
+
+        .btn-add-new {
+            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, #c9a020 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(225, 179, 35, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-add-new:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(225, 179, 35, 0.5);
+            color: white;
+        }
+
+        /* ===== ACTION TOOLBAR ===== */
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .toolbar-btn.csv { background: #e8f5e9; color: var(--vert-fonce); }
+        .toolbar-btn.csv:hover { background: var(--vert-vif); color: white; }
+        .toolbar-btn.simulator { background: #fff3cd; color: #856404; }
+        .toolbar-btn.simulator:hover { background: var(--jaune-moutarde); color: white; }
+        .toolbar-btn.stats { background: #e3f2fd; color: #1565c0; }
+        .toolbar-btn.stats:hover { background: #1976d2; color: white; }
+
+        /* ===== PAGINATION ===== */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .pagination-wrapper .pagination {
+            gap: 5px;
+        }
+
+        .pagination-wrapper .page-link {
+            border-radius: 10px;
+            border: none;
+            padding: 10px 16px;
+            font-weight: 600;
+            color: var(--vert-fonce);
+            background: #f0f7f4;
+            transition: all 0.3s;
+        }
+
+        .pagination-wrapper .page-item.active .page-link {
+            background: var(--vert-vif);
+            color: white;
+        }
+
+        .pagination-wrapper .page-link:hover {
+            background: var(--vert-clair);
+            color: var(--vert-tres-fonce);
+            transform: translateY(-2px);
+        }
+
+        /* Sort indicator */
+        .sort-link {
+            color: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sort-link:hover { color: var(--vert-vif); }
+        .sort-link .sort-icon { font-size: 0.7rem; opacity: 0.5; }
+        .sort-link.active .sort-icon { opacity: 1; color: var(--vert-vif); }
+
+        /* Responsive */
+        @media (max-width: 991.98px) {
+            .main-content { margin-left: 0; }
+            .dashboard-section { margin: -10px 15px 20px 15px; padding: 20px; }
+            .stats-row { margin: 0 15px 15px 15px; grid-template-columns: repeat(2, 1fr); }
+            .filter-bar { margin: 0 15px 15px 15px; }
+        }
+
+        @media (max-width: 575.98px) {
+            .stats-row { grid-template-columns: 1fr; }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        {# ===== HEADER ===== #}
+        <div class="d-flex justify-content-between align-items-center section-header-custom mb-4" style="flex-wrap: wrap; gap: 15px;">
+            <h1 class="mb-0 text-white" style="z-index: 1;">
+                <i class="fas fa-boxes me-3" style="color: var(--vert-clair);"></i>Produits Financiers
+            </h1>
+            <div class="d-flex gap-2 flex-wrap" style="z-index: 1;">
+                <div class="toolbar-actions">
+                    <a href="{{ path('admin_produit_export_csv') }}" class="toolbar-btn csv">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </a>
+                    <a href="{{ path('admin_produit_export_pdf') }}" class="toolbar-btn" style="background: #fce4ec; color: #c62828;">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </a>
+                    <a href="{{ path('admin_produit_simulateur') }}" class="toolbar-btn simulator">
+                        <i class="fas fa-calculator"></i> Simulateur
+                    </a>
+                </div>
+                <a href="{{ path('admin_produit_new') }}" class="btn-add-new">
+                    <i class="fas fa-plus me-2"></i>Nouveau Produit
+                </a>
+            </div>
+        </div>
+
+        {{ include('components/_flash_messages.html.twig') }}
+
+        {# ===== STATISTIQUES ===== #}
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-boxes"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.totalProduits }}</h3>
+                    <small>Total Produits</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon gold"><i class="fas fa-percentage"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.avgTaux }}%</h3>
+                    <small>Taux Moyen</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.minTaux }}% - {{ dashboardStats.stats.maxTaux }}%</h3>
+                    <small>Plage de Taux</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-coins"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.maxMontant|number_format(0, ',', ' ') }}</h3>
+                    <small>Montant Max (DT)</small>
+                </div>
+            </div>
+        </div>
+
+        {# ===== FILTRE & RECHERCHE ===== #}
+        <div class="filter-bar">
+            <form method="get" action="{{ path('admin_produit_index') }}" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <div class="search-input-group">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="q" class="form-control" placeholder="Rechercher un produit..."
+                                   value="{{ keyword }}" id="searchInput">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="type" class="form-select filter-select" onchange="this.form.submit()">
+                            <option value="">Tous les types</option>
+                            {% for type in typesDisponibles %}
+                                <option value="{{ type }}" {{ typeFinancement == type ? 'selected' : '' }}>{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select filter-select" onchange="this.form.submit()">
+                            <option value="nomProduit" {{ sortBy == 'nomProduit' ? 'selected' : '' }}>Tri: Nom</option>
+                            <option value="tauxInteret" {{ sortBy == 'tauxInteret' ? 'selected' : '' }}>Tri: Taux</option>
+                            <option value="montant" {{ (sortBy == 'montant' or sortBy == 'montantMax') ? 'selected' : '' }}>Tri: Montant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <a href="{{ path('admin_produit_index') }}" class="btn-reset" title="Réinitialiser les filtres">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                    </div>
+                </div>
+
+                {# Filtres avancés #}
+                <div class="mt-2">
+                    <button type="button" class="toggle-advanced" onclick="toggleAdvanced()">
+                        <i class="fas fa-sliders-h me-1"></i> Filtres avancés
+                    </button>
+                </div>
+                <div class="advanced-filters mt-3" id="advancedFilters">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Taux Min (%)</label>
+                            <input type="number" name="taux_min" class="form-control filter-select auto-filter" step="0.1"
+                                   value="{{ tauxMin }}" placeholder="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Taux Max (%)</label>
+                            <input type="number" name="taux_max" class="form-control filter-select auto-filter" step="0.1"
+                                   value="{{ tauxMax }}" placeholder="100">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Montant Max (DT)</label>
+                            <input type="number" name="montant" class="form-control filter-select auto-filter"
+                                   value="{{ montant }}" placeholder="Ex: 100000">
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="order" value="{{ sortOrder }}">
+            </form>
+        </div>
+
+        {# ===== PRODUITS GRID ===== #}
+        <div class="dashboard-section">
+            {% if produits|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <small class="text-muted fw-bold">
+                        {{ produits.getTotalItemCount }} produit(s) trouvé(s)
+                    </small>
+                    <div class="d-flex gap-2">
+                        {% for typeInfo in dashboardStats.byType %}
+                            <span class="badge rounded-pill" style="background: #e8f0ed; color: var(--vert-fonce); font-weight: 600; font-size: 0.75rem;">
+                                {{ typeInfo.typeFinancement }}: {{ typeInfo.total }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    {% for produit in produits %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="produit-card" style="animation-delay: {{ loop.index * 0.1 }}s;">
+                                <div class="produit-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 fw-bold text-white text-truncate" style="max-width: 65%;">{{ produit.nomProduit }}</h5>
+                                    <span class="badge-type">{{ produit.typeFinancement }}</span>
+                                </div>
+                                <div class="p-4">
+                                    <div class="d-flex justify-content-between mb-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="stat-circle">
+                                                <span class="fs-5">{{ produit.tauxInteret }}%</span>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted text-uppercase fw-bold d-block">Taux d'intérêt</small>
+                                                <span class="text-dark fw-bold">{{ produit.offres|length }} offre(s)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4 p-3 rounded-3" style="background: #f8faf5; border-left: 4px solid var(--jaune-moutarde);">
+                                        <small class="text-muted fw-bold text-uppercase d-block mb-1">Montant</small>
+                                        <span class="fs-5 fw-bold" style="color: var(--vert-vif);">{{ produit.montant|number_format(0, ',', ' ') }} DT</span>
+                                    </div>
+
+                                    <div class="mb-4 p-3 rounded-3" style="background: #fffaf0; border-left: 4px solid var(--vert-vif);">
+                                        <small class="text-muted fw-bold text-uppercase d-block mb-1">Prix Fixe Payable</small>
+                                        <span class="fs-5 fw-bold" style="color: var(--vert-fonce);">{{ produit.prixFixe|number_format(2, ',', ' ') }} DT</span>
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <a href="{{ path('admin_produit_show', {'id': produit.id}) }}" class="action-btn btn-view w-100">
+                                                <i class="fas fa-eye"></i> Détails
+                                            </a>
+                                        </div>
+                                        <div class="col-6">
+                                            <a href="{{ path('admin_produit_edit', {'id': produit.id}) }}" class="action-btn btn-edit w-100">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# ===== PAGINATION ===== #}
+                <div class="pagination-wrapper">
+                    {{ knp_pagination_render(produits) }}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4" style="font-size: 4rem; color: var(--vert-clair);">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="text-muted fw-bold">
+                        {% if keyword or typeFinancement %}
+                            Aucun produit ne correspond à vos critères
+                        {% else %}
+                            Aucun produit financier disponible
+                        {% endif %}
+                    </h3>
+                    <p class="text-muted mb-4">
+                        {% if keyword or typeFinancement %}
+                            Essayez de modifier vos filtres de recherche.
+                        {% else %}
+                            Commencez par ajouter le premier produit financier pour votre plateforme.
+                        {% endif %}
+                    </p>
+                    {% if keyword or typeFinancement %}
+                        <a href="{{ path('admin_produit_index') }}" class="btn-reset px-4 py-2 me-2">
+                            <i class="fas fa-times me-1"></i> Réinitialiser les filtres
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('admin_produit_new') }}" class="btn-add-new px-4 py-2">
+                        Créer un Produit
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Toggle advanced filters
+        function toggleAdvanced() {
+            const el = document.getElementById('advancedFilters');
+            el.classList.toggle('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('filterForm');
+            let debounceTimer;
+
+            // Debounced search on typing
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => form.submit(), 500);
+                });
+            }
+
+            // Auto-submit on advanced filter change (with debounce)
+            document.querySelectorAll('.auto-filter').forEach(input => {
+                input.addEventListener('change', () => form.submit());
+                input.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => form.submit(), 800);
+                });
+            });
+
+            // Auto-show advanced filters if values are set
+            const tauxMin = document.querySelector('[name="taux_min"]');
+            const tauxMax = document.querySelector('[name="taux_max"]');
+            const montant = document.querySelector('[name="montant"]');
+
+            if ((tauxMin && tauxMin.value) || (tauxMax && tauxMax.value) ||
+                (montant && montant.value)) {
+                document.getElementById('advancedFilters').classList.add('show');
+            }
+        });
+    </script>
+{% endblock %}

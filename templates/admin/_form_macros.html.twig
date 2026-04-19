@@ -1,0 +1,14 @@
+{# Reusable form field macro with validation display #}
+{% macro field(form_field, label, icon_class, attrs) %}
+    {% set has_errors = form_errors(form_field)|length > 0 %}
+    <div class="field-group {{ has_errors ? 'has-error' : '' }}">
+        <label class="field-label">
+            <span class="label-icon {{ icon_class }}"><i class="fas {{ attrs.icon|default('fa-pen') }}"></i></span>
+            {{ label }}
+        </label>
+        {{ form_widget(form_field, {'attr': attrs.attr|default({'class': 'form-control'})}) }}
+        {% if has_errors %}
+            <div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ form_errors(form_field) }}</div>
+        {% endif %}
+    </div>
+{% endmacro %}

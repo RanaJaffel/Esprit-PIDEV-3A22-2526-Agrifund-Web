@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% import 'admin/_form_macros.html.twig' as form_ui %}
+
+{% block title %}Modifier {{ produit.nomProduit }} | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/admin-forms.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body_class %}admin-form-page{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        <div class="form-hero theme-dark">
+            <a href="{{ path('admin_produit_index') }}" class="back-link"><i class="fas fa-arrow-left"></i> Retour aux produits</a>
+            <h1><i class="fas fa-pen-fancy me-2" style="color: #E1B323;"></i> Modifier le Produit</h1>
+            <p>Mise à jour des informations du produit financier.</p>
+        </div>
+
+        <div class="form-card">
+            <div class="edit-badge"><i class="fas fa-edit"></i> Édition : {{ produit.nomProduit }}</div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="section-divider"><span><i class="fas fa-tag me-2"></i>Identité du Produit</span></div>
+                <div class="row">
+                    <div class="col-md-7">
+                        {{ form_ui.field(form.nomProduit, 'Nom du Produit', 'icon-green', {icon: 'fa-signature', attr: {class: 'form-control'}}) }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ form_ui.field(form.typeFinancement, 'Type', 'icon-indigo', {icon: 'fa-layer-group', attr: {class: 'form-select'}}) }}
+                    </div>
+                </div>
+
+                <div class="section-divider"><span><i class="fas fa-coins me-2"></i>Paramètres Financiers</span></div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_ui.field(form.tauxInteret, 'Taux (%)', 'icon-amber', {icon: 'fa-percentage', attr: {class: 'form-control'}}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_ui.field(form.montant, 'Montant (DT)', 'icon-emerald', {icon: 'fa-coins', attr: {class: 'form-control'}}) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_ui.field(form.prixFixe, 'Prix Fixe Payable (DT)', 'icon-amber', {icon: 'fa-money-bill-wave', attr: {class: 'form-control', min: '0.01', step: '0.01', inputmode: 'decimal'}}) }}
+                    </div>
+                </div>
+
+                <div class="section-divider"><span><i class="fas fa-scroll me-2"></i>Règles Financières</span></div>
+                {{ form_ui.field(form.reglesFinancieres, 'Règles & Conditions', 'icon-purple', {icon: 'fa-file-contract', attr: {class: 'form-control', rows: 5}}) }}
+
+                <button type="submit" class="btn-submit theme-amber">
+                    <i class="fas fa-save me-2"></i> Mettre à jour le Produit
+                </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

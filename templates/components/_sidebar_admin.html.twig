@@ -117,6 +117,41 @@
         </div>
 
         <div class="nav-section">
+            <span class="nav-section-title">Finance</span>
+            <ul class="nav-menu">
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_produit' ? 'active' : '' }}">
+                    <a href="{{ path('admin_produit_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-boxes"></i>
+                        </span>
+                        <span class="nav-text">Produits Financiers</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_offre' ? 'active' : '' }}">
+                    <a href="{{ path('admin_offre_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </span>
+                        <span class="nav-text">Offres Financières</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_payment' ? 'active' : '' }}">
+                    <a href="{{ path('admin_payment_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </span>
+                        <span class="nav-text">Validation Paiements</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
             <span class="nav-section-title">Communication</span>
             <ul class="nav-menu">
                 <li class="nav-item {{ app.request.get('_route') starts with 'admin_messagerie' ? 'active' : '' }}">
