@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin IoT & Terrain{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 280px; background: linear-gradient(135deg, #f8faf5 0%, #eef7ea 100%); min-height: 100vh; }
+        @media (max-width: 991.98px) { .main-content { margin-left: 0; } }
+        .hero {
+            background: linear-gradient(135deg, #076A39 0%, #095032 100%);
+            color: #fff;
+            padding: 28px 32px;
+        }
+        .hero h1 { margin: 0 0 8px; font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin: 0; opacity: 0.9; }
+        .page-wrap { padding: 28px 32px 40px; }
+        .quick-links, .project-grid { display: grid; gap: 18px; }
+        .quick-links { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 24px; }
+        .project-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+        .panel {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(8, 150, 71, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 12px 36px rgba(9, 80, 50, 0.08);
+        }
+        .quick-card, .project-card { padding: 20px; }
+        .quick-card a, .tool-links a {
+            text-decoration: none;
+            color: #095032;
+            font-weight: 600;
+        }
+        .quick-card i { color: #089647; margin-right: 8px; }
+        .section-title {
+            margin: 0 0 14px;
+            color: #133D03;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .project-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .project-id {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #095032;
+        }
+        .badge-soft {
+            background: #e8f5e9;
+            color: #076A39;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .meta span {
+            background: #f4fbf5;
+            border: 1px solid #dcefdc;
+            border-radius: 12px;
+            padding: 8px 10px;
+            color: #476C1A;
+            font-size: 0.9rem;
+        }
+        .tool-links {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .tool-links a {
+            display: block;
+            background: #fff;
+            border: 1px solid #dcefdc;
+            border-radius: 14px;
+            padding: 10px 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .tool-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(9, 80, 50, 0.08);
+        }
+        .empty {
+            padding: 26px;
+            text-align: center;
+            color: #6b7280;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_admin.html.twig' %}
+
+        <div class="main-content">
+            <div class="hero">
+                <h1>IoT & Terrain</h1>
+                <p>Accès admin aux capteurs, relevés terrain, météo, cartes, notifications et outils d'analyse par projet.</p>
+            </div>
+
+            <div class="page-wrap">
+                <h2 class="section-title">Pages Admin Globales</h2>
+                <div class="quick-links">
+                    <div class="panel quick-card">
+                        <a href="{{ path('admin_capteur_index') }}"><i class="fas fa-satellite-dish"></i> Capteurs</a>
+                    </div>
+                    <div class="panel quick-card">
+                        <a href="{{ path('admin_releve_terrain') }}"><i class="fas fa-wave-square"></i> Relevés Terrain</a>
+                    </div>
+                    <div class="panel quick-card">
+                        <a href="{{ path('admin_rapport_journalier') }}"><i class="fas fa-chart-column"></i> Rapports Journaliers</a>
+                    </div>
+                    <div class="panel quick-card">
+                        <a href="{{ path('admin_releve_hebdo') }}"><i class="fas fa-calendar-week"></i> Relevés Hebdo</a>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Pages Par Projet</h2>
+                <div class="project-grid">
+                    {% for project in projects %}
+                        <div class="panel project-card">
+                            <div class="project-head">
+                                <div>
+                                    <div class="project-id">Projet #{{ project.idproject }}</div>
+                                    <div class="text-muted">Hub d'accès admin pour ce projet terrain</div>
+                                </div>
+                                <span class="badge-soft">{{ project.activeCount }}/{{ project.sensorCount }} actifs</span>
+                            </div>
+
+                            <div class="meta">
+                                <span>{{ project.sensorCount }} capteurs</span>
+                                <span>{{ project.activeCount }} actifs</span>
+                            </div>
+
+                            <div class="tool-links">
+                                <a href="{{ path('capteur_dashboard', {idproject: project.idproject}) }}">Dashboard terrain</a>
+                                <a href="{{ path('meteo_projet', {idproject: project.idproject}) }}">Météo</a>
+                                <a href="{{ path('maps_projet', {idproject: project.idproject}) }}">Carte</a>
+                                <a href="{{ path('notif_project', {idproject: project.idproject}) }}">Notifications</a>
+                                <a href="{{ path('irrigation_decision', {idproject: project.idproject}) }}">Irrigation IA</a>
+                                <a href="{{ path('historique_compare', {idproject: project.idproject}) }}">Historique</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="panel empty">
+                            Aucun projet terrain trouvé depuis les capteurs.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

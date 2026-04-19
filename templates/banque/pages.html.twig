@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pages Banque{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .layout { display: flex; min-height: 100vh; background: linear-gradient(135deg, #f7fbf5 0%, #eef6eb 100%); }
+        .content { flex: 1; margin-left: 280px; padding: 0; }
+        @media (max-width: 991.98px) { .content { margin-left: 0; } }
+        .hero { background: linear-gradient(135deg, #095032 0%, #133D03 100%); color: #fff; padding: 28px 32px; }
+        .hero h1 { margin: 0 0 8px; font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin: 0; opacity: 0.92; }
+        .wrap { padding: 28px 32px 40px; }
+        .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .card {
+            background: rgba(255,255,255,0.97);
+            border: 1px solid rgba(8,150,71,0.08);
+            border-radius: 20px;
+            box-shadow: 0 12px 34px rgba(9,80,50,0.08);
+            padding: 20px;
+        }
+        .card a { text-decoration: none; color: #095032; font-weight: 700; }
+        .card p { margin: 8px 0 0; color: #64748b; }
+        .title { margin: 0 0 16px; font-size: 1.2rem; color: #133D03; font-weight: 700; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'components/_sidebar_banque.html.twig' %}
+
+        <div class="content">
+            <div class="hero">
+                <h1>Toutes Les Pages Banque</h1>
+                <p>Accès rapide à tous les écrans disponibles côté banque.</p>
+            </div>
+
+            <div class="wrap">
+                <h2 class="title">Pages Banque</h2>
+                <div class="grid">
+                    <div class="card"><a href="{{ path('banque_dashboard') }}">Tableau de Bord</a><p>Vue globale de l'espace banque.</p></div>
+                    <div class="card"><a href="{{ path('banque_documents_index') }}">Mes Documents</a><p>Liste, ajout, édition et suivi des documents.</p></div>
+                    <div class="card"><a href="{{ path('banque_messagerie_index') }}">Messagerie</a><p>Conversations et échanges avec les autres utilisateurs.</p></div>
+                    <div class="card"><a href="{{ path('banque_profile_show') }}">Mon Profil</a><p>Consultation, modification et sécurité du profil.</p></div>
+                    <div class="card"><a href="{{ path('banque_evaluation_index') }}">Évaluations Risque</a><p>Toutes les évaluations créées côté banque.</p></div>
+                    <div class="card"><a href="{{ path('banque_evaluation_new') }}">Nouvelle Évaluation</a><p>Créer rapidement une nouvelle évaluation.</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

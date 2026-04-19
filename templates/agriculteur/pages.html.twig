@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pages Agriculteur{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .layout { display: flex; min-height: 100vh; background: linear-gradient(135deg, #f6fbf3 0%, #eef8e8 100%); }
+        .content { flex: 1; margin-left: 280px; padding: 0; }
+        @media (max-width: 991.98px) { .content { margin-left: 0; } }
+        .hero { background: linear-gradient(135deg, #076A39 0%, #095032 100%); color: #fff; padding: 28px 32px; }
+        .hero h1 { margin: 0 0 8px; font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin: 0; opacity: 0.92; }
+        .wrap { padding: 28px 32px 40px; }
+        .grid { display: grid; gap: 18px; }
+        .grid.pages { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-bottom: 28px; }
+        .grid.projects { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+        .card {
+            background: rgba(255,255,255,0.96);
+            border: 1px solid rgba(8,150,71,0.08);
+            border-radius: 20px;
+            box-shadow: 0 12px 34px rgba(9,80,50,0.08);
+            padding: 20px;
+        }
+        .card a { text-decoration: none; color: #095032; font-weight: 700; }
+        .card p { margin: 8px 0 0; color: #64748b; }
+        .title { margin: 0 0 14px; font-size: 1.18rem; color: #133D03; font-weight: 700; }
+        .project-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 14px; }
+        .project-id { font-size: 1.15rem; font-weight: 700; color: #095032; }
+        .badge-soft { background: #eaf7e8; color: #076A39; border-radius: 999px; padding: 6px 10px; font-size: 0.8rem; font-weight: 700; }
+        .meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .meta span { background: #f4fbf5; border: 1px solid #dcefdc; border-radius: 12px; padding: 8px 10px; color: #476C1A; font-size: 0.9rem; }
+        .tool-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .tool-links a {
+            display: block; background: #fff; border: 1px solid #dcefdc;
+            border-radius: 14px; padding: 10px 12px; transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .tool-links a:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(9,80,50,0.08); }
+        .empty { text-align: center; color: #6b7280; padding: 28px; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'components/_sidebar_agriculteur.html.twig' %}
+
+        <div class="content">
+            <div class="hero">
+                <h1>Toutes Mes Pages</h1>
+                <p>Accès rapide à tout l'espace agriculteur, y compris les pages terrain par projet.</p>
+            </div>
+
+            <div class="wrap">
+                <h2 class="title">Pages Générales</h2>
+                <div class="grid pages">
+                    <div class="card"><a href="{{ path('agriculteur_dashboard') }}">Tableau de Bord</a><p>Vue générale du compte agriculteur.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_produits') }}">Marketplace</a><p>Tous les produits financiers disponibles.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_offres') }}">Offres Spéciales</a><p>Offres actives à consulter et postuler.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_documents_index') }}">Mes Documents</a><p>Gestion complète des documents.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_messagerie_index') }}">Messagerie</a><p>Conversations avec l'admin et les banques.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_profile_show') }}">Mon Profil</a><p>Profil, édition et sécurité.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_application_history') }}">Mes Dossiers</a><p>Historique des candidatures et retours.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_project_agricole_index') }}">Projects Agricoles</a><p>Gestion des projets agricoles.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_ressource_project_index') }}">Ressources Projet</a><p>Suivi des ressources associées aux projets.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_produit_simulateur') }}">Simulateur</a><p>Simulation crédit et étude rapide.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_releve_terrain_home') }}">Relevés Terrain</a><p>Entrée rapide vers les relevés terrain.</p></div>
+                    <div class="card"><a href="{{ path('agriculteur_releve_hebdo_home') }}">Relevés Hebdo</a><p>Synthèse hebdomadaire des mesures.</p></div>
+                </div>
+
+                <h2 class="title">Pages Terrain Par Projet</h2>
+                <div class="grid projects">
+                    {% for project in projects %}
+                        <div class="card">
+                            <div class="project-head">
+                                <div>
+                                    <div class="project-id">Projet #{{ project.idproject }}</div>
+                                    <div class="text-muted">Modules terrain et IoT</div>
+                                </div>
+                                <span class="badge-soft">{{ project.activeCount }}/{{ project.sensorCount }} actifs</span>
+                            </div>
+
+                            <div class="meta">
+                                <span>{{ project.sensorCount }} capteurs</span>
+                                <span>{{ project.activeCount }} actifs</span>
+                            </div>
+
+                            <div class="tool-links">
+                                <a href="{{ path('capteur_dashboard', {idproject: project.idproject}) }}">Dashboard Terrain</a>
+                                <a href="{{ path('capteur_index') }}">Capteurs</a>
+                                <a href="{{ path('agriculteur_releve_terrain', {idproject: project.idproject}) }}">Relevés Terrain</a>
+                                <a href="{{ path('agriculteur_rapport_journalier', {idproject: project.idproject}) }}">Rapport Journalier</a>
+                                <a href="{{ path('agriculteur_releve_hebdo', {idproject: project.idproject}) }}">Relevé Hebdo</a>
+                                <a href="{{ path('meteo_projet', {idproject: project.idproject}) }}">Météo</a>
+                                <a href="{{ path('maps_projet', {idproject: project.idproject}) }}">Carte</a>
+                                <a href="{{ path('notif_project', {idproject: project.idproject}) }}">Notifications</a>
+                                <a href="{{ path('irrigation_decision', {idproject: project.idproject}) }}">Irrigation IA</a>
+                                <a href="{{ path('historique_compare', {idproject: project.idproject}) }}">Historique</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card empty">Aucun projet terrain trouvé depuis vos capteurs.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

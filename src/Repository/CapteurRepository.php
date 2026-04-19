@@ -72,4 +72,17 @@ class CapteurRepository extends ServiceEntityRepository
 
     return array_map(fn($r) => (int) $r['idproject'], $rows);
 }
+
+    public function findProjectSummaries(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.idproject AS idproject')
+            ->addSelect('COUNT(c.idCapteur) AS sensorCount')
+            ->addSelect("SUM(CASE WHEN c.statut = 'ACTIF' THEN 1 ELSE 0 END) AS activeCount")
+            ->where('c.idproject IS NOT NULL')
+            ->groupBy('c.idproject')
+            ->orderBy('c.idproject', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

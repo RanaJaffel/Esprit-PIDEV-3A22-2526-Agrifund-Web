@@ -168,6 +168,57 @@
         </div>
 
         <div class="nav-section">
+            <span class="nav-section-title">IoT & Terrain</span>
+            <ul class="nav-menu">
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_terrain' ? 'active' : '' }}">
+                    <a href="{{ path('admin_terrain_projects') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+                        <span class="nav-text">Projets Terrain</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_capteur' ? 'active' : '' }}">
+                    <a href="{{ path('admin_capteur_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-satellite-dish"></i>
+                        </span>
+                        <span class="nav-text">Capteurs</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_releve_terrain' ? 'active' : '' }}">
+                    <a href="{{ path('admin_releve_terrain') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-wave-square"></i>
+                        </span>
+                        <span class="nav-text">Relevés Terrain</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_rapport_journalier' ? 'active' : '' }}">
+                    <a href="{{ path('admin_rapport_journalier') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-chart-column"></i>
+                        </span>
+                        <span class="nav-text">Rapports Jour</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_releve_hebdo' ? 'active' : '' }}">
+                    <a href="{{ path('admin_releve_hebdo') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </span>
+                        <span class="nav-text">Relevés Hebdo</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
             <span class="nav-section-title">Paramètres</span>
             <ul class="nav-menu">
                 <li class="nav-item {{ app.request.get('_route') starts with 'admin_profile' ? 'active' : '' }}">

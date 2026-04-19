@@ -1,12 +1,10 @@
 {# templates/components/_sidebar_agriculteur.html.twig #}
 <aside class="client-sidebar" id="sidebar">
-    <!-- Sidebar Background Effects -->
     <div class="sidebar-bg-effects">
         <div class="sidebar-glow"></div>
         <div class="sidebar-pattern"></div>
     </div>
 
-    <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="brand-logo">
             <div class="logo-icon">
@@ -22,7 +20,6 @@
         </button>
     </div>
 
-    <!-- User Section (Glassmorphism) -->
     <div class="sidebar-user-section">
         <div class="user-card-glass">
             <div class="user-avatar-wrapper">
@@ -31,12 +28,11 @@
             </div>
             <div class="user-info">
                 <span class="name">{{ app.user.nomComplet|default('Agriculteur') }}</span>
-                <span class="role"><i class="fas fa-check-circle me-1"></i>Vérifié</span>
+                <span class="role"><i class="fas fa-check-circle me-1"></i>Verifie</span>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
     <nav class="sidebar-nav">
         <div class="nav-group">
             <span class="nav-group-title">Menu Principal</span>
@@ -48,6 +44,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ path('agriculteur_pages') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_pages' ? 'active' : '' }}">
+                        <i class="fas fa-table-cells-large"></i>
+                        <span>Toutes les Pages</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ path('agriculteur_produits') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_produit' ? 'active' : '' }}">
                         <i class="fas fa-shopping-basket"></i>
                         <span>Marketplace</span>
@@ -56,7 +58,13 @@
                 <li class="nav-item">
                     <a href="{{ path('agriculteur_offres') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_offres' ? 'active' : '' }}">
                         <i class="fas fa-percentage"></i>
-                        <span>Offres Spéciales</span>
+                        <span>Offres Speciales</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_produit_simulateur') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_produit_simulateur' ? 'active' : '' }}">
+                        <i class="fas fa-calculator"></i>
+                        <span>Simulateur</span>
                     </a>
                 </li>
             </ul>
@@ -77,15 +85,68 @@
                         <span>Messagerie</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_application_history') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_application_history' ? 'active' : '' }}">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Mes Dossiers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_profile_show') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_profile' ? 'active' : '' }}">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Mon Profil</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-group-title">Projets & Terrain</span>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_project_agricole_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_project_agricole' ? 'active' : '' }}">
+                        <i class="fas fa-seedling"></i>
+                        <span>Projects Agricoles</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_ressource_project_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_ressource_project' ? 'active' : '' }}">
+                        <i class="fas fa-box-open"></i>
+                        <span>Ressources Projet</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('capteur_index') }}" class="nav-link {{ app.request.get('_route') starts with 'capteur_' ? 'active' : '' }}">
+                        <i class="fas fa-satellite-dish"></i>
+                        <span>Capteurs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_releve_terrain_home') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_releve_terrain' ? 'active' : '' }}">
+                        <i class="fas fa-wave-square"></i>
+                        <span>Releves Terrain</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_releve_hebdo_home') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_releve_hebdo' ? 'active' : '' }}">
+                        <i class="fas fa-calendar-week"></i>
+                        <span>Releves Hebdo</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('agriculteur_rapport_journalier_home') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_rapport_journalier' ? 'active' : '' }}">
+                        <i class="fas fa-chart-column"></i>
+                        <span>Rapports Jour</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
 
-    <!-- Footer -->
     <div class="sidebar-footer">
         <a href="{{ path('app_logout') }}" class="logout-link">
             <i class="fas fa-sign-out-alt"></i>
-            <span>Déconnexion</span>
+            <span>Deconnexion</span>
         </a>
     </div>
 </aside>
@@ -113,7 +174,7 @@
         animation: glowPulse 20s ease-in-out infinite alternate;
     }
     @keyframes glowPulse { from { transform: rotate(0deg); } to { transform: rotate(180deg); } }
-    
+
     .sidebar-pattern {
         position: absolute; inset: 0;
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 15 L30 25 L25 15 Z' fill='%23B2D944' fill-opacity='0.03'/%3E%3C/svg%3E");
@@ -150,7 +211,7 @@
         transition: transform 0.3s ease;
     }
     .user-card-glass:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.12); }
-    
+
     .user-avatar-wrapper { position: relative; }
     .user-avatar { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
     .status-indicator {

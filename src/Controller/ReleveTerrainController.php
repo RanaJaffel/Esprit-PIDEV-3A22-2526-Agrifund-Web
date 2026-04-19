@@ -3,39 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\ReleveTerrain;
-use App\Form\ReleveTerrainType;
 use App\Form\ReleveTerrainAnnotationType;
+use App\Form\ReleveTerrainType;
 use App\Repository\CapteurRepository;
 use App\Repository\ReleveTerrainRepository;
+use App\Service\SensorAiAnalysisService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Service\SensorAiAnalysisService;
 
 class ReleveTerrainController extends AbstractController
 {
-    // ===========================
-    // Helpers sécurité
-    // ===========================
-
-    private function getUserIdOrDeny(): int
-    {
-        $user = $this->getUser();
-        if (!$user || !method_exists($user, 'getId')) {
-            $this->addFlash('error', 'Vous devez être connecté.');
-            // On lève quand même car on ne peut pas rediriger ici
-            throw $this->createAccessDeniedException("Vous devez être connecté.");
-        }
-        return (int) $user->getId();
+    public function __construct(
+        private SensorAiAnalysisService $sensorAiAnalysisService
+    ) {
     }
 
-    /**
-     * Retourne true si le projet appartient à l'utilisateur
-     * (au lieu de lancer une exception directement)
-     */
     private function isProjectOwned(int $idproject, CapteurRepository $capteurRepo): bool
     {
         $user = $this->getUser();
@@ -43,20 +29,12 @@ class ReleveTerrainController extends AbstractController
             return false;
         }
 
-        $userId = (int) $user->getId();
-
-        $count = $capteurRepo->count([
+        return $capteurRepo->count([
             'idproject' => $idproject,
-            'idUser'    => $userId,
-        ]);
-
-        return $count > 0;
+            'idUser' => (int) $user->getId(),
+        ]) > 0;
     }
 
-    /**
-     * Vérifie qu'un capteur appartient au user + projet
-     * Retourne true si autorisé
-     */
     private function isCapteurAllowed(int $idCapteur, int $idproject, CapteurRepository $capteurRepo): bool
     {
         $user = $this->getUser();
@@ -64,20 +42,15 @@ class ReleveTerrainController extends AbstractController
             return false;
         }
 
-        $userId = (int) $user->getId();
-
         $capteur = $capteurRepo->findOneBy([
             'idCapteur' => $idCapteur,
             'idproject' => $idproject,
-            'idUser'    => $userId,
+            'idUser' => (int) $user->getId(),
         ]);
 
         return $capteur !== null;
     }
 
-    /**
-     * Pour alimenter ChoiceType(idCapteur) dans ReleveTerrainType
-     */
     private function buildCapteurChoices(CapteurRepository $capteurRepo, int $idproject): array
     {
         $user = $this->getUser();
@@ -85,28 +58,25 @@ class ReleveTerrainController extends AbstractController
             return [];
         }
 
-        $userId = (int) $user->getId();
-
         $capteurs = $capteurRepo->findBy([
-    'idproject' => $idproject,
-], ['idCapteur' => 'DESC']);
+            'idproject' => $idproject,
+            'idUser' => (int) $user->getId(),
+        ], ['idCapteur' => 'DESC']);
 
         $choices = [];
-        foreach ($capteurs as $c) {
+        foreach ($capteurs as $capteur) {
             $label = sprintf(
                 'Capteur #%d - %s (%s)',
-                $c->getIdCapteur(),
-                $c->getTypeCapteur(),
-                $c->getLocalisation()
+                $capteur->getIdCapteur(),
+                $capteur->getTypeCapteur(),
+                $capteur->getLocalisation()
             );
-            $choices[$label] = $c->getIdCapteur();
+            $choices[$label] = $capteur->getIdCapteur();
         }
+
         return $choices;
     }
 
-    // =========================================================
-    // AGRICULTEUR — LISTE + FILTRE
-    // =========================================================
     #[IsGranted('ROLE_AGRICULTEUR')]
     #[Route('/agriculteur/releve-terrain/{idproject}', name: 'agriculteur_releve_terrain')]
     public function agriculteurIndex(
@@ -115,10 +85,9 @@ class ReleveTerrainController extends AbstractController
         ReleveTerrainRepository $releveRepo,
         CapteurRepository $capteurRepo
     ): Response {
-        // ✅ Flash + redirect au lieu de l'exception
         if (!$this->isProjectOwned($idproject, $capteurRepo)) {
-            $this->addFlash('error', 'Accès refusé : ce projet ne vous appartient pas.');
-            return $this->redirectToRoute('agriculteur_dashboard'); // ← adapte la route
+            $this->addFlash('error', 'Acces refuse : ce projet ne vous appartient pas.');
+            return $this->redirectToRoute('agriculteur_dashboard');
         }
 
         $typeMesure = (string) $request->query->get('type', '');
@@ -127,37 +96,58 @@ class ReleveTerrainController extends AbstractController
             ? $releveRepo->findByProjectAndType($idproject, $typeMesure)
             : $releveRepo->findByProject($idproject);
 
-        $types = $releveRepo->findTypesByProject($idproject);
-
         return $this->render('agriculteur/releve_terrain/index.html.twig', [
-            'mesures'    => $mesures,
-            'idproject'  => $idproject,
+            'mesures' => $mesures,
+            'idproject' => $idproject,
             'typeMesure' => $typeMesure,
-            'types'      => $types,
+            'types' => $releveRepo->findTypesByProject($idproject),
         ]);
     }
 
-    // =========================================================
-    // AGRICULTEUR — CREATE (MANUEL)
-    // =========================================================
     #[IsGranted('ROLE_AGRICULTEUR')]
     #[Route('/agriculteur/releve-terrain/{idproject}/new', name: 'agriculteur_releve_terrain_new')]
     public function new(
         int $idproject,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        CapteurRepository $capteurRepo
     ): Response {
+        if (!$this->isProjectOwned($idproject, $capteurRepo)) {
+            $this->addFlash('error', 'Acces refuse : ce projet ne vous appartient pas.');
+            return $this->redirectToRoute('agriculteur_dashboard');
+        }
 
         $releve = new ReleveTerrain();
-        $form = $this->createForm(ReleveTerrainType::class, $releve);
+        $releve->setIdproject($idproject);
+        $releve->setSourceDonnee('MANUEL');
+
+        $capteurChoices = $this->buildCapteurChoices($capteurRepo, $idproject);
+        if ($capteurChoices === []) {
+            $this->addFlash('warning', "Aucun capteur disponible pour ce projet. Ajoutez d'abord un capteur.");
+            return $this->redirectToRoute('agriculteur_releve_terrain', [
+                'idproject' => $idproject,
+            ]);
+        }
+
+        $form = $this->createForm(ReleveTerrainType::class, $releve, [
+            'capteur_choices' => $capteurChoices,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->isCapteurAllowed((int) $releve->getIdCapteur(), $idproject, $capteurRepo)) {
+                $this->addFlash('error', 'Capteur non autorise pour ce projet.');
+                return $this->redirectToRoute('agriculteur_releve_terrain', [
+                    'idproject' => $idproject,
+                ]);
+            }
+
+            $releve->setIdproject($idproject);
+            $releve->setSourceDonnee('MANUEL');
 
             $em->persist($releve);
             $em->flush();
 
-            // ✅ IA appelée ici
             $this->sensorAiAnalysisService->analyze(
                 $releve->getIdproject(),
                 $releve->getIdCapteur(),
@@ -165,21 +155,19 @@ class ReleveTerrainController extends AbstractController
                 $releve->getValeurMesuree()
             );
 
+            $this->addFlash('success', 'Mesure manuelle ajoutee.');
+
             return $this->redirectToRoute('agriculteur_releve_terrain', [
-                'idproject' => $idproject
+                'idproject' => $idproject,
             ]);
         }
 
         return $this->render('agriculteur/releve_terrain/new.html.twig', [
-    'form' => $form->createView(),
-    'idproject' => $idproject   // ✅ AJOUTER CETTE LIGNE
-]);
+            'form' => $form->createView(),
+            'idproject' => $idproject,
+        ]);
     }
 
-
-    // =========================================================
-    // AGRICULTEUR — EDIT (MANUEL UNIQUEMENT)
-    // =========================================================
     #[IsGranted('ROLE_AGRICULTEUR')]
     #[Route('/agriculteur/releve-terrain/edit/{id}', name: 'agriculteur_releve_terrain_edit')]
     public function edit(
@@ -194,31 +182,26 @@ class ReleveTerrainController extends AbstractController
             throw $this->createNotFoundException('Mesure introuvable');
         }
 
-        // ✅ Flash + redirect
         if (!$this->isProjectOwned($releve->getIdproject(), $capteurRepo)) {
-            $this->addFlash('error', 'Accès refusé : ce projet ne vous appartient pas.');
+            $this->addFlash('error', 'Acces refuse : ce projet ne vous appartient pas.');
             return $this->redirectToRoute('agriculteur_dashboard');
         }
 
         if ($releve->getSourceDonnee() !== 'MANUEL') {
-            $this->addFlash('warning', "❌ Mesure SIMULATEUR non modifiable. Utilise 'Annoter'.");
+            $this->addFlash('warning', "Mesure simulateur non modifiable. Utilise 'Annoter'.");
             return $this->redirectToRoute('agriculteur_releve_terrain', [
                 'idproject' => $releve->getIdproject(),
             ]);
         }
 
-        $capteurChoices = $this->buildCapteurChoices($capteurRepo, $releve->getIdproject());
-
         $form = $this->createForm(ReleveTerrainType::class, $releve, [
-            'capteur_choices' => $capteurChoices,
+            'capteur_choices' => $this->buildCapteurChoices($capteurRepo, $releve->getIdproject()),
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // ✅ Flash + redirect
-            if (!$this->isCapteurAllowed($releve->getIdCapteur(), $releve->getIdproject(), $capteurRepo)) {
-                $this->addFlash('error', '❌ Capteur non autorisé pour ce projet.');
+            if (!$this->isCapteurAllowed((int) $releve->getIdCapteur(), $releve->getIdproject(), $capteurRepo)) {
+                $this->addFlash('error', 'Capteur non autorise pour ce projet.');
                 return $this->redirectToRoute('agriculteur_releve_terrain', [
                     'idproject' => $releve->getIdproject(),
                 ]);
@@ -227,7 +210,7 @@ class ReleveTerrainController extends AbstractController
             $releve->setSourceDonnee('MANUEL');
             $em->flush();
 
-            $this->addFlash('success', '✅ Mesure manuelle modifiée !');
+            $this->addFlash('success', 'Mesure manuelle modifiee.');
 
             return $this->redirectToRoute('agriculteur_releve_terrain', [
                 'idproject' => $releve->getIdproject(),
@@ -235,14 +218,11 @@ class ReleveTerrainController extends AbstractController
         }
 
         return $this->render('agriculteur/releve_terrain/edit.html.twig', [
-            'form'   => $form->createView(),
+            'form' => $form->createView(),
             'releve' => $releve,
         ]);
     }
 
-    // =========================================================
-    // AGRICULTEUR — DELETE (MANUEL UNIQUEMENT)
-    // =========================================================
     #[IsGranted('ROLE_AGRICULTEUR')]
     #[Route('/agriculteur/releve-terrain/delete/{id}', name: 'agriculteur_releve_terrain_delete', methods: ['POST'])]
     public function delete(
@@ -257,25 +237,24 @@ class ReleveTerrainController extends AbstractController
             throw $this->createNotFoundException('Mesure introuvable');
         }
 
-        // ✅ Flash + redirect
         if (!$this->isProjectOwned($releve->getIdproject(), $capteurRepo)) {
-            $this->addFlash('error', 'Accès refusé : ce projet ne vous appartient pas.');
+            $this->addFlash('error', 'Acces refuse : ce projet ne vous appartient pas.');
             return $this->redirectToRoute('agriculteur_dashboard');
         }
 
         if ($releve->getSourceDonnee() !== 'MANUEL') {
-            $this->addFlash('warning', '❌ Mesure SIMULATEUR non supprimable.');
+            $this->addFlash('warning', 'Mesure simulateur non supprimable.');
             return $this->redirectToRoute('agriculteur_releve_terrain', [
                 'idproject' => $releve->getIdproject(),
             ]);
         }
 
-        if ($this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $id, (string) $request->request->get('_token'))) {
             $idproject = $releve->getIdproject();
             $em->remove($releve);
             $em->flush();
 
-            $this->addFlash('success', '🗑️ Mesure manuelle supprimée !');
+            $this->addFlash('success', 'Mesure manuelle supprimee.');
 
             return $this->redirectToRoute('agriculteur_releve_terrain', [
                 'idproject' => $idproject,
@@ -289,9 +268,6 @@ class ReleveTerrainController extends AbstractController
         ]);
     }
 
-    // =========================================================
-    // AGRICULTEUR — ANNOTER
-    // =========================================================
     #[IsGranted('ROLE_AGRICULTEUR')]
     #[Route('/agriculteur/releve-terrain/annoter/{id}', name: 'agriculteur_releve_terrain_annoter')]
     public function annoter(
@@ -306,9 +282,8 @@ class ReleveTerrainController extends AbstractController
             throw $this->createNotFoundException('Mesure introuvable');
         }
 
-        // ✅ Flash + redirect
         if (!$this->isProjectOwned($releve->getIdproject(), $capteurRepo)) {
-            $this->addFlash('error', 'Accès refusé : ce projet ne vous appartient pas.');
+            $this->addFlash('error', 'Acces refuse : ce projet ne vous appartient pas.');
             return $this->redirectToRoute('agriculteur_dashboard');
         }
 
@@ -317,7 +292,7 @@ class ReleveTerrainController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', '✅ Annotation enregistrée !');
+            $this->addFlash('success', 'Annotation enregistree.');
 
             return $this->redirectToRoute('agriculteur_releve_terrain', [
                 'idproject' => $releve->getIdproject(),
@@ -325,44 +300,36 @@ class ReleveTerrainController extends AbstractController
         }
 
         return $this->render('agriculteur/releve_terrain/annoter.html.twig', [
-            'form'   => $form->createView(),
+            'form' => $form->createView(),
             'releve' => $releve,
         ]);
     }
 
-    // =========================================================
-    // ADMIN — LISTE + FILTRES
-    // =========================================================
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/releve-terrain', name: 'admin_releve_terrain')]
     public function adminIndex(
         Request $request,
         ReleveTerrainRepository $releveRepo
     ): Response {
-        $idproject  = $request->query->get('projet', '');
-        $typeMesure = $request->query->get('type', '');
+        $idproject = (string) $request->query->get('projet', '');
+        $typeMesure = (string) $request->query->get('type', '');
 
         if ($idproject !== '' && $typeMesure !== '') {
-            $mesures = $releveRepo->findByProjectAndType((int)$idproject, (string)$typeMesure);
+            $mesures = $releveRepo->findByProjectAndType((int) $idproject, $typeMesure);
         } elseif ($idproject !== '') {
-            $mesures = $releveRepo->findByProject((int)$idproject);
+            $mesures = $releveRepo->findByProject((int) $idproject);
         } else {
             $mesures = $releveRepo->findAllRecent(500);
         }
 
-        $types = $releveRepo->findAllTypes();
-
         return $this->render('admin/releve_terrain/index.html.twig', [
-            'mesures'    => $mesures,
-            'idproject'  => $idproject,
+            'mesures' => $mesures,
+            'idproject' => $idproject,
             'typeMesure' => $typeMesure,
-            'types'      => $types,
+            'types' => $releveRepo->findAllTypes(),
         ]);
     }
 
-    // =========================================================
-    // ADMIN — DELETE
-    // =========================================================
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/releve-terrain/delete/{id}', name: 'admin_releve_terrain_delete', methods: ['POST'])]
     public function adminDelete(
@@ -373,41 +340,39 @@ class ReleveTerrainController extends AbstractController
     ): Response {
         $releve = $releveRepo->find($id);
 
-        if ($releve && $this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
+        if ($releve && $this->isCsrfTokenValid('delete' . $id, (string) $request->request->get('_token'))) {
             $em->remove($releve);
             $em->flush();
-            $this->addFlash('success', '🗑️ Mesure supprimée (admin).');
+            $this->addFlash('success', 'Mesure supprimee par l admin.');
         }
 
         return $this->redirectToRoute('admin_releve_terrain');
     }
+
     #[IsGranted('ROLE_AGRICULTEUR')]
-#[Route('/agriculteur/releve-terrain', name: 'agriculteur_releve_terrain_home')]
-public function releveHome(CapteurRepository $capteurRepo): Response
-{
-    $user = $this->getUser();
-    if (!$user || !method_exists($user, 'getId')) {
-        throw $this->createAccessDeniedException();
-    }
+    #[Route('/agriculteur/releve-terrain', name: 'agriculteur_releve_terrain_home')]
+    public function releveHome(CapteurRepository $capteurRepo): Response
+    {
+        $user = $this->getUser();
+        if (!$user || !method_exists($user, 'getId')) {
+            throw $this->createAccessDeniedException();
+        }
 
-    $projects = $capteurRepo->findDistinctProjectsByUser((int) $user->getId());
+        $projects = $capteurRepo->findDistinctProjectsByUser((int) $user->getId());
 
-    // aucun projet lié
-    if (count($projects) === 0) {
-        $this->addFlash('danger', "Aucun projet n'est lié à vos capteurs. Ajoutez/affectez un capteur à un projet.");
-        return $this->redirectToRoute('capteur_index');
-    }
+        if ($projects === []) {
+            $this->addFlash('danger', "Aucun projet n'est lie a vos capteurs. Ajoutez ou affectez un capteur a un projet.");
+            return $this->redirectToRoute('capteur_index');
+        }
 
-    // 1 seul projet => redirection automatique (UX pro)
-    if (count($projects) === 1) {
-        return $this->redirectToRoute('agriculteur_releve_terrain', [
-            'idproject' => $projects[0],
+        if (count($projects) === 1) {
+            return $this->redirectToRoute('agriculteur_releve_terrain', [
+                'idproject' => $projects[0],
+            ]);
+        }
+
+        return $this->render('agriculteur/releve_terrain/choose_project.html.twig', [
+            'projects' => $projects,
         ]);
     }
-
-    // plusieurs projets => page de choix
-    return $this->render('agriculteur/releve_terrain/choose_project.html.twig', [
-        'projects' => $projects,
-    ]);
-}
 }
