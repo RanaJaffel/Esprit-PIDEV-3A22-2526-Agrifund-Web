@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Banque;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class BanqueRepository extends ServiceEntityRepository
@@ -21,7 +22,7 @@ class BanqueRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-    public function searchBanques(?string $search = null, ?string $status = null)
+    public function searchBanques(?string $search = null, ?string $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.utilisateur', 'u')
@@ -38,7 +39,7 @@ class BanqueRepository extends ServiceEntityRepository
                 ->setParameter('status', $status);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
     public function findPendingVerification(): array
     {

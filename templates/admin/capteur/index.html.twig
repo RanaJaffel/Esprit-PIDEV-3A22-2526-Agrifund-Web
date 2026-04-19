@@ -3,12 +3,35 @@
 
 {% block stylesheets %}
   {{ parent() }}
+  {{ encore_entry_link_tags('sidebar') }}
   <link rel="stylesheet" href="{{ asset('ui/capteur-admin-pro.css') }}">
+  <style>
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991.98px) {
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
-<div class="iot-page admin-skin capteur-admin-pro">
-  <div class="container-fluid py-4">
+<div class="dashboard-container">
+  {% include 'components/_sidebar_admin.html.twig' %}
+
+  <div class="main-content">
+    <div class="iot-page admin-skin capteur-admin-pro">
+      <div class="container-fluid py-4">
 
     {# ===== HERO ===== #}
     <div class="iot-hero hero-admin reveal mb-4">
@@ -35,6 +58,10 @@
 
         {# ✅ ACTIONS DROITE (avec bouton IA) #}
         <div class="d-flex flex-wrap gap-2 align-items-center">
+          <button class="btn btn-light btn-iot d-lg-none" id="sidebarToggle" type="button" aria-label="Ouvrir menu">
+            <i class="fas fa-bars me-1"></i> Menu
+          </button>
+
           <span class="iot-pill">
             <span class="iot-dot"></span>
             <span class="fw-semibold">Live</span>
@@ -385,11 +412,14 @@
 
     </div>
 
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block javascripts %}
   {{ parent() }}
+  {{ encore_entry_script_tags('sidebar') }}
   <script defer src="{{ asset('ui/capteur-admin-pro.js') }}"></script>
 {% endblock %}

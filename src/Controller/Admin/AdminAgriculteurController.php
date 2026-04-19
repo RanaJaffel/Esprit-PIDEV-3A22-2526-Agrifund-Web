@@ -28,10 +28,10 @@ class AdminAgriculteurController extends AbstractController
         $search = $request->query->get('search');
         $status = $request->query->get('status');
 
-        $agriculteurs = $agriculteurRepository->searchAgriculteurs($search, $status);
+        $agriculteursQuery = $agriculteurRepository->searchAgriculteurs($search, $status);
 
         $pagination = $paginator->paginate(
-            $agriculteurs,
+            $agriculteursQuery,
             $request->query->getInt('page', 1),
             10
         );

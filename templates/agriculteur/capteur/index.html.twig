@@ -3,14 +3,37 @@
 
 {% block stylesheets %}
   {{ parent() }}
+  {{ encore_entry_link_tags('sidebar') }}
   <link rel="stylesheet" href="{{ asset('ui/capteur-agri-pro.css') }}">
+  <style>
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991.98px) {
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block hide_preloader %}{% endblock %}
 
 {% block body %}
-<div class="iot-page capteur-agri-pro">
-  <div class="container-fluid py-4">
+<div class="dashboard-container">
+  {% include 'components/_sidebar_agriculteur.html.twig' %}
+
+  <div class="main-content">
+    <div class="iot-page capteur-agri-pro">
+      <div class="container-fluid py-4">
 
     <div class="iot-hero hero-agri reveal mb-4">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -25,6 +48,10 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2 align-items-center">
+          <button class="btn btn-light btn-iot d-lg-none" id="sidebarToggle" type="button" aria-label="Ouvrir menu">
+            <i class="fas fa-bars me-1"></i> Menu
+          </button>
+
           <span class="iot-pill">
             <span class="iot-dot"></span>
             <span class="fw-semibold">Live</span>
@@ -219,6 +246,8 @@
       {% endfor %}
     </div>
 
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

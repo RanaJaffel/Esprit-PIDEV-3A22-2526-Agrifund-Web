@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Agriculteur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -31,7 +32,7 @@ class AgriculteurRepository extends ServiceEntityRepository
     /**
      * Recherche d'agriculteurs
      */
-    public function searchAgriculteurs(?string $search = null, ?string $status = null)
+    public function searchAgriculteurs(?string $search = null, ?string $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a')
             ->join('a.utilisateur', 'u')
@@ -47,7 +48,7 @@ class AgriculteurRepository extends ServiceEntityRepository
                 ->setParameter('status', $status);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     /**

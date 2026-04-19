@@ -8,6 +8,7 @@ use App\Entity\VerificationToken;
 use App\Repository\VerificationTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -17,7 +18,9 @@ class EmailVerificationService
         private MailerInterface $mailer,
         private UrlGeneratorInterface $urlGenerator,
         private EntityManagerInterface $em,
-        private VerificationTokenRepository $tokenRepository
+        private VerificationTokenRepository $tokenRepository,
+        #[Autowire('%env(MAILER_FROM_ADDRESS)%')]
+        private string $mailerFromAddress
     ) {}
 
     public function sendVerificationEmail(Utilisateur $utilisateur): void
@@ -52,7 +55,7 @@ class EmailVerificationService
 
         // Créer et envoyer l'email
         $email = (new TemplatedEmail())
-            ->from('noreply@agrifund.com')
+            ->from($this->mailerFromAddress)
             ->to($utilisateur->getEmail())
             ->subject('Vérifiez votre adresse email - AgriFund')
             ->htmlTemplate('emails/verification.html.twig')

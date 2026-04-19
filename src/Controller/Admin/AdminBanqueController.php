@@ -28,10 +28,10 @@ class AdminBanqueController extends AbstractController
         $search = $request->query->get('search');
         $status = $request->query->get('status');
 
-        $banques = $banqueRepository->searchBanques($search, $status);
+        $banquesQuery = $banqueRepository->searchBanques($search, $status);
 
         $pagination = $paginator->paginate(
-            $banques,
+            $banquesQuery,
             $request->query->getInt('page', 1),
             10
         );

@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Psr\Log\LoggerInterface;
 
 #[AsEventListener(event: LoginSuccessEvent::class, method: 'onLoginSuccess')]
@@ -20,7 +21,8 @@ class LoginListener
         private EntityManagerInterface $entityManager,
         private UrlGeneratorInterface $urlGenerator,
         private TwoFactorAuthService $twoFactorService,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private TokenStorageInterface $tokenStorage
     ) {
     }
 
@@ -47,19 +49,24 @@ class LoginListener
                 $event->setResponse($response);
                 
             } catch (\Exception $e) {
-                $this->logger->error('Erreur lors de l\'envoi du code 2FA : ' . $e->getMessage());
-                
-                // En cas d'erreur, on peut soit :
-                // 1. Bloquer la connexion (recommandé pour la sécurité)
-                // 2. Laisser passer (moins sécurisé mais évite de bloquer l'utilisateur)
-                
-                // Option 1 : Bloquer la connexion
-                throw new \RuntimeException('Impossible d\'envoyer le code de vérification. Veuillez réessayer.');
-                
-                // Option 2 : Laisser passer (décommentez si vous préférez cette option)
-                // $user->setDerniereConnexion(new \DateTime());
-                // $user->setEstEnLigne(true);
-                // $this->entityManager->flush();
+                $this->logger->error('Erreur lors de l\'envoi du code 2FA : ' . $e->getMessage(), [
+                    'user_id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                ]);
+
+                // Eviter une erreur 500: on annule l'authentification et on renvoie vers login.
+                $this->tokenStorage->setToken(null);
+
+                $request = $event->getRequest();
+                if ($request->hasSession()) {
+                    $request->getSession()->getFlashBag()->add('error', 'Impossible d\'envoyer le code de vérification. Veuillez réessayer.');
+                }
+
+                $event->setResponse(new RedirectResponse(
+                    $this->urlGenerator->generate('app_login')
+                ));
+
+                return;
             }
         } else {
             // Pas de 2FA : connexion normale

@@ -47,7 +47,9 @@ class RapportJournalierController extends AbstractController
 
         if (!$projects) {
             $this->addFlash('danger', "Aucun projet n'est lié à vos capteurs.");
-            return $this->redirectToRoute('capteur_index');
+            return $this->render('agriculteur/rapport_journalier/choose_project.html.twig', [
+                'projects' => [],
+            ]);
         }
 
         if (count($projects) === 1) {

@@ -99,6 +99,14 @@ class AgriculteurMessagerieController extends AbstractController
         ]);
     }
 
+    #[Route('/messages/unread-count', name: 'agriculteur_messagerie_unread_count', methods: ['GET'])]
+    public function unreadCount(MessageRepository $messageRepository): JsonResponse
+    {
+        $count = $messageRepository->countAllUnreadMessages($this->getUser()->getId());
+
+        return new JsonResponse(['count' => $count]);
+    }
+
     #[Route('/nouvelle', name: 'agriculteur_messagerie_new')]
     public function new(UtilisateurRepository $utilisateurRepository): Response
     {

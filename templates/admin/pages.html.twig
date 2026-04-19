@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pages Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        .layout { display: flex; min-height: 100vh; background: linear-gradient(135deg, #f7fbf5 0%, #eef6eb 100%); }
+        .content { flex: 1; margin-left: 280px; padding: 0; }
+        @media (max-width: 991.98px) { .content { margin-left: 0; } }
+
+        .hero { background: linear-gradient(135deg, #095032 0%, #133D03 100%); color: #fff; padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .hero h1 { margin: 0 0 8px; font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin: 0; opacity: 0.92; }
+        #sidebarToggle { border: 0; border-radius: 10px; background: rgba(255, 255, 255, 0.18); color: #fff; padding: 10px 12px; }
+
+        .wrap { padding: 28px 32px 40px; }
+        .title { margin: 0 0 16px; font-size: 1.2rem; color: #133D03; font-weight: 700; }
+        .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .card {
+            background: rgba(255,255,255,0.97);
+            border: 1px solid rgba(8,150,71,0.08);
+            border-radius: 20px;
+            box-shadow: 0 12px 34px rgba(9,80,50,0.08);
+            padding: 20px;
+        }
+        .card a { text-decoration: none; color: #095032; font-weight: 700; }
+        .card p { margin: 8px 0 0; color: #64748b; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'components/_sidebar_admin.html.twig' %}
+
+        <div class="content">
+            <div class="hero">
+                <div>
+                    <h1>Toutes les Pages Admin</h1>
+                    <p>Acces rapide a tous les ecrans disponibles dans l'espace admin.</p>
+                </div>
+                <button class="d-lg-none" id="sidebarToggle" aria-label="Ouvrir menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="wrap">
+                <h2 class="title">Navigation Admin</h2>
+                <div class="grid">
+                    <div class="card"><a href="{{ path('admin_dashboard') }}">Tableau de bord</a><p>Vue globale des statistiques et activites.</p></div>
+                    <div class="card"><a href="{{ path('admin_users_index') }}">Utilisateurs</a><p>Gestion des comptes et privileges.</p></div>
+                    <div class="card"><a href="{{ path('admin_agriculteurs_index') }}">Agriculteurs</a><p>Suivi, validation et details des agriculteurs.</p></div>
+                    <div class="card"><a href="{{ path('admin_banques_index') }}">Banques</a><p>Gestion des banques et verification.</p></div>
+                    <div class="card"><a href="{{ path('admin_documents_index') }}">Documents</a><p>Revue et validation documentaire.</p></div>
+                    <div class="card"><a href="{{ path('admin_decision_index') }}">Dossiers</a><p>Module Chady: creation et suivi des decisions financieres.</p></div>
+                    <div class="card"><a href="{{ path('admin_produit_index') }}">Produits financiers</a><p>Gestion du catalogue de produits.</p></div>
+                    <div class="card"><a href="{{ path('admin_offre_index') }}">Offres financieres</a><p>Creation et suivi des offres.</p></div>
+                    <div class="card"><a href="{{ path('admin_payment_index') }}">Validation paiements</a><p>Traitement des paiements manuels.</p></div>
+                    <div class="card"><a href="{{ path('admin_messagerie_index') }}">Messagerie</a><p>Conversations internes et support.</p></div>
+                    <div class="card"><a href="{{ path('admin_terrain_projects') }}">Projets terrain</a><p>Vue des projets IoT/terrain.</p></div>
+                    <div class="card"><a href="{{ path('admin_project_agricole_index') }}">Projects agricoles</a><p>Gestion des projects agricoles.</p></div>
+                    <div class="card"><a href="{{ path('admin_ressource_project_index') }}">Ressources project</a><p>Suivi des ressources des projects.</p></div>
+                    <div class="card"><a href="{{ path('admin_capteur_index') }}">Capteurs</a><p>Supervision des capteurs connectes.</p></div>
+                    <div class="card"><a href="{{ path('admin_releve_terrain') }}">Releves terrain</a><p>Historique et mesures terrain.</p></div>
+                    <div class="card"><a href="{{ path('admin_rapport_journalier') }}">Rapports jour</a><p>Rapports quotidiens consolides.</p></div>
+                    <div class="card"><a href="{{ path('admin_releve_hebdo') }}">Releves hebdo</a><p>Synthese hebdomadaire des releves.</p></div>
+                    <div class="card"><a href="{{ path('admin_profile_show') }}">Mon profil</a><p>Parametres de compte et securite.</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

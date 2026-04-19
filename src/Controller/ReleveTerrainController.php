@@ -362,7 +362,9 @@ class ReleveTerrainController extends AbstractController
 
         if ($projects === []) {
             $this->addFlash('danger', "Aucun projet n'est lie a vos capteurs. Ajoutez ou affectez un capteur a un projet.");
-            return $this->redirectToRoute('capteur_index');
+            return $this->render('agriculteur/releve_terrain/choose_project.html.twig', [
+                'projects' => [],
+            ]);
         }
 
         if (count($projects) === 1) {

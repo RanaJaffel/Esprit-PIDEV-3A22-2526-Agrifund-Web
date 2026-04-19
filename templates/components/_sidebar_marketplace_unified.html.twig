@@ -1,0 +1,533 @@
+{% set navRole = role|default(null) %}
+{% if navRole is null %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {% set navRole = 'admin' %}
+    {% elseif is_granted('ROLE_BANQUE') %}
+        {% set navRole = 'banque' %}
+    {% else %}
+        {% set navRole = 'agriculteur' %}
+    {% endif %}
+{% endif %}
+
+{% set displayName = app.user ? (app.user.nomComplet|default(app.user.nom|default('Utilisateur'))) : 'Utilisateur' %}
+{% set avatarFallback = 'https://ui-avatars.com/api/?name=' ~ (displayName|url_encode) ~ '&background=b2d944&color=fff' %}
+{% set avatarSrc = avatarFallback %}
+
+{% if app.user %}
+    {% if navRole == 'banque' and app.user.banque and app.user.banque.logo %}
+        {% set avatarSrc = asset(app.user.banque.logo) %}
+    {% elseif app.user.photo %}
+        {% set avatarSrc = asset(app.user.photo) %}
+    {% endif %}
+{% endif %}
+
+<aside class="market-sidebar client-sidebar {{ navRole }}-sidebar" id="sidebar">
+    <div class="sidebar-bg-effects">
+        <div class="sidebar-glow"></div>
+        <div class="sidebar-pattern"></div>
+    </div>
+
+    <div class="sidebar-header">
+        <div class="brand-logo">
+            <div class="logo-icon">
+                {% if navRole == 'admin' %}
+                    <i class="fas fa-shield-alt"></i>
+                {% elseif navRole == 'banque' %}
+                    <i class="fas fa-university"></i>
+                {% else %}
+                    <i class="fas fa-leaf"></i>
+                {% endif %}
+            </div>
+            <div class="logo-text">
+                <span class="brand-name">AgriFund</span>
+                <span class="brand-type">
+                    {% if navRole == 'admin' %}ADMIN PORTAL{% elseif navRole == 'banque' %}BANQUE PORTAL{% else %}CLIENT PORTAL{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <button class="d-lg-none border-0 bg-transparent text-white fs-4" id="sidebarClose" type="button" aria-label="Fermer menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-user-section">
+        <div class="user-card-glass">
+            <div class="user-avatar-wrapper">
+                <img src="{{ avatarSrc }}" class="user-avatar" alt="Utilisateur" onerror="this.onerror=null;this.src='{{ avatarFallback }}';">
+                <span class="status-indicator online"></span>
+            </div>
+            <div class="user-info">
+                <span class="name">{{ displayName }}</span>
+                <span class="role-label">
+                    {% if navRole == 'admin' %}Administrateur{% elseif navRole == 'banque' %}Banque{% else %}Agriculteur{% endif %}
+                </span>
+                <span class="role">
+                    <i class="fas fa-check-circle me-1"></i>VERIFIE
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        {% if navRole == 'admin' %}
+            <div class="nav-group">
+                <span class="nav-group-title">Principal</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('admin_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'admin_dashboard' ? 'active' : '' }}"><i class="fas fa-th-large"></i><span>Tableau de Bord</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_pages') }}" class="nav-link {{ app.request.get('_route') == 'admin_pages' ? 'active' : '' }}"><i class="fas fa-table-cells-large"></i><span>Toutes les Pages</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Gestion</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('admin_users_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_users' ? 'active' : '' }}"><i class="fas fa-users"></i><span>Utilisateurs</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_agriculteurs_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_agriculteurs' ? 'active' : '' }}"><i class="fas fa-tractor"></i><span>Agriculteurs</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_banques_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_banques' ? 'active' : '' }}"><i class="fas fa-university"></i><span>Banques</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_documents_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_documents' ? 'active' : '' }}"><i class="fas fa-file-alt"></i><span>Documents</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_decision_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_decision' ? 'active' : '' }}"><i class="fas fa-folder-open"></i><span>Dossiers</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Finance</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('admin_produit_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_produit' ? 'active' : '' }}"><i class="fas fa-boxes"></i><span>Produits Financiers</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_offre_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_offre' ? 'active' : '' }}"><i class="fas fa-hand-holding-usd"></i><span>Offres Financières</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_payment_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_payment' ? 'active' : '' }}"><i class="fas fa-file-invoice-dollar"></i><span>Validation Paiements</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">IoT & Terrain</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('admin_terrain_projects') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_terrain' ? 'active' : '' }}"><i class="fas fa-map-marked-alt"></i><span>Projets Terrain</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_project_agricole_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_project_agricole' ? 'active' : '' }}"><i class="fas fa-seedling"></i><span>Projects Agricoles</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_ressource_project_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_ressource_project' ? 'active' : '' }}"><i class="fas fa-box-open"></i><span>Ressources Project</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_capteur_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_capteur' ? 'active' : '' }}"><i class="fas fa-satellite-dish"></i><span>Capteurs</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_releve_terrain') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_releve_terrain' ? 'active' : '' }}"><i class="fas fa-wave-square"></i><span>Releves Terrain</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_rapport_journalier') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_rapport_journalier' ? 'active' : '' }}"><i class="fas fa-chart-column"></i><span>Rapports Jour</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_releve_hebdo') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_releve_hebdo' ? 'active' : '' }}"><i class="fas fa-calendar-week"></i><span>Releves Hebdo</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Communication</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('admin_messagerie_index') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_messagerie' ? 'active' : '' }}"><i class="fas fa-comment-dots"></i><span>Messagerie</span><span class="nav-badge notification" id="unread-messages-badge" style="display:none;">0</span></a></li>
+                    <li class="nav-item"><a href="{{ path('admin_profile_show') }}" class="nav-link {{ app.request.get('_route') starts with 'admin_profile' ? 'active' : '' }}"><i class="fas fa-user-cog"></i><span>Mon Profil</span></a></li>
+                </ul>
+            </div>
+        {% elseif navRole == 'banque' %}
+            <div class="nav-group">
+                <span class="nav-group-title">Principal</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('banque_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'banque_dashboard' ? 'active' : '' }}"><i class="fas fa-th-large"></i><span>Tableau de Bord</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Gestion</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('banque_evaluation_index') }}" class="nav-link {{ app.request.get('_route') starts with 'banque_evaluation' ? 'active' : '' }}"><i class="fas fa-shield-halved"></i><span>Evaluations</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Communication</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('banque_messagerie_index') }}" class="nav-link {{ app.request.get('_route') starts with 'banque_messagerie' ? 'active' : '' }}"><i class="fas fa-comment-dots"></i><span>Messagerie</span><span class="nav-badge notification" id="unread-messages-badge" style="display:none;">0</span></a></li>
+                    <li class="nav-item"><a href="{{ path('banque_profile_show') }}" class="nav-link {{ app.request.get('_route') starts with 'banque_profile' ? 'active' : '' }}"><i class="fas fa-user-cog"></i><span>Mon Profil</span></a></li>
+                </ul>
+            </div>
+        {% else %}
+            <div class="nav-group">
+                <span class="nav-group-title">Menu Principal</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('agriculteur_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_dashboard' ? 'active' : '' }}"><i class="fas fa-th-large"></i><span>Tableau de Bord</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_produits') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_produit' ? 'active' : '' }}"><i class="fas fa-shopping-basket"></i><span>Marketplace</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_offres') }}" class="nav-link {{ app.request.get('_route') == 'agriculteur_offres' ? 'active' : '' }}"><i class="fas fa-percentage"></i><span>Offres Speciales</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_produit_simulateur') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_produit_simulateur' ? 'active' : '' }}"><i class="fas fa-calculator"></i><span>Simulateur</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Mon Dossier</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('agriculteur_messagerie_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_messagerie' ? 'active' : '' }}"><i class="fas fa-comment-dots"></i><span>Messagerie</span><span class="nav-badge notification" id="unread-messages-badge" style="display:none;">0</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_profile_show') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_profile' ? 'active' : '' }}"><i class="fas fa-user-cog"></i><span>Mon Profil</span></a></li>
+                </ul>
+            </div>
+
+            <div class="nav-group">
+                <span class="nav-group-title">Projets & Terrain</span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{{ path('agriculteur_project_agricole_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_project_agricole' ? 'active' : '' }}"><i class="fas fa-seedling"></i><span>Projects Agricoles</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_ressource_project_index') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_ressource_project' ? 'active' : '' }}"><i class="fas fa-box-open"></i><span>Ressources Projet</span></a></li>
+                    <li class="nav-item"><a href="{{ path('capteur_index') }}" class="nav-link {{ app.request.get('_route') starts with 'capteur_' ? 'active' : '' }}"><i class="fas fa-satellite-dish"></i><span>Capteurs</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_releve_terrain_home') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_releve_terrain' ? 'active' : '' }}"><i class="fas fa-wave-square"></i><span>Releves Terrain</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_releve_hebdo_home') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_releve_hebdo' ? 'active' : '' }}"><i class="fas fa-calendar-week"></i><span>Releves Hebdo</span></a></li>
+                    <li class="nav-item"><a href="{{ path('agriculteur_rapport_journalier_home') }}" class="nav-link {{ app.request.get('_route') starts with 'agriculteur_rapport_journalier' ? 'active' : '' }}"><i class="fas fa-chart-column"></i><span>Rapports Jour</span></a></li>
+                </ul>
+            </div>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{{ path('app_logout') }}" class="logout-link">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Deconnexion</span>
+        </a>
+    </div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<style>
+    :root {
+        --sidebar-width: clamp(236px, 20vw, 280px);
+        --vert-vif: #089647;
+        --vert-fonce: #076A39;
+        --vert-foret: #095032;
+        --vert-tres-fonce: #133D03;
+        --vert-clair: #B2D944;
+        --sidebar-gradient: linear-gradient(182deg, #1d2f1e 0%, #1f3e2f 35%, #115a39 72%, #07853f 100%);
+    }
+
+    .market-sidebar {
+        width: var(--sidebar-width);
+        max-width: 90vw;
+        height: 100dvh;
+        background: var(--sidebar-gradient);
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 14px 0 34px rgba(8, 28, 18, 0.3);
+        transition: transform 0.35s ease;
+    }
+
+    .sidebar-bg-effects { position: absolute; inset: 0; pointer-events: none; }
+
+    .sidebar-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 20%, rgba(178, 217, 68, 0.11) 0%, transparent 58%);
+        animation: glowPulse 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes glowPulse { from { transform: rotate(0deg); } to { transform: rotate(180deg); } }
+
+    .sidebar-pattern {
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='58' height='58' viewBox='0 0 58 58' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M29 4 L34 13 L29 22 L24 13 Z' fill='%23B2D944' fill-opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    .sidebar-header {
+        padding: clamp(16px, 2vw, 24px) clamp(16px, 2vw, 22px) clamp(12px, 1.2vw, 16px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        z-index: 2;
+    }
+
+    .brand-logo { display: flex; align-items: center; gap: 16px; }
+
+    .logo-icon {
+        width: clamp(42px, 3.6vw, 52px);
+        height: clamp(42px, 3.6vw, 52px);
+        background: linear-gradient(145deg, #83d52a, #26a647);
+        border-radius: clamp(12px, 1.2vw, 16px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 26px rgba(13, 47, 26, 0.4);
+    }
+
+    .logo-icon i {
+        font-size: clamp(1rem, 1.35vw, 1.18rem);
+        color: #f4fff4;
+    }
+
+    .brand-name {
+        font-size: clamp(1.55rem, 2.2vw, 2rem);
+        line-height: 1;
+        font-weight: 800;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+    }
+
+    .brand-type {
+        display: block;
+        margin-top: 5px;
+        font-size: clamp(0.66rem, 0.8vw, 0.82rem);
+        color: #b7df49;
+        text-transform: uppercase;
+        letter-spacing: clamp(1.2px, 0.2vw, 2px);
+        font-weight: 700;
+    }
+
+    .sidebar-user-section { padding: 0 clamp(14px, 1.6vw, 20px) clamp(14px, 1.6vw, 18px); position: relative; z-index: 2; }
+
+    .user-card-glass {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: clamp(16px, 1.8vw, 24px);
+        padding: clamp(12px, 1.4vw, 16px);
+        display: flex;
+        align-items: center;
+        gap: clamp(10px, 1vw, 13px);
+    }
+
+    .user-avatar-wrapper { position: relative; }
+
+    .user-avatar {
+        width: clamp(40px, 3.2vw, 50px);
+        height: clamp(40px, 3.2vw, 50px);
+        border-radius: clamp(10px, 1vw, 12px);
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #20362b;
+    }
+
+    .status-indicator.online { background: #b7df49; box-shadow: 0 0 12px rgba(183, 223, 73, 0.8); }
+
+    .user-info {
+        min-width: 0;
+    }
+
+    .user-info .name {
+        display: block;
+        font-weight: 700;
+        font-size: clamp(0.84rem, 0.95vw, 0.98rem);
+        margin-bottom: 2px;
+        color: #d6dde0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .user-info .role-label {
+        display: block;
+        font-size: clamp(0.72rem, 0.84vw, 0.85rem);
+        color: rgba(214, 221, 224, 0.88);
+        margin-bottom: 4px;
+    }
+
+    .user-info .role {
+        font-size: clamp(0.72rem, 0.82vw, 0.84rem);
+        color: #b7df49;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 0 clamp(8px, 1vw, 12px); position: relative; z-index: 2; }
+
+    .nav-group-title {
+        display: block;
+        padding: clamp(12px, 1.2vw, 14px) clamp(12px, 1.3vw, 16px) clamp(8px, 0.8vw, 10px);
+        font-size: clamp(0.64rem, 0.7vw, 0.72rem);
+        text-transform: uppercase;
+        letter-spacing: clamp(1.1px, 0.15vw, 1.8px);
+        opacity: 0.42;
+        font-weight: 700;
+    }
+
+    .nav-list { list-style: none; padding: 0; margin: 0; }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: clamp(9px, 1vw, 11px) clamp(12px, 1.1vw, 14px);
+        border-radius: 17px;
+        color: rgba(224, 236, 231, 0.88);
+        font-weight: 700;
+        font-size: clamp(0.86rem, 0.92vw, 0.96rem);
+        text-decoration: none;
+        transition: all 0.28s ease;
+        border: 1px solid transparent;
+    }
+
+    .nav-link i { font-size: clamp(0.92rem, 1vw, 1.05rem); width: 20px; text-align: center; opacity: 0.86; }
+    .nav-link:hover { background: rgba(255, 255, 255, 0.08); color: #fff; transform: translateX(4px); }
+
+    .nav-link.active {
+        background: linear-gradient(90deg, rgba(178, 217, 68, 0.24), rgba(178, 217, 68, 0.08));
+        border-color: rgba(178, 217, 68, 0.76);
+        box-shadow: 0 8px 22px rgba(178, 217, 68, 0.16);
+        color: #fff;
+    }
+
+    .nav-badge.notification {
+        margin-left: auto;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-footer {
+        padding: clamp(12px, 1.2vw, 16px) clamp(14px, 1.4vw, 18px);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        z-index: 2;
+        background: rgba(7, 28, 18, 0.18);
+    }
+
+    .logout-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #ff5f7d;
+        text-decoration: none;
+        font-weight: 800;
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: clamp(0.88rem, 0.95vw, 1rem);
+        transition: all 0.25s ease;
+    }
+
+    .logout-link i {
+        font-size: clamp(0.9rem, 0.95vw, 1rem);
+    }
+
+    .logout-link:hover { background: rgba(239, 68, 68, 0.14); color: #ff4b6b; }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.25s ease;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    @media (max-width: 1199.98px) {
+        :root {
+            --sidebar-width: 250px;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .market-sidebar {
+            width: min(82vw, 320px);
+            transform: translateX(-100%);
+        }
+
+        .market-sidebar.show {
+            transform: translateX(0);
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const openInside = document.getElementById('sidebarToggle');
+    const openOutside = document.getElementById('mobileSidebarToggle');
+    const closeBtn = document.getElementById('sidebarClose');
+
+    function openSidebar() {
+        if (!sidebar || !overlay) {
+            return;
+        }
+
+        sidebar.classList.add('show');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        if (!sidebar || !overlay) {
+            return;
+        }
+
+        sidebar.classList.remove('show');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    [openInside, openOutside].forEach(function (btn) {
+        if (btn) {
+            btn.addEventListener('click', openSidebar);
+        }
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSidebar);
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeSidebar();
+        }
+    });
+
+    const badge = document.getElementById('unread-messages-badge');
+    const unreadRoute = {
+        admin: '{{ path('admin_messagerie_unread_count') }}',
+        agriculteur: '{{ path('agriculteur_messagerie_unread_count') }}',
+        banque: '{{ path('banque_messagerie_unread_count') }}'
+    }['{{ navRole }}'];
+
+    function refreshUnreadCount() {
+        if (!badge || !unreadRoute) {
+            return;
+        }
+
+        fetch(unreadRoute)
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.count > 0) {
+                    badge.textContent = data.count > 99 ? '99+' : String(data.count);
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(function () {});
+    }
+
+    refreshUnreadCount();
+    setInterval(refreshUnreadCount, 60000);
+});
+</script>
