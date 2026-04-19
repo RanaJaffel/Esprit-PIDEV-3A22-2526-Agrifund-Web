@@ -1,0 +1,73 @@
+{# templates/security/resend_verification.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Renvoyer l'email de vérification - AgriFund{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-envelope"></i>
+                        Renvoyer l'email de vérification
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('info') %}
+                        <div class="alert alert-info">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    <p class="text-muted mb-4">
+                        Vous n'avez pas reçu l'email de vérification ? 
+                        Entrez votre adresse email pour en recevoir un nouveau.
+                    </p>
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Adresse email</label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                required
+                                placeholder="votre@email.com"
+                            >
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-paper-plane"></i>
+                            Renvoyer l'email
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <a href="{{ path('app_login') }}" class="text-success">
+                            <i class="fas fa-arrow-left"></i>
+                            Retour à la connexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

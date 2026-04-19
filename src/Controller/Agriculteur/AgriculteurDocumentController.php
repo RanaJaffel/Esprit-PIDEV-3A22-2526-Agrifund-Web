@@ -18,12 +18,38 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AgriculteurDocumentController extends AbstractController
 {
     #[Route('/', name: 'agriculteur_documents_index')]
-    public function index(DocumentRepository $documentRepository): Response
+    public function index(Request $request, DocumentRepository $documentRepository): Response
     {
-        $documents = $documentRepository->findByUtilisateur($this->getUser());
+        $user = $this->getUser();
+        $filter = $request->query->get('filter');
+        
+        // Récupérer tous les documents de l'utilisateur
+        $allDocuments = $documentRepository->findBy(
+            ['utilisateur' => $user],
+            ['dateUpload' => 'DESC']
+        );
+        
+        // Appliquer le filtre si nécessaire
+        $documents = $allDocuments;
+        
+        if ($filter && in_array($filter, ['valide', 'en_attente', 'rejete'])) {
+            $documents = array_filter($allDocuments, function($document) use ($filter) {
+                return $document->getStatut() === $filter;
+            });
+        }
+        
+        // Compter les documents par statut pour les badges
+        $counts = [
+            'total' => count($allDocuments),
+            'valide' => count(array_filter($allDocuments, fn($d) => $d->getStatut() === 'valide')),
+            'en_attente' => count(array_filter($allDocuments, fn($d) => $d->getStatut() === 'en_attente')),
+            'rejete' => count(array_filter($allDocuments, fn($d) => $d->getStatut() === 'rejete')),
+        ];
 
         return $this->render('agriculteur/documents/index.html.twig', [
             'documents' => $documents,
+            'counts' => $counts,
+            'currentFilter' => $filter,
         ]);
     }
 

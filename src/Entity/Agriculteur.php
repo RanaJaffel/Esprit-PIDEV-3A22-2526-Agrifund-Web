@@ -27,7 +27,7 @@ class Agriculteur
     #[Assert\Positive(message: 'La superficie doit être positive')]
     private ?string $superficieferme = null;
 
-    #[ORM\Column(name: 'typeCulture', length: 100, nullable: true)]
+    #[ORM\Column(name: "typeCulture", length: 100, nullable: true)]    #[Assert\Length(max: 100)]
     private ?string $typeCulture = null;
 
     #[ORM\Column(length: 50)]

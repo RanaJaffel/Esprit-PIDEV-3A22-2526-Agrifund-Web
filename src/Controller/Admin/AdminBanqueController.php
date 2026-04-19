@@ -4,7 +4,10 @@ namespace App\Controller\Admin;
 
 use App\Entity\Banque;
 use App\Repository\BanqueRepository;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,7 +58,8 @@ class AdminBanqueController extends AbstractController
     public function verify(
         Banque $banque,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EmailService $emailService
     ): Response {
         if ($this->isCsrfTokenValid('verify' . $banque->getId(), $request->request->get('_token'))) {
             $action = $request->request->get('action');
@@ -63,14 +67,27 @@ class AdminBanqueController extends AbstractController
             if ($action === 'approve') {
                 $banque->setStatusCompte('actif');
                 $banque->setCompteVerfiee(true);
-                $this->addFlash('success', 'Compte banque approuvé avec succès !');
+                $em->flush();
+
+                try {
+                    $emailService->sendBanqueApprovalEmail($banque);
+                    $this->addFlash('success', 'Compte banque approuvé et email envoyé avec succès !');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Compte approuvé mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
+
             } elseif ($action === 'reject') {
                 $banque->setStatusCompte('refuse');
                 $banque->setCompteVerfiee(false);
-                $this->addFlash('success', 'Compte banque refusé.');
-            }
+                $em->flush();
 
-            $em->flush();
+                try {
+                    $emailService->sendBanqueRejectionEmail($banque);
+                    $this->addFlash('success', 'Compte banque refusé et email envoyé.');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Compte refusé mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
+            }
         }
 
         return $this->redirectToRoute('admin_banques_index');
@@ -95,5 +112,37 @@ class AdminBanqueController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_banques_index');
+    }
+
+    #[Route('/{id}/pdf', name: 'admin_banques_pdf')]
+    public function downloadPdf(Banque $banque): Response
+    {
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+
+        $html = $this->renderView('admin/banques/pdf.html.twig', [
+            'banque' => $banque,
+            'date' => new \DateTime(),
+            'reference' => 'BNK-' . str_pad($banque->getId(), 6, '0', STR_PAD_LEFT),
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'banque_' . $banque->getId() . '_' . date('Ymd') . '.pdf';
+
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]
+        );
     }
 }

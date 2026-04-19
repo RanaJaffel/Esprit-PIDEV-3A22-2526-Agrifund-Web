@@ -6,19 +6,12 @@ use App\Entity\Banque;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Banque>
- */
 class BanqueRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Banque::class);
     }
-
-    /**
-     * Trouve toutes les banques avec leurs utilisateurs
-     */
     public function findAllWithUsers(): array
     {
         return $this->createQueryBuilder('b')
@@ -27,10 +20,6 @@ class BanqueRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-    /**
-     * Recherche de banques
-     */
     public function searchBanques(?string $search = null, ?string $status = null)
     {
         $qb = $this->createQueryBuilder('b')
@@ -49,10 +38,6 @@ class BanqueRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
-
-    /**
-     * Banques en attente de vérification
-     */
     public function findPendingVerification(): array
     {
         return $this->createQueryBuilder('b')
@@ -63,10 +48,6 @@ class BanqueRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-    /**
-     * Trouve par code banque
-     */
     public function findOneByCode(string $code): ?Banque
     {
         return $this->createQueryBuilder('b')
@@ -75,10 +56,6 @@ class BanqueRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-
-    /**
-     * Statistiques des banques
-     */
     public function getStatistics(): array
     {
         $total = (int) $this->createQueryBuilder('b')

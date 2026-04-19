@@ -1,0 +1,708 @@
+{# templates/admin/profile/2fa.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Authentification à deux facteurs{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('sidebar') }}
+    {{ encore_entry_link_tags('admin') }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --gris: #848A86;
+            --vert-tres-fonce: #133D03;
+            --jaune-moutarde: #E1B323;
+            --vert-clair: #B2D944;
+            --vert-olive-fonce: #476C1A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            background: transparent;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content { margin-left: 0; }
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--vert-olive-fonce) 0%, var(--vert-foret) 50%, var(--vert-tres-fonce) 100%);
+            padding: 28px 35px;
+            margin: 0 0 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='15' fill='none' stroke='%23B2D944' stroke-opacity='0.05' stroke-width='2'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header h1 i {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-olive-fonce) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 8px 20px rgba(71, 108, 26, 0.35);
+        }
+
+        /* Content */
+        .content-wrapper {
+            padding: 0 35px 35px;
+        }
+
+        .security-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .security-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ef4444, #dc2626, #b91c1c);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .card-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .card-header-text h2 {
+            font-size: 1.6rem;
+            color: var(--vert-tres-fonce);
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .card-header-text p {
+            color: var(--gris);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Status Section */
+        .status-section {
+            background: linear-gradient(135deg, rgba(71, 108, 26, 0.05) 0%, rgba(178, 217, 68, 0.05) 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 35px;
+            border: 2px dashed rgba(71, 108, 26, 0.2);
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-info h3 {
+            font-size: 1.2rem;
+            color: var(--vert-tres-fonce);
+            margin: 0 0 8px 0;
+            font-weight: 600;
+        }
+
+        .status-info p {
+            color: var(--gris);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge.active {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(8, 150, 71, 0.3);
+        }
+
+        .status-badge.inactive {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--vert-tres-fonce);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-olive-fonce) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .toggle-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-check-input {
+            width: 60px;
+            height: 30px;
+            cursor: pointer;
+            appearance: none;
+            background: #d1d5db;
+            border-radius: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .form-check-input:checked {
+            background: linear-gradient(135deg, var(--vert-vif) 0%, var(--vert-fonce) 100%);
+        }
+
+        .form-check-input::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-check-input:checked::before {
+            left: 33px;
+        }
+
+        .form-check-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--vert-tres-fonce);
+            cursor: pointer;
+        }
+
+        .method-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .method-choice {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .method-option {
+            flex: 1;
+        }
+
+        .method-option input[type="radio"] {
+            display: none;
+        }
+
+        .method-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .method-label:hover {
+            border-color: var(--vert-vif);
+            background: rgba(8, 150, 71, 0.05);
+        }
+
+        .method-option input[type="radio"]:checked + .method-label {
+            border-color: var(--vert-vif);
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.1) 0%, rgba(7, 106, 57, 0.1) 100%);
+            box-shadow: 0 4px 15px rgba(8, 150, 71, 0.15);
+        }
+
+        .method-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--vert-clair) 0%, var(--vert-olive-fonce) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .method-info h4 {
+            font-size: 1rem;
+            color: var(--vert-tres-fonce);
+            margin: 0 0 4px 0;
+            font-weight: 600;
+        }
+
+        .method-info p {
+            font-size: 0.85rem;
+            color: var(--gris);
+            margin: 0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--vert-tres-fonce);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 4px rgba(8, 150, 71, 0.1);
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--gris);
+            color: var(--gris);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gris);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(8, 150, 71, 0.1) 0%, rgba(178, 217, 68, 0.1) 100%);
+            border-left: 4px solid var(--vert-vif);
+            color: var(--vert-fonce);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border-left: 4px solid #ef4444;
+            color: #b91c1c;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, rgba(225, 179, 35, 0.1) 0%, rgba(201, 160, 32, 0.1) 100%);
+            border-left: 4px solid var(--jaune-moutarde);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .info-box h4 {
+            font-size: 1.1rem;
+            color: var(--vert-tres-fonce);
+            margin: 0 0 12px 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box h4 i {
+            color: var(--jaune-moutarde);
+        }
+
+        .info-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--gris);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 0 20px 20px;
+            }
+
+            .security-card {
+                padding: 25px 20px;
+            }
+
+            .method-choice {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .status-row {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        {% include 'components/_sidebar_admin.html.twig' %}
+        
+        <div class="main-content">
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-shield-alt"></i>
+                    Authentification à deux facteurs
+                </h1>
+            </div>
+
+            <div class="content-wrapper">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                <div class="security-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="card-header-text">
+                            <h2>Sécurité du compte</h2>
+                            <p>Gérez les paramètres d'authentification à deux facteurs pour votre compte</p>
+                        </div>
+                    </div>
+
+                    <div class="status-section">
+                        <div class="status-row">
+                            <div class="status-info">
+                                <h3>État actuel</h3>
+                                <p>L'authentification à deux facteurs est actuellement 
+                                    {% if parametres.estActive %}
+                                        <strong style="color: var(--vert-vif);">activée</strong>
+                                    {% else %}
+                                        <strong style="color: var(--gris);">désactivée</strong>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                {% if parametres.estActive %}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i>
+                                        Activée
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge inactive">
+                                        <i class="fas fa-times-circle"></i>
+                                        Désactivée
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_start(form) }}
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-cog"></i>
+                                Configuration
+                            </div>
+
+                            <div class="toggle-section">
+                                <div class="form-check">
+                                    {{ form_widget(form.estActive) }}
+                                    {{ form_label(form.estActive) }}
+                                </div>
+                                <p style="color: var(--gris); font-size: 0.9rem; margin: 15px 0 0 0;">
+                                    Activez cette option pour renforcer la sécurité de votre compte en exigeant un code de vérification à chaque connexion.
+                                </p>
+                            </div>
+
+                            <div class="method-section">
+                                <label class="form-label">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Méthode de réception du code
+                                </label>
+                                <div class="method-choice">
+                                    {% for choice in form.methodePreferee %}
+                                        <div class="method-option">
+                                            {{ form_widget(choice) }}
+                                            <label for="{{ choice.vars.id }}" class="method-label">
+                                                <div class="method-icon">
+                                                    {% if choice.vars.value == 'email' %}
+                                                        <i class="fas fa-envelope"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-sms"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="method-info">
+                                                    <h4>{{ choice.vars.label }}</h4>
+                                                    <p>
+                                                        {% if choice.vars.value == 'email' %}
+                                                            Code envoyé par email
+                                                        {% else %}
+                                                            Code envoyé par SMS
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_label(form.telephone2fa) }}
+                                    {{ form_widget(form.telephone2fa) }}
+                                    <small style="color: var(--gris); display: block; margin-top: 8px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Requis uniquement si vous choisissez la méthode SMS
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <h4>
+                                <i class="fas fa-lightbulb"></i>
+                                Pourquoi activer la 2FA ?
+                            </h4>
+                            <ul>
+                                <li>Protection renforcée contre les accès non autorisés</li>
+                                <li>Sécurité supplémentaire même si votre mot de passe est compromis</li>
+                                <li>Notification immédiate en cas de tentative de connexion</li>
+                                <li>Conformité aux meilleures pratiques de sécurité</li>
+                            </ul>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Enregistrer les modifications
+                            </button>
+                            <a href="{{ path('admin_profile_show') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Annuler
+                            </a>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('sidebar') }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle2FA = document.getElementById('toggle2FA');
+            const methodSection = document.querySelector('.method-section');
+            const phoneInput = document.getElementById('phone2fa');
+            const smsRadio = document.querySelector('input[value="sms"]');
+
+            // Afficher/masquer la section méthode selon l'état du toggle
+            function updateMethodVisibility() {
+                if (toggle2FA.checked) {
+                    methodSection.style.display = 'block';
+                    methodSection.style.animation = 'fadeIn 0.3s ease-in';
+                } else {
+                    methodSection.style.display = 'none';
+                }
+            }
+
+            // Rendre le téléphone requis si SMS est sélectionné
+            function updatePhoneRequirement() {
+                if (smsRadio && smsRadio.checked) {
+                    phoneInput.setAttribute('required', 'required');
+                    phoneInput.parentElement.querySelector('.form-label').innerHTML = 
+                        'Numéro de téléphone (pour SMS) <span style="color: #ef4444;">*</span>';
+                } else {
+                    phoneInput.removeAttribute('required');
+                    phoneInput.parentElement.querySelector('.form-label').textContent = 
+                        'Numéro de téléphone (pour SMS)';
+                }
+            }
+
+            toggle2FA.addEventListener('change', updateMethodVisibility);
+            
+            document.querySelectorAll('input[name="parametres2fa[methodePreferee]"]').forEach(radio => {
+                radio.addEventListener('change', updatePhoneRequirement);
+            });
+
+            // Initial state
+            updateMethodVisibility();
+            updatePhoneRequirement();
+
+            // Animation CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+{% endblock %}

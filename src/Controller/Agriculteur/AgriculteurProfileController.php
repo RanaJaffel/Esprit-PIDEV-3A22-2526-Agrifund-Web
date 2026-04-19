@@ -1,9 +1,12 @@
 <?php
+// src/Controller/Agriculteur/AgriculteurProfileController.php
 
 namespace App\Controller\Agriculteur;
 
 use App\Entity\Agriculteur;
 use App\Form\AgriculteurProfileType;
+use App\Form\Parametres2faType;
+use App\Service\TwoFactorAuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,9 +63,7 @@ class AgriculteurProfileController extends AbstractController
                 // Gestion de l'upload de photo
                 $photoFile = $form->get('photoFile')->getData();
                 if ($photoFile) {
-                    // Vérifier si le fichier est valide
                     if ($photoFile->isValid()) {
-                        // Supprimer l'ancienne photo si elle existe
                         if ($utilisateur->getPhoto()) {
                             $oldPhotoPath = $this->getParameter('kernel.project_dir') . '/public/' . $utilisateur->getPhoto();
                             if (file_exists($oldPhotoPath)) {
@@ -79,7 +80,6 @@ class AgriculteurProfileController extends AbstractController
                         
                         $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
                         
-                        // Créer le dossier s'il n'existe pas
                         if (!is_dir($uploadDir)) {
                             mkdir($uploadDir, 0777, true);
                         }
@@ -92,10 +92,8 @@ class AgriculteurProfileController extends AbstractController
                     }
                 }
 
-                // Récupérer l'entité Agriculteur depuis le formulaire
                 $agriculteur = $utilisateur->getAgriculteur();
                 
-                // S'assurer que la relation bidirectionnelle est correcte
                 if ($agriculteur && !$agriculteur->getUtilisateur()) {
                     $agriculteur->setUtilisateur($utilisateur);
                 }
@@ -114,6 +112,51 @@ class AgriculteurProfileController extends AbstractController
         return $this->render('agriculteur/profile/edit.html.twig', [
             'form' => $form->createView(),
             'utilisateur' => $utilisateur,
+        ]);
+    }
+
+    #[Route('/2fa', name: 'agriculteur_profile_2fa')]
+    public function manage2FA(
+        Request $request,
+        EntityManagerInterface $em,
+        TwoFactorAuthService $twoFactorService
+    ): Response {
+        $utilisateur = $this->getUser();
+        $parametres = $utilisateur->getParametres2fa();
+        
+        if (!$parametres) {
+            $parametres = new \App\Entity\Parametres2fa();
+            $parametres->setUtilisateur($utilisateur);
+        }
+        
+        $form = $this->createForm(Parametres2faType::class, $parametres);
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $twoFactorService->activerOuDesactiver2FA(
+                    $utilisateur,
+                    $parametres->isEstActive(),
+                    $parametres->getTelephone2fa(),
+                    $parametres->getMethodePreferee()
+                );
+                
+                $this->addFlash('success', 
+                    $parametres->isEstActive() 
+                        ? 'Authentification à deux facteurs activée avec succès !' 
+                        : 'Authentification à deux facteurs désactivée.'
+                );
+                
+                return $this->redirectToRoute('agriculteur_profile_show');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la modification des paramètres.');
+            }
+        }
+        
+        return $this->render('agriculteur/profile/2fa.html.twig', [
+            'form' => $form->createView(),
+            'parametres' => $parametres,
+            'utilisateur' => $utilisateur
         ]);
     }
 }

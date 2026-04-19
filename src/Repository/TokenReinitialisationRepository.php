@@ -7,9 +7,6 @@ use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<TokenReinitialisation>
- */
 class TokenReinitialisationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -18,49 +15,47 @@ class TokenReinitialisationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Trouve un token valide
+     * Trouve un token valide (non utilisé et non expiré)
      */
     public function findValidToken(string $token): ?TokenReinitialisation
     {
         return $this->createQueryBuilder('t')
-            ->where('t.token = :token')
-            ->andWhere('t.utilise = :used')
+            ->andWhere('t.token = :token')
+            ->andWhere('t.utilise = :utilise')
             ->andWhere('t.dateExpiration > :now')
             ->setParameter('token', $token)
-            ->setParameter('used', false)
+            ->setParameter('utilise', false)
             ->setParameter('now', new \DateTime())
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     /**
-     * Invalide tous les anciens tokens d'un utilisateur
+     * Invalide tous les tokens d'un utilisateur
      */
     public function invalidateUserTokens(Utilisateur $utilisateur): void
     {
         $this->createQueryBuilder('t')
             ->update()
-            ->set('t.utilise', ':used')
+            ->set('t.utilise', ':utilise')
             ->where('t.utilisateur = :utilisateur')
-            ->andWhere('t.utilise = :notUsed')
-            ->setParameter('used', true)
+            ->andWhere('t.utilise = :notUtilise')
+            ->setParameter('utilise', true)
+            ->setParameter('notUtilise', false)
             ->setParameter('utilisateur', $utilisateur)
-            ->setParameter('notUsed', false)
             ->getQuery()
             ->execute();
     }
 
     /**
-     * Supprime les tokens expirés
+     * Supprime les tokens expirés (pour nettoyage automatique)
      */
     public function deleteExpiredTokens(): int
     {
         return $this->createQueryBuilder('t')
             ->delete()
             ->where('t.dateExpiration < :now')
-            ->orWhere('t.utilise = :used')
             ->setParameter('now', new \DateTime())
-            ->setParameter('used', true)
             ->getQuery()
             ->execute();
     }
