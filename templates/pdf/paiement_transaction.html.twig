@@ -63,6 +63,9 @@
     </style>
 </head>
 <body>
+    {% set verifierName = transaction.verifiedBy ?: payload.reviewed_by|default('') %}
+    {% set verifierDate = transaction.verifiedAt ?: (payload.reviewed_at is defined and payload.reviewed_at ? date(payload.reviewed_at) : null) %}
+
     <h1>Recu de validation paiement</h1>
     <div class="muted">Généré le {{ generatedAt|date('d/m/Y H:i') }}</div>
 
@@ -107,8 +110,8 @@
             <tr>
                 <th>Vérifié par</th>
                 <td>
-                    {% if transaction.verifiedBy %}
-                        {{ transaction.verifiedBy }}
+                    {% if verifierName %}
+                        {{ verifierName }}
                     {% else %}
                         <span class="empty-field"></span>
                     {% endif %}
@@ -117,8 +120,8 @@
             <tr>
                 <th>Date vérification</th>
                 <td>
-                    {% if transaction.verifiedAt %}
-                        {{ transaction.verifiedAt|date('d/m/Y H:i') }}
+                    {% if verifierDate %}
+                        {{ verifierDate|date('d/m/Y H:i') }}
                     {% else %}
                         <span class="empty-field"></span>
                     {% endif %}
