@@ -83,6 +83,8 @@ class AdminApplicationReviewController extends AbstractController
 
         $approvedAmount = (float) $request->request->get('approved_amount', 0);
         $approvedAtInput = trim((string) $request->request->get('approved_at', ''));
+        $verifiedAtInput = trim((string) $request->request->get('verified_at', ''));
+        $verifiedByInput = trim((string) $request->request->get('verified_by', ''));
         $reviewNote = trim((string) $request->request->get('review_note', ''));
 
         if ($approvedAmount <= 0) {
@@ -111,18 +113,31 @@ class AdminApplicationReviewController extends AbstractController
             return $this->redirectToRoute('admin_application_index');
         }
 
+        $verifiedAt = $approvedAt;
+        if ($verifiedAtInput !== '') {
+            try {
+                $verifiedAt = new \DateTimeImmutable($verifiedAtInput);
+            } catch (\Throwable) {
+                $this->addFlash('error', 'Format de date invalide pour la verification.');
+
+                return $this->redirectToRoute('admin_application_index');
+            }
+        }
+
+        $verifiedBy = $verifiedByInput !== '' ? $verifiedByInput : $this->getUser()?->getUserIdentifier();
+
         $transaction->setStatut(PaymentStatus::SUCCEEDED);
         $transaction->setProcessedAt($approvedAt);
         $transaction->setMontant(number_format($approvedAmount, 2, '.', ''));
-    $transaction->setVerificationStatus('approved');
-    $transaction->setVerificationNote($reviewNote);
-    $transaction->setVerifiedBy($this->getUser()?->getUserIdentifier());
-    $transaction->setVerifiedAt($approvedAt);
+        $transaction->setVerificationStatus('approved');
+        $transaction->setVerificationNote($reviewNote);
+        $transaction->setVerifiedBy($verifiedBy);
+        $transaction->setVerifiedAt($verifiedAt);
 
         $payload = $transaction->getGatewayPayload() ?? [];
         $payload['review_status'] = 'approved';
         $payload['reviewed_at'] = $approvedAt->format(\DateTimeInterface::ATOM);
-        $payload['reviewed_by'] = $this->getUser()?->getUserIdentifier();
+        $payload['reviewed_by'] = $verifiedBy;
         $payload['approved_amount'] = number_format($approvedAmount, 2, '.', '');
         $payload['review_note'] = $reviewNote;
         $transaction->setGatewayPayload($payload);

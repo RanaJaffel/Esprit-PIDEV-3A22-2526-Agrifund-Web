@@ -193,6 +193,32 @@
             border-color: #dc2626;
         }
 
+        .btn-download {
+            border-color: #1d4ed8;
+            color: #1d4ed8;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-download:hover {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .btn-delete {
+            border-color: #991b1b;
+            color: #991b1b;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+            color: #7f1d1d;
+            border-color: #7f1d1d;
+        }
+
         @media (max-width: 768px) {
             .content-wrap {
                 margin: -12px 20px 24px 20px;
@@ -291,6 +317,13 @@
                                         </td>
                                         <td>{{ tx.createdAt ? tx.createdAt|date('d/m/Y H:i') : '-' }}</td>
                                         <td>
+                                            <div class="d-flex flex-column gap-2 mb-2">
+                                                <a href="{{ path('admin_payment_download_pdf', {reference: tx.reference}) }}" class="btn btn-sm btn-download">Télécharger PDF</a>
+                                                <form method="post" action="{{ path('admin_payment_delete', {reference: tx.reference}) }}" onsubmit="return confirm('Supprimer ce paiement ? Cette action est irreversible.');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_payment_' ~ tx.reference) }}">
+                                                    <button type="submit" class="btn btn-sm btn-delete w-100">Supprimer</button>
+                                                </form>
+                                            </div>
                                             {% if tx.gatewayPayload is not empty and tx.gatewayPayload.proof_path is defined %}
                                                 <a href="{{ asset(tx.gatewayPayload.proof_path) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary me-2">Justificatif</a>
                                             {% endif %}
@@ -304,8 +337,13 @@
                                                         </div>
                                                         <div class="input-group input-group-sm">
                                                             <span class="input-group-text">Date</span>
-                                                            <input type="datetime-local" name="approved_at" class="form-control" value="{{ 'now'|date('Y-m-d\\TH:i') }}" required>
+                                                            <input type="datetime-local" name="approved_at" class="form-control" value="" required>
                                                         </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span class="input-group-text">Date vérif</span>
+                                                            <input type="datetime-local" name="verified_at" class="form-control" value="">
+                                                        </div>
+                                                        <input type="text" name="verified_by" class="form-control form-control-sm" placeholder="Vérifié par">
                                                         <input type="text" name="review_note" class="form-control form-control-sm" placeholder="Commentaire de validation" maxlength="255" required>
                                                         <button type="submit" class="btn btn-sm btn-approve">Approuver</button>
                                                     </form>

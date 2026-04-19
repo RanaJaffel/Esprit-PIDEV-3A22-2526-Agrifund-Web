@@ -304,8 +304,13 @@
                                                         </div>
                                                         <div class="input-group input-group-sm">
                                                             <span class="input-group-text">Date</span>
-                                                            <input type="datetime-local" name="approved_at" class="form-control" value="{{ 'now'|date('Y-m-d\\TH:i') }}" required>
+                                                            <input type="datetime-local" name="approved_at" class="form-control" value="" required>
                                                         </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span class="input-group-text">Date vérif</span>
+                                                            <input type="datetime-local" name="verified_at" class="form-control" value="">
+                                                        </div>
+                                                        <input type="text" name="verified_by" class="form-control form-control-sm" placeholder="Vérifié par">
                                                         <input type="text" name="review_note" class="form-control form-control-sm" placeholder="Commentaire de validation" maxlength="255" required>
                                                         <button type="submit" class="btn btn-sm btn-approve">Approuver</button>
                                                     </form>
