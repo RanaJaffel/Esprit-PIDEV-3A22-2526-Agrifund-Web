@@ -14,6 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
 
 #[Route('/admin/decision', name: 'admin_decision_')]
 class DecisionFinanciereController extends AbstractController
@@ -49,28 +55,24 @@ class DecisionFinanciereController extends AbstractController
     }
 
     #[Route('/new', name: 'new')]
-public function new(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
-{
-    $decision = new DecisionFinanciere();
-    $form     = $this->createForm(DecisionFinanciereType::class, $decision);
-    $form->handleRequest($request);
+    public function new(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+    {
+        $decision = new DecisionFinanciere();
+        $form     = $this->createForm(DecisionFinanciereType::class, $decision);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted()) {
-        if (!$form->isValid()) {
-            $this->addFlash('danger', 'Formulaire non valide : ' . (string) $form->getErrors(true, false));
-        } else {
+        if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($decision);
             $em->flush();
             $this->sendDecisionEmail($mailer, $decision);
             $this->addFlash('success', 'Decision creee et email envoye !');
             return $this->redirectToRoute('admin_decision_index');
         }
-    }
 
-    return $this->render('admin/decision/new.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
+        return $this->render('admin/decision/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
     #[Route('/{idDecision}/edit', name: 'edit')]
     public function edit(Request $request, DecisionFinanciere $decision, EntityManagerInterface $em, MailerInterface $mailer): Response
@@ -91,15 +93,72 @@ public function new(Request $request, EntityManagerInterface $em, MailerInterfac
         ]);
     }
 
-    #[Route('/{id}/show', name: 'show')]
+    #[Route('/{idDecision}/show', name: 'show')]
     public function show(DecisionFinanciere $decision): Response
     {
+        $qrContent = sprintf(
+            "Decision #%d | Statut: %s | Score: %d/100 | Risque: %s | Date: %s",
+            $decision->getIdDecision(),
+            strtoupper($decision->getStatut()),
+            $decision->getEvaluation()?->getScoreGlobal() ?? 0,
+            $decision->getEvaluation()?->getNiveauRisque() ?? 'N/A',
+            $decision->getDateDecision()?->format('d/m/Y') ?? ''
+        );
+
+        $qrCode = new QrCode(
+            data: $qrContent,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 200,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: new Color(10, 61, 31),
+            backgroundColor: new Color(255, 255, 255),
+        );
+
+        $writer = new SvgWriter();
+        $result = $writer->write($qrCode);
+        $qrSvg  = $result->getString();
+
         return $this->render('admin/decision/show.html.twig', [
             'decision' => $decision,
+            'qrSvg'    => $qrSvg,
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'delete', methods: ['POST'])]
+    #[Route('/{idDecision}/qrcode', name: 'qrcode', methods: ['GET'])]
+    public function qrcode(DecisionFinanciere $decision): Response
+    {
+        $qrContent = sprintf(
+            "Decision #%d | Statut: %s | Score: %d/100 | Risque: %s",
+            $decision->getIdDecision(),
+            strtoupper($decision->getStatut()),
+            $decision->getEvaluation()?->getScoreGlobal() ?? 0,
+            $decision->getEvaluation()?->getNiveauRisque() ?? 'N/A'
+        );
+
+        $qrCode = new QrCode(
+            data: $qrContent,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: new Color(10, 61, 31),
+            backgroundColor: new Color(255, 255, 255),
+        );
+
+        $writer = new SvgWriter();
+        $result = $writer->write($qrCode);
+
+        return new Response(
+            $result->getString(),
+            200,
+            ['Content-Type' => 'image/svg+xml']
+        );
+    }
+
+    #[Route('/{idDecision}/delete', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, DecisionFinanciere $decision, EntityManagerInterface $em): Response
     {
         if ($this->isCsrfTokenValid('delete' . $decision->getIdDecision(), $request->request->get('_token'))) {
@@ -112,53 +171,58 @@ public function new(Request $request, EntityManagerInterface $em, MailerInterfac
 
     // ==================== EMAIL ====================
     private function sendDecisionEmail(MailerInterface $mailer, DecisionFinanciere $decision): void
-{
-    // 🔥 DEBUG : vérifier que la fonction est appelée
-    file_put_contents('mail_debug.txt', "FUNCTION CALLED\n", FILE_APPEND);
+    {
+        $statut      = $decision->getStatut();
+        $evaluation  = $decision->getEvaluation();
+        $evalId      = $evaluation?->getIdEvaluation() ?? 'N/A';
+        $score       = $evaluation?->getScoreGlobal()  ?? 'N/A';
+        $risque      = $evaluation?->getNiveauRisque()  ?? 'N/A';
+        $fiabilite   = $evaluation?->getFiabiliteDonnees() ?? 'N/A';
+        $facteur     = $evaluation?->getFacteurPrincipal()  ?? 'N/A';
+        $justif      = $decision->getJustification() ?? '';
+        $date        = $decision->getDateDecision()?->format('d/m/Y a H:i') ?? date('d/m/Y');
+        $estApprouve = ($statut === 'approuve');
 
+        $sujet = $estApprouve
+            ? '[AgriFund] Votre financement agricole est APPROUVE'
+            : '[AgriFund] Resultat de votre demande de financement';
 
-    $statut      = $decision->getStatut();
-    $evaluation  = $decision->getEvaluation();
+        $resultat = $estApprouve ? 'APPROUVEE' : 'REFUSEE';
+        $intro    = $estApprouve
+            ? "Nous avons le plaisir de vous informer que votre demande a ete APPROUVEE.\nNotre equipe vous contactera prochainement."
+            : "Nous avons le regret de vous informer que votre demande a ete REFUSEE.\nVous pouvez retravailler votre dossier et soumettre une nouvelle demande.\n\nConseils :\n- Ameliorez la fiabilite de vos donnees\n- Renforcez les points faibles identifies\n- Consultez un expert agricole si besoin";
 
-    $evalId    = $evaluation?->getIdEvaluation() ?? 'N/A';
-    $score     = $evaluation?->getScoreGlobal()  ?? 'N/A';
-    $risque    = $evaluation?->getNiveauRisque() ?? 'N/A';
+        $corps = "Bonjour,\n\n"
+               . "========================================\n"
+               . "  DECISION FINANCIERE - AGRIFUND\n"
+               . "  RESULTAT : " . $resultat . "\n"
+               . "========================================\n\n"
+               . $intro . "\n\n"
+               . "----------------------------------------\n"
+               . "Details :\n"
+               . "- Evaluation ID     : #" . $evalId   . "\n"
+               . "- Score global      : " . $score     . "/100\n"
+               . "- Niveau de risque  : " . $risque    . "\n"
+               . "- Fiabilite         : " . $fiabilite . "\n"
+               . "- Facteur principal : " . $facteur   . "\n"
+               . "- Date de decision  : " . $date      . "\n\n"
+               . "Justification :\n" . $justif . "\n\n"
+               . "----------------------------------------\n"
+               . "Cordialement,\nL'equipe AgriFund\n";
 
-    // Message personnalisé selon le statut
-    if ($statut === 'approuve') {
-        $messageStatut = "Félicitations, votre demande a été acceptée !";
-    } elseif ($statut === 'refuse') {
-        $messageStatut = "Nous sommes désolés, votre demande a été refusée.";
-    } else {
-        $messageStatut = "Statut de la décision : " . ucfirst($statut);
+        try {
+            $email = (new Email())
+                ->from('chedyderouiche87@gmail.com')
+                ->to('chedyderouiche87@gmail.com')
+                ->subject($sujet)
+                ->text($corps);
+
+            $mailer->send($email);
+            error_log('[Mailer] Email envoye - statut=' . $statut);
+        } catch (\Exception $e) {
+            error_log('[Mailer] ERREUR : ' . $e->getMessage());
+        }
     }
-
-    $sujet = "Décision financière : " . ucfirst($statut);
-    $corps = $messageStatut . "\n\n"
-           . "Decision ID: " . $evalId . "\n"
-           . "Score: " . $score . "\n"
-           . "Risque: " . $risque . "\n"
-           . "Statut: " . $statut;
-
-    try {
-        $email = (new Email())
-            ->from('chedyderouiche87@gmail.com')
-            ->to('chedyderouiche87@gmail.com') // 👉 change si besoin
-            ->subject($sujet)
-            ->text($corps);
-
-        $mailer->send($email);
-
-        // 🔥 DEBUG succès
-        file_put_contents('mail_debug.txt', "EMAIL SENT\n", FILE_APPEND);
-
-    } catch (\Exception $e) {
-        // 🔥 DEBUG erreur
-        file_put_contents('mail_debug.txt', "ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
-
-        dd($e->getMessage()); // affiche l’erreur direct
-    }
-}
 
     // ==================== GET EVALUATION ====================
     #[Route('/evaluation/{id}', name: 'get_evaluation', methods: ['GET'])]
@@ -232,7 +296,6 @@ public function new(Request $request, EntityManagerInterface $em, MailerInterfac
 
             if (isset($content['error'])) {
                 $errMsg = $content['error']['message'] ?? json_encode($content['error']);
-                error_log('[ChatBot Groq] Erreur API : ' . $errMsg);
                 return $this->json(['reply' => "Erreur Groq : " . $errMsg]);
             }
 

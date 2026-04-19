@@ -5,122 +5,357 @@
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('admin') }}
     <style>
-        :root { --vert-vif: #089647; --vert-fonce: #076A39; --vert-foret: #095032; --vert-tres-fonce: #133D03; --vert-clair: #B2D944; }
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --vert-tres-fonce: #133D03;
+            --vert-clair: #B2D944;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%); min-height: 100vh; }
+
         .dashboard-container { display: flex; min-height: 100vh; }
         .main-content { flex: 1; margin-left: 280px; padding: 0; background: transparent; transition: margin-left 0.4s; }
         @media (max-width: 991.98px) { .main-content { margin-left: 0; } }
-        .page-header { padding: 28px 35px; position: relative; overflow: hidden; }
-        .show-card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); overflow: hidden; }
-        .show-card-header { padding: 28px; display: flex; align-items: center; justify-content: space-between; }
-        .show-card-header.approuve { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-bottom: 2px solid #22c55e; }
-        .show-card-header.refuse { background: linear-gradient(135deg, #fef2f2, #fee2e2); border-bottom: 2px solid #ef4444; }
-        .show-card-header.attente { background: linear-gradient(135deg, #fffbeb, #fef3c7); border-bottom: 2px solid #f59e0b; }
-        .show-card-body { padding: 32px; }
-        .info-section { background: #f8faf5; border-radius: 16px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #22c55e; }
-        .info-section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; font-weight: 700; margin-bottom: 8px; }
-        .info-section-value { font-size: 1rem; font-weight: 600; color: #1f2937; }
-        .eval-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
-        .badge-big { padding: 10px 24px; border-radius: 25px; font-size: 1rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+
+        .page-header {
+            padding: 30px 35px;
+            background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::after {
+            content: '⚖️';
+            position: absolute;
+            right: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 72px;
+            opacity: 0.08;
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 10px 22px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.25); }
+
+        /* ===== SHOW CARD ===== */
+        .show-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(34,197,94,0.12);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .show-card-header {
+            padding: 26px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .show-card-header.approuve { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-bottom: 4px solid #22c55e; }
+        .show-card-header.refuse  { background: linear-gradient(135deg, #fef2f2, #fee2e2); border-bottom: 4px solid #ef4444; }
+
+        .badge-big {
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
         .badge-big.approuve { background: #22c55e; color: white; }
-        .badge-big.refuse { background: #ef4444; color: white; }
-        .badge-big.attente { background: #f59e0b; color: white; }
-        .btn-action-lg { padding: 14px 24px; border-radius: 14px; font-weight: 700; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; border: none; cursor: pointer; }
-        .btn-edit-lg { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; box-shadow: 0 4px 15px rgba(217,119,6,0.3); }
-        .btn-edit-lg:hover { transform: translateY(-2px); color: white; }
-        .btn-delete-lg { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 4px 15px rgba(220,38,38,0.3); }
-        .btn-delete-lg:hover { transform: translateY(-2px); color: white; }
-        .btn-back { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 10px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; }
-        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
-        .page-header-bg { background: linear-gradient(135deg, #0a3d1f 0%, #1a5c35 100%); }
-        .main-content > *:not(.page-header):not(script) { padding-left: 35px; padding-right: 35px; }
+        .badge-big.refuse  { background: #ef4444; color: white; }
+
+        .show-card-body { padding: 32px; }
+
+        .eval-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #bbf7d0;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .info-section {
+            background: #f8faf5;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+            border-left: 5px solid #22c55e;
+        }
+        .info-section.blue { border-left-color: #3b82f6; }
+
+        .info-section-label {
+            font-size: 0.73rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #6b7280;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .info-section-value {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.65;
+            color: #1f2937;
+        }
+
+        /* Boutons */
+        .btn-action-lg {
+            padding: 14px 28px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.02rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .btn-edit-lg {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+        }
+        .btn-edit-lg:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(251,191,36,0.25);
+            color: white;
+        }
+        .btn-delete-lg {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn-delete-lg:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(239,68,68,0.25);
+            color: white;
+        }
+
+        /* ===== QR CODE ===== */
+        .qr-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(34,197,94,0.12);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .qr-card-header {
+            background: linear-gradient(135deg, #0a3d1f, #16a34a);
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+        .qr-card-body {
+            padding: 32px 28px;
+            text-align: center;
+        }
+        .qr-container {
+            display: inline-block;
+            padding: 16px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .qr-subtitle {
+            font-size: 0.85rem;
+            color: #15803d;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            padding: 14px 26px;
+            border-radius: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            box-shadow: 0 6px 20px rgba(34,197,94,0.25);
+            transition: all 0.3s;
+        }
+        .btn-download:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(34,197,94,0.35);
+            color: white;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="dashboard-container">
     {% include 'components/_sidebar_admin.html.twig' %}
-    <div class="main-content">
 
-        <div class="page-header page-header-bg">
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="page-header">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h2 class="text-white fw-bold mb-1" style="font-size:1.6rem;">👁️ Décision #{{ decision.idDecision }}</h2>
-                    <p class="mb-0" style="color:rgba(255,255,255,0.65); font-size:0.85rem;">Détails de la décision financière</p>
+                    <h2 class="text-white fw-bold mb-1" style="font-size:1.65rem;">
+                        👁️ Décision #{{ decision.idDecision }}
+                    </h2>
+                    <p class="mb-0" style="color:rgba(255,255,255,0.7); font-size:0.9rem;">
+                        Détails complets de la décision financière
+                    </p>
                 </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-light d-md-none" id="mobileSidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-outline-light d-md-none" id="mobileSidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <a href="{{ path('admin_decision_index') }}" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Retour
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="py-4">
-            <div class="row justify-content-center">
-                <div class="col-xl-8 col-lg-10">
+        <div class="py-4 px-4">
+            <div class="row g-4">
+                <!-- Colonne principale -->
+                <div class="col-lg-8">
                     <div class="show-card">
-
-                        <div class="show-card-header {{ decision.statut == 'approuve' ? 'approuve' : (decision.statut == 'refuse' ? 'refuse' : 'attente') }}">
+                        <div class="show-card-header {{ decision.statut == 'approuve' ? 'approuve' : 'refuse' }}">
                             <div>
-                                <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#6b7280; margin-bottom:8px;">Statut actuel</div>
                                 {% if decision.statut == 'approuve' %}
-                                    <span class="badge-big approuve"><i class="fas fa-check-circle"></i> Approuvé</span>
-                                {% elseif decision.statut == 'refuse' %}
-                                    <span class="badge-big refuse"><i class="fas fa-times-circle"></i> Refusé</span>
+                                    <span class="badge-big approuve">
+                                        <i class="fas fa-check-circle"></i> Approuvé
+                                    </span>
                                 {% else %}
-                                    <span class="badge-big attente"><i class="fas fa-clock"></i> En attente</span>
+                                    <span class="badge-big refuse">
+                                        <i class="fas fa-times-circle"></i> Refusé
+                                    </span>
                                 {% endif %}
                             </div>
-                            <div style="font-size:3rem; opacity:0.3;">⚖️</div>
+                            <div style="font-size:3.8rem; opacity:0.15;">⚖️</div>
                         </div>
 
                         <div class="show-card-body">
-
                             {% if decision.evaluation %}
                             <div class="eval-card">
-                                <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:#6b7280; font-weight:700; margin-bottom:10px;">🔍 Évaluation liée</div>
-                                <div style="font-size:1.1rem; font-weight:700; color:#15803d;">Évaluation #{{ decision.evaluation.idEvaluation }}</div>
-                                <div class="row mt-2">
+                                <div class="info-section-label">🔍 ÉVALUATION LIÉE</div>
+                                <div style="font-size:1.15rem; font-weight:700; color:#15803d; margin-bottom:16px;">
+                                    Évaluation #{{ decision.evaluation.idEvaluation }}
+                                </div>
+                                <div class="row g-4 text-center">
                                     <div class="col-4">
-                                        <small style="color:#6b7280;">Niveau de risque</small>
-                                        <div style="font-weight:600;">{{ decision.evaluation.niveauRisque }}</div>
+                                        <div class="info-section-label">Niveau de risque</div>
+                                        <div style="font-weight:700; font-size:1.1rem;">{{ decision.evaluation.niveauRisque }}</div>
                                     </div>
                                     <div class="col-4">
-                                        <small style="color:#6b7280;">Score global</small>
-                                        <div style="font-weight:600;">{{ decision.evaluation.scoreGlobal }}</div>
+                                        <div class="info-section-label">Score Global</div>
+                                        <div style="font-weight:700; font-size:1.3rem; color:#15803d;">
+                                            {{ decision.evaluation.scoreGlobal }}/100
+                                        </div>
                                     </div>
                                     <div class="col-4">
-                                        <small style="color:#6b7280;">Fiabilité</small>
-                                        <div style="font-weight:600;">{{ decision.evaluation.fiabiliteDonnees }}</div>
+                                        <div class="info-section-label">Fiabilité</div>
+                                        <div style="font-weight:700;">{{ decision.evaluation.fiabiliteDonnees }}</div>
                                     </div>
                                 </div>
+                                {% if decision.evaluation.recommandation %}
+                                <hr style="margin:20px 0; border-color:#bbf7d0;">
+                                <div class="info-section-label">Recommandation</div>
+                                <p style="color:#374151; line-height:1.7;">{{ decision.evaluation.recommandation }}</p>
+                                {% endif %}
                             </div>
                             {% endif %}
 
+                            <!-- Date -->
                             <div class="info-section">
                                 <div class="info-section-label">📅 Date de décision</div>
                                 <div class="info-section-value">{{ decision.dateDecision|date('d/m/Y à H:i') }}</div>
                             </div>
 
-                            <div class="info-section" style="border-left-color:#3b82f6;">
+                            <!-- Justification -->
+                            <div class="info-section blue">
                                 <div class="info-section-label">📝 Justification</div>
-                                <div class="info-section-value" style="font-weight:400; line-height:1.7;">{{ decision.justification }}</div>
+                                <div class="info-section-value">{{ decision.justification }}</div>
                             </div>
 
-                            <div class="d-flex gap-3 mt-4 flex-wrap">
-                                <a href="{{ path('admin_decision_edit', {id: decision.idDecision}) }}" class="btn-action-lg btn-edit-lg">
-                                    <i class="fas fa-edit"></i> Modifier
+                            <!-- Actions -->
+                            <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+                                <a href="{{ path('admin_decision_edit', {idDecision: decision.idDecision}) }}"
+                                   class="btn-action-lg btn-edit-lg">
+                                    <i class="fas fa-edit"></i> Modifier la décision
                                 </a>
-                                <form method="post" action="{{ path('admin_decision_delete', {id: decision.idDecision}) }}"
+                                <form method="post"
+                                      action="{{ path('admin_decision_delete', {idDecision: decision.idDecision}) }}"
                                       onsubmit="return confirm('Supprimer définitivement cette décision ?')">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ decision.idDecision) }}">
                                     <button type="submit" class="btn-action-lg btn-delete-lg">
                                         <i class="fas fa-trash"></i> Supprimer
                                     </button>
                                 </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonne QR Code + Infos -->
+                <div class="col-lg-4">
+                    <div class="qr-card">
+                        <div class="qr-card-header">
+                            <div style="font-size:1.1rem; font-weight:700;">📱 QR Code de la décision</div>
+                            <div style="font-size:0.82rem; opacity:0.85; margin-top:4px;">Scannez pour consulter les détails</div>
+                        </div>
+                        <div class="qr-card-body">
+                            <div class="qr-container">
+                                {{ qrSvg|raw }}
+                            </div>
+                            <div class="qr-subtitle">
+                                Scannez ce QR code avec votre téléphone<br>
+                                pour accéder rapidement aux informations.
+                            </div>
+                            <a href="{{ path('admin_decision_qrcode', {idDecision: decision.idDecision}) }}"
+                               download="qrcode-decision-{{ decision.idDecision }}.png"
+                               class="btn-download">
+                                <i class="fas fa-download"></i> Télécharger le QR Code
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Infos rapides -->
+                    <div class="show-card mt-4" style="padding: 24px;">
+                        <div class="info-section-label mb-3">ℹ️ Informations rapides</div>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                                <span style="color:#6b7280;">ID Décision</span>
+                                <strong>#{{ decision.idDecision }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                                <span style="color:#6b7280;">Statut</span>
+                                <strong style="color:{{ decision.statut == 'approuve' ? '#16a34a' : '#dc2626' }};">
+                                    {{ decision.statut == 'approuve' ? '✅ Approuvé' : '❌ Refusé' }}
+                                </strong>
+                            </div>
+                            {% if decision.evaluation %}
+                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                                <span style="color:#6b7280;">Score</span>
+                                <strong>{{ decision.evaluation.scoreGlobal }}/100</strong>
+                            </div>
+                            {% endif %}
+                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                                <span style="color:#6b7280;">Date</span>
+                                <strong>{{ decision.dateDecision|date('d/m/Y') }}</strong>
                             </div>
                         </div>
                     </div>
@@ -134,7 +369,7 @@
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
     <script>
-        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('mobileSidebarToggle')?.addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('show');
         });
     </script>
