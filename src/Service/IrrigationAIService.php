@@ -4,37 +4,67 @@ namespace App\Service;
 
 use App\Entity\IrrigationDecision;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Weather\OpenWeatherClient;
 
 class IrrigationAIService
 {
     public function __construct(
-        private EntityManagerInterface $em
-    ) {}
+    private EntityManagerInterface $em,
+    private OpenWeatherClient $weatherClient
+) {}
 
     /**
      * Analyse complète (pour la page Twig)
      */
-    public function analyzeComplete(int $projetId, array $currentData): array
+   public function analyzeComplete(int $projetId, array $currentData): array
 {
-    $analysis = $this->analyzeIrrigation($projetId, $currentData);
+    $capteur = $this->em->getRepository(\App\Entity\Capteur::class)
+        ->findOneBy(['idproject' => $projetId]);
 
-    $weatherForecast = $this->getWeatherForecast();
+    $lat = $capteur?->getLatitude() ?? 34.0209;
+    $lon = $capteur?->getLongitude() ?? -6.8416;
 
-    $recommendation = $this->generateRecommendation(
-        $analysis,
-        $weatherForecast
-    );
+    $currentWeather = $this->weatherClient->getCurrent($lat, $lon);
+    $forecast = $this->weatherClient->getForecast($lat, $lon);
+
+    $fusionData = [
+        'temperature' => $currentData['temperature'] ?? 20,
+        'humidite_sol' => $currentData['humidite'] ?? 50,
+        'pluie_mesuree' => $currentData['pluie'] ?? 0,
+        'pluie_prevue' => $this->extractRainForecast($forecast),
+        'humidite_air' => $currentWeather['main']['humidity'] ?? 50
+    ];
+
+    $analysis = $this->analyzeIrrigationFusion($projetId, $fusionData);
 
     $waterSavings = $this->calculateWaterSavings($analysis['decision']);
 
-    $optimizationTips = $this->getOptimizationTips($analysis); // ✅ AJOUT
+    $recommendation = $this->generateRecommendation(
+        $analysis,
+        [
+            'rain_forecast' => $fusionData['pluie_prevue']
+        ]
+    );
+
+    $weatherForecast = [
+        'temperature_forecast' => $forecast['list'][0]['main']['temp'] ?? 0,
+        'rain_forecast' => $fusionData['pluie_prevue'],
+        'humidity_forecast' => $forecast['list'][0]['main']['humidity'] ?? 0,
+        'confidence' => 0.85,
+        'next_rain_date' => new \DateTime('+2 days')
+    ];
+
+    // ✅ AJOUT MANQUANT
+    $optimizationTips = $this->getOptimizationTips($analysis);
 
     return [
         'analysis' => $analysis,
+        'waterSavings' => $waterSavings,
         'recommendation' => $recommendation,
         'weatherForecast' => $weatherForecast,
-        'waterSavings' => $waterSavings,
-        'optimizationTips' => $optimizationTips // ✅ AJOUT
+        'optimizationTips' => $optimizationTips, // ✅ AJOUTÉ
+        'meteo' => $currentWeather,
+        'forecast' => $forecast
     ];
 }
 
@@ -258,5 +288,46 @@ class IrrigationAIService
     $tips[] = '⏰ Irrigation idéale : 6h-8h ou 18h-20h.';
 
     return $tips;
+}
+private function analyzeIrrigationFusion(int $projetId, array $data): array
+{
+    $temp = $this->sanitizeValue($data['temperature']);
+    $humSol = $this->sanitizeValue($data['humidite_sol']);
+    $pluieMesuree = $this->sanitizeValue($data['pluie_mesuree']);
+    $pluiePrevue = $this->sanitizeValue($data['pluie_prevue']);
+    $humAir = $this->sanitizeValue($data['humidite_air']);
+
+    $et0 = $this->calculateEvapotranspiration($temp, $humAir);
+
+    $besoinEau = max(0, $et0 - $pluieMesuree - ($pluiePrevue * 0.8));
+
+    $urgenceScore = $this->calculateUrgencyScore($humSol, $besoinEau);
+
+    $decision = $this->makeDecision($urgenceScore);
+
+    return [
+        'decision' => $decision['action'],
+        'quantite' => $decision['quantite'],
+        'urgence' => $urgenceScore,
+        'et0' => round($et0, 2),
+        'besoin_eau' => round($besoinEau, 2),
+        'confidence' => $this->calculateConfidence($data), // ✅ AJOUT
+        'explication' => $this->getExplanation($decision, $urgenceScore), // ✅ AJOUT
+        'meteo_impact' => $pluiePrevue > 5
+            ? 'Pluie prévue impacte la décision'
+            : 'Pas de pluie significative'
+    ];
+}
+private function extractRainForecast(array $forecast): float
+{
+    $rainTotal = 0;
+
+    foreach ($forecast['list'] ?? [] as $item) {
+        if (isset($item['rain']['3h'])) {
+            $rainTotal += $item['rain']['3h'];
+        }
+    }
+
+    return round($rainTotal, 1);
 }
 }

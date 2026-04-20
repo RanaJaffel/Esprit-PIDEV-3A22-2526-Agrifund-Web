@@ -32,7 +32,7 @@ class FaceRecognitionService
         $this->requestStack = $requestStack;
         $this->logger = $logger;
         
-        $this->pythonPath = 'C:\\Users\\SS TECH\\AppData\\Local\\Programs\\Python\\Python310\\python.exe';
+        $this->pythonPath = 'C:\\Users\\ranaj\\AppData\\Local\\Programs\\Python\\Python310\\python.exe';
         $this->scriptPath = $projectDir . '/python/face_recognition_service.py';
         $this->tempDir = sys_get_temp_dir();
         

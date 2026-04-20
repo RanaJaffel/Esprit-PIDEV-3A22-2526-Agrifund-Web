@@ -15,6 +15,11 @@ class Capteur
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_capteur')]
     private ?int $idCapteur = null;
+    #[ORM\Column(type: 'float', nullable: true)]
+private ?float $latitude = null;
+
+#[ORM\Column(type: 'float', nullable: true)]
+private ?float $longitude = null;
 
     #[ORM\Column(name: 'typeCapteur', length: 50)]
     #[Assert\NotBlank(message: 'Le type de capteur est obligatoire')]
@@ -176,4 +181,25 @@ class Capteur
         $this->lastSeenAt = $dt;
         return $this;
     }
+    public function getLatitude(): ?float
+{
+    return $this->latitude;
+}
+
+public function setLatitude(?float $latitude): self
+{
+    $this->latitude = $latitude;
+    return $this;
+}
+
+public function getLongitude(): ?float
+{
+    return $this->longitude;
+}
+
+public function setLongitude(?float $longitude): self
+{
+    $this->longitude = $longitude;
+    return $this;
+}
 }

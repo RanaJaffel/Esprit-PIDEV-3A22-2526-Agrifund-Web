@@ -1,554 +1,124 @@
 {% extends 'base.html.twig' %}
 {% block title %}Analyse Historique — Projet #{{ idproject }}{% endblock %}
 
-{% block stylesheets %}
-  {{ parent() }}
-  <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
-  <link rel="stylesheet" href="{{ asset('ui/iot-advanced.css') }}">
-  <link rel="stylesheet" href="{{ asset('ui/historique-page.css') }}">
-{% endblock %}
-
 {% block body %}
-<div class="iot-page historique-page">
-  <div class="container-fluid py-4">
+<div class="container-fluid py-4">
 
-    {# HERO #}
-    <div class="iot-hero reveal mb-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-          <h2 class="iot-hero-title mb-0">
-            <i class="fas fa-chart-line me-2"></i>
-            Analyse Historique — Projet #{{ idproject }}
-          </h2>
-          <div class="iot-hero-sub">Tendances, comparaisons et prédictions IA</div>
-        </div>
+  {# HERO #}
+  <div class="card shadow-sm mb-4 p-4 bg-success text-white">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2><i class="fas fa-chart-line me-2"></i>
+          Analyse Historique — Projet #{{ idproject }}
+        </h2>
+        <small>Tendances & prédictions IA</small>
+      </div>
 
-        <div class="d-flex gap-2">
-          <a class="btn btn-outline-success" href="{{ path('app_dashboard', {idproject: idproject}) }}">
-            <i class="fas fa-arrow-left me-2"></i> Dashboard
-          </a>
+      <div>
+        <a class="btn btn-light me-2"
+           href="{{ path('app_dashboard', {idproject: idproject}) }}">
+          Dashboard
+        </a>
 
-          <a class="btn btn-outline-danger" href="{{ path('historique_export_pdf', {idproject: idproject}) }}">
-            <i class="fas fa-file-pdf me-2"></i> Export PDF
-          </a>
-        </div>
+        <a class="btn btn-danger"
+           href="{{ path('historique_export_pdf', {idproject: idproject}) }}">
+          Export PDF
+        </a>
       </div>
     </div>
-
-    {# COMPARAISON 2 SEMAINES #}
-    {% if analysis.comparison.error is not defined %}
-      <div class="row g-3 mb-4">
-        <div class="col-12">
-          <div class="panel panel-comparison">
-            <div class="panel-h">
-              <span><i class="fas fa-balance-scale me-2"></i> Comparaison 2 dernières semaines</span>
-              <span class="badge severity-{{ analysis.comparison.severity|lower }}">
-                {{ analysis.comparison.severity }}
-              </span>
-            </div>
-
-            <div class="panel-b">
-              {# Cartes semaines #}
-              <div class="week-comparison-grid">
-                <div class="week-card-large current">
-                  <div class="week-header">
-                    <i class="fas fa-calendar-week"></i>
-                    <span>Semaine actuelle</span>
-                  </div>
-
-                  <div class="week-period">{{ analysis.comparison.current.period }}</div>
-
-                  <div class="week-metrics-large">
-                    <div class="metric-large">
-                      <div class="metric-icon-large temp">
-                        <i class="fas fa-temperature-high"></i>
-                      </div>
-                      <div class="metric-data">
-                        <div class="metric-value-xl">{{ analysis.comparison.current.temperature }}°C</div>
-                        <div class="metric-label">Température moyenne</div>
-                      </div>
-                    </div>
-
-                    <div class="metric-large">
-                      <div class="metric-icon-large hum">
-                        <i class="fas fa-droplet"></i>
-                      </div>
-                      <div class="metric-data">
-                        <div class="metric-value-xl">{{ analysis.comparison.current.humidite }}%</div>
-                        <div class="metric-label">Humidité moyenne</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="week-footer">
-                    <span class="chip-large {{ analysis.comparison.current.trend|lower }}">
-                      <span class="dot {{ analysis.comparison.current.trend == 'NORMAL' ? 'active' : 'bad' }}"></span>
-                      {{ analysis.comparison.current.trend }}
-                    </span>
-                    <span class="text-muted small">{{ analysis.comparison.current.nb_mesures }} mesures</span>
-                  </div>
-                </div>
-
-                <div class="comparison-arrow">
-                  <i class="fas fa-arrows-left-right"></i>
-                  <div class="arrow-label">VS</div>
-                </div>
-
-                <div class="week-card-large previous">
-                  <div class="week-header">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Semaine précédente</span>
-                  </div>
-
-                  <div class="week-period">{{ analysis.comparison.previous.period }}</div>
-
-                  <div class="week-metrics-large">
-                    <div class="metric-large">
-                      <div class="metric-icon-large temp">
-                        <i class="fas fa-temperature-high"></i>
-                      </div>
-                      <div class="metric-data">
-                        <div class="metric-value-xl">{{ analysis.comparison.previous.temperature }}°C</div>
-                        <div class="metric-label">Température moyenne</div>
-                      </div>
-                    </div>
-
-                    <div class="metric-large">
-                      <div class="metric-icon-large hum">
-                        <i class="fas fa-droplet"></i>
-                      </div>
-                      <div class="metric-data">
-                        <div class="metric-value-xl">{{ analysis.comparison.previous.humidite }}%</div>
-                        <div class="metric-label">Humidité moyenne</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="week-footer">
-                    <span class="chip-large {{ analysis.comparison.previous.trend|lower }}">
-                      <span class="dot"></span>
-                      {{ analysis.comparison.previous.trend }}
-                    </span>
-                    <span class="text-muted small">{{ analysis.comparison.previous.nb_mesures }} mesures</span>
-                  </div>
-                </div>
-              </div>
-
-              {# Variations #}
-              <div class="variations-section">
-                <h5 class="variations-title">
-                  <i class="fas fa-chart-area me-2"></i> Variations observées
-                </h5>
-
-                <div class="variations-cards">
-                  <div class="variation-card-large {{ analysis.comparison.variation.temperature.direction }}">
-                    <div class="variation-header">
-                      <i class="fas fa-temperature-high"></i>
-                      <span>Température</span>
-                    </div>
-
-                    <div class="variation-body">
-                      <div class="variation-percentage">
-                        {% if analysis.comparison.variation.temperature.direction == 'hausse' %}
-                          <i class="fas fa-arrow-up"></i>
-                        {% else %}
-                          <i class="fas fa-arrow-down"></i>
-                        {% endif %}
-                        {{ analysis.comparison.variation.temperature.pourcentage }}%
-                      </div>
-
-                      <div class="variation-absolute">
-                        {{ analysis.comparison.variation.temperature.valeur > 0 ? '+' : '' }}{{ analysis.comparison.variation.temperature.valeur }}°C
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="variation-card-large {{ analysis.comparison.variation.humidite.direction }}">
-                    <div class="variation-header">
-                      <i class="fas fa-droplet"></i>
-                      <span>Humidité</span>
-                    </div>
-
-                    <div class="variation-body">
-                      <div class="variation-percentage">
-                        {% if analysis.comparison.variation.humidite.direction == 'hausse' %}
-                          <i class="fas fa-arrow-up"></i>
-                        {% else %}
-                          <i class="fas fa-arrow-down"></i>
-                        {% endif %}
-                        {{ analysis.comparison.variation.humidite.pourcentage }}%
-                      </div>
-
-                      <div class="variation-absolute">
-                        {{ analysis.comparison.variation.humidite.valeur > 0 ? '+' : '' }}{{ analysis.comparison.variation.humidite.valeur }}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {# Analyse IA #}
-                <div class="ai-analysis-large {{ 'severity-' ~ analysis.comparison.severity|lower }}">
-                  <div class="analysis-icon">
-                    {% if analysis.comparison.severity == 'CRITICAL' %}
-                      <i class="fas fa-exclamation-triangle"></i>
-                    {% elseif analysis.comparison.severity == 'HIGH' %}
-                      <i class="fas fa-exclamation-circle"></i>
-                    {% elseif analysis.comparison.severity == 'MEDIUM' %}
-                      <i class="fas fa-info-circle"></i>
-                    {% else %}
-                      <i class="fas fa-check-circle"></i>
-                    {% endif %}
-                  </div>
-
-                  <div class="analysis-content">
-                    <div class="analysis-title">Analyse IA</div>
-                    <div class="analysis-text">{{ analysis.comparison.analyse }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-
-    {# GRAPHIQUE TENDANCE #}
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-xl-8">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-line me-2"></i> Tendance sur 8 semaines</span>
-            <span class="badge bg-info">{{ analysis.trend.weeks_analyzed }} semaines</span>
-          </div>
-
-          <div class="panel-b">
-            <canvas id="chartTendance" height="100"></canvas>
-          </div>
-        </div>
-      </div>
-
-      {# STATISTIQUES GLOBALES #}
-      <div class="col-12 col-xl-4">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-pie me-2"></i> Statistiques (3 mois)</span>
-          </div>
-
-          <div class="panel-b">
-            <div class="stats-list">
-              <div class="stat-item">
-                <div class="stat-label">
-                  <i class="fas fa-temperature-high text-danger"></i>
-                  Température
-                </div>
-                <div class="stat-values">
-                  <div class="stat-row">
-                    <span class="small text-muted">Moyenne</span>
-                    <span class="fw-bold">{{ analysis.stats.avg_temp|round(1) }}°C</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="small text-muted">Max</span>
-                    <span class="text-danger">{{ analysis.stats.max_temp|round(1) }}°C</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="small text-muted">Min</span>
-                    <span class="text-primary">{{ analysis.stats.min_temp|round(1) }}°C</span>
-                  </div>
-                </div>
-              </div>
-
-              <hr>
-
-              <div class="stat-item">
-                <div class="stat-label">
-                  <i class="fas fa-droplet text-info"></i>
-                  Humidité
-                </div>
-                <div class="stat-values">
-                  <div class="stat-row">
-                    <span class="small text-muted">Moyenne</span>
-                    <span class="fw-bold">{{ analysis.stats.avg_hum|round(1) }}%</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="small text-muted">Max</span>
-                    <span class="text-info">{{ analysis.stats.max_hum|round(1) }}%</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="small text-muted">Min</span>
-                    <span class="text-warning">{{ analysis.stats.min_hum|round(1) }}%</span>
-                  </div>
-                </div>
-              </div>
-
-              <hr>
-
-              <div class="stat-item">
-                <div class="stat-label">
-                  <i class="fas fa-calendar-week text-success"></i>
-                  Période
-                </div>
-                <div class="text-center">
-                  <div class="fs-3 fw-bold text-success">{{ analysis.stats.total_weeks }}</div>
-                  <div class="small text-muted">semaines analysées</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# PRÉDICTION #}
-    {% if analysis.prediction.available %}
-      <div class="row g-3 mb-4">
-        <div class="col-12">
-          <div class="panel panel-prediction">
-            <div class="panel-h">
-              <span><i class="fas fa-crystal-ball me-2"></i> Prédiction IA — Semaine prochaine</span>
-              <span class="badge bg-primary">
-                Confiance: {{ (analysis.prediction.confidence * 100)|round }}%
-              </span>
-            </div>
-
-            <div class="panel-b">
-              <div class="prediction-grid">
-                <div class="prediction-card">
-                  <div class="prediction-icon temp">
-                    <i class="fas fa-temperature-high"></i>
-                  </div>
-                  <div class="prediction-data">
-                    <div class="prediction-label">Température prévue</div>
-                    <div class="prediction-value">{{ analysis.prediction.temperature }}°C</div>
-                  </div>
-                </div>
-
-                <div class="prediction-card">
-                  <div class="prediction-icon hum">
-                    <i class="fas fa-droplet"></i>
-                  </div>
-                  <div class="prediction-data">
-                    <div class="prediction-label">Humidité prévue</div>
-                    <div class="prediction-value">{{ analysis.prediction.humidite }}%</div>
-                  </div>
-                </div>
-
-                <div class="prediction-card">
-                  <div class="prediction-icon ai">
-                    <i class="fas fa-brain"></i>
-                  </div>
-                  <div class="prediction-data">
-                    <div class="prediction-label">Méthode IA</div>
-                    <div class="prediction-method">{{ analysis.prediction.method }}</div>
-                  </div>
-                </div>
-              </div>
-
-              {% if analysis.prediction.warning %}
-                <div class="prediction-warning">
-                  <i class="fas fa-exclamation-triangle me-2"></i>
-                  {{ analysis.prediction.warning }}
-                </div>
-              {% else %}
-                <div class="prediction-success">
-                  <i class="fas fa-check-circle me-2"></i>
-                  Conditions normales prévues
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-
-    {# DISTRIBUTION CONDITIONS #}
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-6">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-pie me-2"></i> Distribution des conditions</span>
-          </div>
-
-          <div class="panel-b">
-            <canvas id="chartConditions" height="150"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-list me-2"></i> Détails conditions</span>
-          </div>
-
-          <div class="panel-b p-0">
-            <div class="conditions-list">
-              {% for cond in analysis.conditionDistribution %}
-                <div class="condition-item">
-                  <span class="chip-large {{ cond.condition_dominante|lower }}">
-                    {{ cond.condition_dominante }}
-                  </span>
-
-                  <div class="condition-stats">
-                    <span class="count">{{ cond.count }} semaines</span>
-                    <span class="percentage">{{ cond.percentage|round(1) }}%</span>
-                  </div>
-
-                  <div class="progress-bar-custom">
-                    <div class="progress-fill" style="width: {{ cond.percentage }}%"></div>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# TABLEAU DÉTAILLÉ #}
-    <div class="row g-3">
-      <div class="col-12">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-table me-2"></i> Historique détaillé (12 dernières semaines)</span>
-          </div>
-
-          <div class="panel-b">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Période</th>
-                    <th>Temp moy</th>
-                    <th>Hum moy</th>
-                    <th>Nb mesures</th>
-                    <th>Condition</th>
-                    <th>Tendance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for week in lastWeeks %}
-                    <tr>
-                      <td>
-                        <i class="fas fa-calendar-week me-2 text-muted"></i>
-                        {{ week.startDate|date('d/m') }} - {{ week.endDate|date('d/m') }}
-                      </td>
-                      <td>
-                        <span class="metric-badge temp">
-                          {{ week.tempMoy }}°C
-                        </span>
-                      </td>
-                      <td>
-                        <span class="metric-badge hum">
-                          {{ week.humMoy }}%
-                        </span>
-                      </td>
-                      <td>{{ week.nbMesures }}</td>
-                      <td>
-                        <span class="chip {{ week.conditionDominante|lower }}">
-                          {{ week.conditionDominante }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="trend-badge {{ week.trend|lower }}">
-                          {{ week.trend }}
-                        </span>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
+
+  {# KPI #}
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card p-3 text-center shadow-sm">
+        <h6>Température Moyenne</h6>
+        <h3>{{ analysis.stats.avg_temp|default(0)|round(1) }}°C</h3>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 text-center shadow-sm">
+        <h6>Humidité Moyenne</h6>
+        <h3>{{ analysis.stats.avg_hum|default(0)|round(1) }}%</h3>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 text-center shadow-sm">
+        <h6>Semaines analysées</h6>
+        <h3>{{ analysis.stats.total_weeks|default(0) }}</h3>
+      </div>
+    </div>
+  </div>
+
+  {# GRAPH #}
+  <div class="card shadow-sm mb-4 p-4">
+    <h5>Tendance sur 8 semaines</h5>
+    <canvas id="chartTendance"></canvas>
+  </div>
+
+  {# COMPARISON #}
+  {% if analysis.comparison is defined and analysis.comparison.error is not defined %}
+  <div class="card shadow-sm mb-4 p-4">
+    <h5>Comparaison 2 semaines</h5>
+
+    <div class="row">
+      <div class="col-md-6">
+        <strong>Semaine actuelle</strong>
+        <p>{{ analysis.comparison.current.nb_mesures|default(0) }} mesures</p>
+        🌡 {{ analysis.comparison.current.temperature|default(0) }}°C<br>
+        💧 {{ analysis.comparison.current.humidite|default(0) }}%
+      </div>
+
+      <div class="col-md-6">
+        <strong>Semaine précédente</strong>
+        <p>{{ analysis.comparison.previous.nb_mesures|default(0) }} mesures</p>
+        🌡 {{ analysis.comparison.previous.temperature|default(0) }}°C<br>
+        💧 {{ analysis.comparison.previous.humidite|default(0) }}%
+      </div>
+    </div>
+
+    <hr>
+
+    <h6>Analyse IA</h6>
+    <p>{{ analysis.comparison.analyse|default('Analyse non disponible') }}</p>
+  </div>
+  {% endif %}
+
+  {# PREDICTION #}
+  {% if analysis.prediction.available %}
+  <div class="card shadow-sm p-4">
+    <h5>Prédiction Semaine Prochaine</h5>
+
+    <div class="row text-center">
+      <div class="col-md-6">
+        <h4>{{ analysis.prediction.temperature|default(0) }}°C</h4>
+        <small>Température prévue</small>
+      </div>
+
+      <div class="col-md-6">
+        <h4>{{ analysis.prediction.humidite|default(0) }}%</h4>
+        <small>Humidité prévue</small>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}
 
 {% block javascripts %}
-  {{ parent() }}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-  <script>
-    // GRAPHIQUE TENDANCE
-    const chartData = {{ analysis.chartData|json_encode|raw }};
-    
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const chartData = {{ analysis.chartData|json_encode|raw }};
+if(chartData && chartData.labels){
     new Chart(document.getElementById('chartTendance'), {
-      type: 'line',
-      data: chartData,
-      options: {
-        responsive: true,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
-        plugins: {
-          legend: {
-            position: 'bottom'
-          },
-          tooltip: {
-            callbacks: {
-              afterLabel: function(context) {
-                const index = context.dataIndex;
-                return 'Condition: ' + chartData.conditions[index];
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Température (°C)'
-            }
-          },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            title: {
-              display: true,
-              text: 'Humidité (%)'
-            },
-            grid: {
-              drawOnChartArea: false
-            }
-          }
-        }
-      }
+        type: 'line',
+        data: chartData,
+        options: { responsive: true }
     });
-
-    // GRAPHIQUE DISTRIBUTION CONDITIONS
-    const condData = {{ analysis.conditionDistribution|json_encode|raw }};
-    
-    new Chart(document.getElementById('chartConditions'), {
-      type: 'doughnut',
-      data: {
-        labels: condData.map(c => c.condition_dominante),
-        datasets: [{
-          data: condData.map(c => c.count),
-          backgroundColor: [
-            '#00b894',
-            '#fdcb6e',
-            '#e17055',
-            '#d63031',
-            '#0984e3'
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }
-    });
-  </script>
+}
+</script>
 {% endblock %}

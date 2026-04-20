@@ -29,7 +29,6 @@ class AdminMessagerieController extends AbstractController
         $currentUser = $this->getUser();
         $conversations = $conversationRepository->findUserConversations($currentUser->getId());
         
-        // Enrichir les conversations avec les informations des utilisateurs
         $conversationsData = [];
         foreach ($conversations as $conversation) {
             $otherUserId = $conversation->getOtherUserId($currentUser->getId());
@@ -66,20 +65,23 @@ class AdminMessagerieController extends AbstractController
     #[Route('/conversation/{id}', name: 'admin_messagerie_chat')]
     public function chat(
         Conversation $conversation,
-        MessageRepository $messageRepository
+        MessageRepository $messageRepository,
+        UtilisateurRepository $utilisateurRepository
     ): Response {
         $currentUser = $this->getUser();
         
-        // Vérifier que l'utilisateur fait partie de la conversation
-        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
-            $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
+        if (
+            $conversation->getUtilisateur1Id() !== $currentUser->getId() &&
+            $conversation->getUtilisateur2Id() !== $currentUser->getId()
+        ) {
             $this->addFlash('error', 'Accès non autorisé à cette conversation.');
             return $this->redirectToRoute('admin_messagerie_index');
         }
 
-        // Marquer les messages comme lus
-        $messageRepository->markAsRead($conversation, $currentUser->getId());
+        $otherUserId = $conversation->getOtherUserId($currentUser->getId());
+        $otherUser = $utilisateurRepository->find($otherUserId);
 
+        $messageRepository->markAsRead($conversation, $currentUser->getId());
         $messages = $messageRepository->findByConversation($conversation);
 
         return $this->render('admin/messagerie/chat.html.twig', [
@@ -134,8 +136,10 @@ class AdminMessagerieController extends AbstractController
 
         $currentUser = $this->getUser();
         
-        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
-            $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
+        if (
+            $conversation->getUtilisateur1Id() !== $currentUser->getId() &&
+            $conversation->getUtilisateur2Id() !== $currentUser->getId()
+        ) {
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
         }
 
@@ -153,7 +157,6 @@ class AdminMessagerieController extends AbstractController
 
         if (!empty($files)) {
             foreach ($files as $file) {
-                // Vérifier si le fichier est valide
                 if (!$file->isValid()) {
                     return new JsonResponse(['error' => 'Fichier invalide'], 400);
                 }
@@ -166,8 +169,6 @@ class AdminMessagerieController extends AbstractController
                 }
                 
                 $mimeType = $file->getMimeType();
-                
-                // Obtenir la taille AVANT de déplacer le fichier
                 $fileSize = $file->getSize();
                 
                 $typeFichier = 'autre';
@@ -184,11 +185,7 @@ class AdminMessagerieController extends AbstractController
                 $newFilename = 'msg_' . uniqid() . '_' . $typeFichier . '_' . date('Ymd_His') . '.' . $extension;
                 
                 $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/messagerie/';
-                if ($typeFichier === 'image') {
-                    $uploadDir .= 'images/';
-                } else {
-                    $uploadDir .= 'files/';
-                }
+                $uploadDir .= $typeFichier === 'image' ? 'images/' : 'files/';
                 
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
@@ -202,7 +199,7 @@ class AdminMessagerieController extends AbstractController
                     $pieceJointe->setNomOriginal($file->getClientOriginalName());
                     $pieceJointe->setNomStockage($newFilename);
                     $pieceJointe->setCheminFichier(str_replace($this->getParameter('kernel.project_dir') . '/public/', '', $uploadDir . $newFilename));
-                    $pieceJointe->setTailleOctets($fileSize); // Utiliser la taille obtenue AVANT le déplacement
+                    $pieceJointe->setTailleOctets($fileSize);
                     $pieceJointe->setExtension($extension);
                     $pieceJointe->setMimeType($mimeType);
                     
@@ -286,7 +283,6 @@ class AdminMessagerieController extends AbstractController
             return new JsonResponse(['error' => 'Non autorisé'], 403);
         }
 
-        // Correction du CSRF token
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete_message' . $message->getId(), $token)) {
             return new JsonResponse(['error' => 'Token CSRF invalide'], 403);
@@ -318,7 +314,6 @@ class AdminMessagerieController extends AbstractController
     public function unreadCount(MessageRepository $messageRepository): JsonResponse
     {
         $count = $messageRepository->countAllUnreadMessages($this->getUser()->getId());
-        
         return new JsonResponse(['count' => $count]);
     }
 
@@ -330,8 +325,10 @@ class AdminMessagerieController extends AbstractController
     ): JsonResponse {
         $currentUser = $this->getUser();
         
-        if ($conversation->getUtilisateur1Id() !== $currentUser->getId() && 
-            $conversation->getUtilisateur2Id() !== $currentUser->getId()) {
+        if (
+            $conversation->getUtilisateur1Id() !== $currentUser->getId() &&
+            $conversation->getUtilisateur2Id() !== $currentUser->getId()
+        ) {
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
         }
 
@@ -345,7 +342,7 @@ class AdminMessagerieController extends AbstractController
         
         if ($lastMessageId > 0) {
             $qb->andWhere('m.id > :lastId')
-                ->setParameter('lastId', $lastMessageId);
+               ->setParameter('lastId', $lastMessageId);
         }
         
         $messages = $qb->orderBy('m.dateEnvoi', 'ASC')

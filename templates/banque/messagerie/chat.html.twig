@@ -1,31 +1,12 @@
 {% extends 'base.html.twig' %}
 
-<<<<<<< HEAD
 {% block title %}Conversation avec {{ other_user.nomComplet }}{% endblock %}
-=======
-{% block title %}Conversation{% endblock %}
->>>>>>> origin/chedy
 
 {% block stylesheets %}
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('banque') }}
-    {{ encore_entry_link_tags('messagerie-style') }}
-<<<<<<< HEAD
+    {{ encore_entry_link_tags('messagerie_style') }}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
-=======
-    <style>
-        /* Override chat header color for banque */
-        .chat-header {
-            background: linear-gradient(135deg, var(--jaune-moutarde) 0%, var(--olive) 100%);
-        }
-        
-        /* Override sent message color for banque */
-        .message-sent .message-bubble {
-            background: var(--jaune-moutarde);
-            color: white;
-        }
-    </style>
->>>>>>> origin/chedy
 {% endblock %}
 
 {% block body %}
@@ -36,7 +17,6 @@
             <div class="chat-container">
                 {# Chat Header #}
                 <div class="chat-header">
-<<<<<<< HEAD
                     <div class="d-flex align-items-center justify-content-between w-100">
                         <div class="d-flex align-items-center">
                             <a href="{{ path('banque_messagerie_index') }}" class="btn btn-link text-white me-3">
@@ -68,15 +48,6 @@
                             <button class="btn btn-link text-white" title="Rafraîchir" onclick="window.location.reload()">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
-=======
-                    <div class="d-flex align-items-center">
-                        <a href="{{ path('banque_messagerie_index') }}" class="btn btn-link text-white me-3">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                        <div>
-                            <h5 class="mb-0">Conversation #{{ conversation.id }}</h5>
-                            <small>{{ messages|length }} message(s)</small>
->>>>>>> origin/chedy
                         </div>
                     </div>
                 </div>
@@ -96,7 +67,6 @@
                                         <div class="message-attachments mt-2">
                                             {% for piece in message.piecesJointes %}
                                                 {% if piece.typeFichier == 'image' %}
-<<<<<<< HEAD
                                                     <a href="{{ asset(piece.cheminFichier) }}" target="_blank" data-lightbox="message-{{ message.id }}">
                                                         <img src="{{ asset(piece.cheminFichier) }}" 
                                                              alt="{{ piece.nomOriginal }}"
@@ -110,19 +80,6 @@
                                                        download>
                                                         <i class="fas fa-file me-2"></i>{{ piece.nomOriginal }}
                                                         <small class="text-muted ms-2">({{ piece.tailleFormatee }})</small>
-=======
-                                                    <a href="{{ asset(piece.cheminFichier) }}" target="_blank">
-                                                        <img src="{{ asset(piece.cheminFichier) }}" 
-                                                             alt="{{ piece.nomOriginal }}"
-                                                             class="attachment-image">
-                                                    </a>
-                                                {% else %}
-                                                    <a href="{{ asset(piece.cheminFichier) }}" 
-                                                       class="attachment-file"
-                                                       target="_blank">
-                                                        <i class="fas fa-file me-2"></i>{{ piece.nomOriginal }}
-                                                        <small class="text-muted">({{ piece.tailleFormatee }})</small>
->>>>>>> origin/chedy
                                                     </a>
                                                 {% endif %}
                                             {% endfor %}
@@ -134,19 +91,11 @@
                                     <small class="text-muted">
                                         {{ message.dateEnvoi|date('d/m/Y H:i') }}
                                         {% if message.isModifie %}
-<<<<<<< HEAD
                                             <i class="fas fa-edit ms-1" title="Modifié le {{ message.dateModification|date('d/m/Y H:i') }}"></i>
                                         {% endif %}
                                         {% if message.expediteur.id == current_user.id %}
                                             {% if message.estLu %}
                                                 <i class="fas fa-check-double ms-1 text-warning" title="Lu"></i>
-=======
-                                            <i class="fas fa-edit ms-1" title="Modifié"></i>
-                                        {% endif %}
-                                        {% if message.expediteur.id == current_user.id %}
-                                            {% if message.estLu %}
-                                                <i class="fas fa-check-double ms-1 text-primary" title="Lu"></i>
->>>>>>> origin/chedy
                                             {% else %}
                                                 <i class="fas fa-check ms-1" title="Envoyé"></i>
                                             {% endif %}
@@ -157,11 +106,7 @@
                                     {% if message.expediteur.id == current_user.id %}
                                         <div class="message-actions">
                                             <button class="btn btn-sm btn-link text-muted" 
-<<<<<<< HEAD
                                                     onclick="editMessage({{ message.id }}, {{ message.contenu|json_encode|raw }})"
-=======
-                                                    onclick="editMessage({{ message.id }}, '{{ message.contenu|escape('js') }}')"
->>>>>>> origin/chedy
                                                     title="Modifier">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -182,45 +127,26 @@
                 {# Message Input #}
                 <div class="message-input-area">
                     <form id="messageForm" enctype="multipart/form-data">
-<<<<<<< HEAD
                         <div id="filePreviewTop" class="mb-2"></div>
                         <div class="input-group">
                             <button type="button" class="btn btn-outline-secondary" id="attachButton" title="Joindre un fichier">
-=======
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-secondary" id="attachButton">
->>>>>>> origin/chedy
                                 <i class="fas fa-paperclip"></i>
                             </button>
                             <input type="file" 
                                    id="fileInput" 
                                    name="files[]" 
                                    multiple 
-<<<<<<< HEAD
                                    accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
-=======
-                                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
->>>>>>> origin/chedy
                                    style="display: none;">
                             <textarea class="form-control" 
                                       id="messageInput" 
                                       name="contenu"
-<<<<<<< HEAD
                                       placeholder="Tapez votre message... (Shift+Entrée pour un saut de ligne)"
                                       rows="1"></textarea>
                             <button type="submit" class="btn btn-warning" id="sendButton">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
-=======
-                                      placeholder="Tapez votre message..."
-                                      rows="1"></textarea>
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                        <div id="filePreview" class="mt-2"></div>
->>>>>>> origin/chedy
                     </form>
                 </div>
             </div>
@@ -236,11 +162,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-<<<<<<< HEAD
                     <textarea class="form-control" id="editMessageContent" rows="4"></textarea>
-=======
-                    <textarea class="form-control" id="editMessageContent" rows="3"></textarea>
->>>>>>> origin/chedy
                     <input type="hidden" id="editMessageId">
                 </div>
                 <div class="modal-footer">
@@ -256,7 +178,6 @@
 
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
-<<<<<<< HEAD
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <script>
         const conversationId = {{ conversation.id }};
@@ -283,27 +204,11 @@
             return null;
         }
 
-=======
-    {{ encore_entry_script_tags('messagerie') }}
-    <script>
-        const conversationId = {{ conversation.id }};
-        const currentUserId = {{ current_user.id }};
-        const csrfToken = '{{ csrf_token('delete_message') }}';
-        
-        // Override routes for banque
-        const sendMessageRoute = '/banque/messagerie/send/' + conversationId;
-        const editMessageRoute = '/banque/messagerie/message/';
-        const deleteMessageRoute = '/banque/messagerie/message/';
-        const getMessagesRoute = '/banque/messagerie/conversation/' + conversationId + '/messages';
-        
-        // Custom implementation for banque
->>>>>>> origin/chedy
         document.addEventListener('DOMContentLoaded', function() {
             const messageForm = document.getElementById('messageForm');
             const messageInput = document.getElementById('messageInput');
             const fileInput = document.getElementById('fileInput');
             const attachButton = document.getElementById('attachButton');
-<<<<<<< HEAD
             const sendButton = document.getElementById('sendButton');
             
             scrollToBottom();
@@ -326,38 +231,6 @@
                 sendMessage();
             });
             
-=======
-            const messagesArea = document.getElementById('messagesArea');
-            
-            if (!messageForm) return;
-            
-            // Scroll to bottom on load
-            scrollToBottom();
-            
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-            
-            // Handle attach button
-            attachButton?.addEventListener('click', function() {
-                fileInput.click();
-            });
-            
-            // Handle file selection
-            fileInput?.addEventListener('change', function() {
-                displayFilePreview(this.files);
-            });
-            
-            // Handle form submission
-            messageForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                sendBanqueMessage();
-            });
-            
-            // Send message on Enter
->>>>>>> origin/chedy
             messageInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -365,7 +238,6 @@
                 }
             });
             
-<<<<<<< HEAD
             setInterval(refreshMessages, 5000);
         });
 
@@ -373,16 +245,6 @@
             const messageInput = document.getElementById('messageInput');
             const fileInput = document.getElementById('fileInput');
             const sendButton = document.getElementById('sendButton');
-=======
-            // Auto-refresh messages
-            setInterval(refreshBanqueMessages, 5000);
-        });
-        
-        function sendBanqueMessage() {
-            const form = document.getElementById('messageForm');
-            const messageInput = document.getElementById('messageInput');
-            const fileInput = document.getElementById('fileInput');
->>>>>>> origin/chedy
             
             const formData = new FormData();
             formData.append('contenu', messageInput.value.trim());
@@ -397,13 +259,8 @@
                 return;
             }
             
-<<<<<<< HEAD
             sendButton.disabled = true;
             sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-=======
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
->>>>>>> origin/chedy
             
             fetch(sendMessageRoute, {
                 method: 'POST',
@@ -415,7 +272,6 @@
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
                     fileInput.value = '';
-<<<<<<< HEAD
                     document.getElementById('filePreviewTop').innerHTML = '';
                     
                     // Récupérer le token CSRF pour le nouveau message
@@ -426,14 +282,6 @@
                     });
                 } else {
                     alert('Erreur: ' + (data.error || 'Erreur inconnue'));
-=======
-                    document.getElementById('filePreview').innerHTML = '';
-                    
-                    appendMessage(data.message);
-                    scrollToBottom();
-                } else {
-                    alert('Erreur lors de l\'envoi du message: ' + (data.error || 'Erreur inconnue'));
->>>>>>> origin/chedy
                 }
             })
             .catch(error => {
@@ -441,7 +289,6 @@
                 alert('Erreur lors de l\'envoi du message');
             })
             .finally(() => {
-<<<<<<< HEAD
                 sendButton.disabled = false;
                 sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
             });
@@ -460,13 +307,6 @@
         }
 
         function refreshMessages() {
-=======
-                submitButton.disabled = false;
-            });
-        }
-        
-        function refreshBanqueMessages() {
->>>>>>> origin/chedy
             const messagesArea = document.getElementById('messagesArea');
             if (!messagesArea) return;
             
@@ -476,7 +316,6 @@
                 .then(response => response.json())
                 .then(messages => {
                     messages.forEach(message => {
-<<<<<<< HEAD
                         if (message.expediteur_id === currentUserId) {
                             fetchCsrfToken(message.id).then(token => {
                                 csrfTokens[message.id] = token;
@@ -485,9 +324,6 @@
                         } else {
                             appendMessage(message);
                         }
-=======
-                        appendMessage(message);
->>>>>>> origin/chedy
                     });
                     if (messages.length > 0) {
                         scrollToBottom();
@@ -495,7 +331,6 @@
                 })
                 .catch(error => console.error('Error refreshing messages:', error));
         }
-<<<<<<< HEAD
 
         function appendMessage(messageData) {
             const messagesArea = document.getElementById('messagesArea');
@@ -581,9 +416,6 @@
             }
         }
 
-=======
-        
->>>>>>> origin/chedy
         function editMessage(messageId, content) {
             document.getElementById('editMessageId').value = messageId;
             document.getElementById('editMessageContent').value = content;
@@ -591,11 +423,7 @@
             const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
             modal.show();
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/chedy
         function saveEditedMessage() {
             const messageId = document.getElementById('editMessageId').value;
             const content = document.getElementById('editMessageContent').value;
@@ -617,7 +445,6 @@
                 if (data.success) {
                     const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
                     const contentDiv = messageDiv.querySelector('.message-content');
-<<<<<<< HEAD
                     
                     // Garder les pièces jointes si elles existent
                     const attachments = contentDiv.querySelector('.message-attachments');
@@ -634,22 +461,11 @@
                         } else {
                             metaDiv.innerHTML += ' <i class="fas fa-edit ms-1" title="Modifié"></i>';
                         }
-=======
-                    contentDiv.innerHTML = escapeHtml(data.message.contenu).replace(/\n/g, '<br>');
-                    
-                    const metaDiv = messageDiv.querySelector('.message-meta small');
-                    if (!metaDiv.querySelector('.fa-edit')) {
-                        metaDiv.innerHTML += ' <i class="fas fa-edit ms-1" title="Modifié"></i>';
->>>>>>> origin/chedy
                     }
                     
                     bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
                 } else {
-<<<<<<< HEAD
                     alert('Erreur lors de la modification: ' + (data.error || 'Erreur inconnue'));
-=======
-                    alert('Erreur lors de la modification');
->>>>>>> origin/chedy
                 }
             })
             .catch(error => {
@@ -657,17 +473,12 @@
                 alert('Erreur lors de la modification');
             });
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/chedy
         function deleteMessage(messageId) {
             if (!confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
                 return;
             }
             
-<<<<<<< HEAD
             const token = getCsrfToken(messageId);
             
             if (!token) {
@@ -677,10 +488,6 @@
             
             const formData = new FormData();
             formData.append('_token', token);
-=======
-            const formData = new FormData();
-            formData.append('_token', csrfToken);
->>>>>>> origin/chedy
             
             fetch(deleteMessageRoute + messageId + '/delete', {
                 method: 'POST',
@@ -691,18 +498,12 @@
                 if (data.success) {
                     const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
                     messageDiv.style.animation = 'fadeOut 0.3s ease';
-<<<<<<< HEAD
                     setTimeout(() => {
                         messageDiv.remove();
                         delete csrfTokens[messageId];
                     }, 300);
                 } else {
                     alert('Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'));
-=======
-                    setTimeout(() => messageDiv.remove(), 300);
-                } else {
-                    alert('Erreur lors de la suppression');
->>>>>>> origin/chedy
                 }
             })
             .catch(error => {
@@ -710,7 +511,6 @@
                 alert('Erreur lors de la suppression');
             });
         }
-<<<<<<< HEAD
 
         function displayFilePreview(files) {
             const preview = document.getElementById('filePreviewTop');
@@ -748,88 +548,6 @@
             preview.appendChild(previewContainer);
         }
 
-=======
-        
-        function appendMessage(messageData) {
-            const messagesArea = document.getElementById('messagesArea');
-            const isSent = messageData.expediteur_id === currentUserId;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
-            messageDiv.dataset.messageId = messageData.id;
-            
-            let attachmentsHtml = '';
-            if (messageData.pieces_jointes && messageData.pieces_jointes.length > 0) {
-                attachmentsHtml = '<div class="message-attachments mt-2">';
-                messageData.pieces_jointes.forEach(piece => {
-                    if (piece.type === 'image') {
-                        attachmentsHtml += `
-                            <a href="${piece.url}" target="_blank">
-                                <img src="${piece.url}" alt="${piece.nom}" class="attachment-image">
-                            </a>
-                        `;
-                    } else {
-                        attachmentsHtml += `
-                            <a href="${piece.url}" class="attachment-file" target="_blank">
-                                <i class="fas fa-file me-2"></i>${piece.nom}
-                            </a>
-                        `;
-                    }
-                });
-                attachmentsHtml += '</div>';
-            }
-            
-            messageDiv.innerHTML = `
-                <div class="message-bubble">
-                    <div class="message-content">
-                        ${escapeHtml(messageData.contenu).replace(/\n/g, '<br>')}
-                        ${attachmentsHtml}
-                    </div>
-                    <div class="message-meta">
-                        <small class="text-muted">
-                            ${formatDate(messageData.date)}
-                            ${isSent ? '<i class="fas fa-check ms-1"></i>' : ''}
-                        </small>
-                        ${isSent ? `
-                            <div class="message-actions">
-                                <button class="btn btn-sm btn-link text-muted" 
-                                        onclick="editMessage(${messageData.id}, '${escapeHtml(messageData.contenu)}')"
-                                        title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-link text-danger" 
-                                        onclick="deleteMessage(${messageData.id})"
-                                        title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            
-            messagesArea.appendChild(messageDiv);
-        }
-        
-        function displayFilePreview(files) {
-            const preview = document.getElementById('filePreview');
-            preview.innerHTML = '';
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const previewItem = document.createElement('div');
-                previewItem.className = 'file-preview-item';
-                previewItem.innerHTML = `
-                    <i class="fas fa-file"></i>
-                    <span>${file.name}</span>
-                    <span class="text-muted">(${formatFileSize(file.size)})</span>
-                    <span class="remove-file" onclick="removeFile(${i})">&times;</span>
-                `;
-                preview.appendChild(previewItem);
-            }
-        }
-        
->>>>>>> origin/chedy
         function removeFile(index) {
             const fileInput = document.getElementById('fileInput');
             const dt = new DataTransfer();
@@ -844,11 +562,7 @@
             fileInput.files = dt.files;
             displayFilePreview(fileInput.files);
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/chedy
         function getLastMessageId() {
             const messages = document.querySelectorAll('.message');
             if (messages.length === 0) return 0;
@@ -856,25 +570,16 @@
             const lastMessage = messages[messages.length - 1];
             return parseInt(lastMessage.dataset.messageId) || 0;
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/chedy
         function scrollToBottom() {
             const messagesArea = document.getElementById('messagesArea');
             if (messagesArea) {
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
         }
-<<<<<<< HEAD
 
         function escapeHtml(text) {
             if (!text) return '';
-=======
-        
-        function escapeHtml(text) {
->>>>>>> origin/chedy
             const map = {
                 '&': '&amp;',
                 '<': '&lt;',
@@ -882,22 +587,15 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-<<<<<<< HEAD
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-=======
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-        
->>>>>>> origin/chedy
         function formatDate(dateString) {
             const date = new Date(dateString);
             const now = new Date();
             const diff = now - date;
             
             if (diff < 60000) return 'À l\'instant';
-<<<<<<< HEAD
             
             if (diff < 3600000) {
                 const minutes = Math.floor(diff / 60000);
@@ -913,10 +611,6 @@
             if (date.toDateString() === yesterday.toDateString()) {
                 return 'Hier ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
             }
-=======
-            if (diff < 3600000) return Math.floor(diff / 60000) + ' min';
-            if (diff < 86400000) return Math.floor(diff / 3600000) + ' h';
->>>>>>> origin/chedy
             
             return date.toLocaleDateString('fr-FR', {
                 day: '2-digit',
@@ -926,11 +620,7 @@
                 minute: '2-digit'
             });
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> origin/chedy
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 o';
             const k = 1024;
@@ -938,7 +628,6 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
-<<<<<<< HEAD
 
         const style = document.createElement('style');
         style.textContent = `
@@ -948,7 +637,5 @@
             }
         `;
         document.head.appendChild(style);
-=======
->>>>>>> origin/chedy
     </script>
 {% endblock %}

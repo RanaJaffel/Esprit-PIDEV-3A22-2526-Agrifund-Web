@@ -26,6 +26,7 @@ Encore
     .addStyleEntry('banque', './assets/css/banque.css')
     .addStyleEntry('messagerie_style', './assets/css/messagerie.css')
     .addStyleEntry('sidebar_style', './assets/css/sidebar.css')
+    .addStyleEntry('messagerie-style', './assets/styles/messagerie-style.css')
 
     // Optimization
     .splitEntryChunks()

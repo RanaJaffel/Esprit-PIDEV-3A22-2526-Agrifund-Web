@@ -15,16 +15,16 @@ class HistoriqueService
     ) {}
 
     public function getCompleteAnalysis(int $projetId): array
-    {
-        return [
-            'comparison' => $this->compareLastWeeks($projetId),
-            'trend' => $this->releveRepo->getTrend($projetId),
-            'stats' => $this->getGlobalStats($projetId),
-            'conditionDistribution' => $this->releveRepo->getConditionDistribution($projetId),
-            'chartData' => $this->getChartData($projetId),
-            'prediction' => $this->predictNextWeek($projetId)
-        ];
-    }
+{
+    return [
+        'comparison' => $this->compareLastWeeks($projetId),
+        'trend' => $this->releveRepo->getTrend($projetId),
+        'stats' => $this->getGlobalStats($projetId),
+        'conditionDistribution' => $this->releveRepo->getConditionDistribution($projetId),
+        'chartData' => $this->getChartData($projetId),
+        'prediction' => $this->predictNextWeek($projetId)
+    ];
+}
 
     public function compareLastWeeks(int $projetId): array
     {
@@ -104,26 +104,28 @@ class HistoriqueService
     }
 
     private function predictNextWeek(int $projetId): array
-    {
-        $weeks = $this->releveRepo->findLastWeeks($projetId, 4);
+{
+    $weeks = $this->releveRepo->findLastWeeks($projetId, 4);
 
-        if (count($weeks) < 3) {
-            return [
-                'available' => false,
-            ];
-        }
-
-        $count = count($weeks);
-
-        $avgTemp = array_sum(array_map(fn($w) => $w->getTempMoyenne(), $weeks)) / $count;
-        $avgHum = array_sum(array_map(fn($w) => $w->getHumiditeMoyenne(), $weeks)) / $count;
-
+    if (count($weeks) < 3) {
         return [
-            'available' => true,
-            'temperature' => round($avgTemp, 1),
-            'humidite' => round($avgHum, 1),
+            'available' => false,
+            'temperature' => 0,
+            'humidite' => 0
         ];
     }
+
+    $count = count($weeks);
+
+    $avgTemp = array_sum(array_map(fn($w) => $w->getTempMoyenne(), $weeks)) / $count;
+    $avgHum = array_sum(array_map(fn($w) => $w->getHumiditeMoyenne(), $weeks)) / $count;
+
+    return [
+        'available' => true,
+        'temperature' => round($avgTemp, 1),
+        'humidite' => round($avgHum, 1),
+    ];
+}
 
     private function calculateSeverity(float $tempVar, float $humVar): string
     {

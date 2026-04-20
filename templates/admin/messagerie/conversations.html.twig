@@ -5,7 +5,7 @@
 {% block stylesheets %}
     {{ encore_entry_link_tags('sidebar') }}
     {{ encore_entry_link_tags('admin') }}
-    {{ encore_entry_link_tags('messagerie-style') }}
+    {{ encore_entry_link_tags('messagerie_style') }}
     <style>
         .conversations-list {
             max-height: 70vh;
@@ -171,7 +171,6 @@
 {% block javascripts %}
     {{ encore_entry_script_tags('sidebar') }}
     <script>
-        // Auto-refresh unread count
         setInterval(function() {
             fetch('{{ path('admin_messagerie_unread_count') }}')
                 .then(response => response.json())
@@ -181,13 +180,15 @@
                         if (badge) {
                             badge.textContent = data.count;
                         } else {
-                            document.querySelector('h1').insertAdjacentHTML('beforeend', 
-                                `<span class="badge bg-danger">${data.count}</span>`);
+                            document.querySelector('h1').insertAdjacentHTML(
+                                'beforeend',
+                                `<span class="badge bg-danger">${data.count}</span>`
+                            );
                         }
                     } else if (badge) {
                         badge.remove();
                     }
                 });
-        }, 10000); // Refresh every 10 seconds
+        }, 10000);
     </script>
 {% endblock %}

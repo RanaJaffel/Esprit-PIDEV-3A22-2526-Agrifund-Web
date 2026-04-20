@@ -7,6 +7,7 @@ use App\Repository\ReleveHebdomadaireRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Process\Process;
 
 #[Route('/historique')]
 class HistoriqueController extends AbstractController
@@ -32,9 +33,41 @@ class HistoriqueController extends AbstractController
     }
 
     #[Route('/export-pdf/{idproject}', name: 'historique_export_pdf')]
-    public function exportPdf(int $idproject, HistoriqueService $historiqueService): Response
-    {
-        // TODO: Implémenter export PDF
-        return new Response('Export PDF - En développement');
+public function exportPdf(
+    int $idproject,
+    HistoriqueService $historiqueService
+): Response {
+
+    $analysis = $historiqueService->getCompleteAnalysis($idproject);
+
+    $html = $this->renderView('pdf/historique_pdf.html.twig', [
+        'idproject' => $idproject,
+        'analysis' => $analysis
+    ]);
+
+    $tmpHtml = sys_get_temp_dir().'/historique_'.$idproject.'.html';
+    $tmpPdf  = sys_get_temp_dir().'/historique_'.$idproject.'.pdf';
+
+    file_put_contents($tmpHtml, $html);
+
+    $process = new Process([
+        $_ENV['WKHTMLTOPDF_BINARY'],
+        $tmpHtml,
+        $tmpPdf
+    ]);
+    $process->run();
+
+    if (!$process->isSuccessful()) {
+        return new Response("Erreur génération PDF");
     }
+
+    return new Response(
+        file_get_contents($tmpPdf),
+        200,
+        [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="historique_'.$idproject.'.pdf"'
+        ]
+    );
+}
 }
