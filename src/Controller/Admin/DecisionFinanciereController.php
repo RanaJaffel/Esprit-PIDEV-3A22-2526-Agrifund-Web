@@ -96,13 +96,12 @@ class DecisionFinanciereController extends AbstractController
     #[Route('/{idDecision}/show', name: 'show')]
     public function show(DecisionFinanciere $decision): Response
     {
+        // Générer un texte simple pour le QR code
+        $statut = strtolower($decision->getStatut()) === 'approuve' ? 'Accepté' : 'Refusé';
         $qrContent = sprintf(
-            "Decision #%d | Statut: %s | Score: %d/100 | Risque: %s | Date: %s",
+            "Décision #%d : %s",
             $decision->getIdDecision(),
-            strtoupper($decision->getStatut()),
-            $decision->getEvaluation()?->getScoreGlobal() ?? 0,
-            $decision->getEvaluation()?->getNiveauRisque() ?? 'N/A',
-            $decision->getDateDecision()?->format('d/m/Y') ?? ''
+            $statut
         );
 
         $qrCode = new QrCode(
@@ -130,12 +129,22 @@ class DecisionFinanciereController extends AbstractController
     public function qrcode(DecisionFinanciere $decision): Response
     {
         $qrContent = sprintf(
-            "Decision #%d | Statut: %s | Score: %d/100 | Risque: %s",
-            $decision->getIdDecision(),
-            strtoupper($decision->getStatut()),
-            $decision->getEvaluation()?->getScoreGlobal() ?? 0,
-            $decision->getEvaluation()?->getNiveauRisque() ?? 'N/A'
-        );
+    "🌱 AGRIFUND\n".
+    "═══════════════════\n".
+    "Décision #%d\n".
+    "Statut   : %s\n".
+    "Score    : %d/100\n".
+    "Risque   : %s\n".
+    "Date     : %s\n".
+    "═══════════════════\n".
+    "Justification :\n%s",
+    $decision->getIdDecision(),
+    strtoupper($decision->getStatut()),
+    $decision->getEvaluation()?->getScoreGlobal() ?? 0,
+    $decision->getEvaluation()?->getNiveauRisque() ?? 'N/A',
+    $decision->getDateDecision()?->format('d/m/Y') ?? '',
+    $decision->getJustification() ?? ''
+);
 
         $qrCode = new QrCode(
             data: $qrContent,
@@ -313,4 +322,11 @@ class DecisionFinanciereController extends AbstractController
             return $this->json(['reply' => "Erreur : " . $e->getMessage()]);
         }
     }
+    #[Route('/{idDecision}/mobile', name: 'mobile')]
+public function mobile(DecisionFinanciere $decision): Response
+{
+    return $this->render('admin/decision/mobile.html.twig', [
+        'decision' => $decision,
+    ]);
+}
 }

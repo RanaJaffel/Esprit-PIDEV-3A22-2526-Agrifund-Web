@@ -161,22 +161,28 @@
             color: white;
         }
         .qr-card-body {
-            padding: 32px 28px;
+            padding: 40px 28px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .qr-container {
-            display: inline-block;
-            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
+            width: 100%;
+            max-width: 320px;
         }
-        .qr-subtitle {
-            font-size: 0.85rem;
-            color: #15803d;
-            line-height: 1.5;
-            font-weight: 500;
+        .qr-container svg {
+            width: 100% !important;
+            height: auto !important;
+            display: block;
         }
 
         .btn-download {
@@ -189,7 +195,7 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            margin-top: 12px;
+            margin-top: 24px;
             box-shadow: 0 6px 20px rgba(34,197,94,0.25);
             transition: all 0.3s;
         }
@@ -228,137 +234,21 @@
             </div>
         </div>
 
-        <div class="py-4 px-4">
-            <div class="row g-4">
-                <!-- Colonne principale -->
-                <div class="col-lg-8">
-                    <div class="show-card">
-                        <div class="show-card-header {{ decision.statut == 'approuve' ? 'approuve' : 'refuse' }}">
-                            <div>
-                                {% if decision.statut == 'approuve' %}
-                                    <span class="badge-big approuve">
-                                        <i class="fas fa-check-circle"></i> Approuvé
-                                    </span>
-                                {% else %}
-                                    <span class="badge-big refuse">
-                                        <i class="fas fa-times-circle"></i> Refusé
-                                    </span>
-                                {% endif %}
-                            </div>
-                            <div style="font-size:3.8rem; opacity:0.15;">⚖️</div>
-                        </div>
-
-                        <div class="show-card-body">
-                            {% if decision.evaluation %}
-                            <div class="eval-card">
-                                <div class="info-section-label">🔍 ÉVALUATION LIÉE</div>
-                                <div style="font-size:1.15rem; font-weight:700; color:#15803d; margin-bottom:16px;">
-                                    Évaluation #{{ decision.evaluation.idEvaluation }}
-                                </div>
-                                <div class="row g-4 text-center">
-                                    <div class="col-4">
-                                        <div class="info-section-label">Niveau de risque</div>
-                                        <div style="font-weight:700; font-size:1.1rem;">{{ decision.evaluation.niveauRisque }}</div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="info-section-label">Score Global</div>
-                                        <div style="font-weight:700; font-size:1.3rem; color:#15803d;">
-                                            {{ decision.evaluation.scoreGlobal }}/100
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="info-section-label">Fiabilité</div>
-                                        <div style="font-weight:700;">{{ decision.evaluation.fiabiliteDonnees }}</div>
-                                    </div>
-                                </div>
-                                {% if decision.evaluation.recommandation %}
-                                <hr style="margin:20px 0; border-color:#bbf7d0;">
-                                <div class="info-section-label">Recommandation</div>
-                                <p style="color:#374151; line-height:1.7;">{{ decision.evaluation.recommandation }}</p>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-
-                            <!-- Date -->
-                            <div class="info-section">
-                                <div class="info-section-label">📅 Date de décision</div>
-                                <div class="info-section-value">{{ decision.dateDecision|date('d/m/Y à H:i') }}</div>
-                            </div>
-
-                            <!-- Justification -->
-                            <div class="info-section blue">
-                                <div class="info-section-label">📝 Justification</div>
-                                <div class="info-section-value">{{ decision.justification }}</div>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
-                                <a href="{{ path('admin_decision_edit', {idDecision: decision.idDecision}) }}"
-                                   class="btn-action-lg btn-edit-lg">
-                                    <i class="fas fa-edit"></i> Modifier la décision
-                                </a>
-                                <form method="post"
-                                      action="{{ path('admin_decision_delete', {idDecision: decision.idDecision}) }}"
-                                      onsubmit="return confirm('Supprimer définitivement cette décision ?')">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ decision.idDecision) }}">
-                                    <button type="submit" class="btn-action-lg btn-delete-lg">
-                                        <i class="fas fa-trash"></i> Supprimer
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+        <div class="py-4 px-4 d-flex justify-content-center align-items-center" style="min-height:60vh;">
+            <div class="qr-card">
+                <div class="qr-card-header">
+                    <div style="font-size:1.1rem; font-weight:700;">📱 QR Code de la décision</div>
+                    <div style="font-size:0.82rem; opacity:0.85; margin-top:4px;">Scannez pour consulter les détails</div>
                 </div>
-
-                <!-- Colonne QR Code + Infos -->
-                <div class="col-lg-4">
-                    <div class="qr-card">
-                        <div class="qr-card-header">
-                            <div style="font-size:1.1rem; font-weight:700;">📱 QR Code de la décision</div>
-                            <div style="font-size:0.82rem; opacity:0.85; margin-top:4px;">Scannez pour consulter les détails</div>
-                        </div>
-                        <div class="qr-card-body">
-                            <div class="qr-container">
-                                {{ qrSvg|raw }}
-                            </div>
-                            <div class="qr-subtitle">
-                                Scannez ce QR code avec votre téléphone<br>
-                                pour accéder rapidement aux informations.
-                            </div>
-                            <a href="{{ path('admin_decision_qrcode', {idDecision: decision.idDecision}) }}"
-                               download="qrcode-decision-{{ decision.idDecision }}.png"
-                               class="btn-download">
-                                <i class="fas fa-download"></i> Télécharger le QR Code
-                            </a>
-                        </div>
+                <div class="qr-card-body">
+                    <div class="qr-container">
+                        {{ qrSvg|raw }}
                     </div>
-
-                    <!-- Infos rapides -->
-                    <div class="show-card mt-4" style="padding: 24px;">
-                        <div class="info-section-label mb-3">ℹ️ Informations rapides</div>
-                        <div class="d-flex flex-column gap-2">
-                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
-                                <span style="color:#6b7280;">ID Décision</span>
-                                <strong>#{{ decision.idDecision }}</strong>
-                            </div>
-                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
-                                <span style="color:#6b7280;">Statut</span>
-                                <strong style="color:{{ decision.statut == 'approuve' ? '#16a34a' : '#dc2626' }};">
-                                    {{ decision.statut == 'approuve' ? '✅ Approuvé' : '❌ Refusé' }}
-                                </strong>
-                            </div>
-                            {% if decision.evaluation %}
-                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
-                                <span style="color:#6b7280;">Score</span>
-                                <strong>{{ decision.evaluation.scoreGlobal }}/100</strong>
-                            </div>
-                            {% endif %}
-                            <div class="d-flex justify-content-between p-3 bg-light rounded-3">
-                                <span style="color:#6b7280;">Date</span>
-                                <strong>{{ decision.dateDecision|date('d/m/Y') }}</strong>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="{{ path('admin_decision_qrcode', {idDecision: decision.idDecision}) }}"
+                       download="qrcode-decision-{{ decision.idDecision }}.png"
+                       class="btn-download">
+                        <i class="fas fa-download"></i> Télécharger le QR Code
+                    </a>
                 </div>
             </div>
         </div>
