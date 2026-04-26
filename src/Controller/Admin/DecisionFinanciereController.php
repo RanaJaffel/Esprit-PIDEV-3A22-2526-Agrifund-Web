@@ -169,7 +169,7 @@ class DecisionFinanciereController extends AbstractController
         return $this->redirectToRoute('admin_decision_index');
     }
 
-    // ==================== EMAIL ====================
+    
     private function sendDecisionEmail(MailerInterface $mailer, DecisionFinanciere $decision): void
     {
         $statut      = $decision->getStatut();
