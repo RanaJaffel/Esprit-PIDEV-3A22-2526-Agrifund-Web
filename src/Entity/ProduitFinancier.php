@@ -53,12 +53,6 @@ class ProduitFinancier
     private ?float $montant = null;
 
     #[ORM\Column(name: 'prix_fixe', type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\NotBlank(message: 'Le prix fixe est obligatoire.')]
-    #[Assert\Positive(message: 'Le prix fixe doit être supérieur à 0.')]
-    #[Assert\Regex(
-        pattern: '/^\d+(?:\.\d{1,2})?$/',
-        message: 'Le prix fixe doit contenir au maximum 2 décimales.'
-    )]
     private string $prixFixe = '0.00';
 
     #[ORM\Column(name: 'regles_financieres', type: 'text', nullable: true)]

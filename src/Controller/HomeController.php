@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Utilisateur;
 use App\Service\OfferService;
+use App\Service\PdfService;
 use App\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +15,8 @@ class HomeController extends AbstractController
 {
     public function __construct(
         private ProductService $productService,
-        private OfferService $offerService
+        private OfferService $offerService,
+        private PdfService $pdfService
     ) {}
 
     #[Route('/', name: 'app_home', methods: ['GET'])]
@@ -89,6 +92,36 @@ class HomeController extends AbstractController
             'product' => $product,
             'title' => $product->getNomProduit(),
         ]);
+    }
+
+    #[Route('/produit/{id}/pdf', name: 'app_product_detail_pdf', methods: ['GET'])]
+    public function showProductPdf(int $id): Response
+    {
+        $product = $this->productService->getProductById($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException('Produit non trouve');
+        }
+
+        $clientName = 'Client AgriFund';
+        $user = $this->getUser();
+        if ($user instanceof Utilisateur) {
+            $clientName = trim($user->getNomComplet()) !== ''
+                ? $user->getNomComplet()
+                : $user->getUserIdentifier();
+        }
+
+        return $this->pdfService->generatePdfResponse(
+            'pdf/produit_detail_personnalise.html.twig',
+            [
+                'product' => $product,
+                'date' => new \DateTimeImmutable(),
+                'client_name' => $clientName,
+            ],
+            sprintf('fiche_produit_%d_%s.pdf', $product->getId(), date('Y-m-d')),
+            'A4',
+            'portrait'
+        );
     }
 
     /**

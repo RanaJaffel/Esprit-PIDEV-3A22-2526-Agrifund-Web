@@ -20,7 +20,7 @@
     .premium-header {
         background: linear-gradient(135deg, var(--vert-tres-fonce) 0%, var(--vert-foret) 100%);
         color: white;
-        padding: 80px 0;
+        padding: 130px 0 80px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -131,14 +131,16 @@
 {% endblock %}
 
 {% block content %}
-    <header class="premium-header">
+    <header class="premium-header" data-translate-scope>
         <div class="container" style="position: relative; z-index: 2;">
             <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 10px;">Nos Solutions Financières</h1>
             <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">Découvrez des financements conçus par des experts pour propulser votre exploitation.</p>
         </div>
     </header>
 
-    <div class="container">
+    {% include 'components/_translation_widget.html.twig' %}
+
+    <div class="container" data-translate-scope>
         <div class="search-filter-bar">
             <div class="filter-group">
                 <label>Rechercher</label>
@@ -154,7 +156,7 @@
                 </select>
             </div>
             <div class="filter-group" style="flex: 0 0 150px;">
-                <button onclick="reset()" class="btn btn-light w-100 py-3 rounded-3 fw-bold">Reset</button>
+                <button onclick="reset()" class="btn btn-light w-100 py-3 rounded-3 fw-bold">Réinitialiser</button>
             </div>
         </div>
 
@@ -173,10 +175,6 @@
                             <div class="stat-item">
                                 <span class="stat-label">Taux d'intérêt</span>
                                 <span class="stat-value taux">{{ p.tauxInteret }}%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Prix Fixe</span>
-                                <span class="stat-value">{{ p.prixFixe|number_format(2, ',', ' ') }} DT</span>
                             </div>
                         </div>
                         <p class="text-muted small mb-0">{{ p.reglesFinancieres|slice(0, 100) }}...</p>

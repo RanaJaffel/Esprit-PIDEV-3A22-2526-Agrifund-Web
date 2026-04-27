@@ -158,12 +158,6 @@
                         {{ produit.montant|number_format(0, ',', ' ') }} DT
                     </span>
                 </div>
-                <div class="detail-item" style="border-top: 1px solid #f1f5f9;">
-                    <span class="detail-label">Prix Fixe Payable</span>
-                    <span class="detail-value" style="color: var(--vert-vif);">
-                        {{ produit.prixFixe|number_format(2, ',', ' ') }} DT
-                    </span>
-                </div>
             </div>
 
             <div class="description-section">
@@ -186,12 +180,15 @@
                         title="Demander une explication de ce produit"
                         data-context-type="produit"
                         data-title="{{ produit.nomProduit|e('html_attr') }}"
-                        data-summary="Type: {{ produit.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ produit.tauxInteret }}%. Montant: {{ produit.montant|number_format(0, ',', ' ') }} DT. Prix fixe: {{ produit.prixFixe|number_format(2, ',', ' ') }} DT."
+                        data-summary="Type: {{ produit.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ produit.tauxInteret }}%. Montant: {{ produit.montant|number_format(0, ',', ' ') }} DT."
                     >
                         <i class="fas fa-comments me-2"></i> Demander au chatbot
                     </button>
                     <a href="{{ path('agriculteur_produit_simulateur', {id: produit.id}) }}" class="btn btn-outline-success px-4 rounded-3 h-100 py-3">
                         <i class="fas fa-calculator me-2"></i> Lancer une simulation
+                    </a>
+                    <a href="{{ path('app_product_detail_pdf', {id: produit.id}) }}" class="btn btn-outline-danger px-4 rounded-3 h-100 py-3">
+                        <i class="fas fa-file-pdf me-2"></i> PDF personnalise
                     </a>
                     <a href="{{ path('agriculteur_produit_postuler', {id: produit.id}) }}" class="btn-main py-3">
                         Postuler maintenant
@@ -204,6 +201,6 @@
     {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
         chatbot_context_type: 'produit',
         chatbot_title: produit.nomProduit,
-        chatbot_summary: 'Type ' ~ produit.typeFinancement ~ ', taux ' ~ produit.tauxInteret ~ '%, montant ' ~ (produit.montant|number_format(0, ',', ' ')) ~ ' DT, prix fixe ' ~ (produit.prixFixe|number_format(2, ',', ' ')) ~ ' DT.'
+        chatbot_summary: 'Type ' ~ produit.typeFinancement ~ ', taux ' ~ produit.tauxInteret ~ '%, montant ' ~ (produit.montant|number_format(0, ',', ' ')) ~ ' DT.'
     } %}
 {% endblock %}

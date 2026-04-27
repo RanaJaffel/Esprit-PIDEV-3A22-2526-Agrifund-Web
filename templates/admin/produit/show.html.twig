@@ -49,10 +49,6 @@
                 </div>
             </div>
             <div class="detail-row">
-                <div class="detail-label">Prix Fixe Payable</div>
-                <div class="detail-value"><span class="highlight-value">{{ produit.prixFixe|number_format(2, ',', ' ') }} DT</span></div>
-            </div>
-            <div class="detail-row">
                 <div class="detail-label">Règles Financières</div>
                 <div class="detail-value" style="line-height: 1.6; color: #555;">
                     {{ produit.reglesFinancieres ? produit.reglesFinancieres|nl2br : '<span class="text-muted fst-italic">Aucune règle spécifiée.</span>' }}

@@ -51,8 +51,6 @@ class OffreFinanciere
     private ?ProduitFinancier $produitFinancier = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\NotBlank(message: 'Le prix est obligatoire.')]
-    #[Assert\Positive(message: 'Le prix doit être supérieur à 0.')]
     private string $prix = '0.00';
 
     public function getId(): ?int

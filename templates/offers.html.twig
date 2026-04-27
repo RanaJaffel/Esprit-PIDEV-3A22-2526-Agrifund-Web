@@ -21,7 +21,7 @@
     .promo-header {
         background: linear-gradient(135deg, var(--vert-tres-fonce) 0%, #1a4a04 100%);
         color: white;
-        padding: 80px 0;
+        padding: 130px 0 80px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -119,7 +119,7 @@
 {% endblock %}
 
 {% block content %}
-    <header class="promo-header">
+    <header class="promo-header" data-translate-scope>
         <div class="container" style="position: relative; z-index: 2;">
             <span style="background: var(--jaune); color: var(--vert-tres-fonce); padding: 5px 15px; border-radius: 100px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;">Promotions Actuelles</span>
             <h1 style="font-size: 3rem; font-weight: 900; margin: 15px 0;">Offres Spéciales AgriFund</h1>
@@ -127,7 +127,9 @@
         </div>
     </header>
 
-    <div class="container">
+    {% include 'components/_translation_widget.html.twig' %}
+
+    <div class="container" data-translate-scope>
         <div class="offer-grid">
             {% for o in offers %}
                 <div class="offer-card">
@@ -143,10 +145,6 @@
                         
                         <div class="product-ref">
                             <i class="fas fa-tag"></i> {{ o.produitFinancier.nomProduit }}
-                        </div>
-
-                        <div class="product-ref">
-                            <i class="fas fa-money-bill-wave"></i> {{ o.prix|number_format(2, ',', ' ') }} DT
                         </div>
 
                         <p class="offer-desc">{{ o.conditions|slice(0, 150) }}...</p>

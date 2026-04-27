@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\Admin;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -90,8 +91,8 @@ class CreateUserCommand extends Command
         // Create user
         $user = new Utilisateur();
         $user->setEmail($email);
-        $user->setFirstname($firstname);
-        $user->setLastname($lastname);
+        $user->setPrenom($firstname);
+        $user->setNom($lastname);
 
         // Hash password
         $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
@@ -99,7 +100,9 @@ class CreateUserCommand extends Command
 
         // Set roles
         if ($input->getOption('admin')) {
-            $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+            $admin = (new Admin())->setUtilisateur($user);
+            $user->setAdmin($admin);
+            $this->entityManager->persist($admin);
             $output->writeln('<info>User role set to ADMIN</info>');
         }
 
@@ -111,8 +114,8 @@ class CreateUserCommand extends Command
         $output->writeln('');
         $output->writeln('<comment>User Details:</comment>');
         $output->writeln('  Email: ' . $user->getEmail());
-        $output->writeln('  First Name: ' . $user->getFirstname());
-        $output->writeln('  Last Name: ' . $user->getLastname());
+        $output->writeln('  First Name: ' . $user->getPrenom());
+        $output->writeln('  Last Name: ' . $user->getNom());
         $output->writeln('  Roles: ' . implode(', ', $user->getRoles()));
 
         return Command::SUCCESS;

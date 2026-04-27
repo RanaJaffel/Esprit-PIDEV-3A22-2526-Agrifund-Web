@@ -206,10 +206,6 @@
                             <i class="fas fa-percent"></i>
                             Taux Spécial: <strong>{{ o.produitFinancier.tauxInteret }}%</strong>
                         </div>
-                        <div class="offer-meta">
-                            <i class="fas fa-money-bill-wave"></i>
-                            Prix: <strong>{{ o.prix|number_format(2, ',', ' ') }} DT</strong>
-                        </div>
                         
                         <div class="offer-footer-actions">
                             <button
@@ -218,7 +214,7 @@
                                 title="Demander une explication de cette offre"
                                 data-context-type="offre"
                                 data-title="{{ o.nomOffre|e('html_attr') }}"
-                                data-summary="Prix: {{ o.prix|number_format(2, ',', ' ') }} DT. Statut: {{ o.statut }}. Conditions: {{ o.conditions|striptags|slice(0, 220)|replace({'"': '', "'": ''})|e('html_attr') }}"
+                                data-summary="Statut: {{ o.statut }}. Conditions: {{ o.conditions|striptags|slice(0, 220)|replace({'"': '', "'": ''})|e('html_attr') }}"
                             >
                                 <i class="fas fa-comments"></i>
                             </button>
@@ -239,6 +235,6 @@
     {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
         chatbot_context_type: 'offre',
         chatbot_title: 'Catalogue des offres',
-        chatbot_summary: 'Liste des offres actives pour agriculteurs avec prix et conditions.'
+        chatbot_summary: 'Liste des offres actives pour agriculteurs avec conditions.'
     } %}
 {% endblock %}

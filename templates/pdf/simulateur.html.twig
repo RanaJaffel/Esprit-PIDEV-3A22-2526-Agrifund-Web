@@ -76,13 +76,14 @@
     </style>
 </head>
 <body>
+    {% set ctx = pdf_context|default({}) %}
     <div class="fixed-header">
         <table class="header-table">
             <tr>
                 <td class="header-logo">AF</td>
-                <td class="header-title">AgriFund - Certificat de Simulation</td>
+                <td class="header-title">{{ ctx.brand_name|default('AgriFund') }} - Certificat de Simulation</td>
                 <td style="text-align: right; font-size: 8px; opacity: 0.8;">
-                    REF: SIM-{{ date|date('Ymd') }}
+                    REF: {{ ctx.document_reference|default('SIM-' ~ date|date('Ymd')) }}
                 </td>
             </tr>
         </table>
@@ -98,7 +99,8 @@
                 <td style="text-align: right; font-size: 9px; color: #133D03;">
                     Généré le {{ date|date('d/m/Y H:i') }}<br>
                     Produit: {{ produit.nomProduit|default('Sur mesure') }}<br>
-                    Client: {{ client_name|default('Client AgriFund') }}
+                    Client: {{ client_name|default('Client AgriFund') }}<br>
+                    Profil: {{ ctx.generated_by_role|default(typeClient|default('Agriculteur')) }}
                 </td>
             </tr>
         </table>
@@ -170,7 +172,8 @@
     </div>
 
     <div class="footer">
-        Document informatif généré par AgriFund. Cette simulation ne constitue pas un accord de crédit définitif.
+        Document informatif généré par {{ ctx.brand_name|default('AgriFund') }}.
+        Cette simulation ne constitue pas un accord de crédit définitif.
     </div>
 </body>
 </html>

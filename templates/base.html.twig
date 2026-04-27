@@ -69,7 +69,14 @@
 </head>
 <body class="{% block body_class %}index-page{% endblock %}">
 
-    {% block body %}{% endblock %}
+    {% block body %}
+        {% include 'partials/_navbar.html.twig' %}
+        <main>
+            {% block page_intro %}{% endblock %}
+            {% block content %}{% endblock %}
+        </main>
+        {% include 'partials/_footer.html.twig' %}
+    {% endblock %}
 
     <!-- Scroll Top -->
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center" data-controller="scroll-top" data-action="click->scroll-top#toTop" data-scroll-top-threshold-value="100"><i class="bi bi-arrow-up-short"></i></a>

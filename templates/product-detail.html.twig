@@ -3,7 +3,7 @@
 {% block title %}{{ product.nomProduit }} - AgriFund{% endblock %}
 
 {% block page_intro %}
-<div style="background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; padding: 60px 0; margin-bottom: 40px;"> 
+<div data-translate-scope style="background: linear-gradient(135deg, #1B7E4C 0%, #0D5C3F 100%); color: white; padding: 120px 0 60px; margin-bottom: 40px;"> 
     <div class="hoc container clear">
         <div style="max-width: 900px;">
             <div style="display: flex; align-items: flex-start; gap: 30px;">
@@ -23,7 +23,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="hoc container clear">
+{% include 'components/_translation_widget.html.twig' %}
+<div class="hoc container clear" data-translate-scope>
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-bottom: 60px;">
         <!-- Main Content -->
         <div>
@@ -32,10 +33,6 @@
                 <div style="padding: 25px; background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); border-radius: 8px; border-left: 4px solid #1B7E4C;">
                     <p style="margin: 0 0 10px 0; color: #999; font-size: 0.85em; font-weight: bold; text-transform: uppercase;">Montant</p>
                     <p style="margin: 0; font-size: 2em; font-weight: bold; color: #1B7E4C;">{{ product.montant|number_format(0, ',', ' ') }}<span style="font-size: 0.5em;"> DT</span></p>
-                </div>
-                <div style="padding: 25px; background: linear-gradient(135deg, #f0f7f4 0%, #e8eef0 100%); border-radius: 8px; border-left: 4px solid #1B7E4C;">
-                    <p style="margin: 0 0 10px 0; color: #999; font-size: 0.85em; font-weight: bold; text-transform: uppercase;">Prix Fixe Payable</p>
-                    <p style="margin: 0; font-size: 2em; font-weight: bold; color: #1B7E4C;">{{ product.prixFixe|number_format(2, ',', ' ') }}<span style="font-size: 0.5em;"> DT</span></p>
                 </div>
             </div>
 
@@ -91,6 +88,9 @@
                     </p>
                     <a href="{{ path('agriculteur_produit_postuler', {id: product.id}) }}" style="display: block; padding: 14px 24px; background: #F4C430; color: #1B7E4C; text-decoration: none; border-radius: 6px; font-weight: bold; text-align: center; margin-bottom: 12px; transition: transform 0.2s;">
                         🚀 Acheter ce produit
+                    </a>
+                    <a href="{{ path('app_product_detail_pdf', {id: product.id}) }}" style="display: block; padding: 14px 24px; background: #ffffff; color: #1B7E4C; text-decoration: none; border-radius: 6px; font-weight: bold; text-align: center; margin-bottom: 12px; border: 1px solid #F4C430;">
+                        📄 Télécharger ma fiche PDF personnalisée
                     </a>
                     <a href="#" style="display: block; padding: 14px 24px; background: transparent; color: white; text-decoration: none; border: 2px solid white; border-radius: 6px; font-weight: bold; text-align: center; transition: background 0.2s;">
                         📞 Contacter Notre Équipe

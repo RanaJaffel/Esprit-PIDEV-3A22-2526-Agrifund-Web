@@ -50,6 +50,7 @@ class AdminPaymentController extends AbstractController
 
         return $this->render('admin/paiement/index.html.twig', [
             'transactions' => $transactions,
+            'dashboardStats' => $transactionRepository->getAdminDashboardStats(),
             'selectedStatus' => $status,
             'selectedMethod' => $method,
             'selectedProvider' => $provider,
@@ -273,6 +274,7 @@ class AdminPaymentController extends AbstractController
         if ($transaction === null) {
             throw $this->createNotFoundException('Transaction introuvable.');
         }
+        $customer = $transaction->getAchat()->getUtilisateur();
 
         return $pdfService->generatePdfResponse(
             'pdf/paiement_transaction.html.twig',
@@ -281,6 +283,8 @@ class AdminPaymentController extends AbstractController
                 'achat' => $transaction->getAchat(),
                 'payload' => $transaction->getGatewayPayload() ?? [],
                 'generatedAt' => new \DateTimeImmutable(),
+                'client_name' => $customer?->getNomComplet() ?? 'Client AgriFund',
+                'client_email' => $customer?->getEmail(),
             ],
             sprintf('paiement-%s.pdf', $transaction->getReference())
         );

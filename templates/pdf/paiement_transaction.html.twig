@@ -60,14 +60,48 @@
             height: 14px;
             vertical-align: middle;
         }
+        .brand-header {
+            border-bottom: 3px solid #B2D944;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+        }
+        .brand-header td {
+            border: none;
+            padding: 0;
+        }
+        .brand-title {
+            color: #076A39;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .brand-meta {
+            color: #6b7280;
+            font-size: 10px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
+    {% set ctx = pdf_context|default({}) %}
     {% set verifierName = transaction.verifiedBy ?: payload.reviewed_by|default('') %}
     {% set verifierDate = transaction.verifiedAt ?: (payload.reviewed_at is defined and payload.reviewed_at ? date(payload.reviewed_at) : null) %}
 
+    <table class="brand-header">
+        <tr>
+            <td>
+                <div class="brand-title">{{ ctx.brand_name|default('AgriFund') }} - Recu personnalise</div>
+                <div class="muted">Prepare pour {{ client_name|default('Client AgriFund') }}{% if client_email|default(null) %} - {{ client_email }}{% endif %}</div>
+            </td>
+            <td class="brand-meta">
+                REF: {{ ctx.document_reference|default(transaction.reference) }}<br>
+                Document personnalise
+            </td>
+        </tr>
+    </table>
+
     <h1>Recu de validation paiement</h1>
-    <div class="muted">Généré le {{ generatedAt|date('d/m/Y H:i') }}</div>
+    <div class="muted">Généré le {{ generatedAt|date('d/m/Y H:i') }} par {{ ctx.generated_by_name|default('AgriFund') }}</div>
 
     <div class="card">
         <table>

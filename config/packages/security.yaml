@@ -29,6 +29,8 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/password-reset, roles: PUBLIC_ACCESS }
+        - { path: ^/api/(produits|offres), methods: [GET], roles: PUBLIC_ACCESS }
+        - { path: ^/api/(produits|offres), roles: ROLE_ADMIN }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/agriculteur, roles: ROLE_AGRICULTEUR }
         - { path: ^/banque, roles: ROLE_BANQUE }

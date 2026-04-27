@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        @page {
+            margin: 70px 40px 80px 40px;
+        }
+
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 10px;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            position: fixed;
+            top: -70px;
+            left: -40px;
+            right: -40px;
+            height: 52px;
+            background: #1B7E4C;
+            color: #fff;
+            padding: 10px 40px;
+            border-bottom: 2px solid #F4C430;
+        }
+
+        .header table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header .title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero {
+            background: #f6fbf8;
+            border: 1px solid #dcece3;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            color: #1B7E4C;
+            font-size: 22px;
+        }
+
+        .hero p {
+            margin: 6px 0 0;
+            color: #4d5f56;
+            font-size: 10px;
+        }
+
+        .meta {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+
+        .meta td {
+            border: 1px solid #e5ece8;
+            padding: 10px;
+            vertical-align: top;
+            width: 50%;
+        }
+
+        .meta .label {
+            color: #6f7c75;
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .meta .value {
+            margin-top: 4px;
+            color: #1B7E4C;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .identity {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            background: #fffdf4;
+            border: 1px solid #f1df94;
+        }
+
+        .identity td {
+            padding: 10px 12px;
+            font-size: 9px;
+            vertical-align: top;
+        }
+
+        .identity .label {
+            color: #856404;
+            font-size: 7px;
+            font-weight: 800;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        .identity .value {
+            margin-top: 4px;
+            color: #24382d;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .block {
+            border: 1px solid #e8efea;
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+
+        .block h2 {
+            margin: 0 0 8px;
+            color: #1B7E4C;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .offers {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .offers th,
+        .offers td {
+            border: 1px solid #e8efea;
+            padding: 8px;
+            font-size: 9px;
+            text-align: left;
+        }
+
+        .offers th {
+            background: #1B7E4C;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 8px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: -80px;
+            left: -40px;
+            right: -40px;
+            border-top: 1px solid #d9e7de;
+            color: #7d8b83;
+            text-align: center;
+            font-size: 8px;
+            padding: 10px 40px;
+            background: #fafcfa;
+        }
+    </style>
+</head>
+<body>
+{% set ctx = pdf_context|default({}) %}
+<div class="header">
+    <table>
+        <tr>
+            <td class="title">{{ ctx.brand_name|default('AgriFund') }} - Fiche Produit Personnalisee</td>
+            <td style="text-align: right; font-size: 8px;">REF: {{ ctx.document_reference|default('PRD-' ~ product.id ~ '-' ~ date|date('Ymd')) }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="hero">
+    <h1>{{ product.nomProduit }}</h1>
+    <p>Document personnalise pour {{ client_name }}</p>
+</div>
+
+<table class="identity">
+    <tr>
+        <td style="width: 34%;">
+            <div class="label">Prepare pour</div>
+            <div class="value">{{ client_name }}</div>
+            {% if client_email|default(null) %}
+                <div style="color: #6f7c75; margin-top: 2px;">{{ client_email }}</div>
+            {% endif %}
+        </td>
+        <td style="width: 33%;">
+            <div class="label">Profil</div>
+            <div class="value">{{ ctx.generated_by_role|default('Utilisateur') }}</div>
+        </td>
+        <td style="width: 33%;">
+            <div class="label">Reference document</div>
+            <div class="value">{{ ctx.document_reference|default('PRD-' ~ product.id ~ '-' ~ date|date('Ymd')) }}</div>
+            <div style="color: #6f7c75; margin-top: 2px;">{{ ctx.generated_at|default(date)|date('d/m/Y H:i') }}</div>
+        </td>
+    </tr>
+</table>
+
+<table class="meta">
+    <tr>
+        <td>
+            <div class="label">Type de financement</div>
+            <div class="value">{{ product.typeFinancement }}</div>
+        </td>
+        <td>
+            <div class="label">Taux d'interet</div>
+            <div class="value">{{ product.tauxInteret }}%</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="label">Montant maximum</div>
+            <div class="value">{{ product.montant|number_format(0, ',', ' ') }} DT</div>
+        </td>
+        <td>
+            <div class="label">Date d'edition</div>
+            <div class="value">{{ date|date('d/m/Y H:i') }}</div>
+        </td>
+    </tr>
+</table>
+
+<div class="block">
+    <h2>Conditions financieres</h2>
+    <p style="margin: 0; line-height: 1.6;">{{ product.reglesFinancieres|default('Aucune condition specifique fournie.') }}</p>
+</div>
+
+{% if product.offres|length > 0 %}
+<div class="block">
+    <h2>Offres associees</h2>
+    <table class="offers">
+        <thead>
+            <tr>
+                <th>Offre</th>
+                <th>Statut</th>
+                <th>Conditions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for offre in product.offres %}
+            <tr>
+                <td>{{ offre.nomOffre }}</td>
+                <td>{{ offre.statut }}</td>
+                <td>{{ offre.conditions|slice(0, 120) }}{% if offre.conditions|length > 120 %}...{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="footer">
+    Document informatif genere par {{ ctx.brand_name|default('AgriFund') }}. Cette fiche personnalisee ne constitue pas un engagement contractuel.
+    {% if ctx.brand_email|default(null) %} Contact: {{ ctx.brand_email }}{% endif %}
+</div>
+</body>
+</html>

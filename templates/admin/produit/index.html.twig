@@ -579,11 +579,6 @@
                                         <span class="fs-5 fw-bold" style="color: var(--vert-vif);">{{ produit.montant|number_format(0, ',', ' ') }} DT</span>
                                     </div>
 
-                                    <div class="mb-4 p-3 rounded-3" style="background: #fffaf0; border-left: 4px solid var(--vert-vif);">
-                                        <small class="text-muted fw-bold text-uppercase d-block mb-1">Prix Fixe Payable</small>
-                                        <span class="fs-5 fw-bold" style="color: var(--vert-fonce);">{{ produit.prixFixe|number_format(2, ',', ' ') }} DT</span>
-                                    </div>
-
                                     <div class="row g-2">
                                         <div class="col-6">
                                             <a href="{{ path('admin_produit_show', {'id': produit.id}) }}" class="action-btn btn-view w-100">

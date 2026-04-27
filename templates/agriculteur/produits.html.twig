@@ -228,10 +228,6 @@
                             <span class="stat-label">Taux d'intérêt</span>
                             <span class="stat-val taux">{{ p.tauxInteret }}%</span>
                         </div>
-                        <div class="stat-box">
-                            <span class="stat-label">Prix Payable</span>
-                            <span class="stat-val">{{ p.prixFixe|number_format(2, ',', ' ') }} DT</span>
-                        </div>
                     </div>
                     
                     <div class="product-actions">
@@ -244,7 +240,7 @@
                             title="Demander une explication de ce produit"
                             data-context-type="produit"
                             data-title="{{ p.nomProduit|e('html_attr') }}"
-                            data-summary="Type: {{ p.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ p.tauxInteret }}%. Prix fixe: {{ p.prixFixe|number_format(2, ',', ' ') }} DT."
+                            data-summary="Type: {{ p.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ p.tauxInteret }}%."
                         >
                             <i class="fas fa-comments"></i>
                         </button>
@@ -268,6 +264,6 @@
     {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
         chatbot_context_type: 'produit',
         chatbot_title: 'Catalogue des produits',
-        chatbot_summary: 'Liste des produits financiers pour agriculteurs avec taux et prix fixe payable.'
+        chatbot_summary: 'Liste des produits financiers pour agriculteurs avec taux d\'intérêt.'
     } %}
 {% endblock %}

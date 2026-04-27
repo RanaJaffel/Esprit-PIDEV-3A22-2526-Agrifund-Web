@@ -94,15 +94,16 @@
     </style>
 </head>
 <body>
+    {% set ctx = pdf_context|default({}) %}
     <div class="watermark">OFFICIEL</div>
 
     <div class="fixed-header">
         <table class="header-table">
             <tr>
                 <td class="header-logo">AF</td>
-                <td class="header-title">AgriFund - Catalogue des Produits</td>
+                <td class="header-title">{{ ctx.brand_name|default('AgriFund') }} - Catalogue des Produits</td>
                 <td style="text-align: right; font-size: 8px; opacity: 0.8;">
-                    REF: PRD-{{ date|date('Ymd') }} | Page <span class="pagenum"></span>
+                    REF: {{ ctx.document_reference|default('PRD-' ~ date|date('Ymd')) }} | Page <span class="pagenum"></span>
                 </td>
             </tr>
         </table>
@@ -117,7 +118,8 @@
                 </td>
                 <td style="text-align: right; font-size: 9px; color: #999;">
                     Généré le {{ date|date('d/m/Y H:i') }}<br>
-                    Tunis, Tunisie
+                    Par: {{ ctx.generated_by_name|default(client_name|default('AgriFund')) }}<br>
+                    Profil: {{ ctx.generated_by_role|default('Admin') }}
                 </td>
             </tr>
         </table>
@@ -147,7 +149,8 @@
     </div>
 
     <div style="margin: 20px 40px; padding: 10px; border: 1px dashed #089647; font-size: 8px; color: #089647; background: #f0fdf4; text-align: center;">
-        Ce document est une extraction officielle du système AgriFund. Signature numérique ID: {{ date|date('U') }}-{{ "now"|date("v") }}
+        Ce document est une extraction officielle du système {{ ctx.brand_name|default('AgriFund') }}.
+        Signature numérique ID: {{ ctx.document_reference|default(date|date('U')) }}
     </div>
 
     <div class="content-wrap">
@@ -187,8 +190,8 @@
         <table class="footer-table">
             <tr>
                 <td class="footer-info">
-                    AgriFund S.A. — Avenue Habib Bourguiba, Tunis<br>
-                    www.agrifund.tn — contact@agrifund.tn — +216 71 000 000
+                    {{ ctx.brand_name|default('AgriFund') }} S.A. — {{ ctx.brand_address|default('Avenue Habib Bourguiba, Tunis') }}<br>
+                    www.agrifund.tn — {{ ctx.brand_email|default('contact@agrifund.tn') }} — {{ ctx.brand_phone|default('+216 71 000 000') }}
                 </td>
                 <td style="width: 50px;">
                     <div style="width: 40px; height: 40px; border: 1px solid #ccc; text-align: center; line-height: 40px; font-size: 6px;">VERIFY</div>

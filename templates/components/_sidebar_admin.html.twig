@@ -28,7 +28,7 @@
         <div class="user-card">
             <div class="user-avatar-wrapper">
                 <div class="user-avatar">
-                    {% if app.user.photo %}
+                    {% if app.user.photo and public_asset_exists(app.user.photo) %}
                         <img src="{{ asset(app.user.photo) }}" alt="{{ app.user.nomComplet }}">
                     {% else %}
                         <div class="avatar-placeholder">
@@ -956,7 +956,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update unread messages badge
     function updateUnreadBadge() {
-        fetch('/api/messages/unread-count')
+        fetch('{{ path('admin_messagerie_unread_count') }}')
             .then(response => response.json())
             .then(data => {
                 const badge = document.getElementById('unread-messages-badge');

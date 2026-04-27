@@ -32,17 +32,17 @@ class ListUsersCommand extends Command
         }
 
         $table = new Table($output);
-        $table->setHeaders(['ID', 'Email', 'First Name', 'Last Name', 'Roles', 'Active', 'Created At']);
+        $table->setHeaders(['ID', 'Email', 'First Name', 'Last Name', 'Roles', 'Online', 'Registered At']);
 
         foreach ($users as $user) {
             $table->addRow([
                 $user->getId(),
                 $user->getEmail(),
-                $user->getFirstname(),
-                $user->getLastname(),
+                $user->getPrenom(),
+                $user->getNom(),
                 implode(', ', $user->getRoles()),
-                $user->isIsActive() ? 'Yes' : 'No',
-                $user->getCreatedAt()->format('Y-m-d H:i:s'),
+                $user->isEstEnLigne() ? 'Yes' : 'No',
+                $user->getDateInscrit()?->format('Y-m-d H:i:s') ?? '',
             ]);
         }
 
