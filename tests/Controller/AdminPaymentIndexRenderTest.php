@@ -58,4 +58,15 @@ final class AdminPaymentIndexRenderTest extends ApiControllerTestCase
         self::assertAnySelectorTextContains('.payment-card', 'TX-TEST-001');
         self::assertAnySelectorTextContains('.payment-card', 'Produit Paiement');
     }
+
+    public function testLegacyUnreadCountEndpointReturnsJsonForAuthenticatedAdmin(): void
+    {
+        $this->loginAsAdmin();
+
+        $this->client->request('GET', '/api/messages/unread-count');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseFormatSame('json');
+        self::assertSame(['count' => 0], json_decode($this->client->getResponse()->getContent(), true));
+    }
 }
