@@ -1,100 +1,448 @@
 <style>
     /* ========================================
-       NAVBAR MODERNE - AgriFund (Marketing)
+       NAVBAR MODERNE - AgriFund (Fond Blanc)
     ======================================== */
     
+    /* Header principal - Fond Blanc */
     #header {
-        background: transparent;
-        transition: all 0.4s ease;
-        padding: 30px 0;
-        position: fixed;
-        width: 100%;
-        top: 0;
-        z-index: 1000;
+        background: #ffffff;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        padding: 12px 0;
     }
 
     #header.scrolled {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        padding: 15px 0;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
+        padding: 8px 0;
     }
 
     /* Logo */
-    .logo-brand {
-        font-family: 'Marcellus', serif;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white;
-        text-decoration: none;
-    }
-    
-    #header.scrolled .logo-brand {
-        color: var(--nature-green);
+    #header .logo img {
+        height: 55px;
+        width: auto;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    #header.scrolled .nav-link {
-        color: var(--deep-forest);
+    #header .logo:hover img {
+        transform: scale(1.05);
     }
 
-    /* Navigation horizontal */
-    .nav-link {
-        color: white;
+    /* Navigation horizontale */
+    .navmenu {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .navmenu > ul {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .navmenu > ul > li {
+        position: relative;
+        margin: 0;
+    }
+
+    /* Liens navigation */
+    .navmenu > ul > li > a {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333333;
         text-decoration: none;
-        font-weight: 700;
+        font-weight: 500;
+        font-size: 0.95rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .navmenu > ul > li > a i {
+        margin-right: 6px;
+        font-size: 1rem;
+        color: #2e7d32;
+    }
+
+    /* Hover effet */
+    .navmenu > ul > li > a:hover {
+        color: #2e7d32;
+        background: rgba(46, 125, 50, 0.08);
+    }
+
+    /* Lien actif */
+    .navmenu > ul > li > a.active {
+        color: #2e7d32;
+        background: rgba(46, 125, 50, 0.1);
+    }
+
+    .navmenu > ul > li > a.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, #4caf50, #81c784);
+        border-radius: 3px 3px 0 0;
+    }
+
+    /* ========================================
+       DROPDOWN S'INSCRIRE
+    ======================================== */
+    .navmenu .dropdown {
+        position: relative;
+    }
+
+    .navmenu .dropdown > a {
+        cursor: pointer;
+    }
+
+    .navmenu .dropdown > a .toggle-dropdown {
+        margin-left: 5px;
+        font-size: 0.7rem;
+        transition: transform 0.3s ease;
+    }
+
+    .navmenu .dropdown:hover > a .toggle-dropdown {
+        transform: rotate(180deg);
+    }
+
+    /* Menu déroulant */
+    .navmenu .dropdown ul {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 220px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        padding: 10px 0;
+        margin: 0;
+        list-style: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .navmenu .dropdown:hover ul {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    /* Items du dropdown */
+    .navmenu .dropdown ul li a {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #444444;
+        text-decoration: none;
+        font-weight: 500;
         font-size: 0.9rem;
-        padding: 10px 20px;
-        transition: all 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        transition: all 0.3s ease;
     }
 
-    .nav-link:hover {
-        color: var(--harvest-gold) !important;
+    .navmenu .dropdown ul li a i {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
     }
 
-    .btn-cta-nav {
-        background: var(--nature-green);
-        color: white !important;
-        padding: 12px 30px;
-        border-radius: 100px;
-        box-shadow: 0 10px 20px rgba(46, 125, 50, 0.2);
+    /* Style Agriculteur */
+    .navmenu .dropdown ul li a.dropdown-agriculteur i {
+        background: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
     }
 
-    .btn-cta-nav:hover {
-        background: var(--meadow-green);
+    .navmenu .dropdown ul li a.dropdown-agriculteur:hover {
+        background: rgba(76, 175, 80, 0.08);
+        color: #2e7d32;
+    }
+
+    .navmenu .dropdown ul li a.dropdown-agriculteur:hover i {
+        background: #4caf50;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Style Banque */
+    .navmenu .dropdown ul li a.dropdown-banque i {
+        background: rgba(33, 150, 243, 0.1);
+        color: #2196f3;
+    }
+
+    .navmenu .dropdown ul li a.dropdown-banque:hover {
+        background: rgba(33, 150, 243, 0.08);
+        color: #1976d2;
+    }
+
+    .navmenu .dropdown ul li a.dropdown-banque:hover i {
+        background: #2196f3;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Description sous le titre */
+    .navmenu .dropdown ul li a .dropdown-desc {
+        display: block;
+        font-size: 0.75rem;
+        color: #888;
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    .navmenu .dropdown ul li a .dropdown-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Séparateur */
+    .navmenu .dropdown ul li.dropdown-divider {
+        height: 1px;
+        background: #eee;
+        margin: 8px 15px;
+    }
+
+    /* ========================================
+       BOUTON CONNEXION
+    ======================================== */
+    .auth-buttons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+        padding-left: 25px;
+        border-left: 2px solid #eee;
+    }
+
+    .btn-nav-login {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-nav-login:hover {
+        background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+        color: white;
         transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(76, 175, 80, 0.4);
     }
 
-    @media (max-width: 992px) {
-        #header { background: white; padding: 15px 0; }
-        .nav-link { color: var(--deep-forest); }
-        .logo-brand { color: var(--nature-green); }
+    .btn-nav-login i {
+        transition: transform 0.3s ease;
+    }
+
+    .btn-nav-login:hover i {
+        transform: translateX(3px);
+    }
+
+    /* ========================================
+       ANIMATIONS
+    ======================================== */
+    .navmenu > ul > li {
+        animation: fadeInDown 0.5s ease backwards;
+    }
+
+    .navmenu > ul > li:nth-child(1) { animation-delay: 0.1s; }
+    .navmenu > ul > li:nth-child(2) { animation-delay: 0.15s; }
+    .navmenu > ul > li:nth-child(3) { animation-delay: 0.2s; }
+    .navmenu > ul > li:nth-child(4) { animation-delay: 0.25s; }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .auth-buttons {
+        animation: fadeInRight 0.6s ease backwards;
+        animation-delay: 0.3s;
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Barre de progression */
+    .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #4caf50, #81c784, #4caf50);
+        background-size: 200% 100%;
+        z-index: 9999;
+        transition: width 0.2s ease;
+        animation: gradientMove 2s linear infinite;
+    }
+
+    @keyframes gradientMove {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 200% 0%; }
+    }
+
+    /* ========================================
+       RESPONSIVE
+    ======================================== */
+    @media (max-width: 1280px) {
+        .navmenu > ul > li > a {
+            padding: 10px 14px;
+            font-size: 0.88rem;
+        }
+
+        .auth-buttons {
+            padding-left: 15px;
+        }
+
+        .btn-nav-login {
+            padding: 9px 18px;
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 1199px) {
+        .auth-buttons {
+            display: none;
+        }
+    }
+
+    /* Mobile nav toggle */
+    .mobile-nav-toggle {
+        font-size: 28px;
+        cursor: pointer;
+        color: #333;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-nav-toggle:hover {
+        color: #4caf50;
+        transform: scale(1.1);
     }
 </style>
 
-<header id="header">
-    <div class="container d-flex align-items-center justify-content-between">
-        <a href="{{ path('app_home') }}" class="logo-brand">
-            AgriFund<span style="color: var(--harvest-gold);">.</span>
+<!-- Barre de progression -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header id="header" class="header d-flex align-items-center position-relative">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+
+        <a href="{{ path('app_home') }}" class="logo d-flex align-items-center">
+            <img src="{{ asset('assets/img/logo.png') }}" alt="AgriFund">
         </a>
 
-        <div class="d-none d-lg-flex align-items-center">
-            <a href="{{ path('app_home') }}" class="nav-link">Accueil</a>
-            <a href="{{ path('app_products') }}" class="nav-link">Marketplace</a>
-            <a href="{{ path('app_offers') }}" class="nav-link">Offres</a>
-            <a href="{{ path('app_about') }}" class="nav-link">À Propos</a>
-            
-            {% if is_granted('ROLE_USER') %}
-                <a href="{{ path('agriculteur_dashboard') }}" class="nav-link btn-cta-nav ms-4">Mon Portail</a>
-            {% else %}
-                <a href="{{ path('app_login') }}" class="nav-link ms-4">Connexion</a>
-                <a href="{{ path('app_register_agriculteur') }}" class="nav-link btn-cta-nav ms-3">S'inscrire</a>
-            {% endif %}
-        </div>
+        <nav id="navmenu" class="navmenu">
+            <ul>
+                <li>
+                    <a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
+                        <i class="bi bi-house-door-fill"></i>
+                        Accueil
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">
+                        <i class="bi bi-info-circle-fill"></i>
+                        À propos
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ path('app_contact') }}" class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}">
+                        <i class="bi bi-envelope-fill"></i>
+                        Contact
+                    </a>
+                </li>
 
-        <button class="d-lg-none btn border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNav">
-            <i class="fas fa-bars fa-2x"></i>
-        </button>
+                <!-- Dropdown S'inscrire -->
+                <li class="dropdown">
+                    <a href="#">
+                        <i class="bi bi-person-plus-fill"></i>
+                        S'inscrire
+                        <i class="bi bi-chevron-down toggle-dropdown"></i>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{{ path('app_register_agriculteur') }}" class="dropdown-agriculteur">
+                                <i class="bi bi-tree-fill"></i>
+                                <span class="dropdown-text">
+                                    <strong>Agriculteur</strong>
+                                    <span class="dropdown-desc">Demandez un financement</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="dropdown-divider"></li>
+                        <li>
+                            <a href="{{ path('app_register_banque') }}" class="dropdown-banque">
+                                <i class="bi bi-bank2"></i>
+                                <span class="dropdown-text">
+                                    <strong>Banque</strong>
+                                    <span class="dropdown-desc">Proposez vos services</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- Bouton Connexion -->
+            <div class="auth-buttons">
+                <a href="{{ path('app_login') }}" class="btn-nav-login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Connexion
+                </a>
+            </div>
+
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
     </div>
 </header>
+
+<script>
+    // Barre de progression
+    window.addEventListener('scroll', () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('scrollProgress').style.width = scrolled + '%';
+        
+        // Header scroll effect
+        const header = document.getElementById('header');
+        header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+</script>

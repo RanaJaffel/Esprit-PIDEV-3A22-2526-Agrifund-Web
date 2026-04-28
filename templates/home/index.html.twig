@@ -1,196 +1,173 @@
-{# templates/home/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}AgriFund - L'avenir de l'agriculture tunisienne{% endblock %}
+{% block title %}AgriFund - Plateforme de Financement Agricole{% endblock %}
+
+{% block body_class %}index-page{% endblock %}
 
 {% block stylesheets %}
 <style>
-    :root {
-        --vert-vif: #089647;
+    /* Custom styles for AgriFund */
+    .hero .carousel-container h2 {
+        font-size: 3rem;
+        font-weight: 700;
     }
 
-    body.index-page {
-        overflow-x: hidden;
-        position: relative;
+    .btn-get-started {
+        background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        margin-top: 20px;
     }
 
-    /* Premium Glows */
-    .glow-1 {
-        position: fixed; top: -10%; left: -10%; width: 50%; height: 50%;
-        background: radial-gradient(circle, rgba(8, 150, 71, 0.08) 0%, transparent 70%);
-        z-index: -1; animation: float 15s infinite alternate;
-    }
-    .glow-2 {
-        position: fixed; bottom: -10%; right: -10%; width: 60%; height: 60%;
-        background: radial-gradient(circle, rgba(178, 217, 68, 0.05) 0%, transparent 70%);
-        z-index: -1; animation: float 18s infinite alternate-reverse;
+    .btn-get-started:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(63, 158, 77, 0.4);
+        color: white;
     }
 
-    @keyframes float {
-        0% { transform: translate(0, 0); }
-        100% { transform: translate(5%, 5%); }
+    .btn-get-started-banque {
+        background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+        margin-left: 15px;
     }
 
-    .marketing-hero {
-        min-height: 95vh;
-        background: linear-gradient(rgba(19, 61, 3, 0.6), rgba(19, 61, 3, 0.3)), url("{{ asset('img/hero_nature.png') }}");
-        background-size: cover;
-        background-position: center;
+    .btn-get-started-banque:hover {
+        box-shadow: 0 10px 30px rgba(212, 160, 23, 0.4);
+    }
+
+    .stats-section {
+        background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+        padding: 60px 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        color: white;
+    }
+
+    .stat-item .number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #8bc34a;
+    }
+
+    .stat-item .label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .cta-register {
+        background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+        padding: 80px 0;
+    }
+
+    .cta-register h2 {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .cta-register p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-cta-agriculteur {
+        padding: 16px 40px;
+        background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%);
+        border: none;
+        border-radius: 30px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cta-agriculteur:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(139, 195, 74, 0.4);
+        color: white;
+    }
+
+    .btn-cta-banque {
+        padding: 16px 40px;
+        background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+        border: none;
+        border-radius: 30px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cta-banque:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(212, 160, 23, 0.4);
+        color: white;
+    }
+
+    .service-item-agrifund {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .service-item-agrifund:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .service-icon-agrifund {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3f9e4d 0%, #2d7a3a 100%);
+        border-radius: 20px;
         display: flex;
         align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+    }
+
+    .service-icon-agrifund i {
+        font-size: 32px;
         color: white;
-        padding: 100px 0;
-        position: relative;
-        clip-path: ellipse(150% 100% at 50% 0%);
     }
 
-    .hero-content { max-width: 850px; }
-    .hero-label {
-        display: inline-block;
-        background: rgba(225, 179, 35, 0.9);
-        color: #133D03;
-        padding: 10px 25px;
-        border-radius: 100px;
-        font-weight: 800;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        margin-bottom: 30px;
-        letter-spacing: 2px;
-        backdrop-filter: blur(5px);
+    .service-item-agrifund h3 {
+        font-size: 1.3rem;
+        color: #1a472a;
+        margin-bottom: 15px;
     }
 
-    .hero-title {
-        font-family: 'Marcellus', serif;
-        font-size: 5rem;
-        line-height: 1;
-        font-weight: 400;
-        margin-bottom: 35px;
-        letter-spacing: -2px;
-    }
-
-    .hero-desc {
-        font-size: 1.4rem;
-        opacity: 0.9;
-        margin-bottom: 50px;
+    .service-item-agrifund p {
+        color: #666;
         line-height: 1.6;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .hero-btns {
-        display: flex;
-        gap: 25px;
-    }
-
-    .btn-nature {
-        background: var(--vert-vif);
-        color: white;
-        padding: 20px 45px;
-        border-radius: 100px;
-        font-weight: 800;
-        text-decoration: none;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: none;
-        font-size: 1.1rem;
-        box-shadow: 0 10px 30px rgba(8, 150, 71, 0.3);
-    }
-
-    .btn-nature:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(8, 150, 71, 0.4);
-        color: white;
-    }
-
-    .btn-outline-white {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        color: white;
-        padding: 20px 45px;
-        border-radius: 100px;
-        font-weight: 700;
-        text-decoration: none;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.4s;
-        font-size: 1.1rem;
-    }
-
-    .btn-outline-white:hover {
-        background: white;
-        color: var(--vert-vif);
-        transform: translateY(-8px);
-    }
-
-    /* Section Styles */
-    .section-padding { padding: 120px 0; }
-    
-    .lifestyle-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 35px;
-        margin-top: 70px;
-    }
-
-    .life-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        padding: 60px 45px;
-        border-radius: 40px;
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        text-align: center;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-    }
-
-    .life-card:hover {
-        transform: translateY(-20px);
-        background: white;
-        box-shadow: 0 40px 80px rgba(8, 150, 71, 0.1);
-        border-color: var(--vert-vif);
-    }
-
-    .icon-circle {
-        width: 90px; height: 90px;
-        background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
-        color: var(--vert-vif);
-        border-radius: 30px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 2.5rem;
-        margin: 0 auto 35px;
-        transform: rotate(-5deg);
-        transition: all 0.4s;
-    }
-
-    .life-card:hover .icon-circle {
-        transform: rotate(0deg) scale(1.1);
-        background: var(--vert-vif);
-        color: white;
-    }
-
-    .card-title { font-family: 'Marcellus', serif; font-size: 1.8rem; margin-bottom: 20px; color: #133D03; }
-    .card-text { color: #64748b; line-height: 1.8; font-size: 1rem; }
-
-    .stats-bar {
-        background: linear-gradient(135deg, #133D03 0%, #076A39 100%);
-        color: white;
-        padding: 70px 0;
-        border-radius: 50px;
-        margin-top: -100px;
-        position: relative;
-        z-index: 10;
-        display: flex;
-        justify-content: space-around;
-        text-align: center;
-        box-shadow: 0 30px 60px rgba(19, 61, 3, 0.2);
-    }
-
-    .stat-box h4 { font-size: 4rem; font-weight: 400; font-family: 'Marcellus', serif; margin-bottom: 5px; color: var(--harvest-gold); }
-    .stat-box p { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.7; font-weight: 700; }
-
-    @media (max-width: 992px) {
-        .hero-title { font-size: 3.5rem; }
-        .lifestyle-grid { grid-template-columns: 1fr; }
-        .stats-bar { flex-direction: column; gap: 50px; padding: 50px; border-radius: 30px; }
     }
 </style>
 {% endblock %}
@@ -198,133 +175,392 @@
 {% block body %}
     {% include 'partials/_navbar.html.twig' %}
 
-    <div class="glow-1"></div>
-    <div class="glow-2"></div>
+    <main class="main">
 
-    <main>
-        <section class="marketing-hero">
-            <div class="container text-center">
-                <div class="hero-content mx-auto" data-aos="zoom-out" data-aos-duration="1200">
-                    <span class="hero-label">Excellence Agricole</span>
-                    <h1 class="hero-title">Façonnez demain, aujourd'hui.</h1>
-                    <p class="hero-desc">L'écosystème financier le plus avancé de Tunisie dédié exclusivement à ceux qui cultivent notre terre.</p>
-                    <div class="hero-btns justify-content-center">
-                        <a href="{{ path('app_register_agriculteur') }}" class="btn-nature">Rejoindre l'élite</a>
-                        <a href="#discover" class="btn-outline-white">Explorer l'impact</a>
+        <!-- Hero Section -->
+        <section id="hero" class="hero section dark-background">
+
+            <div id="hero-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+
+                <div class="carousel-item active">
+                    <img src="{{ asset('assets/img/hero_1.jpg') }}" alt="">
+                    <div class="carousel-container">
+                        <h2>Financez votre agriculture avec confiance</h2>
+                        <p>AgriFund connecte les agriculteurs aux institutions financières pour un développement agricole durable. Accédez aux crédits et développez votre exploitation.</p>
+                        <div>
+                            <a href="{{ path('app_register_agriculteur') }}" class="btn-get-started">
+                                <i class="bi bi-tree"></i> Je suis agriculteur
+                            </a>
+                            <a href="{{ path('app_register_banque') }}" class="btn-get-started btn-get-started-banque">
+                                <i class="bi bi-bank"></i> Je suis une banque
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <div class="container">
-            <div class="stats-bar">
-                <div class="stat-box" data-aos="fade-up">
-                    <h4>8.5k</h4>
-                    <p>Agriculteurs</p>
+                <div class="carousel-item">
+                    <img src="{{ asset('assets/img/hero_2.jpg') }}" alt="">
+                    <div class="carousel-container">
+                        <h2>Des solutions de financement adaptées</h2>
+                        <p>Obtenez des crédits agricoles avec des conditions avantageuses. Notre plateforme facilite l'accès au financement pour tous les agriculteurs.</p>
+                        <div>
+                            <a href="{{ path('app_register_agriculteur') }}" class="btn-get-started">
+                                <i class="bi bi-cash-coin"></i> Demander un financement
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-box" data-aos="fade-up" data-aos-delay="100">
-                    <h4>120M</h4>
-                    <p>Investis</p>
-                </div>
-                <div class="stat-box" data-aos="fade-up" data-aos-delay="200">
-                    <h4>100%</h4>
-                    <p>Digitalisé</p>
-                </div>
-                <div class="stat-box" data-aos="fade-up" data-aos-delay="300">
-                    <h4>98%</h4>
-                    <p>Satisfaction</p>
-                </div>
-            </div>
-        </div>
 
-        <section id="discover" class="section-padding">
+                <div class="carousel-item">
+                    <img src="{{ asset('assets/img/hero_3.jpg') }}" alt="">
+                    <div class="carousel-container">
+                        <h2>Une communauté d'agriculteurs connectés</h2>
+                        <p>Rejoignez des milliers d'agriculteurs qui utilisent AgriFund pour gérer leurs exploitations et accéder à des opportunités de financement.</p>
+                        <div>
+                            <a href="{{ path('app_register_agriculteur') }}" class="btn-get-started">
+                                <i class="bi bi-people"></i> Rejoindre la communauté
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <img src="{{ asset('assets/img/hero_4.jpg') }}" alt="">
+                    <div class="carousel-container">
+                        <h2>Partenaires bancaires de confiance</h2>
+                        <p>Nos partenaires bancaires offrent des solutions de financement sécurisées et adaptées aux besoins spécifiques du secteur agricole.</p>
+                        <div>
+                            <a href="{{ path('app_register_banque') }}" class="btn-get-started btn-get-started-banque">
+                                <i class="bi bi-bank"></i> Devenir partenaire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <img src="{{ asset('assets/img/hero_5.jpg') }}" alt="">
+                    <div class="carousel-container">
+                        <h2>L'agriculture de demain commence aujourd'hui</h2>
+                        <p>Modernisez votre exploitation avec les outils digitaux d'AgriFund. Suivi des cultures, gestion financière, et bien plus encore.</p>
+                        <div>
+                            <a href="{{ path('app_login') }}" class="btn-get-started">
+                                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+                </a>
+
+                <a class="carousel-control-next" href="#hero-carousel" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+                </a>
+
+                <ol class="carousel-indicators"></ol>
+
+            </div>
+
+        </section><!-- /Hero Section -->
+
+        <!-- Stats Section -->
+        <section class="stats-section">
             <div class="container">
-                <div class="text-center" data-aos="fade-up">
-                    <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 3px; color: var(--vert-vif);">Notre Héritage</h6>
-                    <h2 style="font-family: 'Marcellus', serif; font-size: 3.5rem; margin-bottom: 25px; color: #133D03;">Cultiver la prospérité</h2>
-                    <p class="text-muted mx-auto" style="max-width: 750px; font-size: 1.1rem; line-height: 1.8;">Nous fusionnons tradition millénaire et haute finance pour offrir une expérience sans précédent aux bâtisseurs de la Tunisie.</p>
-                </div>
-
-                <div class="lifestyle-grid">
-                    <div class="life-card" data-aos="fade-up" data-aos-delay="100">
-                        <div class="icon-circle">
-                            <i class="fas fa-leaf"></i>
+                <div class="row">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item" data-aos="fade-up">
+                            <div class="number">5000+</div>
+                            <div class="label">Agriculteurs</div>
                         </div>
-                        <h3 class="card-title">Éthique</h3>
-                        <p class="card-text">Un financement qui respecte la terre et les hommes, avec une transparence absolue sur chaque transaction.</p>
                     </div>
-                    <div class="life-card" data-aos="fade-up" data-aos-delay="200">
-                        <div class="icon-circle">
-                            <i class="fas fa-bolt"></i>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+                            <div class="number">25+</div>
+                            <div class="label">Banques partenaires</div>
                         </div>
-                        <h3 class="card-title">Vitesse</h3>
-                        <p class="card-text">Nous savons que la nature n'attend pas. Des réponses en moins de 48h pour vos besoins saisonniers.</p>
                     </div>
-                    <div class="life-card" data-aos="fade-up" data-aos-delay="300">
-                        <div class="icon-circle">
-                            <i class="fas fa-shield-alt"></i>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                            <div class="number">10M+</div>
+                            <div class="label">Crédits accordés (TND)</div>
                         </div>
-                        <h3 class="card-title">Sérénité</h3>
-                        <p class="card-text">Une protection robuste contre les aléas et un accompagnement sur mesure par nos experts agricoles.</p>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
+                            <div class="number">24</div>
+                            <div class="label">Gouvernorats</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </section><!-- /Stats Section -->
 
-        <!-- Product Preview Section -->
-        <section class="section-padding" style="background: rgba(13, 40, 24, 0.02); border-radius: 80px 80px 0 0;">
+        <!-- Services Section -->
+        <section id="services" class="services section">
+
+            <div class="container section-title" data-aos="fade-up">
+                <h2>NOS SERVICES</h2>
+                <p>Des solutions complètes pour l'agriculture moderne</p>
+            </div>
+
+            <div class="content">
+                <div class="container">
+                    <div class="row g-4">
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-cash-coin"></i>
+                                </div>
+                                <h3>Financement agricole</h3>
+                                <p>Accédez à des crédits adaptés à vos besoins agricoles avec des taux compétitifs.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <h3>Suivi des cultures</h3>
+                                <p>Tableau de bord intelligent pour suivre vos cultures et optimiser vos rendements.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <h3>Sécurité garantie</h3>
+                                <p>Vos données sont protégées avec les plus hauts standards de sécurité.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <h3>Réseau partenaires</h3>
+                                <p>Connectez-vous avec des banques et institutions financières de confiance.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-cloud-sun"></i>
+                                </div>
+                                <h3>Prévisions météo</h3>
+                                <p>Accédez aux prévisions météorologiques pour planifier vos activités agricoles.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-calculator"></i>
+                                </div>
+                                <h3>Gestion financière</h3>
+                                <p>Outils de gestion pour suivre vos revenus, dépenses et investissements.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="600">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-headset"></i>
+                                </div>
+                                <h3>Support 24/7</h3>
+                                <p>Une équipe dédiée pour vous accompagner à chaque étape de votre projet.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="700">
+                            <div class="service-item-agrifund">
+                                <div class="service-icon-agrifund">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                <h3>Formation</h3>
+                                <p>Ressources et formations pour améliorer vos pratiques agricoles.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /Services Section -->
+
+        <!-- About Section -->
+        <section id="about" class="about section">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            <img src="{{ asset('assets/img/img_long_5.jpg') }}" alt="Agriculture" class="img-fluid img-overlap" data-aos="zoom-out">
+                        </div>
+                        <div class="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="100">
+                            <h3 class="content-subtitle text-white opacity-50">Pourquoi nous choisir</h3>
+                            <h2 class="content-title mb-4">
+                                Une plateforme <strong>innovante</strong> pour l'agriculture tunisienne
+                            </h2>
+                            <p class="opacity-50">
+                                AgriFund révolutionne l'accès au financement agricole en Tunisie. Notre mission est de connecter les agriculteurs aux opportunités de financement pour un développement durable.
+                            </p>
+
+                            <div class="row my-5">
+                                <div class="col-lg-12 d-flex align-items-start mb-4">
+                                    <i class="bi bi-lightning-charge me-4 display-6"></i>
+                                    <div>
+                                        <h4 class="m-0 h5 text-white">Processus rapide</h4>
+                                        <p class="text-white opacity-50">Demande de financement simplifiée et réponse rapide.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 d-flex align-items-start mb-4">
+                                    <i class="bi bi-heart me-4 display-6"></i>
+                                    <div>
+                                        <h4 class="m-0 h5 text-white">Accompagnement personnalisé</h4>
+                                        <p class="text-white opacity-50">Une équipe dédiée pour vous guider.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 d-flex align-items-start">
+                                    <i class="bi bi-bank me-4 display-6"></i>
+                                    <div>
+                                        <h4 class="m-0 h5 text-white">Partenaires de confiance</h4>
+                                        <p class="text-white opacity-50">Des banques reconnues pour votre sécurité.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /About Section -->
+
+        <!-- About 3 Section -->
+        <section id="about-3" class="about-3 section">
+
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-5" data-aos="fade-right">
-                        <h2 style="font-family: 'Marcellus', serif; font-size: 3rem; margin-bottom: 35px; color: #133D03;">Solutions Sur Mesure</h2>
-                        <p class="lead text-muted mb-5" style="line-height: 1.8;">Qu'il s'agisse de moderniser votre parc matériel ou d'étendre vos terres, nos experts façonnent le crédit parfait pour votre ambition.</p>
-                        
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="me-4 text-success"><i class="fas fa-university fa-2x"></i></div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Partenariat Institutionnel</h5>
-                                <p class="text-muted small mb-0">Accès aux fonds de garantie nationaux.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-5">
-                            <div class="me-4 text-success"><i class="fas fa-chart-pie fa-2x"></i></div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Gestion Prédictive</h5>
-                                <p class="text-muted small mb-0">Outils d'aide à la décision intégrés.</p>
-                            </div>
-                        </div>
-
-                        <a href="{{ path('app_products') }}" class="btn-nature">Voir le catalogue</a>
+                <div class="row gy-4 justify-content-between align-items-center">
+                    <div class="col-lg-6 order-lg-2 position-relative" data-aos="zoom-out">
+                        <img src="{{ asset('assets/img/img_sq_1.jpg') }}" alt="Image" class="img-fluid">
+                        <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn">
+                            <span class="play"><i class="bi bi-play-fill"></i></span>
+                        </a>
                     </div>
-                    <div class="col-lg-6 offset-lg-1" data-aos="zoom-in" data-aos-delay="200">
-                        <div class="position-relative">
-                            <div style="position: absolute; top: -30px; left: -30px; width: 200px; height: 200px; background: var(--harvest-gold); border-radius: 50%; filter: blur(80px); opacity: 0.2; z-index: -1;"></div>
-                            <img src="{{ asset('img/hero_nature.png') }}" alt="Nature" class="img-fluid rounded-5 shadow-2xl" style="border: 10px solid white;">
-                            <div class="bg-white p-5 rounded-4 shadow-lg position-absolute bottom-0 start-0 m-4" style="max-width: 320px; border-left: 8px solid var(--vert-vif);">
-                                <h4 class="fw-bold mb-2">98%</h4>
-                                <p class="mb-0 text-muted">des agriculteurs AgriFund recommandent nos services à leurs confrères.</p>
+                    <div class="col-lg-5 order-lg-1" data-aos="fade-up" data-aos-delay="100">
+                        <h2 class="content-title mb-4">L'agriculture fait vivre nos communautés</h2>
+                        <p class="mb-4">
+                            Nous croyons que chaque agriculteur mérite un accès équitable au financement. AgriFund est née de cette conviction, avec pour mission de démocratiser l'accès au crédit agricole en Tunisie.
+                        </p>
+                        <ul class="list-unstyled list-check">
+                            <li>Accès simplifié au financement agricole</li>
+                            <li>Partenariat avec les banques leaders</li>
+                            <li>Accompagnement personnalisé</li>
+                            <li>Outils de gestion modernes</li>
+                        </ul>
+
+                        <p><a href="{{ path('app_contact') }}" class="btn-cta">Contactez-nous</a></p>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /About 3 Section -->
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-12 testimonials section" id="testimonials">
+            <div class="container section-title" data-aos="fade-up">
+                <h2>TÉMOIGNAGES</h2>
+                <p>Ce que disent nos utilisateurs</p>
+            </div>
+
+            <div class="testimonial-wrap">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-md-4" data-aos="fade-up">
+                            <div class="testimonial">
+                                <img src="{{ asset('assets/img/testimonials/testimonials-1.jpg') }}" alt="Témoignage">
+                                <blockquote>
+                                    <p>
+                                        "Grâce à AgriFund, j'ai pu obtenir un financement pour moderniser mon exploitation. Le processus était simple et l'équipe très réactive."
+                                    </p>
+                                </blockquote>
+                                <p class="client-name">Ahmed Ben Ali - Agriculteur, Sfax</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4 mb-md-4" data-aos="fade-up" data-aos-delay="100">
+                            <div class="testimonial">
+                                <img src="{{ asset('assets/img/testimonials/testimonials-2.jpg') }}" alt="Témoignage">
+                                <blockquote>
+                                    <p>
+                                        "La plateforme nous permet d'atteindre des agriculteurs qualifiés et de proposer nos solutions de financement de manière efficace."
+                                    </p>
+                                </blockquote>
+                                <p class="client-name">Sonia Trabelsi - Directrice, Banque Agricole</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4 mb-md-4" data-aos="fade-up" data-aos-delay="200">
+                            <div class="testimonial">
+                                <img src="{{ asset('assets/img/testimonials/testimonials-3.jpg') }}" alt="Témoignage">
+                                <blockquote>
+                                    <p>
+                                        "Un service exceptionnel ! J'ai reçu mon crédit en moins de deux semaines. Je recommande AgriFund à tous les agriculteurs."
+                                    </p>
+                                </blockquote>
+                                <p class="client-name">Mohamed Khelifi - Oléiculteur, Sousse</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4 mb-md-4" data-aos="fade-up" data-aos-delay="300">
+                            <div class="testimonial">
+                                <img src="{{ asset('assets/img/testimonials/testimonials-4.jpg') }}" alt="Témoignage">
+                                <blockquote>
+                                    <p>
+                                        "Le tableau de bord est très pratique pour suivre mes cultures et ma situation financière. Une vraie révolution pour mon exploitation."
+                                    </p>
+                                </blockquote>
+                                <p class="client-name">Fatma Mansouri - Maraîchère, Nabeul</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </section><!-- /Testimonials Section -->
+
+        <!-- CTA Register Section -->
+        <section class="cta-register text-center">
+            <div class="container" data-aos="fade-up">
+                <h2>Prêt à développer votre exploitation ?</h2>
+                <p>Rejoignez des milliers d'agriculteurs qui font confiance à AgriFund pour leur financement agricole.</p>
+                <div class="cta-buttons">
+                    <a href="{{ path('app_register_agriculteur') }}" class="btn-cta-agriculteur">
+                        <i class="bi bi-tree"></i> Inscription Agriculteur
+                    </a>
+                    <a href="{{ path('app_register_banque') }}" class="btn-cta-banque">
+                        <i class="bi bi-bank"></i> Inscription Banque
+                    </a>
+                </div>
+            </div>
+        </section><!-- /CTA Register Section -->
+
+        <!-- Call To Action Section -->
+        <section id="call-to-action" class="call-to-action section light-background">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <h3>Abonnez-vous à notre newsletter</h3>
+                            <p class="opacity-50">
+                                Recevez les dernières actualités agricoles et nos conseils pour développer votre exploitation.
+                            </p>
+                        </div>
+                        <div class="col-lg-6">
+                            <form action="#" class="form-subscribe">
+                                <div class="form-group d-flex align-items-stretch">
+                                    <input type="email" name="email" class="form-control h-100" placeholder="Votre adresse email">
+                                    <input type="submit" class="btn btn-secondary px-4" value="S'abonner">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section><!-- /Call To Action Section -->
+
     </main>
 
     {% include 'partials/_footer.html.twig' %}
-{% endblock %}
-
-{% block javascripts %}
-<script>
-    window.addEventListener('scroll', function() {
-        const nav = document.querySelector('.navbar');
-        const header = document.querySelector('#header');
-        if (header && window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else if (header) {
-            header.classList.remove('scrolled');
-        }
-    });
-</script>
 {% endblock %}

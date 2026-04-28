@@ -1,0 +1,118 @@
+/* ====== Agri Capteurs Pro ====== */
+.capteur-agri-pro .iot-hero.hero-agri{
+  background: linear-gradient(120deg, #0b3d0b, #089647, #0f5c0f, #b2d944);
+  background-size: 320% 320%;
+  animation: heroFlow 10s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 22px 60px rgba(0,0,0,.16);
+}
+
+@keyframes heroFlow{
+  0%{ background-position: 0% 50%;}
+  50%{ background-position: 100% 50%;}
+  100%{ background-position: 0% 50%;}
+}
+
+.capteur-agri-pro .kpi-pro{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.capteur-agri-pro .kpi-pro::before{
+  content:"";
+  position:absolute; left:0; top:0; right:0; height:4px;
+  background: linear-gradient(90deg, #b2d944, #089647);
+}
+.capteur-agri-pro .kpi-pro::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(178,217,68,.18), transparent);
+  transform: translateX(-120%);
+  animation: shimmer 3.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes shimmer{
+  0%{ transform: translateX(-120%); }
+  60%{ transform: translateX(120%); }
+  100%{ transform: translateX(120%); }
+}
+
+.capteur-agri-pro .iot-toolbar{
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+  backdrop-filter: blur(10px);
+}
+.capteur-agri-pro .toolbar-input{
+  border-radius: 14px !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  background: rgba(255,255,255,.92) !important;
+}
+
+/* Cards grid premium */
+.capteur-agri-pro .sensor-card{
+  position: relative;
+  border-radius: 18px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 12px 26px rgba(0,0,0,.10);
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.capteur-agri-pro .sensor-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 20px 48px rgba(0,0,0,.14);
+}
+.capteur-agri-pro .sensor-card::before{
+  content:"";
+  position:absolute; inset:-2px;
+  background: linear-gradient(120deg, rgba(178,217,68,.85), rgba(8,150,71,.75), rgba(225,179,35,.55));
+  background-size: 200% 200%;
+  animation: borderFlow 6s ease-in-out infinite;
+  opacity: .45;
+}
+@keyframes borderFlow{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+.capteur-agri-pro .sensor-inner{
+  position: relative;
+  background: rgba(255,255,255,.90);
+  margin: 2px;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.capteur-agri-pro .chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.72);
+}
+.capteur-agri-pro .chip .dot{
+  width:8px; height:8px; border-radius:50%;
+  background:#9ca3af;
+}
+.capteur-agri-pro .dot.active{
+  background:#b2d944;
+  box-shadow: 0 0 0 0 rgba(178,217,68,.55);
+  animation: pulse 1.8s infinite;
+}
+.capteur-agri-pro .dot.bad{
+  background:#ef4444;
+  box-shadow: 0 0 0 0 rgba(239,68,68,.35);
+  animation: pulseRed 1.8s infinite;
+}
+@keyframes pulseRed{
+  0%{ box-shadow:0 0 0 0 rgba(239,68,68,.35); }
+  70%{ box-shadow:0 0 0 10px rgba(239,68,68,0); }
+  100%{ box-shadow:0 0 0 0 rgba(239,68,68,0); }
+}
+
+.capteur-agri-pro .sensor-actions .btn{
+  border-radius: 14px;
+}

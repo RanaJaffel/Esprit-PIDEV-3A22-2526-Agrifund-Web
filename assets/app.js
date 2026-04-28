@@ -1,3 +1,15 @@
-import { startStimulusApp } from "@symfony/stimulus-bundle";
+/*
+ * Welcome to your app's main JavaScript file!
+ */
 
-startStimulusApp();
+import './bootstrap';
+import './styles/app.css';
+
+// Import Bootstrap
+import 'bootstrap';
+
+// Import custom JavaScript
+import './js/sidebar';
+import './js/app';
+
+console.log('Application loaded successfully!');

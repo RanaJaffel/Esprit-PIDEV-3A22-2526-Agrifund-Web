@@ -1,0 +1,101 @@
+/* ===== Annoter Pro ===== */
+.annoter-pro .annoter-hero{
+  background: linear-gradient(120deg, #0b3d0b, #089647, #0f5c0f, #b2d944);
+  background-size: 320% 320%;
+  animation: heroFlow 10s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 22px 60px rgba(0,0,0,.16);
+  border-radius: 22px;
+  padding: 18px 18px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+@keyframes heroFlow{
+  0%{ background-position: 0% 50%;}
+  50%{ background-position: 100% 50%;}
+  100%{ background-position: 0% 50%;}
+}
+.annoter-pro .annoter-hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 18% 25%, rgba(255,255,255,.10) 0%, transparent 55%),
+    radial-gradient(circle at 80% 20%, rgba(178,217,68,.14) 0%, transparent 60%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.06) 0 2px, transparent 2px 14px);
+  opacity:.55;
+}
+
+.annoter-pro .annoter-hero > *{ position: relative; }
+
+.annoter-pro .panel{
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.10);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+.annoter-pro .panel-h{
+  padding: 14px 16px;
+  background: rgba(255,255,255,.70);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-weight: 900;
+}
+.annoter-pro .panel-b{ padding:16px; }
+
+.annoter-pro .chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.72);
+}
+
+.annoter-pro .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#9ca3af;
+}
+.annoter-pro .dot.lock{
+  background:#f59e0b;
+  box-shadow: 0 0 0 0 rgba(245,158,11,.35);
+  animation: pulseWarn 1.8s infinite;
+}
+@keyframes pulseWarn{
+  0%{ box-shadow:0 0 0 0 rgba(245,158,11,.35); }
+  70%{ box-shadow:0 0 0 10px rgba(245,158,11,0); }
+  100%{ box-shadow:0 0 0 0 rgba(245,158,11,0); }
+}
+
+.annoter-pro .meta-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top: 10px;
+}
+.annoter-pro .meta-pill{
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(178,217,68,.10);
+  border: 1px solid rgba(8,150,71,.10);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size: .86rem;
+  color: rgba(0,0,0,.65);
+}
+
+.annoter-pro .hint{
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(245,158,11,.10);
+  border: 1px solid rgba(245,158,11,.20);
+  color: rgba(0,0,0,.65);
+}

@@ -1,0 +1,480 @@
+/* ==========================================
+   🎨 IOT ADVANCED - DESIGN PRO
+   ========================================== */
+
+/* ===== QUICK ACTIONS (AMÉLIORATION) ===== */
+.quick-actions .qa-new {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-actions .qa-new::before {
+  content: 'NEW';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ff6b6b;
+  color: white;
+  font-size: 8px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.quick-actions .qa-new:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== KPI CARDS (GRADIENTS PRO) ===== */
+.kpi-pro {
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+}
+
+.kpi-pro::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.kpi-gradient-green::before {
+  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+}
+
+.kpi-gradient-blue::before {
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.kpi-gradient-orange::before {
+  background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+}
+
+.kpi-gradient-purple::before {
+  background: linear-gradient(90deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.kpi-pro .panel-b {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+}
+
+.kpi-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.kpi-gradient-green .kpi-icon {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.kpi-gradient-blue .kpi-icon {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.kpi-gradient-orange .kpi-icon {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.kpi-gradient-purple .kpi-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.kpi-content {
+  flex: 1;
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3436;
+  line-height: 1;
+}
+
+.kpi-trend {
+  font-size: 0.75rem;
+  color: #00b894;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chip-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f8f9fa;
+  font-size: 0.85rem;
+}
+
+/* ===== PANELS IA (NOUVEAU) ===== */
+.panel-ai {
+  border-left: 4px solid transparent;
+  transition: all 0.3s;
+}
+
+.panel-ai:hover {
+  border-left-color: #667eea;
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.15);
+}
+
+.irrigation-preview {
+  border-left-color: #0ea5e9;
+}
+
+.historique-preview {
+  border-left-color: #f59e0b;
+}
+
+/* ===== DÉCISION IA (IRRIGATION) ===== */
+.ai-decision {
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.ai-decision.irriguer-urgent {
+  background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+  color: white;
+}
+
+.ai-decision.irriguer {
+  background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+  color: white;
+}
+
+.ai-decision.surveiller {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  color: white;
+}
+
+.ai-decision.attendre {
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  color: white;
+}
+
+.ai-decision-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.ai-icon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 24px;
+}
+
+.ai-content {
+  flex: 1;
+}
+
+.ai-action {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.ai-quantity {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.ai-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.metric {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metric-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.metric-value-large {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.progress-bar-custom {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: white;
+  transition: width 0.5s;
+}
+
+.ai-explanation {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* ===== COMPARAISON SEMAINES (HISTORIQUE) ===== */
+.week-comparison {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.week-card {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.week-card.current {
+  border-color: #00b894;
+}
+
+.week-card.previous {
+  border-color: #dfe6e9;
+}
+
+.week-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.week-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.week-metric {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.week-metric .value {
+  font-weight: 600;
+}
+
+.week-trend {
+  margin-top: 10px;
+}
+
+.week-divider {
+  font-size: 1.5rem;
+  color: #b2bec3;
+}
+
+/* ===== VARIATIONS (HISTORIQUE) ===== */
+.variations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.variation-card {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 4px solid transparent;
+}
+
+.variation-card.hausse {
+  background: #fff5f5;
+  border-left-color: #ff6b6b;
+}
+
+.variation-card.baisse {
+  background: #f0f8ff;
+  border-left-color: #4dabf7;
+}
+
+.variation-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.variation-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.variation-card.hausse .variation-value {
+  color: #ff6b6b;
+}
+
+.variation-card.baisse .variation-value {
+  color: #4dabf7;
+}
+
+.variation-abs {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.ai-analysis-box {
+  background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #006064;
+  font-size: 0.9rem;
+}
+
+/* ===== BLOCKCHAIN STATUS ===== */
+.panel-blockchain {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: none;
+}
+
+.blockchain-status {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.blockchain-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.blockchain-metric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.blockchain-metric i {
+  font-size: 1.5rem;
+  color: #667eea;
+}
+
+.blockchain-metric .label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 3px;
+}
+
+.blockchain-metric .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.hash-preview {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #667eea;
+}
+
+.blockchain-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ai-decision .ai-icon {
+  animation: pulse 2s infinite;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .week-comparison {
+    flex-direction: column;
+  }
+
+  .week-divider {
+    transform: rotate(90deg);
+  }
+
+  .ai-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .blockchain-info {
+    grid-template-columns: 1fr;
+  }
+}
