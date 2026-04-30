@@ -5,7 +5,7 @@ namespace App\Controller\Banque;
 use App\Entity\EvaluationRisque;
 use App\Form\EvaluationRisqueType;
 use App\Repository\EvaluationRisqueRepository;
-use App\Repository\ProjetAgricoleRepository;
+use App\Repository\ProjectAgricoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +61,7 @@ class EvaluationRisqueController extends AbstractController
     public function new(
         Request $request,
         EntityManagerInterface $em,
-        ProjetAgricoleRepository $projetRepo
+        ProjectAgricoleRepository $projectRepo
     ): Response {
         $evaluation = new EvaluationRisque();
         $evaluation->setDateEvaluation(new \DateTime());

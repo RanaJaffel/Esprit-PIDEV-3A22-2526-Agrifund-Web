@@ -51,7 +51,13 @@ class Message
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $dateLecture = null;
 
-    #[ORM\OneToMany(mappedBy: 'message', targetEntity: PieceJointe::class, cascade: ['persist', 'remove'])]
+    // ✅ CORRECTION ICI
+    #[ORM\OneToMany(
+        mappedBy: 'message',
+        targetEntity: PieceJointe::class,
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
     private Collection $piecesJointes;
 
     public function __construct()
@@ -68,93 +74,22 @@ class Message
         }
     }
 
-    // Getters et Setters
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getConversation(): ?Conversation
-    {
-        return $this->conversation;
-    }
-
-    public function setConversation(?Conversation $conversation): self
-    {
-        $this->conversation = $conversation;
-        return $this;
-    }
-
-    public function getExpediteur(): ?Utilisateur
-    {
-        return $this->expediteur;
-    }
-
-    public function setExpediteur(?Utilisateur $expediteur): self
-    {
-        $this->expediteur = $expediteur;
-        return $this;
-    }
-
-    public function getContenu(): ?string
-    {
-        return $this->contenu;
-    }
-
-    public function setContenu(string $contenu): self
-    {
-        $this->contenu = $contenu;
-        return $this;
-    }
-
-    public function isAPieceJointe(): bool
-    {
-        return $this->aPieceJointe;
-    }
-
-    public function setAPieceJointe(bool $aPieceJointe): self
-    {
-        $this->aPieceJointe = $aPieceJointe;
-        return $this;
-    }
-
-    public function getNbPiecesJointes(): int
-    {
-        return $this->nbPiecesJointes;
-    }
-
-    public function setNbPiecesJointes(int $nbPiecesJointes): self
-    {
-        $this->nbPiecesJointes = $nbPiecesJointes;
-        return $this;
-    }
-
-    public function getDateEnvoi(): ?\DateTimeInterface
-    {
-        return $this->dateEnvoi;
-    }
-
-    public function setDateEnvoi(\DateTimeInterface $dateEnvoi): self
-    {
-        $this->dateEnvoi = $dateEnvoi;
-        return $this;
-    }
-
-    public function getDateModification(): ?\DateTimeInterface
-    {
-        return $this->dateModification;
-    }
-
-    public function setDateModification(?\DateTimeInterface $dateModification): self
-    {
-        $this->dateModification = $dateModification;
-        return $this;
-    }
-
-    public function isEstLu(): bool
-    {
-        return $this->estLu;
-    }
+    public function getId(): ?int { return $this->id; }
+    public function getConversation(): ?Conversation { return $this->conversation; }
+    public function setConversation(?Conversation $conversation): self { $this->conversation = $conversation; return $this; }
+    public function getExpediteur(): ?Utilisateur { return $this->expediteur; }
+    public function setExpediteur(?Utilisateur $expediteur): self { $this->expediteur = $expediteur; return $this; }
+    public function getContenu(): ?string { return $this->contenu; }
+    public function setContenu(string $contenu): self { $this->contenu = $contenu; return $this; }
+    public function isAPieceJointe(): bool { return $this->aPieceJointe; }
+    public function setAPieceJointe(bool $aPieceJointe): self { $this->aPieceJointe = $aPieceJointe; return $this; }
+    public function getNbPiecesJointes(): int { return $this->nbPiecesJointes; }
+    public function setNbPiecesJointes(int $nbPiecesJointes): self { $this->nbPiecesJointes = $nbPiecesJointes; return $this; }
+    public function getDateEnvoi(): ?\DateTimeInterface { return $this->dateEnvoi; }
+    public function setDateEnvoi(\DateTimeInterface $dateEnvoi): self { $this->dateEnvoi = $dateEnvoi; return $this; }
+    public function getDateModification(): ?\DateTimeInterface { return $this->dateModification; }
+    public function setDateModification(?\DateTimeInterface $dateModification): self { $this->dateModification = $dateModification; return $this; }
+    public function isEstLu(): bool { return $this->estLu; }
 
     public function setEstLu(bool $estLu): self
     {
@@ -165,43 +100,18 @@ class Message
         return $this;
     }
 
-    public function isEstSupprime(): bool
-    {
-        return $this->estSupprime;
-    }
+    public function isEstSupprime(): bool { return $this->estSupprime; }
+    public function setEstSupprime(bool $estSupprime): self { $this->estSupprime = $estSupprime; return $this; }
+    public function getDateLecture(): ?\DateTimeInterface { return $this->dateLecture; }
+    public function setDateLecture(?\DateTimeInterface $dateLecture): self { $this->dateLecture = $dateLecture; return $this; }
 
-    public function setEstSupprime(bool $estSupprime): self
-    {
-        $this->estSupprime = $estSupprime;
-        return $this;
-    }
-
-    public function getDateLecture(): ?\DateTimeInterface
-    {
-        return $this->dateLecture;
-    }
-
-    public function setDateLecture(?\DateTimeInterface $dateLecture): self
-    {
-        $this->dateLecture = $dateLecture;
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, PieceJointe>
-     */
-    public function getPiecesJointes(): Collection
-    {
-        return $this->piecesJointes;
-    }
+    public function getPiecesJointes(): Collection { return $this->piecesJointes; }
 
     public function addPieceJointe(PieceJointe $pieceJointe): self
     {
         if (!$this->piecesJointes->contains($pieceJointe)) {
             $this->piecesJointes->add($pieceJointe);
             $pieceJointe->setMessage($this);
-            $this->setAPieceJointe(true);
-            $this->setNbPiecesJointes($this->piecesJointes->count());
         }
         return $this;
     }
@@ -212,16 +122,7 @@ class Message
             if ($pieceJointe->getMessage() === $this) {
                 $pieceJointe->setMessage(null);
             }
-            $this->setNbPiecesJointes($this->piecesJointes->count());
-            if ($this->nbPiecesJointes === 0) {
-                $this->setAPieceJointe(false);
-            }
         }
         return $this;
-    }
-
-    public function isModifie(): bool
-    {
-        return $this->dateModification !== null;
     }
 }

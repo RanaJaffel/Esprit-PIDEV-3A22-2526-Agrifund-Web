@@ -1,0 +1,209 @@
+{# templates/agriculteur/produit_show.html.twig #}
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Détails Produit - {{ produit.nomProduit }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .show-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(8, 150, 71, 0.1);
+        margin-top: 20px;
+    }
+
+    .show-header {
+        background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 100%);
+        color: white;
+        padding: 60px 50px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .show-header::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(178, 217, 68, 0.15) 0%, transparent 70%);
+        transform: translate(25%, -25%);
+    }
+
+    .product-type-pill {
+        background: var(--vert-clair);
+        color: var(--vert-tres-fonce);
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .detail-item {
+        padding: 30px 50px;
+        border-right: 1px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .detail-item:last-child { border-right: none; }
+
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--gris);
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .detail-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .taux-highlight {
+        color: var(--vert-vif);
+        font-size: 1.8rem;
+    }
+
+    .description-section {
+        padding: 40px 50px;
+        background: #fdfdfd;
+    }
+
+    .rules-card {
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 30px;
+        border-left: 5px solid var(--vert-clair);
+    }
+
+    .action-footer {
+        padding: 30px 50px;
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-main {
+        background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: var(--transition-smooth);
+    }
+
+    .btn-main:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(8, 150, 71, 0.3);
+        color: white;
+    }
+
+    .btn-back {
+        color: var(--gris);
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid { grid-template-columns: 1fr; }
+        .detail-item { border-right: none; border-bottom: 1px solid #f1f5f9; }
+        .show-header { padding: 40px 30px; }
+        .action-footer { flex-direction: column; gap: 20px; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="animate__animated animate__fadeIn">
+        <a href="{{ path('agriculteur_produits') }}" class="btn-back mb-4">
+            <i class="fas fa-arrow-left"></i> Retour au catalogue
+        </a>
+
+        <div class="show-card">
+            <div class="show-header">
+                <span class="product-type-pill">{{ produit.typeFinancement }}</span>
+                <h1 style="font-size: 2.5rem; margin: 0;">{{ produit.nomProduit }}</h1>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Taux d'Intérêt Annuel</span>
+                    <span class="detail-value taux-highlight">{{ produit.tauxInteret }}%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Capacité de Financement</span>
+                    <span class="detail-value">
+                        {{ produit.montant|number_format(0, ',', ' ') }} DT
+                    </span>
+                </div>
+                <div class="detail-item" style="border-top: 1px solid #f1f5f9;">
+                    <span class="detail-label">Prix Fixe Payable</span>
+                    <span class="detail-value" style="color: var(--vert-vif);">
+                        {{ produit.prixFixe|number_format(2, ',', ' ') }} DT
+                    </span>
+                </div>
+            </div>
+
+            <div class="description-section">
+                <h5 class="mb-3 text-muted">Conditions et Avantages</h5>
+                <div class="rules-card">
+                    <p class="mb-0" style="line-height: 1.8; color: #475569;">
+                        {{ produit.reglesFinancieres|nl2br }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="action-footer">
+                <div class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i> Ce produit nécessite l'approbation d'un dossier complet.
+                </div>
+                <div class="d-flex gap-3">
+                    <button
+                        type="button"
+                        class="btn btn-outline-success px-4 rounded-3 h-100 py-3 agri-chat-trigger"
+                        title="Demander une explication de ce produit"
+                        data-context-type="produit"
+                        data-title="{{ produit.nomProduit|e('html_attr') }}"
+                        data-summary="Type: {{ produit.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ produit.tauxInteret }}%. Montant: {{ produit.montant|number_format(0, ',', ' ') }} DT. Prix fixe: {{ produit.prixFixe|number_format(2, ',', ' ') }} DT."
+                    >
+                        <i class="fas fa-comments me-2"></i> Demander au chatbot
+                    </button>
+                    <a href="{{ path('agriculteur_produit_simulateur', {id: produit.id}) }}" class="btn btn-outline-success px-4 rounded-3 h-100 py-3">
+                        <i class="fas fa-calculator me-2"></i> Lancer une simulation
+                    </a>
+                    <a href="{{ path('agriculteur_produit_postuler', {id: produit.id}) }}" class="btn-main py-3">
+                        Postuler maintenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
+        chatbot_context_type: 'produit',
+        chatbot_title: produit.nomProduit,
+        chatbot_summary: 'Type ' ~ produit.typeFinancement ~ ', taux ' ~ produit.tauxInteret ~ '%, montant ' ~ (produit.montant|number_format(0, ',', ' ')) ~ ' DT, prix fixe ' ~ (produit.prixFixe|number_format(2, ',', ' ')) ~ ' DT.'
+    } %}
+{% endblock %}

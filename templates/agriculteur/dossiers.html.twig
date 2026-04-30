@@ -1,0 +1,63 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Historique des dossiers{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Historique des dossiers</h2>
+        <a class="btn btn-outline-success" href="{{ path('agriculteur_dashboard') }}">Retour au dashboard</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Reference</th>
+                            <th>Type</th>
+                            <th>Dossier</th>
+                            <th>Statut</th>
+                            <th>Dernier dossier</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for achat in achats %}
+                            {% set lastTx = achat.transactions|last %}
+                            <tr>
+                                <td>{{ achat.reference }}</td>
+                                <td>{{ achat.typeCible|upper }}</td>
+                                <td>{{ achat.offre ? achat.offre.nomOffre : (achat.produit ? achat.produit.nomProduit : '-') }}</td>
+                                <td>
+                                    <span class="badge {{ achat.statut == 'paid' ? 'bg-success' : (achat.statut == 'failed' ? 'bg-danger' : 'bg-secondary') }}">
+                                        {{ achat.statut }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if lastTx %}
+                                        {{ lastTx.gatewayPayload.label ?? (lastTx.provider|upper ~ ' / ' ~ lastTx.paymentMethod|upper) }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('agriculteur_checkout_return', {reference: achat.reference}) }}" class="btn btn-sm btn-outline-primary">Details</a>
+                                    {% if achat.statut == 'paid' %}
+                                        <span class="btn btn-sm btn-outline-success disabled">Verifie</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">Aucun dossier pour le moment.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

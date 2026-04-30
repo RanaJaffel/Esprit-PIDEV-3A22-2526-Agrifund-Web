@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+{% import 'admin/_form_macros.html.twig' as form_ui %}
+
+{% block title %}Nouveau Produit Financier | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/admin-forms.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body_class %}admin-form-page{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        <div class="form-hero theme-green">
+            <a href="{{ path('admin_produit_index') }}" class="back-link"><i class="fas fa-arrow-left"></i> Retour aux produits</a>
+            <h1><i class="fas fa-plus-circle me-2" style="color: #B2D944;"></i> Nouveau Produit Financier</h1>
+            <p>Remplissez les informations pour créer un nouveau produit de financement agricole.</p>
+        </div>
+
+        <div class="form-card">
+            <div class="step-indicator">
+                <div class="step active"><span class="step-num">1</span><span class="step-text">Identité</span></div>
+                <div class="step active"><span class="step-num">2</span><span class="step-text">Finance</span></div>
+                <div class="step active"><span class="step-num">3</span><span class="step-text">Règles</span></div>
+            </div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="section-divider"><span><i class="fas fa-tag me-2"></i>Identité du Produit</span></div>
+                <div class="row">
+                    <div class="col-md-7">
+                        {{ form_ui.field(form.nomProduit, 'Nom du Produit', 'icon-green', {icon: 'fa-signature', attr: {class: 'form-control', placeholder: 'Ex: Crédit Agricole Saison 2026'}}) }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ form_ui.field(form.typeFinancement, 'Type de Financement', 'icon-indigo', {icon: 'fa-layer-group', attr: {class: 'form-select'}}) }}
+                    </div>
+                </div>
+
+                <div class="section-divider"><span><i class="fas fa-coins me-2"></i>Paramètres Financiers</span></div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_ui.field(form.tauxInteret, "Taux d'Intérêt (%)", 'icon-amber', {icon: 'fa-percentage', attr: {class: 'form-control', placeholder: 'Ex: 7.50'}}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_ui.field(form.montant, 'Montant (DT)', 'icon-emerald', {icon: 'fa-coins', attr: {class: 'form-control', placeholder: '50 000'}}) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_ui.field(form.prixFixe, 'Prix Fixe Payable (DT)', 'icon-amber', {icon: 'fa-money-bill-wave', attr: {class: 'form-control', placeholder: 'Ex: 150.00', min: '0.01', step: '0.01', inputmode: 'decimal'}}) }}
+                    </div>
+                </div>
+
+                <div class="section-divider"><span><i class="fas fa-scroll me-2"></i>Règles Financières</span></div>
+                {{ form_ui.field(form.reglesFinancieres, 'Règles & Conditions', 'icon-purple', {icon: 'fa-file-contract', attr: {class: 'form-control', rows: 5, placeholder: "Décrivez les conditions d'éligibilité et les règles de ce produit financier..."}}) }}
+
+                <button type="submit" class="btn-submit theme-green">
+                    <i class="fas fa-check-circle me-2"></i> Créer le Produit Financier
+                </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

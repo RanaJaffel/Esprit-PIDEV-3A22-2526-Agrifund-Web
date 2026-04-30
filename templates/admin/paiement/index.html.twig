@@ -1,0 +1,839 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation des paiements | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --vert-tres-fonce: #133D03;
+            --vert-clair: #B2D944;
+            --jaune-moutarde: #E1B323;
+            --gris: #64748b;
+            --surface: #ffffff;
+            --surface-soft: #f8faf5;
+            --line: #e5ece8;
+            --shadow-soft: 0 8px 32px rgba(8, 150, 71, 0.08);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f6fbf8 100%);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-header-custom {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 52%, var(--vert-tres-fonce) 100%);
+            color: #fff;
+            padding: 30px 35px 58px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header-custom::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='76' height='76' viewBox='0 0 76 76' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M38 12 L44 30 L38 48 L32 30 Z' fill='%23B2D944' fill-opacity='0.06'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .page-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--vert-clair);
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 1.85rem;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .page-subtitle {
+            margin: 8px 0 0;
+            color: rgba(255, 255, 255, 0.78);
+            max-width: 720px;
+            font-size: 0.95rem;
+        }
+
+        .header-badge {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 14px 18px;
+            text-align: right;
+            min-width: 190px;
+        }
+
+        .header-badge strong {
+            display: block;
+            color: #fff;
+            font-size: 1.55rem;
+            line-height: 1;
+        }
+
+        .header-badge span {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        #mobileSidebarToggle {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+        }
+
+        .workspace {
+            position: relative;
+            z-index: 10;
+            margin: -32px 35px 34px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(8, 150, 71, 0.13);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.green { background: #e8f5e9; color: var(--vert-vif); }
+        .stat-icon.gold { background: #fff8e1; color: #d79500; }
+        .stat-icon.blue { background: #e3f2fd; color: #1976d2; }
+        .stat-icon.red { background: #ffebee; color: #d32f2f; }
+        .stat-icon.purple { background: #f3e5f5; color: #8e24aa; }
+
+        .stat-info strong {
+            display: block;
+            color: #20362b;
+            font-size: 1.45rem;
+            line-height: 1.1;
+            font-weight: 900;
+        }
+
+        .stat-info span {
+            color: var(--gris);
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .filter-panel {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 18px;
+            box-shadow: var(--shadow-soft);
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .filter-label {
+            display: block;
+            color: var(--gris);
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .filter-select {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            height: 46px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #34443b;
+        }
+
+        .filter-select:focus,
+        .form-control:focus {
+            border-color: var(--vert-vif);
+            box-shadow: 0 0 0 4px rgba(8, 150, 71, 0.1);
+        }
+
+        .btn-filter,
+        .btn-reset {
+            height: 46px;
+            border-radius: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-filter {
+            background: var(--vert-vif);
+            border: none;
+            color: #fff;
+        }
+
+        .btn-filter:hover {
+            background: var(--vert-fonce);
+            color: #fff;
+        }
+
+        .btn-reset {
+            background: #f8fafc;
+            border: 2px solid #e9ecef;
+            color: #61706a;
+            text-decoration: none;
+        }
+
+        .btn-reset:hover {
+            background: #eef6f1;
+            color: var(--vert-fonce);
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .queue-header h2 {
+            margin: 0;
+            color: #20362b;
+            font-size: 1.15rem;
+            font-weight: 900;
+        }
+
+        .queue-header span {
+            color: var(--gris);
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+            gap: 18px;
+        }
+
+        .payment-card {
+            background: var(--surface);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .payment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 46px rgba(8, 150, 71, 0.13);
+        }
+
+        .payment-accent {
+            height: 5px;
+        }
+
+        .accent-pending { background: linear-gradient(90deg, var(--jaune-moutarde), #ffd166); }
+        .accent-succeeded { background: linear-gradient(90deg, var(--vert-clair), var(--vert-vif)); }
+        .accent-failed { background: linear-gradient(90deg, #ff8a80, #d32f2f); }
+        .accent-default { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+
+        .payment-body {
+            padding: 20px;
+        }
+
+        .payment-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .payment-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #eef8f2, #dff1e7);
+            color: var(--vert-vif);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .payment-title {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .payment-title strong {
+            display: block;
+            color: #20362b;
+            font-size: 1rem;
+            font-weight: 900;
+            word-break: break-word;
+        }
+
+        .payment-title span {
+            display: block;
+            color: var(--gris);
+            font-size: 0.77rem;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .pill-pending { background: #fff8e1; color: #946200; }
+        .pill-succeeded { background: #e8f5e9; color: var(--vert-vif); }
+        .pill-failed { background: #ffebee; color: #c62828; }
+        .pill-default { background: #f1f5f9; color: #475569; }
+
+        .amount-strip {
+            background: linear-gradient(135deg, #f8faf5, #eef8f2);
+            border: 1px solid #e4efe9;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .amount-strip small,
+        .meta-item small {
+            display: block;
+            color: var(--gris);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .amount-strip strong {
+            color: var(--vert-fonce);
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        .amount-strip span,
+        .meta-item span {
+            color: #34443b;
+            font-weight: 700;
+            font-size: 0.86rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .meta-item {
+            background: #fbfcfb;
+            border: 1px solid #edf2ef;
+            border-radius: 12px;
+            padding: 11px 12px;
+            min-width: 0;
+        }
+
+        .meta-item span {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+
+        .verification-note {
+            border-left: 4px solid var(--vert-clair);
+            background: #fbfff7;
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: #4b5b53;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 9px;
+            margin-bottom: 14px;
+        }
+
+        .action-row .btn,
+        .validation-panel .btn {
+            border-radius: 12px;
+            font-weight: 800;
+        }
+
+        .btn-download {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #1565c0;
+        }
+
+        .btn-proof {
+            background: #fff8e1;
+            border: 1px solid #ffecb3;
+            color: #946200;
+        }
+
+        .btn-delete {
+            background: #fff;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+        }
+
+        .btn-download:hover,
+        .btn-proof:hover,
+        .btn-delete:hover {
+            filter: brightness(0.98);
+            transform: translateY(-1px);
+        }
+
+        .validation-panel {
+            background: #f8fafc;
+            border: 1px solid #e6edf4;
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .validation-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #20362b;
+            font-size: 0.82rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .form-control,
+        .input-group-text {
+            border-color: #dbe3ec;
+            border-radius: 10px;
+            font-size: 0.84rem;
+        }
+
+        .input-group-text {
+            background: #fff;
+            color: #52635b;
+            font-weight: 800;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+            border: none;
+            color: #fff;
+        }
+
+        .btn-approve:hover {
+            color: #fff;
+            filter: brightness(0.96);
+        }
+
+        .btn-reject {
+            background: #fff;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+        }
+
+        .btn-reject:hover {
+            background: #ffebee;
+            color: #b71c1c;
+        }
+
+        .empty-state {
+            background: #fff;
+            border: 1px dashed #c9d8cf;
+            border-radius: 18px;
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--gris);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .empty-state i {
+            display: inline-flex;
+            width: 66px;
+            height: 66px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: #eef8f2;
+            color: var(--vert-vif);
+            font-size: 1.7rem;
+            margin-bottom: 14px;
+        }
+
+        .pagination-shell {
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            margin-top: 18px;
+            padding: 14px 18px;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-row {
+                grid-template-columns: repeat(3, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header-content {
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-header-custom {
+                padding: 24px 20px 48px;
+            }
+
+            .workspace {
+                margin: -28px 20px 28px;
+            }
+
+            .stats-row,
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-badge {
+                display: none;
+            }
+
+            .payment-top,
+            .queue-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .meta-grid,
+            .action-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        <div class="section-header-custom">
+            <div class="header-content">
+                <div>
+                    <div class="page-kicker"><i class="fas fa-shield-halved"></i> Controle financier</div>
+                    <h1 class="page-title">Validation des paiements</h1>
+                    <p class="page-subtitle">Suivez les justificatifs, validez les virements manuels et gardez une trace claire des decisions de paiement.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="header-badge">
+                        <strong>{{ dashboardStats.manualPending|default(0) }}</strong>
+                        <span>preuves en revue</span>
+                    </div>
+                    <button class="btn d-lg-none" id="mobileSidebarToggle" type="button" aria-label="Ouvrir menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            {% include 'components/_flash_messages.html.twig' %}
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-receipt"></i></div>
+                    <div class="stat-info">
+                        <strong>{{ dashboardStats.total|default(0) }}</strong>
+                        <span>Transactions</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-info">
+                        <strong>{{ dashboardStats.pending|default(0) }}</strong>
+                        <span>En attente</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-hand-holding-dollar"></i></div>
+                    <div class="stat-info">
+                        <strong>{{ dashboardStats.manualPending|default(0) }}</strong>
+                        <span>Manuels a valider</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-coins"></i></div>
+                    <div class="stat-info">
+                        <strong>{{ dashboardStats.totalAmount|default(0)|number_format(0, ',', ' ') }}</strong>
+                        <span>Volume TND</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <strong>{{ dashboardStats.failed|default(0) }}</strong>
+                        <span>Refuses</span>
+                    </div>
+                </div>
+            </div>
+
+            <form method="get" class="filter-panel">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="filter-label" for="statusFilter">Statut paiement</label>
+                        <select id="statusFilter" name="status" class="form-select filter-select">
+                            <option value="">Tous les statuts</option>
+                            {% for s in availableStatuses %}
+                                <option value="{{ s }}" {{ selectedStatus == s ? 'selected' : '' }}>{{ s|capitalize }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="filter-label" for="methodFilter">Methode</label>
+                        <select id="methodFilter" name="method" class="form-select filter-select">
+                            <option value="">Toutes les methodes</option>
+                            {% for m in availableMethods %}
+                                <option value="{{ m }}" {{ selectedMethod == m ? 'selected' : '' }}>{{ m|upper }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="filter-label" for="providerFilter">Provider</label>
+                        <select id="providerFilter" name="provider" class="form-select filter-select">
+                            <option value="">Tous les providers</option>
+                            {% for p in availableProviders %}
+                                <option value="{{ p }}" {{ selectedProvider == p ? 'selected' : '' }}>{{ p|upper }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6 d-flex gap-2">
+                        <button type="submit" class="btn btn-filter flex-fill"><i class="fas fa-filter"></i> Filtrer</button>
+                        <a href="{{ path('admin_payment_index') }}" class="btn btn-reset" aria-label="Reinitialiser"><i class="fas fa-rotate-left"></i></a>
+                    </div>
+                </div>
+            </form>
+
+            <div class="queue-header">
+                <div>
+                    <h2>File de validation</h2>
+                    <span>{{ transactions.getTotalItemCount|default(transactions|length) }} paiement(s) trouve(s)</span>
+                </div>
+                <span>Page {{ transactions.currentPageNumber|default(1) }}</span>
+            </div>
+
+            {% if transactions|length > 0 %}
+                <div class="payment-grid">
+                    {% for tx in transactions %}
+                        {% set statusClass = tx.statut == 'succeeded' ? 'succeeded' : (tx.statut == 'failed' ? 'failed' : (tx.statut == 'pending' ? 'pending' : 'default')) %}
+                        {% set targetLabel = tx.achat.offre ? tx.achat.offre.nomOffre : (tx.achat.produit ? tx.achat.produit.nomProduit : tx.achat.reference) %}
+                        {% set proofPath = tx.gatewayPayload is not empty and tx.gatewayPayload.proof_path is defined ? tx.gatewayPayload.proof_path : null %}
+                        <article class="payment-card">
+                            <div class="payment-accent accent-{{ statusClass }}"></div>
+                            <div class="payment-body">
+                                <div class="payment-top">
+                                    <div class="payment-icon">
+                                        <i class="fas fa-{{ tx.paymentMethod == 'manual' ? 'file-invoice-dollar' : 'credit-card' }}"></i>
+                                    </div>
+                                    <div class="payment-title">
+                                        <strong>{{ tx.reference }}</strong>
+                                        <span>Achat {{ tx.achat.reference }}</span>
+                                    </div>
+                                    <span class="status-pill pill-{{ statusClass }}">
+                                        <i class="fas fa-{{ statusClass == 'succeeded' ? 'check' : (statusClass == 'failed' ? 'xmark' : (statusClass == 'pending' ? 'clock' : 'circle')) }}"></i>
+                                        {{ tx.statut }}
+                                    </span>
+                                </div>
+
+                                <div class="amount-strip">
+                                    <div>
+                                        <small>Montant declare</small>
+                                        <strong>{{ tx.montant|number_format(2, ',', ' ') }} {{ tx.devise }}</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <small>Validation</small>
+                                        <span>{{ tx.verificationStatus|default('pending') }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="meta-grid">
+                                    <div class="meta-item">
+                                        <small>Client</small>
+                                        <span>{{ tx.achat.utilisateur.prenom }} {{ tx.achat.utilisateur.nom }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <small>Dossier</small>
+                                        <span>{{ targetLabel }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <small>Canal</small>
+                                        <span>{{ tx.provider|upper }} / {{ tx.paymentMethod|upper }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <small>Date</small>
+                                        <span>{{ tx.createdAt ? tx.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                                    </div>
+                                </div>
+
+                                {% if tx.verificationNote %}
+                                    <div class="verification-note">
+                                        <i class="fas fa-comment-dots me-1"></i>{{ tx.verificationNote }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="action-row">
+                                    <a href="{{ path('admin_payment_download_pdf', {reference: tx.reference}) }}" class="btn btn-sm btn-download">
+                                        <i class="fas fa-file-pdf me-1"></i> PDF
+                                    </a>
+                                    {% if proofPath %}
+                                        <a href="{{ asset(proofPath) }}" target="_blank" rel="noopener" class="btn btn-sm btn-proof">
+                                            <i class="fas fa-paperclip me-1"></i> Justificatif
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-proof" type="button" disabled>
+                                            <i class="fas fa-paperclip me-1"></i> Aucun justificatif
+                                        </button>
+                                    {% endif %}
+                                    <form method="post" action="{{ path('admin_payment_delete', {reference: tx.reference}) }}" onsubmit="return confirm('Supprimer ce paiement ? Cette action est irreversible.');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_payment_' ~ tx.reference) }}">
+                                        <button type="submit" class="btn btn-sm btn-delete w-100"><i class="fas fa-trash me-1"></i> Supprimer</button>
+                                    </form>
+                                </div>
+
+                                {% if tx.provider == 'manual' and tx.statut == 'pending' %}
+                                    <div class="validation-panel">
+                                        <div class="validation-panel-title"><i class="fas fa-stamp"></i> Decision de validation</div>
+                                        <form method="post" action="{{ path('admin_payment_approve', {reference: tx.reference}) }}" class="d-flex flex-column gap-2 mb-3">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('approve_payment_' ~ tx.reference) }}">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text">Montant</span>
+                                                <input type="number" name="approved_amount" class="form-control" step="0.01" min="0.01" value="{{ tx.montant }}" required>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <input type="datetime-local" name="approved_at" class="form-control form-control-sm" value="{{ 'now'|date('Y-m-d\\TH:i') }}" required aria-label="Date de validation">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="datetime-local" name="verified_at" class="form-control form-control-sm" value="" aria-label="Date de verification">
+                                                </div>
+                                            </div>
+                                            <input type="text" name="verified_by" class="form-control form-control-sm" placeholder="Verifie par">
+                                            <input type="text" name="review_note" class="form-control form-control-sm" placeholder="Commentaire de validation" maxlength="255" required>
+                                            <button type="submit" class="btn btn-sm btn-approve"><i class="fas fa-check me-1"></i> Approuver le paiement</button>
+                                        </form>
+                                        <form method="post" action="{{ path('admin_payment_reject', {reference: tx.reference}) }}" class="d-flex flex-column gap-2">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('reject_payment_' ~ tx.reference) }}">
+                                            <input type="text" name="rejection_reason" class="form-control form-control-sm" placeholder="Motif du rejet" maxlength="255" required>
+                                            <button type="submit" class="btn btn-sm btn-reject"><i class="fas fa-xmark me-1"></i> Refuser</button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="d-grid mb-0">
+                                        <button class="btn btn-sm btn-reset" type="button" disabled>
+                                            <i class="fas fa-lock me-1"></i> Decision cloturee
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Aucun paiement trouve</h3>
+                    <p class="mb-0">Aucune transaction ne correspond aux filtres selectionnes.</p>
+                </div>
+            {% endif %}
+
+            <div class="pagination-shell">
+                {{ knp_pagination_render(transactions) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

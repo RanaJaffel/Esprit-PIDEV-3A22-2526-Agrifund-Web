@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        @page { 
+            margin: 80px 40px 100px 40px; 
+        }
+        body { 
+            font-family: 'DejaVu Sans', sans-serif; 
+            color: #333; 
+            font-size: 10px; 
+            margin: 0; 
+            padding: 0; 
+            background: #fff; 
+        }
+        
+        /* Fixed Header */
+        .fixed-header { 
+            position: fixed;
+            top: -80px;
+            left: -40px;
+            right: -40px;
+            height: 60px;
+            background: #133D03;
+            color: #fff;
+            padding: 10px 40px;
+            border-bottom: 2px solid #B2D944;
+        }
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-logo { font-size: 24px; font-weight: 900; color: #B2D944; width: 40px; }
+        .header-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Hero section */
+        .hero-section { 
+            background: #f8faf5; 
+            border: 1px solid #e0ebe5;
+            padding: 25px; 
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .hero-section h1 { color: #076A39; margin: 0; font-size: 20px; }
+        .hero-section p { color: #666; font-size: 9px; margin-top: 5px; }
+        
+        /* Summary Box */
+        .summary-box { 
+            background: #f8faf5; 
+            border: 1px solid #e0ebe5; 
+            padding: 20px; 
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .summary-table { width: 100%; border-collapse: collapse; }
+        .sum-label { font-size: 8px; text-transform: uppercase; color: #666; font-weight: 700; margin-bottom: 2px; }
+        .sum-val { font-size: 14px; font-weight: 900; color: #076A39; }
+        .sum-val-highlight { font-size: 20px; color: #089647; }
+
+        /* Amort Table */
+        .amort-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .amort-table th { background: #076A39; color: #fff; text-align: center; padding: 8px; font-size: 8px; text-transform: uppercase; }
+        .amort-table td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: right; font-size: 8px; }
+        .amort-table tr:nth-child(even) { background: #fafcf8; }
+
+        .footer { 
+            position: fixed; 
+            bottom: -80px; 
+            left: -40px; 
+            right: -40px; 
+            padding: 15px 40px; 
+            background: #fafafa; 
+            border-top: 1px solid #B2D944; 
+            font-size: 7px; 
+            color: #999; 
+            text-align: center; 
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-header">
+        <table class="header-table">
+            <tr>
+                <td class="header-logo">AF</td>
+                <td class="header-title">AgriFund - Certificat de Simulation</td>
+                <td style="text-align: right; font-size: 8px; opacity: 0.8;">
+                    REF: SIM-{{ date|date('Ymd') }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="hero-section">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <h1>Étude de Financement</h1>
+                    <p>{{ (typeClient|default('agriculture')) == 'banque' ? 'Analyse de Projet Institutionnel' : 'Simulation de Crédit Agricole Personnalisée' }}</p>
+                </td>
+                <td style="text-align: right; font-size: 9px; color: #133D03;">
+                    Généré le {{ date|date('d/m/Y H:i') }}<br>
+                    Produit: {{ produit.nomProduit|default('Sur mesure') }}<br>
+                    Client: {{ client_name|default('Client AgriFund') }}
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="summary-box">
+        <table class="summary-table">
+            <tr>
+                <td style="width: 33%;">
+                    <div class="sum-label">Montant du prêt</div>
+                    <div class="sum-val">{{ simulation.montant|number_format(2, ',', ' ') }} DT</div>
+                </td>
+                <td style="width: 33%; text-align: center;">
+                    <div class="sum-label">Mensualité estimée</div>
+                    <div class="sum-val sum-val-highlight">{{ simulation.mensualite|number_format(2, ',', ' ') }} DT</div>
+                </td>
+                <td style="width: 33%; text-align: right;">
+                    <div class="sum-label">Taux d'intérêt</div>
+                    <div class="sum-val">{{ simulation.tauxAnnuel }}% / an</div>
+                </td>
+            </tr>
+            <tr><td colspan="3" style="height: 15px;"></td></tr>
+            <tr>
+                <td>
+                    <div class="sum-label">Coût total du crédit</div>
+                    <div class="sum-val">{{ simulation.coutTotal|number_format(2, ',', ' ') }} DT</div>
+                </td>
+                <td style="text-align: center;">
+                    <div class="sum-label">Total des intérêts</div>
+                    <div class="sum-val" style="color: #e65100;">{{ simulation.totalInterets|number_format(2, ',', ' ') }} DT</div>
+                </td>
+                <td style="text-align: right;">
+                    <div class="sum-label">Ratio Intérêts/Capital</div>
+                    <div class="sum-val">{{ (simulation.ratioInterets|default(0)) }}%</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="content-wrap">
+        <h2 style="font-size: 11px; color: #076A39; margin-bottom: 10px;">Tableau d'Amortissement (Détails mensuels)</h2>
+        <table class="amort-table">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Mois</th>
+                    <th>Mensualité</th>
+                    <th>Capital</th>
+                    <th>Intérêts</th>
+                    <th>Capital Restant</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in simulation.tableau|slice(0, 24) %}
+                <tr>
+                    <td style="text-align: left; font-weight: 700;">#{{ row.mois }}</td>
+                    <td>{{ row.mensualite|number_format(2, ',', ' ') }}</td>
+                    <td>{{ row.capital|number_format(2, ',', ' ') }}</td>
+                    <td>{{ row.interet|number_format(2, ',', ' ') }}</td>
+                    <td style="font-weight: 700;">{{ row.capitalRestant|number_format(2, ',', ' ') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if simulation.tableau|length > 24 %}
+            <p style="text-align: center; color: #999; font-size: 8px; margin-top: 10px;">
+                ... Simulation complète sur {{ simulation.tableau|length }} mois ...
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Document informatif généré par AgriFund. Cette simulation ne constitue pas un accord de crédit définitif.
+    </div>
+</body>
+</html>

@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Service\IrrigationAIService;
-use App\Entity\IrrigationDecision; // ✅ AJOUTE CETTE LIGNE
+use App\Entity\IrrigationDecision;
 use App\Repository\IrrigationDecisionRepository;
-use App\Repository\ReleveTerrainRepository; // ✅ AJOUTE CETTE LIGNE
+use App\Repository\ReleveTerrainRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,16 +36,16 @@ class IrrigationController extends AbstractController
         // 3. Historique décisions
         $historiqueDecisions = $decisionRepo->findLastDecisions($idproject, 10);
 
-        // 4. Statistiques
-        $stats = $decisionRepo->getDecisionStats($idproject);
-        $waterSavings = $decisionRepo->getWaterSavings($idproject);
+        // 4. Statistiques (✅ avec protection)
+        $stats = $decisionRepo->getDecisionStats($idproject) ?? [];
+        $waterSavings = $decisionRepo->getWaterSavings($idproject) ?? 0;
 
         return $this->render('irrigation/decision.html.twig', [
             'idproject' => $idproject,
             'analysis' => $analysis,
             'currentData' => $currentData,
             'historiqueDecisions' => $historiqueDecisions,
-            'stats' => $stats,
+            'stats' => $stats, // ✅ Toujours un tableau
             'totalWaterSavings' => $waterSavings
         ]);
     }
@@ -57,7 +57,7 @@ class IrrigationController extends AbstractController
     ): Response
     {
         $decisions = $decisionRepo->findLastDecisions($idproject, 30);
-        $stats = $decisionRepo->getDecisionStats($idproject);
+        $stats = $decisionRepo->getDecisionStats($idproject) ?? [];
 
         return $this->render('irrigation/historique.html.twig', [
             'idproject' => $idproject,
@@ -66,11 +66,16 @@ class IrrigationController extends AbstractController
         ]);
     }
 
-    // Méthodes utilitaires
+    // ✅ Méthodes utilitaires PROTÉGÉES
     private function calculateAverage(array $mesures, string $type): float
     {
         $filtered = array_filter($mesures, fn($m) => $m->getTypeMesure() === $type);
-        if (empty($filtered)) return 0;
+        
+        // ✅ Protection division par zéro
+        if (empty($filtered)) {
+            return 0;
+        }
+        
         $sum = array_reduce($filtered, fn($carry, $m) => $carry + $m->getValeurMesuree(), 0);
         return round($sum / count($filtered), 2);
     }

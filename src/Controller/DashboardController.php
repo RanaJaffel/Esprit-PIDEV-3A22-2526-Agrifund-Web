@@ -19,7 +19,7 @@ class DashboardController extends AbstractController
         IrrigationAIService $irrigationService,
         HistoriqueService $historiqueService,
         BlockchainService $blockchainService,
-        MesureIoTRepository $mesureRepo,
+        ReleveTerrainRepository $mesureRepo,
         ReleveHebdomadaireRepository $releveRepo
     ): Response
     {

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        @page { 
+            margin: 80px 40px 100px 40px; 
+        }
+        body { 
+            font-family: 'DejaVu Sans', sans-serif; 
+            color: #333; 
+            font-size: 10px; 
+            margin: 0; 
+            padding: 0; 
+            background: #fff; 
+        }
+        
+        /* Compact Fixed Header (Repeats on every page) */
+        .fixed-header { 
+            position: fixed;
+            top: -80px;
+            left: -40px;
+            right: -40px;
+            height: 60px;
+            background: #095032;
+            color: #fff;
+            padding: 10px 40px;
+            border-bottom: 2px solid #B2D944;
+        }
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-logo { font-size: 24px; font-weight: 900; color: #B2D944; width: 40px; }
+        .header-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Flow-based Hero section (Only on first page) */
+        .hero-section { 
+            background: #f0f7f4; 
+            border: 1px solid #d0dfd8;
+            padding: 30px; 
+            margin-top: -10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .hero-section h1 { color: #076A39; margin: 0; font-size: 22px; }
+        .hero-section p { color: #666; font-size: 10px; margin-top: 5px; }
+
+        .hero-table { width: 100%; border-collapse: collapse; }
+        .hero-logo { font-size: 32px; font-weight: 900; color: #B2D944; width: 60px; }
+        .hero-text h1 { font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .hero-text p { font-size: 10px; color: #B2D944; margin-top: 5px; text-transform: uppercase; }
+        .hero-meta { text-align: right; font-size: 9px; opacity: 0.8; }
+
+        /* Stats Bar (First page only) */
+        .stats-stripe { background: #f0f7f4; border-bottom: 2px solid #E1B323; padding: 15px 0; margin-bottom: 20px; }
+        .stats-table { width: 100%; border-collapse: collapse; }
+        .stat-item { text-align: center; border-right: 1px solid #d0dfd8; width: 25%; }
+        .stat-item:last-child { border-right: none; }
+        .stat-val { font-size: 18px; font-weight: 900; color: #089647; }
+        .stat-lbl { font-size: 7px; text-transform: uppercase; color: #666; margin-top: 2px; }
+
+        /* Data Table */
+        .main-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .main-table th { background: #076A39; color: #fff; text-align: left; padding: 10px; font-size: 8px; text-transform: uppercase; }
+        .main-table tr { page-break-inside: avoid; }
+        .main-table tr:nth-child(even) { background: #f9fdfb; }
+        
+        .type-badge { padding: 2px 8px; border-radius: 4px; font-size: 7px; font-weight: 700; text-transform: uppercase; }
+        .badge-credit { background: #e8f5e9; color: #2e7d32; }
+        .badge-pret { background: #e3f2fd; color: #1565c0; }
+        .badge-leasing { background: #fff3e0; color: #ef6c00; }
+        .badge-sub { background: #f3e5f5; color: #7b1fa2; }
+        
+        /* The "Cachet" (Stamp) */
+        .authenticity-zone { margin-top: 40px; }
+        .stamp-box { width: 130px; height: 130px; border: 4px double #089647; border-radius: 50%; position: relative; text-align: center; display: inline-block; }
+        .stamp-inner { padding-top: 25px; }
+        .stamp-txt-top { font-size: 7px; text-transform: uppercase; color: #089647; font-weight: 800; }
+        .stamp-txt-mid { font-size: 14px; color: #076A39; font-weight: 900; margin: 4px 0; }
+        .stamp-txt-bot { font-size: 6px; color: #089647; opacity: 0.7; }
+
+        /* Signatures */
+        .signature-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        .sig-cell { width: 50%; text-align: center; }
+        .sig-line { width: 180px; border-bottom: 1px solid #333; margin: 40px auto 10px auto; }
+        .sig-label { font-size: 9px; font-weight: 700; }
+        .sig-sub { font-size: 8px; color: #666; font-style: italic; }
+
+        /* QR & Footer */
+        .footer { position: fixed; bottom: -90px; left: -40px; right: -40px; padding: 15px 40px; background: #fafafa; border-top: 1px solid #133D03; }
+        .footer-table { width: 100%; border-collapse: collapse; }
+        .footer-info { font-size: 8px; color: #888; }
+        .qr-placeholder { width: 40px; height: 40px; border: 1px solid #ccc; text-align: center; line-height: 40px; font-size: 6px; }
+
+        .watermark { position: fixed; top: 30%; left: 10%; font-size: 90px; color: #f0f0f0; transform: rotate(-45deg); z-index: -1; font-weight: 900; }
+    </style>
+</head>
+<body>
+    <div class="watermark">OFFICIEL</div>
+
+    <div class="fixed-header">
+        <table class="header-table">
+            <tr>
+                <td class="header-logo">AF</td>
+                <td class="header-title">AgriFund - Catalogue des Produits</td>
+                <td style="text-align: right; font-size: 8px; opacity: 0.8;">
+                    REF: PRD-{{ date|date('Ymd') }} | Page <span class="pagenum"></span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="hero-section">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <h1>Catalogue Officiel des Produits</h1>
+                    <p>Découvrez nos solutions de financement agricole</p>
+                </td>
+                <td style="text-align: right; font-size: 9px; color: #999;">
+                    Généré le {{ date|date('d/m/Y H:i') }}<br>
+                    Tunis, Tunisie
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="stats-stripe">
+        <table class="stats-table">
+            <tr>
+                <td class="stat-item">
+                    <div class="stat-val">{{ stats.totalProduits }}</div>
+                    <div class="stat-lbl">Nombre total de produits</div>
+                </td>
+                <td class="stat-item">
+                    <div class="stat-val">{{ stats.avgTaux }}%</div>
+                    <div class="stat-lbl">Taux d'intérêt moyen</div>
+                </td>
+                <td class="stat-item">
+                    <div class="stat-val">{{ stats.maxMontant|number_format(0, ',', ' ') }}</div>
+                    <div class="stat-lbl">Financement Max (DT)</div>
+                </td>
+                <td class="stat-item">
+                    <div class="stat-val">{{ (stats.avgMontant|default(stats.avgMontantMax))|number_format(0, ',', ' ') }}</div>
+                    <div class="stat-lbl">Moyenne de financement</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin: 20px 40px; padding: 10px; border: 1px dashed #089647; font-size: 8px; color: #089647; background: #f0fdf4; text-align: center;">
+        Ce document est une extraction officielle du système AgriFund. Signature numérique ID: {{ date|date('U') }}-{{ "now"|date("v") }}
+    </div>
+
+    <div class="content-wrap">
+        <h2 style="font-size: 14px; color: #076A39; border-left: 4px solid #B2D944; padding-left: 10px; margin-bottom: 20px;">
+            Récapitulatif des Produits Disponibles
+        </h2>
+
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Désignation</th>
+                    <th style="width: 12%;">Type</th>
+                    <th style="width: 10%;">Taux</th>
+                    <th style="width: 15%;">Montant (DT)</th>
+                    <th style="width: 25%;">Règles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in produits %}
+                <tr>
+                    <td style="font-weight: 700; color: #076A39;">{{ p.nomProduit }}</td>
+                    <td>
+                        <span class="type-badge badge-{{ p.typeFinancement|lower == 'crédit' ? 'credit' : (p.typeFinancement|lower == 'prêt' ? 'pret' : (p.typeFinancement|lower == 'leasing' ? 'leasing' : 'sub')) }}">
+                            {{ p.typeFinancement }}
+                        </span>
+                    </td>
+                    <td style="font-weight: 700;">{{ p.tauxInteret }}%</td>
+                    <td style="font-weight: 700; color: #089647;">{{ p.montant|number_format(0, ',', ' ') }}</td>
+                    <td style="font-size: 7px; color: #777; width: 30%;">{{ p.reglesFinancieres|slice(0, 80) }}...</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <table class="footer-table">
+            <tr>
+                <td class="footer-info">
+                    AgriFund S.A. — Avenue Habib Bourguiba, Tunis<br>
+                    www.agrifund.tn — contact@agrifund.tn — +216 71 000 000
+                </td>
+                <td style="width: 50px;">
+                    <div style="width: 40px; height: 40px; border: 1px solid #ccc; text-align: center; line-height: 40px; font-size: 6px;">VERIFY</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

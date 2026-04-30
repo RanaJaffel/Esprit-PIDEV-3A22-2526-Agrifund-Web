@@ -1,0 +1,309 @@
+{% set chatbotContextType = chatbot_context_type|default('produit') %}
+{% set chatbotTitle = chatbot_title|default('Element AgriFund') %}
+{% set chatbotSummary = chatbot_summary|default('Informations disponibles sur cette page.') %}
+{% set chatbotShowFloating = chatbot_show_floating|default(false) %}
+
+<style>
+    .agri-chat-floating-btn {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 1050;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: none;
+        background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+        color: #fff;
+        box-shadow: 0 10px 25px rgba(8, 150, 71, 0.3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .agri-chat-floating-btn:hover {
+        filter: brightness(0.95);
+        transform: translateY(-1px);
+    }
+
+    .agri-chat-trigger {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid #dbe3ec;
+        background: #fff;
+        color: var(--vert-fonce);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .agri-chat-trigger:hover {
+        border-color: var(--vert-clair);
+        background: #f8fbf7;
+    }
+
+    .agri-chat-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        z-index: 1060;
+        display: none;
+    }
+
+    .agri-chat-overlay.active {
+        display: block;
+    }
+
+    .agri-chat-panel {
+        position: fixed;
+        right: 20px;
+        bottom: 90px;
+        width: 360px;
+        max-width: calc(100vw - 30px);
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(2, 6, 23, 0.25);
+        z-index: 1070;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        display: none;
+    }
+
+    .agri-chat-panel.active {
+        display: block;
+    }
+
+    .agri-chat-header {
+        padding: 14px 16px;
+        background: linear-gradient(135deg, var(--vert-fonce), var(--vert-foret));
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .agri-chat-status {
+        font-size: 0.72rem;
+        color: #d1fae5;
+        margin-top: 2px;
+    }
+
+    .agri-chat-tools {
+        display: flex;
+        gap: 6px;
+    }
+
+    .agri-chat-tool {
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 0.72rem;
+        padding: 4px 6px;
+        cursor: pointer;
+    }
+
+    .agri-chat-messages {
+        height: 300px;
+        overflow-y: auto;
+        padding: 14px;
+        background: #f8fafc;
+    }
+
+    .agri-msg {
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        white-space: pre-line;
+    }
+
+    .agri-msg.bot {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        color: #1f2937;
+    }
+
+    .agri-msg.user {
+        background: #dcfce7;
+        color: #14532d;
+    }
+
+    .agri-chat-suggestions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 10px 12px;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .agri-chat-suggestion {
+        border: 1px solid #dbe3ec;
+        border-radius: 10px;
+        background: #fff;
+        color: #1f2937;
+        text-align: left;
+        font-size: 0.76rem;
+        padding: 8px 9px;
+        cursor: pointer;
+    }
+
+    .agri-chat-suggestion:hover {
+        border-color: var(--vert-clair);
+        background: #f7fcf8;
+    }
+
+    .agri-chat-context {
+        font-size: 0.75rem;
+        opacity: 0.9;
+    }
+</style>
+
+<div class="agri-chat-overlay" id="agriChatOverlay"></div>
+
+<div class="agri-chat-panel" id="agriChatPanel" data-context-type="{{ chatbotContextType }}" data-title="{{ chatbotTitle|e('html_attr') }}" data-summary="{{ chatbotSummary|e('html_attr') }}">
+    <div class="agri-chat-header">
+        <div>
+            <strong><i class="fas fa-robot me-1"></i> Assistant AgriFund</strong>
+            <div class="agri-chat-context" id="agriChatContextLabel">Contexte: {{ chatbotContextType|capitalize }} - {{ chatbotTitle }}</div>
+            <div class="agri-chat-status" id="agriChatStatus">✅ En ligne</div>
+        </div>
+        <div class="agri-chat-tools">
+            <button type="button" class="agri-chat-tool" id="agriChatClear" title="Effacer">Effacer</button>
+            <button type="button" class="btn btn-sm btn-light" id="agriChatClose">X</button>
+        </div>
+    </div>
+    <div class="agri-chat-messages" id="agriChatMessages">
+        <div class="agri-msg bot">Bonjour. Je peux expliquer ce {{ chatbotContextType }}: conditions, prix, taux et prochaines etapes.</div>
+    </div>
+    <div class="agri-chat-suggestions" id="agriChatSuggestions">
+        <button type="button" class="agri-chat-suggestion" data-action="produits_dispo">produit dispo</button>
+        <button type="button" class="agri-chat-suggestion" data-action="offres_dispo">offre dispo</button>
+        <button type="button" class="agri-chat-suggestion" data-action="expliquer_offre">expliquer l'offre</button>
+        <button type="button" class="agri-chat-suggestion" data-action="expliquer_produit">expliquer le produit</button>
+    </div>
+</div>
+
+{% if chatbotShowFloating %}
+    <button type="button" class="agri-chat-floating-btn" id="agriChatOpen" title="Assistant offre/produit">
+        <i class="fas fa-comments"></i>
+    </button>
+{% endif %}
+
+<script>
+(() => {
+    const panel = document.getElementById('agriChatPanel');
+    const overlay = document.getElementById('agriChatOverlay');
+    const openBtn = document.getElementById('agriChatOpen');
+    const closeBtn = document.getElementById('agriChatClose');
+    const clearBtn = document.getElementById('agriChatClear');
+    const messages = document.getElementById('agriChatMessages');
+    const statusLabel = document.getElementById('agriChatStatus');
+    const contextLabel = document.getElementById('agriChatContextLabel');
+
+    if (!panel || !overlay || !closeBtn || !messages || !contextLabel || !statusLabel) {
+        return;
+    }
+
+    const state = {
+        contextType: panel.dataset.contextType || 'produit',
+        title: panel.dataset.title || 'Element AgriFund',
+        summary: panel.dataset.summary || 'Informations disponibles sur la page.'
+    };
+
+    const appendMessage = (text, type) => {
+        const node = document.createElement('div');
+        node.className = 'agri-msg ' + type;
+        node.textContent = text;
+        messages.appendChild(node);
+        messages.scrollTop = messages.scrollHeight;
+    };
+
+    const updateContextLabel = () => {
+        contextLabel.textContent = 'Contexte: ' + state.contextType + ' - ' + state.title;
+    };
+
+    const openPanel = () => {
+        panel.classList.add('active');
+        overlay.classList.add('active');
+    };
+
+    const closePanel = () => {
+        panel.classList.remove('active');
+        overlay.classList.remove('active');
+    };
+
+    if (openBtn) {
+        openBtn.addEventListener('click', openPanel);
+    }
+    closeBtn.addEventListener('click', closePanel);
+    overlay.addEventListener('click', closePanel);
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            messages.innerHTML = '';
+            appendMessage('Bonjour. Je suis pret a vous aider sur les offres et produits AgriFund.', 'bot');
+        });
+    }
+
+    document.querySelectorAll('.agri-chat-trigger').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            state.contextType = btn.dataset.contextType || state.contextType;
+            state.title = btn.dataset.title || state.title;
+            state.summary = btn.dataset.summary || state.summary;
+            updateContextLabel();
+            openPanel();
+        });
+    });
+
+    document.querySelectorAll('.agri-chat-suggestion').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const action = btn.dataset.action || '';
+            const label = btn.textContent ? btn.textContent.trim() : action;
+            sendAction(action, label);
+        });
+    });
+
+    const sendAction = async (action, label) => {
+        if (!action) {
+            return;
+        }
+
+        appendMessage(label, 'user');
+        statusLabel.textContent = '🔄 Reflexion en cours...';
+
+        try {
+            const response = await fetch('{{ path('agriculteur_chatbot_message') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: action,
+                    contextType: state.contextType,
+                    title: state.title,
+                    summary: state.summary
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                appendMessage(data.error || 'Erreur chatbot.', 'bot');
+                statusLabel.textContent = '⚠️ Hors ligne';
+            } else {
+                appendMessage(data.answer || 'Pas de reponse pour le moment.', 'bot');
+                statusLabel.textContent = '✅ En ligne';
+            }
+        } catch (error) {
+            appendMessage('Erreur reseau. Merci de reessayer.', 'bot');
+            statusLabel.textContent = '⚠️ Hors ligne';
+        }
+    };
+})();
+</script>

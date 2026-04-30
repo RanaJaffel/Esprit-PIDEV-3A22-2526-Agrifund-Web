@@ -1,0 +1,212 @@
+{# templates/products.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Produits Financiers - AgriFund{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --vert-vif: #089647;
+        --vert-fonce: #076A39;
+        --vert-tres-fonce: #133D03;
+        --vert-clair: #B2D944;
+        --gris: #64748b;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 100%);
+    }
+
+    .premium-header {
+        background: linear-gradient(135deg, var(--vert-tres-fonce) 0%, var(--vert-foret) 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 50px;
+    }
+
+    .premium-header::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L45 25 L40 40 L35 25 Z' fill='%23B2D944' fill-opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    .search-filter-bar {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        margin-top: -60px;
+        position: relative;
+        z-index: 10;
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+    }
+
+    .filter-group { flex: 1; }
+    .filter-group label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--gris); margin-bottom: 8px; }
+    .filter-group select, .filter-group input {
+        width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-weight: 600;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+        margin-bottom: 80px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(8, 150, 71, 0.1);
+        border-color: var(--vert-clair);
+    }
+
+    .card-head {
+        background: #f8fafc;
+        padding: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .icon-box {
+        width: 50px; height: 50px;
+        background: white; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: var(--vert-vif);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .type-tag {
+        font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+        background: var(--vert-tres-fonce); color: white;
+        padding: 5px 12px; border-radius: 100px;
+    }
+
+    .card-body { padding: 30px; flex: 1; display: flex; flex-direction: column; }
+    .prod-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+
+    .stat-row {
+        background: #f1f5f9; border-radius: 16px; padding: 15px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;
+    }
+    .stat-item span { display: block; }
+    .stat-label { font-size: 0.65rem; color: var(--gris); font-weight: 700; text-transform: uppercase; }
+    .stat-value { font-size: 1.1rem; font-weight: 800; color: var(--vert-fonce); }
+    .stat-value.taux { color: var(--vert-vif); }
+
+    .card-footer { padding: 0 30px 30px; border-top: none; }
+    .btn-details {
+        display: block; width: 100%; padding: 15px;
+        background: var(--vert-vif); color: white;
+        text-align: center; border-radius: 14px; text-decoration: none;
+        font-weight: 700; transition: all 0.3s;
+    }
+    .btn-details:hover { background: var(--vert-fonce); color: white; transform: scale(1.02); }
+
+    @media (max-width: 768px) {
+        .search-filter-bar { flex-direction: column; margin-top: -30px; }
+        .product-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <header class="premium-header">
+        <div class="container" style="position: relative; z-index: 2;">
+            <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 10px;">Nos Solutions Financières</h1>
+            <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">Découvrez des financements conçus par des experts pour propulser votre exploitation.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-filter-bar">
+            <div class="filter-group">
+                <label>Rechercher</label>
+                <input type="text" id="searchInput" placeholder="Ex: Crédit..." onkeyup="filter()">
+            </div>
+            <div class="filter-group">
+                <label>Type de Financement</label>
+                <select id="typeFilter" onchange="filter()">
+                    <option value="">Tous les types</option>
+                    <option value="Crédit">Crédit</option>
+                    <option value="Prêt">Prêt</option>
+                    <option value="Leasing">Leasing</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 0 0 150px;">
+                <button onclick="reset()" class="btn btn-light w-100 py-3 rounded-3 fw-bold">Reset</button>
+            </div>
+        </div>
+
+        <div class="product-grid" id="grid">
+            {% for p in products %}
+                <div class="product-card" data-title="{{ p.nomProduit|lower }}" data-type="{{ p.typeFinancement|lower }}">
+                    <div class="card-head">
+                        <div class="icon-box">
+                            <i class="fas fa-{{ p.typeFinancement|lower == 'leasing' ? 'tractor' : 'university' }}"></i>
+                        </div>
+                        <span class="type-tag">{{ p.typeFinancement }}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="prod-title">{{ p.nomProduit }}</h3>
+                        <div class="stat-row">
+                            <div class="stat-item">
+                                <span class="stat-label">Taux d'intérêt</span>
+                                <span class="stat-value taux">{{ p.tauxInteret }}%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Prix Fixe</span>
+                                <span class="stat-value">{{ p.prixFixe|number_format(2, ',', ' ') }} DT</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">{{ p.reglesFinancieres|slice(0, 100) }}...</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ path('app_product_detail', {id: p.id}) }}" class="btn-details">Voir les détails</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function filter() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('typeFilter').value.toLowerCase();
+            const cards = document.querySelectorAll('.product-card');
+
+            cards.forEach(card => {
+                const title = card.dataset.title;
+                const cardType = card.dataset.type;
+                const matchesSearch = title.includes(search);
+                const matchesType = !type || cardType === type;
+                card.style.display = (matchesSearch && matchesType) ? 'flex' : 'none';
+            });
+        }
+        function reset() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            filter();
+        }
+    </script>
+{% endblock %}

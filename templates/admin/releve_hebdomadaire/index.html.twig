@@ -6,11 +6,25 @@
 {% block stylesheets %}
   {{ parent() }}
   <link rel="stylesheet" href="{{ asset('ui/releve-hebdo-admin-pro.css') }}">
+  <style>
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 0;
+      background: transparent;
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media (max-width: 991.98px) {
+      .main-content { margin-left: 0; }
+    }
+  </style>
 {% endblock %}
 
-{# =========================
-   Global variables (chart + insights)
-   ========================= #}
+{# ========================= Global variables ========================= #}
 {% set chartLabels = [] %}
 {% set chartTemp = [] %}
 {% set chartHum = [] %}
@@ -38,239 +52,246 @@
 {% block hide_preloader %}{% endblock %}
 
 {% block body %}
-<div class="iot-page admin-skin releve-hebdo-admin-pro">
-  <div class="container-fluid py-4">
+<div class="dashboard-container">
 
-    {# HERO #}
-    <div class="iot-hero hero-admin reveal mb-4">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-          <h2 class="iot-hero-title mb-0">
-            <i class="fas fa-calendar-week me-2"></i>
-            Admin — Relevés hebdomadaires
-          </h2>
-          <div class="iot-hero-sub">
-            Synthèse 7 jours (AI Ready) — génération, supervision et export IA.
-          </div>
-        </div>
+  {% include 'components/_sidebar_admin.html.twig' %}
 
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-          <span class="iot-pill">
-            <span class="iot-dot"></span>
-            <span class="fw-semibold">AI Ready</span>
-            <span class="opacity-75 small">7 jours</span>
-          </span>
+  <div class="main-content">
+    <div class="iot-page admin-skin releve-hebdo-admin-pro">
+      <div class="container-fluid py-4">
 
-          <a class="btn btn-light btn-iot" href="{{ path('admin_dashboard') }}">
-            <i class="fas fa-chart-line me-2"></i> Dashboard
-          </a>
-        </div>
-      </div>
-    </div>
-
-    {{ include('_partials/_flashes.html.twig') }}
-
-    {# KPI #}
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">Relevés affichés</div>
-            <div class="fs-2 fw-bold" data-countup="{{ total }}">0</div>
-            <div class="text-muted small">selon filtres</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">NORMAL</div>
-            <div class="fs-2 fw-bold text-success" data-countup="{{ normalCount }}">0</div>
-            <div class="text-muted small">semaines stables</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">Alertes</div>
-            <div class="fs-2 fw-bold text-danger" data-countup="{{ alertCount }}">0</div>
-            <div class="text-muted small">condition ≠ NORMAL</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro">
-          <div class="panel-b">
-            <div class="text-muted small">Export IA</div>
-            {% if idproject %}
-              {% set apiUrl = path('api_releve_hebdo_latest', {idproject: idproject}) %}
-              <div class="d-flex flex-column gap-2">
-                <a class="btn btn-outline-success btn-iot" target="_blank" href="{{ apiUrl }}">
-                  <i class="fas fa-code me-1"></i> Ouvrir JSON
-                </a>
-                <button id="copyApiUrl" class="btn btn-outline-dark btn-iot"
-                        data-url="{{ app.request.schemeAndHttpHost ~ apiUrl }}">
-                  Copier
-                </button>
+        {# HERO #}
+        <div class="iot-hero hero-admin reveal mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+              <h2 class="iot-hero-title mb-0">
+                <i class="fas fa-calendar-week me-2"></i>
+                Admin — Relevés hebdomadaires
+              </h2>
+              <div class="iot-hero-sub">
+                Synthèse 7 jours (AI Ready) — génération, supervision et export IA.
               </div>
-            {% else %}
-              <div class="text-muted small">Choisis un projet pour activer l’export.</div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
+            </div>
 
-    <div class="row g-3">
-
-      {# LEFT: génération + filtres + insights #}
-      <div class="col-12 col-xl-4">
-
-        <div class="panel reveal mb-3">
-          <div class="panel-h">
-            <span><i class="fas fa-wand-magic-sparkles text-success me-2"></i> Générer</span>
-            <span class="text-muted small">Regénération auto</span>
-          </div>
-          <div class="panel-b">
-            {{ form_start(generateForm) }}
-              {% if generateForm.idproject is defined %}
-                {{ form_row(generateForm.idproject) }}
-              {% endif %}
-              {{ form_row(generateForm.weekStart) }}
-              <button class="btn btn-success btn-iot w-100">Générer synthèse 7 jours</button>
-            {{ form_end(generateForm) }}
-            <div class="small text-muted mt-2">
-              Agrégation depuis <b>rapport_journalier</b> (stable, IA-friendly).
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <span class="iot-pill">
+                <span class="iot-dot"></span>
+                <span class="fw-semibold">AI Ready</span>
+                <span class="opacity-75 small">7 jours</span>
+              </span>
+              <a class="btn btn-light btn-iot" href="{{ path('admin_dashboard') }}">
+                <i class="fas fa-chart-line me-2"></i> Dashboard
+              </a>
             </div>
           </div>
         </div>
 
-        <div class="panel reveal mb-3">
-          <div class="panel-h">
-            <span><i class="fas fa-filter me-2"></i> Filtres</span>
-            <span class="text-muted small">GET</span>
-          </div>
-          <div class="panel-b">
-            <form method="get" class="row g-2">
-              <div class="col-12">
-                <label class="form-label">ID Projet</label>
-                <input type="number" class="form-control toolbar-input" name="projet"
-                       value="{{ idproject ?? '' }}" placeholder="ex: 1">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Début semaine</label>
-                <input type="date" class="form-control toolbar-input" name="weekStart"
-                       value="{{ weekStart ? weekStart|date('Y-m-d') : '' }}">
-              </div>
-              <div class="col-12 d-grid gap-2">
-                <button class="btn btn-dark btn-iot">Appliquer</button>
-                <a class="btn btn-outline-secondary btn-iot" href="{{ path('admin_releve_hebdo') }}">Reset</a>
-              </div>
-            </form>
-          </div>
-        </div>
+        {{ include('_partials/_flashes.html.twig') }}
 
-        <div class="panel reveal">
-          <div class="panel-h">
-            <span><i class="fas fa-brain me-2 text-primary"></i> Insights IA</span>
-            <span class="text-muted small">résumé</span>
-          </div>
-          <div class="panel-b">
-            <div class="row g-3 align-items-center">
-              <div class="col-6">
-                <canvas id="donutConditions" height="140"></canvas>
-                <div class="text-muted small mt-2">NORMAL vs ALERTES</div>
+        {# KPI #}
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro">
+              <div class="panel-b">
+                <div class="text-muted small">Relevés affichés</div>
+                <div class="fs-2 fw-bold" data-countup="{{ total }}">0</div>
+                <div class="text-muted small">selon filtres</div>
               </div>
-              <div class="col-6">
-                {% if latest %}
-                  {% set c = latest.conditionDominante ?? 'NORMAL' %}
-                  <div class="mb-2 fw-semibold">Dernière semaine</div>
-                  <div class="text-muted small">{{ latest.dateDebut|date('d/m/Y') }} → {{ latest.dateFin|date('d/m/Y') }}</div>
-                  <div class="mt-2">
-                    <span class="chip">
-                      <span class="{{ c == 'NORMAL' ? 'dot ok' : 'dot bad' }}"></span>
-                      {{ c }}
-                    </span>
-                  </div>
-                  <div class="mt-2 small text-muted">
-                    Temp: <b>{{ latest.tempMoyenne }}</b> °C<br>
-                    Hum: <b>{{ latest.humiditeMoyenne }}</b> %<br>
-                    Mesures: <b>{{ latest.nbMesuresTotal }}</b>
+            </div>
+          </div>
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro">
+              <div class="panel-b">
+                <div class="text-muted small">NORMAL</div>
+                <div class="fs-2 fw-bold text-success" data-countup="{{ normalCount }}">0</div>
+                <div class="text-muted small">semaines stables</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro">
+              <div class="panel-b">
+                <div class="text-muted small">Alertes</div>
+                <div class="fs-2 fw-bold text-danger" data-countup="{{ alertCount }}">0</div>
+                <div class="text-muted small">condition ≠ NORMAL</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro">
+              <div class="panel-b">
+                <div class="text-muted small">Export IA</div>
+                {% if idproject %}
+                  {% set apiUrl = path('api_releve_hebdo_latest', {idproject: idproject}) %}
+                  <div class="d-flex flex-column gap-2">
+                    <a class="btn btn-outline-success btn-iot" target="_blank" href="{{ apiUrl }}">
+                      <i class="fas fa-code me-1"></i> Ouvrir JSON
+                    </a>
+                    <button id="copyApiUrl" class="btn btn-outline-dark btn-iot"
+                            data-url="{{ app.request.schemeAndHttpHost ~ apiUrl }}">
+                      Copier
+                    </button>
                   </div>
                 {% else %}
-                  <div class="text-muted">Aucun relevé disponible.</div>
+                  <div class="text-muted small">Choisis un projet pour activer l'export.</div>
                 {% endif %}
               </div>
             </div>
           </div>
         </div>
 
-      </div>
+        <div class="row g-3">
 
-      {# RIGHT: chart + timeline cards #}
-      <div class="col-12 col-xl-8">
+          {# LEFT: génération + filtres + insights #}
+          <div class="col-12 col-xl-4">
 
-        <div class="panel reveal mb-3">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-line text-success me-2"></i> Tendances</span>
-            <span class="text-muted small">Temp & Humidité</span>
-          </div>
-          <div class="panel-b">
-            {% if items|length > 0 %}
-              <canvas id="chartHebdoAdmin" height="120"></canvas>
-            {% else %}
-              <div class="alert alert-light border mb-0">Aucune donnée selon les filtres.</div>
-            {% endif %}
-          </div>
-        </div>
+            <div class="panel reveal mb-3">
+              <div class="panel-h">
+                <span><i class="fas fa-wand-magic-sparkles text-success me-2"></i> Générer</span>
+                <span class="text-muted small">Regénération auto</span>
+              </div>
+              <div class="panel-b">
+                {{ form_start(generateForm) }}
+                  {% if generateForm.idproject is defined %}
+                    {{ form_row(generateForm.idproject) }}
+                  {% endif %}
+                  {{ form_row(generateForm.weekStart) }}
+                  <button class="btn btn-success btn-iot w-100">Générer synthèse 7 jours</button>
+                {{ form_end(generateForm) }}
+                <div class="small text-muted mt-2">
+                  Agrégation depuis <b>rapport_journalier</b> (stable, IA-friendly).
+                </div>
+              </div>
+            </div>
 
-        <div class="panel reveal">
-          <div class="panel-h">
-            <span><i class="fas fa-layer-group me-2"></i> Timeline hebdomadaire</span>
-            <span class="text-muted small">cards premium</span>
-          </div>
-          <div class="panel-b">
-            <div class="hebdo-timeline">
-              {% for h in items %}
-                {% set cond = h.conditionDominante ?? 'NORMAL' %}
-                {% set isOk = (cond == 'NORMAL') %}
-                <div class="hebdo-card">
-                  <div class="hebdo-inner">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                      <div>
-                        <div class="fw-bold">Projet #{{ h.idproject }}</div>
-                        <div class="text-muted small">{{ h.dateDebut|date('d/m/Y') }} → {{ h.dateFin|date('d/m/Y') }}</div>
+            <div class="panel reveal mb-3">
+              <div class="panel-h">
+                <span><i class="fas fa-filter me-2"></i> Filtres</span>
+                <span class="text-muted small">GET</span>
+              </div>
+              <div class="panel-b">
+                <form method="get" class="row g-2">
+                  <div class="col-12">
+                    <label class="form-label">ID Projet</label>
+                    <input type="number" class="form-control toolbar-input" name="projet"
+                           value="{{ idproject ?? '' }}" placeholder="ex: 1">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Début semaine</label>
+                    <input type="date" class="form-control toolbar-input" name="weekStart"
+                           value="{{ weekStart ? weekStart|date('Y-m-d') : '' }}">
+                  </div>
+                  <div class="col-12 d-grid gap-2">
+                    <button class="btn btn-dark btn-iot">Appliquer</button>
+                    <a class="btn btn-outline-secondary btn-iot" href="{{ path('admin_releve_hebdo') }}">Reset</a>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="panel reveal">
+              <div class="panel-h">
+                <span><i class="fas fa-brain me-2 text-primary"></i> Insights IA</span>
+                <span class="text-muted small">résumé</span>
+              </div>
+              <div class="panel-b">
+                <div class="row g-3 align-items-center">
+                  <div class="col-6">
+                    <canvas id="donutConditions" height="140"></canvas>
+                    <div class="text-muted small mt-2">NORMAL vs ALERTES</div>
+                  </div>
+                  <div class="col-6">
+                    {% if latest %}
+                      {% set c = latest.conditionDominante ?? 'NORMAL' %}
+                      <div class="mb-2 fw-semibold">Dernière semaine</div>
+                      <div class="text-muted small">{{ latest.dateDebut|date('d/m/Y') }} → {{ latest.dateFin|date('d/m/Y') }}</div>
+                      <div class="mt-2">
+                        <span class="chip">
+                          <span class="{{ c == 'NORMAL' ? 'dot ok' : 'dot bad' }}"></span>
+                          {{ c }}
+                        </span>
                       </div>
-                      <span class="chip">
-                        <span class="{{ isOk ? 'dot ok' : 'dot bad' }}"></span>
-                        {{ cond }}
-                      </span>
-                    </div>
-
-                    <div class="hebdo-metrics">
-                      <div class="metric-pill"><span>Temp moyenne</span><b>{{ h.tempMoyenne }} °C</b></div>
-                      <div class="metric-pill"><span>Humidité sol</span><b>{{ h.humiditeMoyenne }} %</b></div>
-                      <div class="metric-pill"><span>Mesures</span><b>{{ h.nbMesuresTotal }}</b></div>
-                      <div class="metric-pill"><span>Généré</span><b>{{ h.dateGeneration ? h.dateGeneration|date('d/m H:i') : '-' }}</b></div>
-                    </div>
+                      <div class="mt-2 small text-muted">
+                        Temp: <b>{{ latest.tempMoyenne }}</b> °C<br>
+                        Hum: <b>{{ latest.humiditeMoyenne }}</b> %<br>
+                        Mesures: <b>{{ latest.nbMesuresTotal }}</b>
+                      </div>
+                    {% else %}
+                      <div class="text-muted">Aucun relevé disponible.</div>
+                    {% endif %}
                   </div>
                 </div>
-              {% else %}
-                <div class="text-muted">Aucun relevé hebdomadaire.</div>
-              {% endfor %}
+              </div>
             </div>
+
+          </div>
+
+          {# RIGHT: chart + timeline cards #}
+          <div class="col-12 col-xl-8">
+
+            <div class="panel reveal mb-3">
+              <div class="panel-h">
+                <span><i class="fas fa-chart-line text-success me-2"></i> Tendances</span>
+                <span class="text-muted small">Temp & Humidité</span>
+              </div>
+              <div class="panel-b">
+                {% if items|length > 0 %}
+                  <canvas id="chartHebdoAdmin" height="120"></canvas>
+                {% else %}
+                  <div class="alert alert-light border mb-0">Aucune donnée selon les filtres.</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="panel reveal">
+              <div class="panel-h">
+                <span><i class="fas fa-layer-group me-2"></i> Timeline hebdomadaire</span>
+                <span class="text-muted small">cards premium</span>
+              </div>
+              <div class="panel-b">
+                <div class="hebdo-timeline">
+                  {% for h in items %}
+                    {% set cond = h.conditionDominante ?? 'NORMAL' %}
+                    {% set isOk = (cond == 'NORMAL') %}
+                    <div class="hebdo-card">
+                      <div class="hebdo-inner">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                          <div>
+                            <div class="fw-bold">Projet #{{ h.idproject }}</div>
+                            <div class="text-muted small">{{ h.dateDebut|date('d/m/Y') }} → {{ h.dateFin|date('d/m/Y') }}</div>
+                          </div>
+                          <span class="chip">
+                            <span class="{{ isOk ? 'dot ok' : 'dot bad' }}"></span>
+                            {{ cond }}
+                          </span>
+                        </div>
+                        <div class="hebdo-metrics">
+                          <div class="metric-pill"><span>Temp moyenne</span><b>{{ h.tempMoyenne }} °C</b></div>
+                          <div class="metric-pill"><span>Humidité sol</span><b>{{ h.humiditeMoyenne }} %</b></div>
+                          <div class="metric-pill"><span>Mesures</span><b>{{ h.nbMesuresTotal }}</b></div>
+                          <div class="metric-pill"><span>Généré</span><b>{{ h.dateGeneration ? h.dateGeneration|date('d/m H:i') : '-' }}</b></div>
+                        </div>
+                      </div>
+                    </div>
+                  {% else %}
+                    <div class="text-muted">Aucun relevé hebdomadaire.</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
       </div>
+      {# fin container-fluid #}
     </div>
-
+    {# fin iot-page #}
   </div>
+  {# fin main-content #}
+
 </div>
+{# fin dashboard-container #}
 {% endblock %}
 
 {% block javascripts %}
@@ -279,7 +300,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <script>
-    // Line chart
     const canvas = document.getElementById('chartHebdoAdmin');
     if (canvas) {
       const labels = {{ chartLabels|json_encode|raw }};
@@ -299,7 +319,6 @@
       });
     }
 
-    // Donut chart
     const donut = document.getElementById('donutConditions');
     if (donut) {
       new Chart(donut, {

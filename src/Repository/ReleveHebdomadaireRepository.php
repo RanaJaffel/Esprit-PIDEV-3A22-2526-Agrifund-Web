@@ -25,7 +25,51 @@ class ReleveHebdomadaireRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // 🔹 2. Dernières semaines
+    // 🔹 2. Par semaine spécifique
+    public function findByProjectAndWeekStart(int $idproject, \DateTimeInterface $weekStart): ?ReleveHebdomadaire
+    {
+        return $this->createQueryBuilder('h')
+            ->where('h.idproject = :p')
+            ->andWhere('h.dateDebut = :d')
+            ->setParameter('p', $idproject)
+            ->setParameter('d', $weekStart)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    // 🔹 3. Dernier relevé
+    public function findLatestByProject(int $idproject): ?ReleveHebdomadaire
+    {
+        return $this->createQueryBuilder('h')
+            ->where('h.idproject = :p')
+            ->setParameter('p', $idproject)
+            ->orderBy('h.dateDebut', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    // 🔹 4. Filtres dynamiques
+    public function findAllByFilters(?int $idproject = null, ?\DateTimeInterface $weekStart = null, int $limit = 500): array
+    {
+        $qb = $this->createQueryBuilder('h')
+            ->orderBy('h.dateDebut', 'DESC')
+            ->setMaxResults($limit);
+
+        if ($idproject !== null) {
+            $qb->andWhere('h.idproject = :p')
+               ->setParameter('p', $idproject);
+        }
+
+        if ($weekStart !== null) {
+            $qb->andWhere('h.dateDebut = :d')
+               ->setParameter('d', $weekStart);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    // 🔹 5. Dernières semaines (utile pour IA)
     public function findLastWeeks(int $idproject, int $weeks = 8): array
     {
         return $this->createQueryBuilder('h')
@@ -37,7 +81,7 @@ class ReleveHebdomadaireRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // 🔹 3. Analyse de tendance (✅ CORRIGÉE)
+    // 🔹 6. Analyse de tendance
     public function getTrend(int $idproject): array
     {
         $weeks = $this->findLastWeeks($idproject, 4);
@@ -54,9 +98,8 @@ class ReleveHebdomadaireRepository extends ServiceEntityRepository
         $latest = $weeks[0];
         $previous = $weeks[1];
 
-        // ✅ CORRECTION ICI
-        $tempVariation = $latest->getTempMoyenne() - $previous->getTempMoyenne();
-        $humVariation = $latest->getHumiditeMoyenne() - $previous->getHumiditeMoyenne();
+        $tempVariation = $latest->getTempMoy() - $previous->getTempMoy();
+        $humVariation = $latest->getHumMoy() - $previous->getHumMoy();
 
         $direction = 'STABLE';
 
@@ -74,7 +117,7 @@ class ReleveHebdomadaireRepository extends ServiceEntityRepository
         ];
     }
 
-    // 🔹 4. Statistiques globales
+    // 🔹 7. Statistiques globales (3 derniers mois)
     public function getGlobalStats(int $idproject): array
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -98,7 +141,7 @@ class ReleveHebdomadaireRepository extends ServiceEntityRepository
         ])->fetchAssociative();
     }
 
-    // 🔹 5. Distribution des conditions
+    // 🔹 8. Distribution des conditions
     public function getConditionDistribution(int $idproject): array
     {
         $conn = $this->getEntityManager()->getConnection();

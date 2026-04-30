@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\ranaj\Esprit-PIDEV-3A22-2526-Agrifund-Web\.venv"
+VIRTUAL_ENV="C:\Users\ranaj\OneDrive\Documentos\integration les 3 modules pi\Esprit-PIDEV-3A22-2526-Agrifund-Web\.venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

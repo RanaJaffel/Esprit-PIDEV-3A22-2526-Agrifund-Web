@@ -1,0 +1,692 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offres Financières | Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --vert-vif: #089647;
+            --vert-fonce: #076A39;
+            --vert-foret: #095032;
+            --jaune-moutarde: #E1B323;
+            --gris: #848A86;
+            --vert-clair: #B2D944;
+            --bg-color: #f8faf5;
+        }
+
+        .dashboard-container { display: flex; min-height: 100vh; background: linear-gradient(135deg, var(--bg-color) 0%, #e8f5e9 100%); }
+        .main-content { flex: 1; margin-left: 280px; padding: 0; transition: margin-left 0.4s ease; }
+
+        .section-header-custom {
+            background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-foret) 50%, #133D03 100%);
+            padding: 28px 35px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .section-header-custom::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(178,217,68,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .dashboard-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(8,150,71,0.08);
+            margin: -20px 35px 30px 35px;
+            border: 1px solid rgba(255,255,255,0.6);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== STATS ROW ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 0 35px 20px 35px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(5) { animation-delay: 0.5s; }
+        .stat-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 30px rgba(8,150,71,0.15); }
+
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .stat-card:hover .stat-icon { transform: rotate(10deg) scale(1.1); }
+
+        .stat-icon.green { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: var(--vert-vif); }
+        .stat-icon.gold { background: linear-gradient(135deg, #fff8e1, #ffecb3); color: #f59e0b; }
+        .stat-icon.red { background: linear-gradient(135deg, #ffebee, #ffcdd2); color: #ef5350; }
+        .stat-icon.blue { background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #2196f3; }
+        .stat-icon.purple { background: linear-gradient(135deg, #f3e5f5, #e1bee7); color: #9c27b0; }
+
+        .stat-info h3 { font-size: 1.4rem; font-weight: 800; margin: 0; color: #2b3531; }
+        .stat-info small { color: #6c757d; font-size: 0.75rem; font-weight: 500; }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            margin: 0 35px 20px 35px;
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+            z-index: 10;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .search-input-group { position: relative; }
+        .search-input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #adb5bd; font-size: 0.9rem; transition: color 0.3s; }
+        .search-input-group input { padding-left: 42px; border-radius: 12px; border: 2px solid #e9ecef; height: 46px; transition: all 0.3s; font-size: 0.9rem; }
+        .search-input-group input:focus { border-color: var(--vert-vif); box-shadow: 0 0 0 4px rgba(8,150,71,0.1); }
+        .search-input-group input:focus + i, .search-input-group:focus-within i { color: var(--vert-vif); }
+
+        .filter-select { border-radius: 12px; border: 2px solid #e9ecef; height: 46px; font-size: 0.85rem; color: #495057; transition: all 0.3s; cursor: pointer; }
+        .filter-select:focus { border-color: var(--vert-vif); box-shadow: 0 0 0 4px rgba(8,150,71,0.1); }
+
+        .btn-reset {
+            background: #f8f9fa; color: #6c757d; border: 2px solid #e9ecef;
+            border-radius: 12px; padding: 0 16px; height: 46px; font-weight: 600;
+            transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center;
+        }
+        .btn-reset:hover { background: #ffebee; color: #ef5350; border-color: #ffcdd2; transform: rotate(-90deg); }
+
+        /* ===== OFFER CARDS GRID ===== */
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: cardEntrance 0.7s ease-out backwards;
+            position: relative;
+        }
+        .offer-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(8,150,71,0.15);
+        }
+
+        /* Top accent bar with glow */
+        .offer-card-accent {
+            height: 5px;
+            transition: height 0.3s;
+        }
+        .offer-card:hover .offer-card-accent { height: 8px; }
+        .accent-active { background: linear-gradient(135deg, var(--vert-clair), var(--vert-vif)); }
+        .accent-pending { background: linear-gradient(135deg, #FFD54F, var(--jaune-moutarde)); }
+        .accent-cancelled { background: linear-gradient(135deg, #ef9a9a, #ef5350); }
+
+        .offer-card-body { padding: 20px 22px; }
+
+        /* Header row */
+        .offer-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .offer-icon-wrap {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.4s;
+            flex-shrink: 0;
+        }
+        .offer-card:hover .offer-icon-wrap { transform: rotateY(180deg); }
+        .offer-icon-active { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: var(--vert-vif); }
+        .offer-icon-pending { background: linear-gradient(135deg, #fff8e1, #ffecb3); color: #f59e0b; }
+        .offer-icon-cancelled { background: linear-gradient(135deg, #ffebee, #ffcdd2); color: #ef5350; }
+
+        .offer-title-area { flex: 1; padding: 0 12px; }
+        .offer-title { font-size: 1rem; font-weight: 800; color: #2b3531; line-height: 1.3; margin-bottom: 4px; }
+        .offer-id { font-size: 0.7rem; color: #adb5bd; font-weight: 600; }
+
+        .status-pill {
+            padding: 5px 12px; border-radius: 20px; font-size: 0.68rem;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+            white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .pill-active { background: #e8f5e9; color: var(--vert-vif); }
+        .pill-pending { background: #fff3cd; color: #856404; }
+        .pill-cancelled { background: #f8d7da; color: #721c24; }
+
+        /* Product info */
+        .offer-product-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #f8faf5, #f0f7f4);
+            border-radius: 14px;
+            margin-bottom: 14px;
+            transition: all 0.3s;
+        }
+        .offer-card:hover .offer-product-info { background: linear-gradient(135deg, #e8f5e9, #f0f7f4); }
+
+        .product-icon-mini {
+            width: 36px; height: 36px;
+            background: white;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--vert-vif); font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            flex-shrink: 0;
+        }
+
+        .product-name { font-weight: 700; font-size: 0.85rem; color: var(--vert-fonce); }
+        .product-meta { font-size: 0.72rem; color: #6c757d; }
+
+        /* Conditions preview */
+        .offer-conditions {
+            font-size: 0.78rem;
+            color: #6c757d;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            padding-left: 10px;
+            border-left: 3px solid var(--vert-clair);
+        }
+
+        /* Card actions */
+        .offer-actions {
+            display: flex;
+            gap: 6px;
+            padding-top: 14px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .action-btn-sm {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 9px 0;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-act-view { background: #e3f2fd; color: #1565c0; }
+        .btn-act-view:hover { background: #1565c0; color: white; transform: translateY(-2px); }
+        .btn-act-edit { background: #fff8e1; color: #f57f17; }
+        .btn-act-edit:hover { background: #f57f17; color: white; transform: translateY(-2px); }
+        .btn-act-dup { background: #f3e5f5; color: #7b1fa2; }
+        .btn-act-dup:hover { background: #7b1fa2; color: white; transform: translateY(-2px); }
+        .btn-act-del { background: #ffebee; color: #c62828; }
+        .btn-act-del:hover { background: #c62828; color: white; transform: translateY(-2px); }
+
+        /* Status change overlay */
+        .status-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 20;
+            animation: fadeIn 0.3s ease;
+            padding: 20px;
+        }
+        .status-overlay.show { display: flex; }
+        .status-overlay h5 { font-weight: 800; color: var(--vert-fonce); margin-bottom: 5px; }
+
+        .status-choice {
+            display: flex;
+            gap: 10px;
+        }
+        .status-choice-btn {
+            padding: 10px 20px; border-radius: 12px;
+            font-weight: 700; font-size: 0.85rem;
+            border: 2px solid transparent; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .status-choice-btn:hover { transform: scale(1.05); }
+        .sc-active { background: #e8f5e9; color: var(--vert-vif); border-color: #c8e6c9; }
+        .sc-active:hover { background: var(--vert-vif); color: white; }
+        .sc-attente { background: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .sc-attente:hover { background: var(--jaune-moutarde); color: white; }
+        .sc-cancel { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .sc-cancel:hover { background: #dc3545; color: white; }
+        .sc-close { background: #f8f9fa; color: #6c757d; border-color: #e9ecef; font-size: 0.8rem; }
+        .sc-close:hover { background: #e9ecef; }
+
+        /* Status trigger button */
+        .status-trigger {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem;
+            color: #adb5bd;
+            transition: all 0.3s;
+            opacity: 0;
+            z-index: 5;
+        }
+        .offer-card:hover .status-trigger { opacity: 1; }
+        .status-trigger:hover { background: var(--vert-vif); color: white; transform: scale(1.2); }
+
+        /* Add new button */
+        .btn-add-new {
+            background: linear-gradient(135deg, var(--vert-clair) 0%, #9A951F 100%);
+            color: white; border: none; padding: 12px 24px; border-radius: 12px;
+            font-weight: 700; box-shadow: 0 4px 15px rgba(178,217,68,0.3);
+            transition: all 0.3s; text-decoration: none;
+        }
+        .btn-add-new:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(178,217,68,0.5); color: white; }
+
+        .toolbar-btn {
+            padding: 10px 18px; border-radius: 10px; font-weight: 600;
+            font-size: 0.85rem; text-decoration: none; transition: all 0.3s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .toolbar-btn.csv { background: #e8f5e9; color: var(--vert-fonce); }
+        .toolbar-btn.csv:hover { background: var(--vert-vif); color: white; transform: translateY(-2px); }
+
+        /* Pagination */
+        .pagination-wrapper { display: flex; justify-content: center; margin-top: 25px; }
+        .pagination-wrapper .pagination { gap: 5px; }
+        .pagination-wrapper .page-link {
+            border-radius: 10px; border: none; padding: 10px 16px;
+            font-weight: 600; color: var(--vert-fonce); background: #f0f7f4; transition: all 0.3s;
+        }
+        .pagination-wrapper .page-item.active .page-link { background: var(--vert-vif); color: white; }
+        .pagination-wrapper .page-link:hover { background: var(--vert-clair); color: var(--vert-fonce); transform: translateY(-2px); }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        .empty-icon {
+            font-size: 4.5rem;
+            background: linear-gradient(135deg, var(--vert-clair), var(--vert-vif));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content { margin-left: 0; }
+            .dashboard-section { margin: -10px 15px 20px 15px; padding: 20px; }
+            .stats-row { margin: 0 15px 15px 15px; grid-template-columns: repeat(2, 1fr); }
+            .filter-bar { margin: 0 15px 15px 15px; }
+            .offers-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {% include 'components/_sidebar_admin.html.twig' %}
+
+    <div class="main-content">
+        {# ===== HEADER ===== #}
+        <div class="d-flex justify-content-between align-items-center section-header-custom mb-4" style="flex-wrap: wrap; gap: 15px;">
+            <h1 class="mb-0 text-white" style="z-index: 1;">
+                <i class="fas fa-hand-holding-usd me-3" style="color: var(--vert-clair);"></i>Offres Financières
+            </h1>
+            <div class="d-flex gap-2 flex-wrap" style="z-index: 1;">
+                <a href="{{ path('admin_offre_export_csv') }}" class="toolbar-btn csv">
+                    <i class="fas fa-file-csv"></i> CSV
+                </a>
+                <a href="{{ path('admin_offre_export_pdf') }}" class="toolbar-btn" style="background: #fce4ec; color: #c62828;">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+                <a href="{{ path('admin_offre_new') }}" class="btn-add-new">
+                    <i class="fas fa-plus me-2"></i>Nouvelle Offre
+                </a>
+            </div>
+        </div>
+
+        {{ include('components/_flash_messages.html.twig') }}
+
+        {# ===== STATISTIQUES ===== #}
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-layer-group"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.total }}</h3>
+                    <small>Total Offres</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.active }}</h3>
+                    <small>Actives</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.enAttente }}</h3>
+                    <small>En Attente</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.cancelled }}</h3>
+                    <small>Annulées</small>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-chart-pie"></i></div>
+                <div class="stat-info">
+                    <h3>{{ dashboardStats.stats.tauxActivation }}%</h3>
+                    <small>Taux Activation</small>
+                </div>
+            </div>
+        </div>
+
+        {# ===== FILTRE & RECHERCHE ===== #}
+        <div class="filter-bar">
+            <form method="get" action="{{ path('admin_offre_index') }}" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <div class="search-input-group">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="q" class="form-control" placeholder="Rechercher une offre..."
+                                   value="{{ keyword }}" id="searchInput">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="statut" class="form-select filter-select" onchange="this.form.submit()">
+                            <option value="">Tous statuts</option>
+                            {% for s in statutsDisponibles %}
+                                <option value="{{ s }}" {{ statut == s ? 'selected' : '' }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="produit" class="form-select filter-select" onchange="this.form.submit()">
+                            <option value="">Tous produits</option>
+                            {% for p in produits %}
+                                <option value="{{ p.id }}" {{ produitId == p.id ? 'selected' : '' }}>{{ p.nomProduit }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select filter-select" onchange="this.form.submit()">
+                            <option value="nomOffre" {{ sortBy == 'nomOffre' ? 'selected' : '' }}>Tri: Nom</option>
+                            <option value="statut" {{ sortBy == 'statut' ? 'selected' : '' }}>Tri: Statut</option>
+                            <option value="produit" {{ sortBy == 'produit' ? 'selected' : '' }}>Tri: Produit</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <a href="{{ path('admin_offre_index') }}" class="btn-reset" title="Réinitialiser">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {# ===== CARDS GRID ===== #}
+        <div class="dashboard-section">
+            {% if offres|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="fw-bold" style="color: var(--vert-fonce); font-size: 1.1rem;">
+                            {{ offres.getTotalItemCount }} offre(s)
+                        </span>
+                        <span class="text-muted ms-2" style="font-size: 0.85rem;">trouvée(s)</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        {% for info in dashboardStats.byStatut %}
+                            <span class="badge rounded-pill px-3 py-2" style="background:
+                                {{ info.statut == 'Active' ? '#e8f5e9' : (info.statut == 'En attente' ? '#fff3cd' : '#f8d7da') }};
+                                color: {{ info.statut == 'Active' ? '#089647' : (info.statut == 'En attente' ? '#856404' : '#721c24') }};
+                                font-size: 0.72rem; font-weight: 700;">
+                                {{ info.statut }}: {{ info.total }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="offers-grid">
+                    {% for offre in offres %}
+                        {% set isActive = offre.statut == 'Active' %}
+                        {% set isPending = offre.statut == 'En attente' %}
+                        {% set statusKey = isActive ? 'active' : (isPending ? 'pending' : 'cancelled') %}
+
+                        <div class="offer-card" style="animation-delay: {{ loop.index * 0.08 }}s;">
+                            {# Accent bar #}
+                            <div class="offer-card-accent accent-{{ statusKey }}"></div>
+
+                            {# Status change trigger #}
+                            <button class="status-trigger" onclick="toggleStatusOverlay({{ offre.id }})" title="Changer le statut">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+
+                            {# Status change overlay #}
+                            <div class="status-overlay" id="statusOverlay{{ offre.id }}">
+                                <h5><i class="fas fa-exchange-alt me-2"></i>Changer le Statut</h5>
+                                <p class="text-muted" style="font-size: 0.85rem;">{{ offre.nomOffre }}</p>
+                                <div class="status-choice">
+                                    {% for s in ['Active', 'En attente', 'Cancelled'] %}
+                                        {% if s != offre.statut %}
+                                            <form method="post" action="{{ path('admin_offre_changer_statut', {'id': offre.id}) }}" class="d-inline">
+                                                <input type="hidden" name="statut" value="{{ s }}">
+                                                <button class="status-choice-btn sc-{{ s == 'Active' ? 'active' : (s == 'En attente' ? 'attente' : 'cancel') }}">
+                                                    <i class="fas fa-{{ s == 'Active' ? 'check-circle' : (s == 'En attente' ? 'clock' : 'ban') }} me-1"></i>
+                                                    {{ s }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <button class="status-choice-btn sc-close" onclick="toggleStatusOverlay({{ offre.id }})">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="offer-card-body">
+                                {# Header #}
+                                <div class="offer-header">
+                                    <div class="offer-icon-wrap offer-icon-{{ statusKey }}">
+                                        <i class="fas fa-{{ isActive ? 'hand-holding-usd' : (isPending ? 'hourglass-half' : 'ban') }}"></i>
+                                    </div>
+                                    <div class="offer-title-area">
+                                        <div class="offer-title">{{ offre.nomOffre }}</div>
+                                        <div class="offer-id">#{{ offre.id }}</div>
+                                    </div>
+                                    <span class="status-pill pill-{{ statusKey }}">
+                                        <i class="fas fa-circle" style="font-size: 5px;"></i>
+                                        {{ offre.statut }}
+                                    </span>
+                                </div>
+
+                                {# Product info #}
+                                <div class="offer-product-info">
+                                    <div class="product-icon-mini">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
+                                    <div>
+                                        <div class="product-name">
+                                            {{ offre.produitFinancier ? offre.produitFinancier.nomProduit : 'Aucun produit' }}
+                                        </div>
+                                        {% if offre.produitFinancier %}
+                                            <div class="product-meta">
+                                                {{ offre.produitFinancier.typeFinancement }} · {{ offre.produitFinancier.tauxInteret }}% · {{ offre.produitFinancier.montant|number_format(0, ',', ' ') }} DT · Prix {{ offre.prix|number_format(2, ',', ' ') }} DT
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {# Conditions #}
+                                {% if offre.conditions %}
+                                    <div class="offer-conditions">
+                                        {{ offre.conditions }}
+                                    </div>
+                                {% endif %}
+
+                                {# Actions #}
+                                <div class="offer-actions">
+                                    <a href="{{ path('admin_offre_show', {'id': offre.id}) }}" class="action-btn-sm btn-act-view">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{{ path('admin_offre_edit', {'id': offre.id}) }}" class="action-btn-sm btn-act-edit">
+                                        <i class="fas fa-pen"></i> Modifier
+                                    </a>
+                                    <form method="post" action="{{ path('admin_offre_dupliquer', {'id': offre.id}) }}" class="d-inline" style="flex: 1;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('dupliquer' ~ offre.id) }}">
+                                        <button class="action-btn-sm btn-act-dup" style="width: 100%;">
+                                            <i class="fas fa-copy"></i> Dupli.
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{{ path('admin_offre_delete', {'id': offre.id}) }}" class="d-inline" style="flex: 1;"
+                                          onsubmit="return confirm('Supprimer cette offre ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+                                        <button class="action-btn-sm btn-act-del" style="width: 100%;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# PAGINATION #}
+                <div class="pagination-wrapper">
+                    {{ knp_pagination_render(offres) }}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-handshake-slash"></i>
+                    </div>
+                    <h3 class="fw-bold mb-2" style="color: var(--vert-fonce);">
+                        {% if keyword or statut or produitId %}
+                            Aucune offre trouvée
+                        {% else %}
+                            Aucune offre financière
+                        {% endif %}
+                    </h3>
+                    <p class="text-muted mb-4">
+                        {% if keyword or statut or produitId %}
+                            Essayez de modifier vos critères de recherche.
+                        {% else %}
+                            Créez des offres attractives pour vos clients agriculteurs.
+                        {% endif %}
+                    </p>
+                    {% if keyword or statut or produitId %}
+                        <a href="{{ path('admin_offre_index') }}" class="btn-reset px-4 py-2 me-2" style="text-decoration: none;">
+                            <i class="fas fa-undo me-1"></i> Réinitialiser
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('admin_offre_new') }}" class="btn-add-new px-4 py-2">
+                        <i class="fas fa-plus me-2"></i>Créer une Offre
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Status overlay toggle
+        function toggleStatusOverlay(id) {
+            const overlay = document.getElementById('statusOverlay' + id);
+            overlay.classList.toggle('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('filterForm');
+            let debounceTimer;
+
+            // Debounced auto-search
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => form.submit(), 500);
+                });
+            }
+        });
+    </script>
+{% endblock %}

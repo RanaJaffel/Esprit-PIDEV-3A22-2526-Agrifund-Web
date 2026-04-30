@@ -1,0 +1,172 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Postuler a l'offre{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .proof-hero {
+        margin-bottom: 26px;
+    }
+
+    .proof-hero h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 8px;
+    }
+
+    .proof-card {
+        background: #fff;
+        border: 1px solid rgba(8, 150, 71, 0.12);
+        border-radius: 20px;
+        box-shadow: 0 8px 26px rgba(8, 150, 71, 0.08);
+        overflow: hidden;
+    }
+
+    .proof-card-head {
+        background: linear-gradient(135deg, var(--vert-fonce), var(--vert-foret));
+        color: #fff;
+        padding: 22px 24px;
+    }
+
+    .proof-card-head h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+
+    .proof-card-body {
+        padding: 24px;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .meta-box {
+        background: #f8fafc;
+        border: 1px solid #e5eaf1;
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .meta-label {
+        font-size: 0.72rem;
+        color: #64748b;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .meta-value {
+        font-weight: 800;
+        color: #1f2937;
+        font-size: 0.95rem;
+    }
+
+    .field-label {
+        font-weight: 700;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        border-color: #dce5ef;
+        min-height: 44px;
+    }
+
+    .form-control:focus {
+        border-color: var(--vert-vif);
+        box-shadow: 0 0 0 3px rgba(8, 150, 71, 0.12);
+    }
+
+    .btn-proof-primary {
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--vert-vif), var(--vert-fonce));
+        color: #fff;
+        font-weight: 800;
+        padding: 11px 18px;
+    }
+
+    .btn-proof-primary:hover {
+        color: #fff;
+        filter: brightness(0.96);
+    }
+
+    @media (max-width: 768px) {
+        .meta-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="proof-hero d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h2>Envoi de preuve - Offre</h2>
+            <p class="text-muted mb-0">Transmettez votre justificatif. Votre paiement sera enregistre en base puis verifie par un admin.</p>
+        </div>
+        <a href="{{ path('agriculteur_offres') }}" class="btn btn-outline-success rounded-4 px-4 py-2">Retour aux offres</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="proof-card">
+                <div class="proof-card-head">
+                    <h3><i class="fas fa-file-upload me-2"></i>Soumettre le dossier</h3>
+                </div>
+                <div class="proof-card-body">
+                    <div class="meta-grid">
+                        <div class="meta-box">
+                            <span class="meta-label">Offre</span>
+                            <span class="meta-value">{{ offre.nomOffre }}</span>
+                        </div>
+                        <div class="meta-box">
+                            <span class="meta-label">Produit</span>
+                            <span class="meta-value">{{ offre.produitFinancier.nomProduit }}</span>
+                        </div>
+                        <div class="meta-box">
+                            <span class="meta-label">Reference</span>
+                            <span class="meta-value">OFF-{{ offre.id }}</span>
+                        </div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="_token" value="{{ csrf_token('postuler_offre_' ~ offre.id) }}">
+
+                        <div class="mb-3">
+                            <label for="invoice_email" class="field-label">Email de suivi</label>
+                            <input id="invoice_email" type="email" name="invoice_email" class="form-control" value="{{ invoiceEmail }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="application_note" class="field-label">Note pour l'admin</label>
+                            <textarea id="application_note" name="application_note" class="form-control" rows="4" placeholder="Ajoutez une precision si besoin."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="payment_proof" class="field-label">Justificatif</label>
+                            <input id="payment_proof" type="file" name="payment_proof" class="form-control" accept=".pdf,image/jpeg,image/png,image/webp" required>
+                            <div class="form-text">Formats acceptes: PDF, JPG, PNG, WEBP. Taille maximale: 5 Mo.</div>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ path('agriculteur_offres') }}" class="btn btn-outline-secondary">Annuler</a>
+                            <button type="submit" class="btn-proof-primary">Envoyer le dossier</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

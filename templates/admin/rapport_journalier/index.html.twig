@@ -6,6 +6,22 @@
 {% block stylesheets %}
   {{ parent() }}
   <link rel="stylesheet" href="{{ asset('ui/rapport-journalier-admin-pro.css') }}">
+  <style>
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 0;
+      background: transparent;
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media (max-width: 991.98px) {
+      .main-content { margin-left: 0; }
+    }
+  </style>
 {% endblock %}
 
 {% block hide_preloader %}{% endblock %}
@@ -27,199 +43,209 @@
 {% endfor %}
 
 {% block body %}
-<div class="iot-page admin-skin rj-admin-pro">
-  <div class="container-fluid py-4">
+<div class="dashboard-container">
 
-    {# HERO #}
-    <div class="iot-hero hero-admin reveal mb-4">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-          <h2 class="iot-hero-title mb-0">
-            <i class="fas fa-chart-bar me-2"></i>
-            Admin — Rapports journaliers
-          </h2>
-          <div class="iot-hero-sub">
-            Génération + supervision globale (moy/min/max/nb + condition dominante).
-          </div>
-        </div>
-        <a class="btn btn-light btn-iot" href="{{ path('admin_dashboard') }}">
-          <i class="fas fa-chart-line me-2"></i> Dashboard
-        </a>
-      </div>
-    </div>
+  {% include 'components/_sidebar_admin.html.twig' %}
 
-    {{ include('_partials/_flashes.html.twig') }}
+  <div class="main-content">
+    <div class="iot-page admin-skin rj-admin-pro">
+      <div class="container-fluid py-4">
 
-    {# KPI #}
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro"><div class="panel-b">
-          <div class="text-muted small">Lignes affichées</div>
-          <div class="fs-2 fw-bold" data-countup="{{ stats.total }}">0</div>
-          <div class="text-muted small">selon filtres</div>
-        </div></div>
-      </div>
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro"><div class="panel-b">
-          <div class="text-muted small">Projets couverts</div>
-          <div class="fs-2 fw-bold" data-countup="{{ stats.projects }}">0</div>
-          <div class="text-muted small">coverage</div>
-        </div></div>
-      </div>
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro"><div class="panel-b">
-          <div class="text-muted small">Alertes</div>
-          <div class="fs-2 fw-bold text-danger" data-countup="{{ stats.alerts }}">0</div>
-          <div class="text-muted small">condition ≠ NORMAL</div>
-        </div></div>
-      </div>
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro"><div class="panel-b">
-          <div class="text-muted small">Types</div>
-          <div class="fs-2 fw-bold text-success" data-countup="{{ stats.types }}">0</div>
-          <div class="text-muted small">distinct</div>
-        </div></div>
-      </div>
-    </div>
-
-    <div class="row g-3">
-
-      {# LEFT #}
-      <div class="col-12 col-xl-4">
-
-        <div class="panel reveal mb-3">
-          <div class="panel-h">
-            <span><i class="fas fa-gear text-primary me-2"></i> Générer (Admin)</span>
-            <span class="text-muted small">regénération</span>
-          </div>
-          <div class="panel-b">
-            {{ form_start(generateForm) }}
-              {% if generateForm.idproject is defined %}
-                {{ form_row(generateForm.idproject) }}
-              {% endif %}
-              {{ form_row(generateForm.date) }}
-              <button class="btn btn-success btn-iot w-100">Générer</button>
-            {{ form_end(generateForm) }}
+        {# HERO #}
+        <div class="iot-hero hero-admin reveal mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+              <h2 class="iot-hero-title mb-0">
+                <i class="fas fa-chart-bar me-2"></i>
+                Admin — Rapports journaliers
+              </h2>
+              <div class="iot-hero-sub">
+                Génération + supervision globale (moy/min/max/nb + condition dominante).
+              </div>
+            </div>
+            <a class="btn btn-light btn-iot" href="{{ path('admin_dashboard') }}">
+              <i class="fas fa-chart-line me-2"></i> Dashboard
+            </a>
           </div>
         </div>
 
-        <div class="iot-toolbar reveal p-3">
-          <div class="fw-bold mb-2"><i class="fas fa-filter me-2"></i> Filtres</div>
-          <form method="get" class="row g-2">
-            <div class="col-12">
-              <label class="form-label">ID Projet</label>
-              <input type="number" class="form-control toolbar-input" name="projet"
-                     value="{{ idproject ?? '' }}" placeholder="ex: 1">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Type</label>
-              <select name="type" class="form-select toolbar-input">
-                <option value="">Tous</option>
-                {% for t in types %}
-                  <option value="{{ t }}" {{ t == typeMesure ? 'selected' : '' }}>{{ t }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Date</label>
-              <input type="date" class="form-control toolbar-input" name="date"
-                     value="{{ date ? date|date('Y-m-d') : '' }}">
-            </div>
-            <div class="col-12">
-              <button class="btn btn-dark btn-iot w-100">Appliquer</button>
-              <a class="btn btn-outline-secondary btn-iot w-100 mt-2"
-                 href="{{ path('admin_rapport_journalier') }}">Reset</a>
-            </div>
-          </form>
+        {{ include('_partials/_flashes.html.twig') }}
+
+        {# KPI #}
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro"><div class="panel-b">
+              <div class="text-muted small">Lignes affichées</div>
+              <div class="fs-2 fw-bold" data-countup="{{ stats.total }}">0</div>
+              <div class="text-muted small">selon filtres</div>
+            </div></div>
+          </div>
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro"><div class="panel-b">
+              <div class="text-muted small">Projets couverts</div>
+              <div class="fs-2 fw-bold" data-countup="{{ stats.projects }}">0</div>
+              <div class="text-muted small">coverage</div>
+            </div></div>
+          </div>
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro"><div class="panel-b">
+              <div class="text-muted small">Alertes</div>
+              <div class="fs-2 fw-bold text-danger" data-countup="{{ stats.alerts }}">0</div>
+              <div class="text-muted small">condition ≠ NORMAL</div>
+            </div></div>
+          </div>
+          <div class="col-12 col-md-3 reveal">
+            <div class="panel kpi-pro"><div class="panel-b">
+              <div class="text-muted small">Types</div>
+              <div class="fs-2 fw-bold text-success" data-countup="{{ stats.types }}">0</div>
+              <div class="text-muted small">distinct</div>
+            </div></div>
+          </div>
         </div>
-
-      </div>
-
-      {# RIGHT #}
-      <div class="col-12 col-xl-8">
 
         <div class="row g-3">
-          <div class="col-12 col-lg-8 reveal">
-            <div class="chart-wrap">
-              <div class="chart-head">
-                <span><i class="fas fa-chart-line text-success me-2"></i> Moyennes (aperçu)</span>
-                <span class="text-muted small">trend</span>
+
+          {# LEFT #}
+          <div class="col-12 col-xl-4">
+
+            <div class="panel reveal mb-3">
+              <div class="panel-h">
+                <span><i class="fas fa-gear text-primary me-2"></i> Générer (Admin)</span>
+                <span class="text-muted small">regénération</span>
               </div>
-              <div class="chart-body">
-                {% if rapports|length > 0 %}
-                  <canvas id="chartAdmin" height="120"></canvas>
-                {% else %}
-                  <div class="alert alert-light border mb-0">Aucune donnée selon les filtres.</div>
-                {% endif %}
+              <div class="panel-b">
+                {{ form_start(generateForm) }}
+                  {% if generateForm.idproject is defined %}
+                    {{ form_row(generateForm.idproject) }}
+                  {% endif %}
+                  {{ form_row(generateForm.date) }}
+                  <button class="btn btn-success btn-iot w-100">Générer</button>
+                {{ form_end(generateForm) }}
               </div>
             </div>
+
+            <div class="iot-toolbar reveal p-3">
+              <div class="fw-bold mb-2"><i class="fas fa-filter me-2"></i> Filtres</div>
+              <form method="get" class="row g-2">
+                <div class="col-12">
+                  <label class="form-label">ID Projet</label>
+                  <input type="number" class="form-control toolbar-input" name="projet"
+                         value="{{ idproject ?? '' }}" placeholder="ex: 1">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Type</label>
+                  <select name="type" class="form-select toolbar-input">
+                    <option value="">Tous</option>
+                    {% for t in types %}
+                      <option value="{{ t }}" {{ t == typeMesure ? 'selected' : '' }}>{{ t }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Date</label>
+                  <input type="date" class="form-control toolbar-input" name="date"
+                         value="{{ date ? date|date('Y-m-d') : '' }}">
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-dark btn-iot w-100">Appliquer</button>
+                  <a class="btn btn-outline-secondary btn-iot w-100 mt-2"
+                     href="{{ path('admin_rapport_journalier') }}">Reset</a>
+                </div>
+              </form>
+            </div>
+
           </div>
 
-          <div class="col-12 col-lg-4 reveal">
-            <div class="chart-wrap">
-              <div class="chart-head">
-                <span><i class="fas fa-bullseye me-2"></i> NORMAL vs ALERTES</span>
-                <span class="text-muted small">conditions</span>
-              </div>
-              <div class="chart-body">
-                <canvas id="donutRJ" height="150"></canvas>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                  <span class="chip"><span class="dot ok"></span> NORMAL: {{ normal }}</span>
-                  <span class="chip"><span class="dot bad"></span> ALERTES: {{ alertes }}</span>
+          {# RIGHT #}
+          <div class="col-12 col-xl-8">
+
+            <div class="row g-3">
+              <div class="col-12 col-lg-8 reveal">
+                <div class="chart-wrap">
+                  <div class="chart-head">
+                    <span><i class="fas fa-chart-line text-success me-2"></i> Moyennes (aperçu)</span>
+                    <span class="text-muted small">trend</span>
+                  </div>
+                  <div class="chart-body">
+                    {% if rapports|length > 0 %}
+                      <canvas id="chartAdmin" height="120"></canvas>
+                    {% else %}
+                      <div class="alert alert-light border mb-0">Aucune donnée selon les filtres.</div>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {# Timeline cards #}
-        <div class="panel reveal mt-3">
-          <div class="panel-h">
-            <span><i class="fas fa-layer-group me-2"></i> Détails (cards)</span>
-            <span class="text-muted small">plus lisible qu’un tableau</span>
-          </div>
-
-          <div class="panel-b">
-            <div class="rj-timeline">
-              {% for r in rapports %}
-                {% set cond = r.conditionDominante ?? 'NORMAL' %}
-                {% set okc = (cond == 'NORMAL') %}
-                <div class="rj-card">
-                  <div class="rj-inner">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                      <div>
-                        <div class="fw-bold">
-                          {{ r.typeMesure }} · Projet #{{ r.idproject }} · Capteur #{{ r.idCapteur }}
-                        </div>
-                        <div class="text-muted small">{{ r.dateRapport|date('d/m/Y') }}</div>
-                      </div>
-
-                      <span class="chip">
-                        <span class="{{ okc ? 'dot ok' : 'dot bad' }}"></span>
-                        {{ cond }}
-                      </span>
-                    </div>
-
-                    <div class="rj-metrics">
-                      <div class="metric-pill"><span>Moy</span><b>{{ r.moyenne }}</b></div>
-                      <div class="metric-pill"><span>Nb mesures</span><b>{{ r.nbMesures }}</b></div>
-                      <div class="metric-pill"><span>Min</span><b>{{ r.min }}</b></div>
-                      <div class="metric-pill"><span>Max</span><b>{{ r.max }}</b></div>
+              <div class="col-12 col-lg-4 reveal">
+                <div class="chart-wrap">
+                  <div class="chart-head">
+                    <span><i class="fas fa-bullseye me-2"></i> NORMAL vs ALERTES</span>
+                    <span class="text-muted small">conditions</span>
+                  </div>
+                  <div class="chart-body">
+                    <canvas id="donutRJ" height="150"></canvas>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                      <span class="chip"><span class="dot ok"></span> NORMAL: {{ normal }}</span>
+                      <span class="chip"><span class="dot bad"></span> ALERTES: {{ alertes }}</span>
                     </div>
                   </div>
                 </div>
-              {% else %}
-                <div class="text-center text-muted py-4">Aucun rapport.</div>
-              {% endfor %}
+              </div>
             </div>
+
+            {# Timeline cards #}
+            <div class="panel reveal mt-3">
+              <div class="panel-h">
+                <span><i class="fas fa-layer-group me-2"></i> Détails (cards)</span>
+                <span class="text-muted small">plus lisible qu'un tableau</span>
+              </div>
+
+              <div class="panel-b">
+                <div class="rj-timeline">
+                  {% for r in rapports %}
+                    {% set cond = r.conditionDominante ?? 'NORMAL' %}
+                    {% set okc = (cond == 'NORMAL') %}
+                    <div class="rj-card">
+                      <div class="rj-inner">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                          <div>
+                            <div class="fw-bold">
+                              {{ r.typeMesure }} · Projet #{{ r.idproject }} · Capteur #{{ r.idCapteur }}
+                            </div>
+                            <div class="text-muted small">{{ r.dateRapport|date('d/m/Y') }}</div>
+                          </div>
+                          <span class="chip">
+                            <span class="{{ okc ? 'dot ok' : 'dot bad' }}"></span>
+                            {{ cond }}
+                          </span>
+                        </div>
+                        <div class="rj-metrics">
+                          <div class="metric-pill"><span>Moy</span><b>{{ r.moyenne }}</b></div>
+                          <div class="metric-pill"><span>Nb mesures</span><b>{{ r.nbMesures }}</b></div>
+                          <div class="metric-pill"><span>Min</span><b>{{ r.min }}</b></div>
+                          <div class="metric-pill"><span>Max</span><b>{{ r.max }}</b></div>
+                        </div>
+                      </div>
+                    </div>
+                  {% else %}
+                    <div class="text-center text-muted py-4">Aucun rapport.</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
       </div>
+      {# fin container-fluid #}
     </div>
-
+    {# fin iot-page #}
   </div>
+  {# fin main-content #}
+
 </div>
+{# fin dashboard-container #}
 {% endblock %}
 
 {% block javascripts %}
@@ -228,7 +254,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <script>
-    // Line chart (avec remplissage dégradé)
     const c = document.getElementById('chartAdmin');
     if (c) {
       const labels = {{ labels|json_encode|raw }};
@@ -257,7 +282,6 @@
       });
     }
 
-    // Donut NORMAL vs ALERTES
     const d = document.getElementById('donutRJ');
     if (d) {
       new Chart(d, {

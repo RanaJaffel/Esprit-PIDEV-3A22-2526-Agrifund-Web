@@ -1,0 +1,244 @@
+{# templates/agriculteur/offres.html.twig #}
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}AgriFund - Offres Financières{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+    }
+    
+    .page-header h2 {
+        font-size: 1.8rem;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 5px;
+    }
+
+    .offer-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .offer-item {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        display: flex;
+        gap: 25px;
+        transition: var(--transition-smooth);
+        position: relative;
+    }
+
+    .offer-item:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-color: var(--vert-clair);
+        transform: scale(1.01);
+    }
+
+    .offer-status {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+    }
+
+    .status-badge {
+        padding: 6px 15px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: #f0fdf4;
+        color: var(--vert-vif);
+        box-shadow: 0 4px 10px rgba(8, 150, 71, 0.1);
+    }
+
+    .offer-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: #f8fafc;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--vert-fonce);
+        flex-shrink: 0;
+    }
+
+    .offer-content {
+        flex: 1;
+    }
+
+    .offer-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--vert-tres-fonce);
+        margin-bottom: 8px;
+    }
+
+    .offer-product-name {
+        font-size: 0.85rem;
+        color: var(--vert-vif);
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .offer-description {
+        font-size: 0.9rem;
+        color: #64748b;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        max-width: 800px;
+    }
+
+    .offer-footer {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .offer-footer-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .offer-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+
+    .offer-meta i {
+        color: var(--vert-clair);
+    }
+
+    .offer-meta strong {
+        color: #1e293b;
+    }
+
+    .apply-btn {
+        margin-left: auto;
+        background: var(--vert-tres-fonce);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: var(--transition-smooth);
+    }
+
+    .apply-btn:hover {
+        background: var(--vert-fonce);
+        color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .offer-item {
+            flex-direction: column;
+            gap: 15px;
+        }
+        .offer-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .apply-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h2>Offres de Financement Actives</h2>
+        <p>Parcourez nos campagnes actuelles et bénéficiez de conditions avantageuses.</p>
+    </div>
+
+    <div class="offer-group">
+        {% for o in offres %}
+            <div class="offer-item">
+                <div class="offer-status">
+                    <span class="status-badge">Actif</span>
+                </div>
+                
+                <div class="offer-icon-wrapper">
+                    {% if o.produitFinancier.typeFinancement|lower == 'crédit' %}
+                        <i class="fas fa-landmark"></i>
+                    {% elseif o.produitFinancier.typeFinancement|lower == 'leasing' %}
+                        <i class="fas fa-tractor"></i>
+                    {% else %}
+                        <i class="fas fa-hand-holding-heart"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="offer-content">
+                    <h3 class="offer-title">{{ o.nomOffre }}</h3>
+                    <div class="offer-product-name">
+                        <i class="fas fa-tags"></i> {{ o.produitFinancier.nomProduit }}
+                    </div>
+                    <div class="offer-description">
+                        {{ o.conditions|slice(0, 200) }}...
+                    </div>
+                    
+                    <div class="offer-footer">
+                        <div class="offer-meta">
+                            <i class="fas fa-info-circle"></i>
+                            Offre <strong>{{ o.statut }}</strong>
+                        </div>
+                        <div class="offer-meta">
+                            <i class="fas fa-percent"></i>
+                            Taux Spécial: <strong>{{ o.produitFinancier.tauxInteret }}%</strong>
+                        </div>
+                        <div class="offer-meta">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Prix: <strong>{{ o.prix|number_format(2, ',', ' ') }} DT</strong>
+                        </div>
+                        
+                        <div class="offer-footer-actions">
+                            <button
+                                type="button"
+                                class="agri-chat-trigger"
+                                title="Demander une explication de cette offre"
+                                data-context-type="offre"
+                                data-title="{{ o.nomOffre|e('html_attr') }}"
+                                data-summary="Prix: {{ o.prix|number_format(2, ',', ' ') }} DT. Statut: {{ o.statut }}. Conditions: {{ o.conditions|striptags|slice(0, 220)|replace({'"': '', "'": ''})|e('html_attr') }}"
+                            >
+                                <i class="fas fa-comments"></i>
+                            </button>
+                            <a href="{{ path('agriculteur_offre_postuler', {id: o.id}) }}" class="apply-btn">Postuler maintenant</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-bullhorn fa-3x text-muted opacity-25 mb-3"></i>
+                <h5 class="text-muted">Aucune offre de financement n'est publiée actuellement.</h5>
+                <p class="text-muted">Revenez bientôt pour découvrir nos opportunités.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
+        chatbot_context_type: 'offre',
+        chatbot_title: 'Catalogue des offres',
+        chatbot_summary: 'Liste des offres actives pour agriculteurs avec prix et conditions.'
+    } %}
+{% endblock %}
