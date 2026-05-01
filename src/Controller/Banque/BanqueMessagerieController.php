@@ -319,6 +319,14 @@ class BanqueMessagerieController extends AbstractController
         return new JsonResponse(['token' => $token]);
     }
 
+    #[Route('/messages/unread-count', name: 'banque_messagerie_unread_count', methods: ['GET'])]
+    public function unreadCount(MessageRepository $messageRepository): JsonResponse
+    {
+        $count = $messageRepository->countAllUnreadMessages($this->getUser()->getId());
+
+        return new JsonResponse(['count' => $count]);
+    }
+
     #[Route('/conversation/{id}/messages', name: 'banque_messagerie_get_messages', methods: ['GET'])]
     public function getMessages(
         Conversation $conversation,

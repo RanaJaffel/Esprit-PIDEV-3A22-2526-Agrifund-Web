@@ -10,6 +10,7 @@ use App\Repository\TokenReinitialisationRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -28,7 +29,8 @@ class PasswordResetController extends AbstractController
         TokenReinitialisationRepository $tokenRepository,
         EntityManagerInterface $em,
         MailerInterface $mailer,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        #[Autowire('%env(MAILER_FROM_ADDRESS)%')] string $mailerFromAddress
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_login');
@@ -42,6 +44,36 @@ class PasswordResetController extends AbstractController
             $utilisateur = $utilisateurRepository->findOneByEmail($email);
 
             if ($utilisateur) {
+                // Invalider les anciens tokens
+                $tokenRepository->invalidateUserTokens($utilisateur);
+
+                // Créer un nouveau token
+                $token = new TokenReinitialisation();
+                $token->setUtilisateur($utilisateur);
+                $token->setToken(Uuid::v4()->toRfc4122());
+
+                $expirationDate = new \DateTime();
+                $expirationDate->modify('+1 hour');
+                $token->setDateExpiration($expirationDate);
+
+                $em->persist($token);
+                $em->flush();
+
+                // Envoyer l'email
+                $resetUrl = $this->generateUrl('app_password_reset', [
+                    'token' => $token->getToken()
+                ], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
+
+                $emailMessage = (new Email())
+                    ->from($mailerFromAddress)
+                    ->to($utilisateur->getEmail())
+                    ->subject('Réinitialisation de votre mot de passe')
+                    ->html($this->renderView('email/password_reset.html.twig', [
+                        'utilisateur' => $utilisateur,
+                        'resetUrl' => $resetUrl,
+                        'expirationDate' => $expirationDate,
+                    ]));
+
                 try {
                     // Invalider les anciens tokens
                     $tokenRepository->invalidateUserTokens($utilisateur);
@@ -50,7 +82,7 @@ class PasswordResetController extends AbstractController
                     $token = new TokenReinitialisation();
                     $token->setUtilisateur($utilisateur);
                     $token->setToken(Uuid::v4()->toRfc4122());
-                    
+
                     $expirationDate = new \DateTime();
                     $expirationDate->modify('+1 hour');
                     $token->setDateExpiration($expirationDate);
@@ -76,14 +108,14 @@ class PasswordResetController extends AbstractController
 
                     // Envoyer l'email
                     $mailer->send($emailMessage);
-                    
+
                     $logger->info('Email de réinitialisation envoyé', [
                         'email' => $utilisateur->getEmail(),
                         'token' => $token->getToken()
                     ]);
 
                     $this->addFlash('success', 'Un email de réinitialisation a été envoyé à votre adresse.');
-                    
+
                 } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
                     $logger->error('Erreur Transport Email', [
                         'message' => $e->getMessage(),
@@ -134,7 +166,7 @@ class PasswordResetController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $utilisateur = $resetToken->getUtilisateur();
-            
+
             // Hash du nouveau mot de passe
             $hashedPassword = $passwordHasher->hashPassword(
                 $utilisateur,

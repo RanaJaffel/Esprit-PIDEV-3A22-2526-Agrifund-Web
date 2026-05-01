@@ -3,6 +3,7 @@ parameters:
     recaptcha_site_key: '%env(RECAPTCHA_SITE_KEY)%'
     recaptcha_secret_key: '%env(RECAPTCHA_SECRET_KEY)%'
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+    payment_proofs_directory: '%kernel.project_dir%/public/uploads/payment-proofs'
 
 services:
     _defaults:
@@ -16,6 +17,11 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Service/DocumentService.php'
+            - '../src/Service/EmailService.php'
+            - '../src/Service/FileUploader.php'
+            - '../src/Service/MessagerieService.php'
+            - '../src/Service/UserService.php'
 
     # Service OpenWeather
     App\Service\Weather\OpenWeatherClient:
@@ -27,3 +33,5 @@ services:
     App\Service\FaceRecognitionService:
         arguments:
             $projectDir: '%kernel.project_dir%'
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones

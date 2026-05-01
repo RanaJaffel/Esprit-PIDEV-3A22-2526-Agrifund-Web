@@ -7,7 +7,6 @@ use App\Entity\ProduitFinancier;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -46,19 +45,6 @@ class OffreFinanciereType extends AbstractType
                 'choice_label' => 'nomProduit',
                 'placeholder' => 'Select a product',
                 'attr' => ['class' => 'form-control'],
-            ])
-            ->add('prix', MoneyType::class, [
-                'label' => 'Offer Price (TND)',
-                'required' => true,
-                'currency' => 'TND',
-                'scale' => 2,
-                'html5' => true,
-                'attr' => [
-                    'class' => 'form-control',
-                    'min' => '0.01',
-                    'step' => '0.01',
-                    'placeholder' => 'e.g., 4999.90',
-                ],
             ]);
     }
 

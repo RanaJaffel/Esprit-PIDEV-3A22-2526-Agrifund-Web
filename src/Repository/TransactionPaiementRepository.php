@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\TransactionPaiement;
+use App\Payment\PaymentStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -79,5 +80,35 @@ class TransactionPaiementRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    /**
+     * @return array{total:int,pending:int,succeeded:int,failed:int,manualPending:int,totalAmount:float}
+     */
+    public function getAdminDashboardStats(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('t')
+            ->select('COUNT(t.id) AS total')
+            ->addSelect('COALESCE(SUM(CASE WHEN t.statut = :pending THEN 1 ELSE 0 END), 0) AS pending')
+            ->addSelect('COALESCE(SUM(CASE WHEN t.statut = :succeeded THEN 1 ELSE 0 END), 0) AS succeeded')
+            ->addSelect('COALESCE(SUM(CASE WHEN t.statut = :failed THEN 1 ELSE 0 END), 0) AS failed')
+            ->addSelect('COALESCE(SUM(CASE WHEN t.provider = :manual AND t.statut = :pending THEN 1 ELSE 0 END), 0) AS manualPending')
+            ->addSelect('COALESCE(SUM(t.montant), 0) AS totalAmount')
+            ->setParameter('pending', PaymentStatus::PENDING)
+            ->setParameter('succeeded', PaymentStatus::SUCCEEDED)
+            ->setParameter('failed', PaymentStatus::FAILED)
+            ->setParameter('manual', TransactionPaiement::METHOD_MANUAL);
+
+        /** @var array<string, mixed> $rawStats */
+        $rawStats = $queryBuilder->getQuery()->getSingleResult();
+
+        return [
+            'total' => (int) $rawStats['total'],
+            'pending' => (int) $rawStats['pending'],
+            'succeeded' => (int) $rawStats['succeeded'],
+            'failed' => (int) $rawStats['failed'],
+            'manualPending' => (int) $rawStats['manualPending'],
+            'totalAmount' => (float) $rawStats['totalAmount'],
+        ];
     }
 }

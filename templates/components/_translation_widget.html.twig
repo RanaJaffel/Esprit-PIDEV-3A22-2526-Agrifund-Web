@@ -1,0 +1,205 @@
+<div class="translation-workshop-widget" data-translation-widget>
+    <label for="language-selector">Traduire la page</label>
+    <select id="language-selector" aria-label="Choisir une langue">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="ar">Arabic</option>
+    </select>
+    <small data-translation-status aria-live="polite"></small>
+</div>
+
+<style>
+    .translation-workshop-widget {
+        max-width: 1200px;
+        margin: 0 auto 24px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .translation-workshop-widget label {
+        margin: 0;
+        color: #476C1A;
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .translation-workshop-widget select {
+        min-width: 150px;
+        padding: 10px 14px;
+        border: 1px solid #dbe7d4;
+        border-radius: 10px;
+        background: #fff;
+        color: #133D03;
+        font-weight: 700;
+    }
+
+    .translation-workshop-widget small {
+        min-width: 160px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .translation-workshop-widget {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .translation-workshop-widget small {
+            min-width: 0;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const widget = document.querySelector('[data-translation-widget]');
+        const selector = widget ? widget.querySelector('#language-selector') : null;
+        const status = widget ? widget.querySelector('[data-translation-status]') : null;
+        const scopes = Array.from(document.querySelectorAll('[data-translate-scope]'));
+
+        if (!selector || scopes.length === 0) {
+            return;
+        }
+
+        const apiUrl = 'http://127.0.0.1:5000/translate';
+        const letterPattern = /[A-Za-zÀ-ÿ]/;
+
+        function isTranslatableText(text) {
+            const normalized = text.replace(/\s+/g, ' ').trim();
+            return normalized.length > 1 && letterPattern.test(normalized) && !/^[A-Z]{1,3}$/.test(normalized);
+        }
+
+        function collectTextNodes(scope) {
+            const walker = document.createTreeWalker(
+                scope,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode(node) {
+                        const parent = node.parentElement;
+
+                        if (!parent || parent.closest('[data-no-translate], [data-translation-widget], script, style, noscript')) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+
+                        return isTranslatableText(node.nodeValue)
+                            ? NodeFilter.FILTER_ACCEPT
+                            : NodeFilter.FILTER_REJECT;
+                    }
+                }
+            );
+
+            const nodes = [];
+            while (walker.nextNode()) {
+                nodes.push(walker.currentNode);
+            }
+
+            return nodes;
+        }
+
+        const textEntries = scopes.flatMap(collectTextNodes).map((node) => {
+            const original = node.nodeValue;
+            const leading = original.match(/^\s*/)[0];
+            const trailing = original.match(/\s*$/)[0];
+
+            return {
+                node,
+                leading,
+                trailing,
+                text: original.trim()
+            };
+        });
+
+        const placeholderEntries = scopes
+            .flatMap((scope) => Array.from(scope.querySelectorAll('input[placeholder], textarea[placeholder]')))
+            .filter((element) => isTranslatableText(element.getAttribute('placeholder') || ''))
+            .map((element) => ({
+                element,
+                text: element.getAttribute('placeholder')
+            }));
+
+        async function translateText(texts, targetLang) {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    texts,
+                    target_language: targetLang
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('API Error:', errorData);
+                throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return Array.isArray(data.translated_texts) ? data.translated_texts : [];
+        }
+
+        function resetOriginalText() {
+            textEntries.forEach((entry) => {
+                entry.node.nodeValue = `${entry.leading}${entry.text}${entry.trailing}`;
+            });
+
+            placeholderEntries.forEach((entry) => {
+                entry.element.setAttribute('placeholder', entry.text);
+            });
+        }
+
+        selector.addEventListener('change', async function () {
+            const lang = this.value;
+
+            if (lang === 'fr') {
+                resetOriginalText();
+                if (status) {
+                    status.textContent = '';
+                }
+                return;
+            }
+
+            const texts = textEntries.map((entry) => entry.text);
+            const placeholders = placeholderEntries.map((entry) => entry.text);
+
+            try {
+                selector.disabled = true;
+                if (status) {
+                    status.textContent = 'Traduction en cours...';
+                }
+
+                const translatedTexts = await translateText(texts, lang);
+                translatedTexts.forEach((translated, index) => {
+                    const entry = textEntries[index];
+                    entry.node.nodeValue = `${entry.leading}${translated || entry.text}${entry.trailing}`;
+                });
+
+                if (placeholders.length > 0) {
+                    const translatedPlaceholders = await translateText(placeholders, lang);
+                    translatedPlaceholders.forEach((translated, index) => {
+                        const entry = placeholderEntries[index];
+                        entry.element.setAttribute('placeholder', translated || entry.text);
+                    });
+                }
+
+                if (status) {
+                    status.textContent = 'Page traduite.';
+                }
+            } catch (error) {
+                console.error('Translation failed:', error);
+                if (status) {
+                    status.textContent = 'Traduction indisponible. Lancez translate_WS.py sur le port 5000.';
+                }
+            } finally {
+                selector.disabled = false;
+            }
+        });
+    })();
+</script>

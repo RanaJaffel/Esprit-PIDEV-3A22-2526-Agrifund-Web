@@ -33,6 +33,7 @@ class ListUsersCommand extends Command
 
         $table = new Table($output);
         $table->setHeaders(['ID', 'Email', 'Prenom', 'Nom', 'Roles', 'Verified', 'Registered At']);
+        $table->setHeaders(['ID', 'Email', 'First Name', 'Last Name', 'Roles', 'Online', 'Registered At']);
 
         foreach ($users as $user) {
             $table->addRow([
@@ -43,6 +44,8 @@ class ListUsersCommand extends Command
                 implode(', ', $user->getRoles()),
                 $user->isVerified() ? 'Yes' : 'No',
                 $user->getDateInscrit()?->format('Y-m-d H:i:s') ?? '-',
+                $user->isEstEnLigne() ? 'Yes' : 'No',
+                $user->getDateInscrit()?->format('Y-m-d H:i:s') ?? '',
             ]);
         }
 

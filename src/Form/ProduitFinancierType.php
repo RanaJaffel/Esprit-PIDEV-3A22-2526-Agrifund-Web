@@ -46,20 +46,6 @@ class ProduitFinancierType extends AbstractType
                     'placeholder' => 'e.g., 50000',
                 ],
             ])
-            ->add('prixFixe', MoneyType::class, [
-                'label' => 'Fixed Payable Price (DT)',
-                'currency' => 'TND',
-                'input' => 'string',
-                'scale' => 2,
-                'invalid_message' => 'Le prix fixe doit contenir au maximum 2 décimales.',
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'e.g., 150.00',
-                    'min' => '0.01',
-                    'step' => '0.01',
-                    'inputmode' => 'decimal',
-                ],
-            ])
             ->add('reglesFinancieres', TextareaType::class, [
                 'label' => 'Financial Rules',
                 'required' => false,

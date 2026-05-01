@@ -16,6 +16,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class AdminDashboardController extends AbstractController
 {
+    #[Route('/', name: 'admin_index', methods: ['GET'])]
+    public function redirectDashboard(): Response
+    {
+        return $this->redirectToRoute('admin_dashboard');
+    }
     #[Route('/dashboard', name: 'admin_dashboard')]
     public function index(
         UtilisateurRepository $utilisateurRepository,

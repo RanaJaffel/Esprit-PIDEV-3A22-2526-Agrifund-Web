@@ -92,7 +92,7 @@
 
     .card-content { padding: 50px 30px 30px; flex: 1; }
     .offer-title { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
-    
+
     .product-ref {
         display: flex; align-items: center; gap: 8px;
         background: #f8fafc; padding: 10px 15px; border-radius: 12px;
@@ -127,7 +127,9 @@
         </div>
     </header>
 
-    <div class="container">
+    {% include 'components/_translation_widget.html.twig' %}
+
+    <div class="container" data-translate-scope>
         <div class="offer-grid">
             {% for o in offers %}
                 <div class="offer-card">
@@ -140,7 +142,7 @@
                     <div class="card-content">
                         <span class="urgent-tag"><i class="fas fa-clock me-1"></i> Offre à durée limitée</span>
                         <h3 class="offer-title">{{ o.nomOffre }}</h3>
-                        
+
                         <div class="product-ref">
                             <i class="fas fa-tag"></i> {{ o.produitFinancier.nomProduit }}
                         </div>
@@ -150,7 +152,7 @@
                         </div>
 
                         <p class="offer-desc">{{ o.conditions|slice(0, 150) }}...</p>
-                        
+
                         <a href="{{ path('agriculteur_offre_checkout', {id: o.id}) }}" class="btn-apply">PROFITER DE L'OFFRE</a>
                     </div>
                 </div>

@@ -28,9 +28,9 @@
         <div class="user-card">
             <div class="user-avatar-wrapper">
                 <div class="user-avatar">
-                    {% if app.user.banque and app.user.banque.logo %}
+                    {% if app.user.banque and app.user.banque.logo and public_asset_exists(app.user.banque.logo) %}
                         <img src="{{ asset(app.user.banque.logo) }}" alt="{{ app.user.nom }}">
-                    {% elseif app.user.photo %}
+                    {% elseif app.user.photo and public_asset_exists(app.user.photo) %}
                         <img src="{{ asset(app.user.photo) }}" alt="{{ app.user.nom }}">
                     {% else %}
                         <div class="avatar-placeholder">
@@ -900,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update unread messages badge
     function updateUnreadBadge() {
-        fetch('/api/messages/unread-count')
+        fetch('{{ path('banque_messagerie_unread_count') }}')
             .then(response => response.json())
             .then(data => {
                 const badge = document.getElementById('unread-messages-badge');

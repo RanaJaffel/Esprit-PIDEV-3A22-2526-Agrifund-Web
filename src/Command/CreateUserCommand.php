@@ -103,6 +103,7 @@ class CreateUserCommand extends Command
         if ($input->getOption('admin')) {
             $admin = new Admin();
             $admin->setUtilisateur($user);
+            $admin = (new Admin())->setUtilisateur($user);
             $user->setAdmin($admin);
             $this->entityManager->persist($admin);
             $output->writeln('<info>User role set to ADMIN</info>');

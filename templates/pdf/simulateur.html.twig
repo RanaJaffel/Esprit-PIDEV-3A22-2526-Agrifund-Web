@@ -76,13 +76,23 @@
     </style>
 </head>
 <body>
+<<<<<<< HEAD
+=======
+    {% set ctx = pdf_context|default({}) %}
+>>>>>>> origin/brahim
     <div class="fixed-header">
         <table class="header-table">
             <tr>
                 <td class="header-logo">AF</td>
+<<<<<<< HEAD
                 <td class="header-title">AgriFund - Certificat de Simulation</td>
                 <td style="text-align: right; font-size: 8px; opacity: 0.8;">
                     REF: SIM-{{ date|date('Ymd') }}
+=======
+                <td class="header-title">{{ ctx.brand_name|default('AgriFund') }} - Certificat de Simulation</td>
+                <td style="text-align: right; font-size: 8px; opacity: 0.8;">
+                    REF: {{ ctx.document_reference|default('SIM-' ~ date|date('Ymd')) }}
+>>>>>>> origin/brahim
                 </td>
             </tr>
         </table>
@@ -98,7 +108,12 @@
                 <td style="text-align: right; font-size: 9px; color: #133D03;">
                     Généré le {{ date|date('d/m/Y H:i') }}<br>
                     Produit: {{ produit.nomProduit|default('Sur mesure') }}<br>
+<<<<<<< HEAD
                     Client: {{ client_name|default('Client AgriFund') }}
+=======
+                    Client: {{ client_name|default('Client AgriFund') }}<br>
+                    Profil: {{ ctx.generated_by_role|default(typeClient|default('Agriculteur')) }}
+>>>>>>> origin/brahim
                 </td>
             </tr>
         </table>
@@ -170,7 +185,12 @@
     </div>
 
     <div class="footer">
+<<<<<<< HEAD
         Document informatif généré par AgriFund. Cette simulation ne constitue pas un accord de crédit définitif.
+=======
+        Document informatif généré par {{ ctx.brand_name|default('AgriFund') }}.
+        Cette simulation ne constitue pas un accord de crédit définitif.
+>>>>>>> origin/brahim
     </div>
 </body>
 </html>

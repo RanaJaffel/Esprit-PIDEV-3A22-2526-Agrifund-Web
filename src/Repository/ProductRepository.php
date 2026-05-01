@@ -6,7 +6,9 @@ use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-
+/**
+ * @extends ServiceEntityRepository<Product>
+ */
 class ProductRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -14,7 +16,9 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-
+    /**
+     * Find all active products
+     */
     public function findActive(): array
     {
         return $this->createQueryBuilder('p')
@@ -25,7 +29,9 @@ class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-
+    /**
+     * Find active products with limit
+     */
     public function findActiveWithLimit(int $limit = 5): array
     {
         return $this->createQueryBuilder('p')

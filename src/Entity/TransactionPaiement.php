@@ -26,14 +26,11 @@ class TransactionPaiement
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'transaction_id')]
+    #[ORM\Column(name: 'id_transaction')]
     private ?int $id = null;
 
-    /**
-     * ✅ Correction suffix _id
-     */
     #[ORM\ManyToOne(targetEntity: Achat::class, inversedBy: 'transactions')]
-    #[ORM\JoinColumn(name: 'achat_id', referencedColumnName: 'achat_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id_achat', referencedColumnName: 'id_achat', nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull]
     private ?Achat $achat = null;
 
@@ -110,6 +107,7 @@ class TransactionPaiement
     public function setAchat(?Achat $achat): self
     {
         $this->achat = $achat;
+
         return $this;
     }
 
@@ -121,6 +119,7 @@ class TransactionPaiement
     public function setReference(string $reference): self
     {
         $this->reference = $reference;
+
         return $this;
     }
 
@@ -132,6 +131,7 @@ class TransactionPaiement
     public function setProvider(string $provider): self
     {
         $this->provider = $provider;
+
         return $this;
     }
 
@@ -143,6 +143,7 @@ class TransactionPaiement
     public function setPaymentMethod(string $paymentMethod): self
     {
         $this->paymentMethod = $paymentMethod;
+
         return $this;
     }
 
@@ -154,6 +155,7 @@ class TransactionPaiement
     public function setProviderPaymentId(?string $providerPaymentId): self
     {
         $this->providerPaymentId = $providerPaymentId;
+
         return $this;
     }
 
@@ -165,6 +167,7 @@ class TransactionPaiement
     public function setProviderEventId(?string $providerEventId): self
     {
         $this->providerEventId = $providerEventId;
+
         return $this;
     }
 
@@ -176,6 +179,7 @@ class TransactionPaiement
     public function setMontant(string $montant): self
     {
         $this->montant = $montant;
+
         return $this;
     }
 
@@ -187,6 +191,7 @@ class TransactionPaiement
     public function setDevise(string $devise): self
     {
         $this->devise = strtoupper($devise);
+
         return $this;
     }
 
@@ -198,6 +203,7 @@ class TransactionPaiement
     public function setStatut(string $statut): self
     {
         $this->statut = $statut;
+
         return $this;
     }
 
@@ -209,6 +215,7 @@ class TransactionPaiement
     public function setVerificationStatus(string $verificationStatus): self
     {
         $this->verificationStatus = $verificationStatus;
+
         return $this;
     }
 
@@ -220,6 +227,7 @@ class TransactionPaiement
     public function setVerificationNote(?string $verificationNote): self
     {
         $this->verificationNote = $verificationNote;
+
         return $this;
     }
 
@@ -231,6 +239,7 @@ class TransactionPaiement
     public function setVerifiedBy(?string $verifiedBy): self
     {
         $this->verifiedBy = $verifiedBy;
+
         return $this;
     }
 
@@ -242,6 +251,7 @@ class TransactionPaiement
     public function setVerifiedAt(?\DateTimeImmutable $verifiedAt): self
     {
         $this->verifiedAt = $verifiedAt;
+
         return $this;
     }
 
@@ -253,6 +263,7 @@ class TransactionPaiement
     public function setGatewayPayload(?array $gatewayPayload): self
     {
         $this->gatewayPayload = $gatewayPayload;
+
         return $this;
     }
 
@@ -269,6 +280,7 @@ class TransactionPaiement
     public function setProcessedAt(?\DateTimeImmutable $processedAt): self
     {
         $this->processedAt = $processedAt;
+
         return $this;
     }
 }

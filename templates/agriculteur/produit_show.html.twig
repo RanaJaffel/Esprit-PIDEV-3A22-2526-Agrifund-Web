@@ -193,6 +193,9 @@
                     <a href="{{ path('agriculteur_produit_simulateur', {id: produit.id}) }}" class="btn btn-outline-success px-4 rounded-3 h-100 py-3">
                         <i class="fas fa-calculator me-2"></i> Lancer une simulation
                     </a>
+                    <a href="{{ path('app_product_detail_pdf', {id: produit.id}) }}" class="btn btn-outline-danger px-4 rounded-3 h-100 py-3">
+                        <i class="fas fa-file-pdf me-2"></i> PDF personnalise
+                    </a>
                     <a href="{{ path('agriculteur_produit_postuler', {id: produit.id}) }}" class="btn-main py-3">
                         Postuler maintenant
                     </a>

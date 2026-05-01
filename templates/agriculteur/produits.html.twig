@@ -9,14 +9,14 @@
         margin-bottom: 40px;
         position: relative;
     }
-    
+
     .page-header h2 {
         font-size: 2.2rem;
         color: var(--vert-tres-fonce);
         font-weight: 800;
         margin-bottom: 8px;
     }
-    
+
     .page-header p {
         color: var(--gris);
         font-size: 1.1rem;
@@ -203,11 +203,11 @@
         {% for p in produits %}
             <div class="product-card animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.1 }}s">
                 <div class="card-accent"></div>
-                
+
                 <span class="product-type-badge badge-{{ p.typeFinancement|lower|replace({'é': 'e'}) }}">
                     {{ p.typeFinancement }}
                 </span>
-                
+
                 <div class="card-inner">
                     <div class="product-icon-box">
                         {% if p.typeFinancement|lower == 'crédit' %}
@@ -220,9 +220,9 @@
                             <i class="fas fa-seedling"></i>
                         {% endif %}
                     </div>
-                    
+
                     <h3 class="product-title">{{ p.nomProduit }}</h3>
-                    
+
                     <div class="product-stats">
                         <div class="stat-box">
                             <span class="stat-label">Taux d'intérêt</span>
@@ -233,7 +233,7 @@
                             <span class="stat-val">{{ p.prixFixe|number_format(2, ',', ' ') }} DT</span>
                         </div>
                     </div>
-                    
+
                     <div class="product-actions">
                         <a href="{{ path('agriculteur_produit_show', {id: p.id}) }}" class="btn-details">
                             Voir les détails

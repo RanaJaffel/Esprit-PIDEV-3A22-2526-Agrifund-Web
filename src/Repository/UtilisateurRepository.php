@@ -120,6 +120,16 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->getResult();
     }
 
+    public function findFirstAdmin(): ?Utilisateur
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.admin', 'a')
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * Trouve les utilisateurs pour la messagerie (admins et banques pour agriculteur)
      */

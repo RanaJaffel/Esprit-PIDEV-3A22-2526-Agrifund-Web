@@ -3,7 +3,8 @@
 {% block title %}{{ offer.nomOffre }} - AgriFund{% endblock %}
 
 {% block page_intro %}
-<div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 60px 0; margin-bottom: 40px;"> 
+<div style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 60px 0; margin-bottom: 40px;">
+<div data-translate-scope style="background: linear-gradient(135deg, #F4C430 0%, #D4A817 100%); color: #1B7E4C; padding: 120px 0 60px; margin-bottom: 40px;">
     <div class="hoc container clear">
         <div style="max-width: 900px;">
             <div style="display: flex; align-items: flex-start; gap: 30px;">
@@ -26,6 +27,8 @@
 
 {% block content %}
 <div class="hoc container clear">
+{% include 'components/_translation_widget.html.twig' %}
+<div class="hoc container clear" data-translate-scope>
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-bottom: 60px;">
         <!-- Main Content -->
         <div>

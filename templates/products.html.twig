@@ -138,7 +138,9 @@
         </div>
     </header>
 
-    <div class="container">
+    {% include 'components/_translation_widget.html.twig' %}
+
+    <div class="container" data-translate-scope>
         <div class="search-filter-bar">
             <div class="filter-group">
                 <label>Rechercher</label>
@@ -154,7 +156,7 @@
                 </select>
             </div>
             <div class="filter-group" style="flex: 0 0 150px;">
-                <button onclick="reset()" class="btn btn-light w-100 py-3 rounded-3 fw-bold">Reset</button>
+                <button onclick="reset()" class="btn btn-light w-100 py-3 rounded-3 fw-bold">Réinitialiser</button>
             </div>
         </div>
 

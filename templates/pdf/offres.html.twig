@@ -52,8 +52,15 @@
 
         /* Flow-based Hero section */
         .hero-section { 
+<<<<<<< HEAD
             background: #fff9e6; 
             border: 1px solid #ffecb3;
+=======
+            position: static;
+            background: #fff9e6; 
+            border: 1px solid #ffecb3;
+            color: #333;
+>>>>>>> origin/brahim
             padding: 30px; 
             margin-top: -10px;
             margin-bottom: 20px;
@@ -61,6 +68,15 @@
         }
         .hero-section h1 { color: #076A39; margin: 0; font-size: 22px; }
         .hero-section p { color: #856404; font-size: 10px; margin-top: 5px; }
+<<<<<<< HEAD
+=======
+        .stats-stripe { background: #fffdf4; border-bottom: 2px solid #E1B323; padding: 15px 0; margin-bottom: 20px; }
+        .stats-table { width: 100%; border-collapse: collapse; }
+        .stat-item { text-align: center; border-right: 1px solid #f0df98; width: 25%; }
+        .stat-item:last-child { border-right: none; }
+        .stat-val { font-size: 18px; font-weight: 900; color: #089647; }
+        .stat-lbl { font-size: 7px; text-transform: uppercase; color: #856404; margin-top: 2px; }
+>>>>>>> origin/brahim
         /* Data Table */
         .content-wrap { padding-bottom: 30px; }
         .main-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -89,14 +105,24 @@
     </style>
 </head>
 <body>
+<<<<<<< HEAD
+=======
+    {% set ctx = pdf_context|default({}) %}
+>>>>>>> origin/brahim
     <div class="watermark">AGRIFUND</div>
     <div class="fixed-header">
         <table class="header-table">
             <tr>
                 <td class="header-logo">AF</td>
+<<<<<<< HEAD
                 <td class="header-title">AgriFund - Offres Financières</td>
                 <td style="text-align: right; font-size: 8px; opacity: 0.8;">
                     REF: OFR-{{ date|date('Ymd') }} | <span class="pagenum"></span>
+=======
+                <td class="header-title">{{ ctx.brand_name|default('AgriFund') }} - Offres Financières</td>
+                <td style="text-align: right; font-size: 8px; opacity: 0.8;">
+                    REF: {{ ctx.document_reference|default('OFR-' ~ date|date('Ymd')) }} | <span class="pagenum"></span>
+>>>>>>> origin/brahim
                 </td>
             </tr>
         </table>
@@ -111,7 +137,12 @@
                 </td>
                 <td style="text-align: right; font-size: 9px; color: #856404;">
                     Généré le {{ date|date('d/m/Y H:i') }}<br>
+<<<<<<< HEAD
                     CONFIDENTIEL
+=======
+                    Par: {{ ctx.generated_by_name|default(client_name|default('AgriFund')) }}<br>
+                    Profil: {{ ctx.generated_by_role|default('Admin') }}
+>>>>>>> origin/brahim
                 </td>
             </tr>
         </table>
@@ -129,7 +160,12 @@
     </div>
 
     <div style="margin: 15px 40px; padding: 8px; border: 1px dashed #E1B323; font-size: 8px; color: #856404; background: #fffdf4; text-align: center;">
+<<<<<<< HEAD
         Certificat d'authenticité - AgriFund. ID Verrou: {{ date|date('U') }}-OFR
+=======
+        Certificat d'authenticité - {{ ctx.brand_name|default('AgriFund') }}.
+        ID Verrou: {{ ctx.document_reference|default(date|date('U') ~ '-OFR') }}
+>>>>>>> origin/brahim
     </div>
 
     <div class="content-wrap">
@@ -162,7 +198,12 @@
     </div>
     <div class="footer">
         <div style="font-size: 8px; color: #888; text-align: center;">
+<<<<<<< HEAD
             Document généré officiellement par le système AgriFund v4.6. Toute modification invalide le certificat.
+=======
+            Document généré officiellement par le système {{ ctx.brand_name|default('AgriFund') }}.
+            Toute modification invalide le certificat.
+>>>>>>> origin/brahim
         </div>
     </div>
 </body>

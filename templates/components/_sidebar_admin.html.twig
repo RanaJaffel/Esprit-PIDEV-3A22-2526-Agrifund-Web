@@ -37,7 +37,7 @@
         <div class="user-card">
             <div class="user-avatar-wrapper">
                 <div class="user-avatar">
-                    {% if app.user.photo %}
+                    {% if app.user.photo and public_asset_exists(app.user.photo) %}
                         <img src="{{ asset(app.user.photo) }}" alt="{{ app.user.nomComplet }}">
                     {% else %}
                         <div class="avatar-placeholder">
@@ -151,6 +151,34 @@
                     <a href="{{ path('admin_ressource_project_index') }}" class="nav-link" data-tooltip="Ressources Projets">
                         <span class="nav-icon"><i class="fas fa-tools"></i></span>
                         <span class="nav-text">Ressources Projets</span>
+            <span class="nav-section-title">Finance</span>
+            <ul class="nav-menu">
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_produit' ? 'active' : '' }}">
+                    <a href="{{ path('admin_produit_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-boxes"></i>
+                        </span>
+                        <span class="nav-text">Produits Financiers</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_offre' ? 'active' : '' }}">
+                    <a href="{{ path('admin_offre_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </span>
+                        <span class="nav-text">Offres Financières</span>
+                        <span class="nav-indicator"></span>
+                    </a>
+                </li>
+
+                <li class="nav-item {{ app.request.get('_route') starts with 'admin_payment' ? 'active' : '' }}">
+                    <a href="{{ path('admin_payment_index') }}" class="nav-link">
+                        <span class="nav-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </span>
+                        <span class="nav-text">Validation Paiements</span>
                         <span class="nav-indicator"></span>
                     </a>
                 </li>
@@ -212,6 +240,8 @@
                 Communication
                 <span class="section-line"></span>
             </span>
+        <div class="nav-section">
+            <span class="nav-section-title">Communication</span>
             <ul class="nav-menu">
                 <li class="nav-item {{ app.request.get('_route') starts with 'admin_messagerie' ? 'active' : '' }}">
                     <a href="{{ path('admin_messagerie_index') }}" class="nav-link" data-tooltip="Messagerie">
@@ -1149,6 +1179,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 var badge = document.getElementById('unread-messages-badge');
+        fetch('{{ path('admin_messagerie_unread_count') }}')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('unread-messages-badge');
                 if (badge) {
                     if (data.count > 0) {
                         badge.textContent = data.count > 99 ? '99+' : data.count;

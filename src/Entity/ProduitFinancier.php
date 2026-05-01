@@ -20,7 +20,12 @@ class ProduitFinancier
 
     #[ORM\Column(name: 'nom_produit', length: 255)]
     #[Assert\NotBlank(message: 'Le nom du produit est obligatoire.')]
-    #[Assert\Length(min: 3, max: 255)]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
+    )]
     #[Assert\Regex(
         pattern: '/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
         message: 'Le nom du produit ne doit contenir que des lettres, chiffres, espaces et tirets.'
@@ -28,48 +33,36 @@ class ProduitFinancier
     private ?string $nomProduit = null;
 
     #[ORM\Column(name: 'type_financement', length: 100)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: 'Le type de financement est obligatoire.')]
     #[Assert\Choice(
-        choices: ['Crédit', 'Prêt', 'Leasing', 'Subvention', 'Microfinance']
+        choices: ['Crédit', 'Prêt', 'Leasing', 'Subvention', 'Microfinance'],
+        message: 'Veuillez choisir un type de financement valide.'
     )]
     private ?string $typeFinancement = null;
 
     #[ORM\Column(name: 'taux_interet')]
-    #[Assert\NotBlank]
-    #[Assert\Type('numeric')]
-    #[Assert\Positive]
-    #[Assert\LessThanOrEqual(100)]
+    #[Assert\NotBlank(message: 'Le taux d\'intérêt est obligatoire.')]
+    #[Assert\Type(type: 'numeric', message: 'Le taux doit être un nombre valide.')]
+    #[Assert\Positive(message: 'Le taux d\'intérêt doit être positif.')]
+    #[Assert\LessThanOrEqual(value: 100, message: 'Le taux d\'intérêt ne peut pas dépasser 100%.')]
     private ?float $tauxInteret = null;
 
     #[ORM\Column(name: 'montant')]
-    #[Assert\NotBlank]
-    #[Assert\Positive]
+    #[Assert\NotBlank(message: 'Le montant est obligatoire.')]
+    #[Assert\Positive(message: 'Le montant doit être supérieur à 0.')]
     private ?float $montant = null;
 
-    #[ORM\Column(
-        name: 'prix_fixe',
-        type: 'decimal',
-        precision: 10,
-        scale: 2,
-        options: ['default' => 0]
-    )]
+    #[ORM\Column(name: 'prix_fixe', type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
     private string $prixFixe = '0.00';
 
     #[ORM\Column(name: 'regles_financieres', type: 'text', nullable: true)]
-    #[Assert\Length(max: 2000)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'Les règles financières ne peuvent pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $reglesFinancieres = null;
 
-    /**
-     * ✅ CORRECTION IMPORTANTE ICI
-     * - Suppression du cascade remove dangereux
-     * - Ajout orphanRemoval
-     */
-    #[ORM\OneToMany(
-        targetEntity: OffreFinanciere::class,
-        mappedBy: 'produitFinancier',
-        cascade: ['persist', 'remove'],
-        orphanRemoval: true
-    )]
+    #[ORM\OneToMany(targetEntity: OffreFinanciere::class, mappedBy: 'produitFinancier', cascade: ['remove'])]
     private Collection $offres;
 
     public function __construct()
@@ -87,7 +80,7 @@ class ProduitFinancier
         return $this->nomProduit;
     }
 
-    public function setNomProduit(string $nomProduit): self
+    public function setNomProduit(string $nomProduit): static
     {
         $this->nomProduit = $nomProduit;
         return $this;
@@ -98,7 +91,7 @@ class ProduitFinancier
         return $this->typeFinancement;
     }
 
-    public function setTypeFinancement(string $typeFinancement): self
+    public function setTypeFinancement(string $typeFinancement): static
     {
         $this->typeFinancement = $typeFinancement;
         return $this;
@@ -109,7 +102,7 @@ class ProduitFinancier
         return $this->tauxInteret;
     }
 
-    public function setTauxInteret(float $tauxInteret): self
+    public function setTauxInteret(float $tauxInteret): static
     {
         $this->tauxInteret = $tauxInteret;
         return $this;
@@ -120,9 +113,32 @@ class ProduitFinancier
         return $this->montant;
     }
 
-    public function setMontant(float $montant): self
+    public function setMontant(float $montant): static
     {
         $this->montant = $montant;
+        return $this;
+    }
+
+    // Compatibility accessors kept temporarily to avoid breaking older callers.
+    public function getMontantMin(): ?float
+    {
+        return $this->montant;
+    }
+
+    public function setMontantMin(float $montantMin): static
+    {
+        $this->montant = $montantMin;
+        return $this;
+    }
+
+    public function getMontantMax(): ?float
+    {
+        return $this->montant;
+    }
+
+    public function setMontantMax(float $montantMax): static
+    {
+        $this->montant = $montantMax;
         return $this;
     }
 
@@ -131,7 +147,7 @@ class ProduitFinancier
         return $this->prixFixe;
     }
 
-    public function setPrixFixe(string $prixFixe): self
+    public function setPrixFixe(string $prixFixe): static
     {
         $normalized = str_replace(',', '.', trim($prixFixe));
 
@@ -139,8 +155,8 @@ class ProduitFinancier
             if (!str_contains($normalized, '.')) {
                 $normalized .= '.00';
             } else {
-                [$int, $dec] = explode('.', $normalized, 2);
-                $normalized = $int . '.' . str_pad(substr($dec, 0, 2), 2, '0');
+                [$integerPart, $decimalPart] = explode('.', $normalized, 2);
+                $normalized = $integerPart . '.' . str_pad(substr($decimalPart, 0, 2), 2, '0');
             }
         }
 
@@ -153,38 +169,33 @@ class ProduitFinancier
         return $this->reglesFinancieres;
     }
 
-    public function setReglesFinancieres(?string $reglesFinancieres): self
+    public function setReglesFinancieres(?string $reglesFinancieres): static
     {
         $this->reglesFinancieres = $reglesFinancieres;
         return $this;
     }
 
-    /**
-     * @return Collection<int, OffreFinanciere>
-     */
     public function getOffres(): Collection
     {
         return $this->offres;
     }
 
-    public function addOffre(OffreFinanciere $offre): self
+    public function addOffre(OffreFinanciere $offre): static
     {
         if (!$this->offres->contains($offre)) {
             $this->offres->add($offre);
             $offre->setProduitFinancier($this);
         }
-
         return $this;
     }
 
-    public function removeOffre(OffreFinanciere $offre): self
+    public function removeOffre(OffreFinanciere $offre): static
     {
         if ($this->offres->removeElement($offre)) {
             if ($offre->getProduitFinancier() === $this) {
                 $offre->setProduitFinancier(null);
             }
         }
-
         return $this;
     }
 
