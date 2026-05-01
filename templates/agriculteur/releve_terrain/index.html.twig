@@ -3,8 +3,24 @@
 {% block title %}Relevés terrain - Projet {{ idproject }}{% endblock %}
 
 {% block stylesheets %}
+  {{ encore_entry_link_tags('sidebar') }}
   {{ parent() }}
+
   <link rel="stylesheet" href="{{ asset('ui/releve-terrain-agri-pro.css') }}">
+
+  <style>
+    .dashboard-container { display: flex; min-height: 100vh; }
+
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      transition: margin-left 0.3s ease;
+    }
+
+    @media (max-width: 991.98px) {
+      .main-content { margin-left: 0; }
+    }
+  </style>
 {% endblock %}
 
 {% block hide_preloader %}{% endblock %}
@@ -52,8 +68,13 @@
 {% endfor %}
 
 {% block body %}
-<div class="iot-page releve-terrain-agri-pro">
-  <div class="container-fluid py-4">
+<div class="dashboard-container">
+
+  {% include 'components/_sidebar_agriculteur.html.twig' %}
+
+  <div class="main-content">
+    <div class="iot-page releve-terrain-agri-pro">
+      <div class="container-fluid py-4">
 
     {# HERO #}
     <div class="iot-hero hero-agri reveal mb-4">
@@ -285,9 +306,14 @@
 
   </div>
 </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
+  {{ encore_entry_script_tags('sidebar') }}
   {{ parent() }}
   <script defer src="{{ asset('ui/releve-terrain-agri-pro.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

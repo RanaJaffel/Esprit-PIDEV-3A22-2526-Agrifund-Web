@@ -10,7 +10,6 @@ services:
         autowire: true
         autoconfigure: true
 
-    # Services de l'application
     App\:
         resource: '../src/'
         exclude:
@@ -23,15 +22,15 @@ services:
             - '../src/Service/MessagerieService.php'
             - '../src/Service/UserService.php'
 
-    # Service OpenWeather
     App\Service\Weather\OpenWeatherClient:
         arguments:
             $apiKey: '%env(OPENWEATHER_API_KEY)%'
             $baseUrl: '%env(OPENWEATHER_BASE_URL)%'
 
-    # Service Face Recognition
     App\Service\FaceRecognitionService:
         arguments:
             $projectDir: '%kernel.project_dir%'
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+
+    App\EventListener\LocaleListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 20 }

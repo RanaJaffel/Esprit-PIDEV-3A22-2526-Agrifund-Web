@@ -2,7 +2,7 @@
     /* ========================================
        NAVBAR MODERNE - AgriFund (Fond Blanc)
     ======================================== */
-    
+
     /* Header principal - Fond Blanc */
     #header {
         background: #ffffff;
@@ -372,19 +372,19 @@
                 <li>
                     <a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
                         <i class="bi bi-house-door-fill"></i>
-                        Accueil
+                        {{ 'home'|trans }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">
                         <i class="bi bi-info-circle-fill"></i>
-                        À propos
+                        {{ 'about'|trans }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ path('app_contact') }}" class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}">
                         <i class="bi bi-envelope-fill"></i>
-                        Contact
+                        {{ 'contact'|trans }}
                     </a>
                 </li>
 
@@ -392,7 +392,7 @@
                 <li class="dropdown">
                     <a href="#">
                         <i class="bi bi-person-plus-fill"></i>
-                        S'inscrire
+                        {{ 'register'|trans }}
                         <i class="bi bi-chevron-down toggle-dropdown"></i>
                     </a>
                     <ul>
@@ -400,8 +400,8 @@
                             <a href="{{ path('app_register_agriculteur') }}" class="dropdown-agriculteur">
                                 <i class="bi bi-tree-fill"></i>
                                 <span class="dropdown-text">
-                                    <strong>Agriculteur</strong>
-                                    <span class="dropdown-desc">Demandez un financement</span>
+                                    <strong>{{ 'farmer'|trans }}</strong>
+                                    <span class="dropdown-desc">{{ 'ask_financing'|trans }}</span>
                                 </span>
                             </a>
                         </li>
@@ -410,8 +410,8 @@
                             <a href="{{ path('app_register_banque') }}" class="dropdown-banque">
                                 <i class="bi bi-bank2"></i>
                                 <span class="dropdown-text">
-                                    <strong>Banque</strong>
-                                    <span class="dropdown-desc">Proposez vos services</span>
+                                    <strong>{{ 'bank'|trans }}</strong>
+                                    <span class="dropdown-desc">{{ 'offer_services'|trans }}</span>
                                 </span>
                             </a>
                         </li>
@@ -423,7 +423,7 @@
             <div class="auth-buttons">
                 <a href="{{ path('app_login') }}" class="btn-nav-login">
                     <i class="bi bi-box-arrow-in-right"></i>
-                    Connexion
+                    {{ 'login'|trans }}
                 </a>
             </div>
 
@@ -440,7 +440,7 @@
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (winScroll / height) * 100;
         document.getElementById('scrollProgress').style.width = scrolled + '%';
-        
+
         // Header scroll effect
         const header = document.getElementById('header');
         header.classList.toggle('scrolled', window.scrollY > 50);

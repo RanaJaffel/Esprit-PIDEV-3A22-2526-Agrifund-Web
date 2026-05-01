@@ -1,9 +1,30 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Rapports journaliers{% endblock %}
+{% block stylesheets %}
+  {{ encore_entry_link_tags('sidebar') }}
+  {{ parent() }}
+
+  <style>
+    .dashboard-container { display: flex; min-height: 100vh; }
+
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      transition: margin-left 0.3s ease;
+    }
+
+    @media (max-width: 991.98px) {
+      .main-content { margin-left: 0; }
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-<div class="container py-4">
+<div class="dashboard-container">
+  {% include 'components/_sidebar_agriculteur.html.twig' %}
+  <div class="main-content">
+    <div class="container py-4">
 
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
@@ -43,5 +64,11 @@
     {% endfor %}
   </div>
 
+    </div>
+  </div>
 </div>
+{% endblock %}
+{% block javascripts %}
+  {{ encore_entry_script_tags('sidebar') }}
+  {{ parent() }}
 {% endblock %}

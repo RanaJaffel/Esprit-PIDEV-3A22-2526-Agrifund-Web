@@ -3,15 +3,814 @@
 
 {% block stylesheets %}
   {{ parent() }}
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('ui/capteur-dashboard-pro.css') }}">
   <link rel="stylesheet" href="{{ asset('ui/iot-advanced.css') }}">
+  <style>
+    /* =====================================================
+       DASHBOARD IoT PRO — AGRICULTEUR
+       Aesthetic: Refined dark-on-light, organic-tech hybrid
+       ===================================================== */
+    :root {
+      --g1: #06400e;
+      --g2: #0a6b1a;
+      --g3: #12a130;
+      --g4: #4ade80;
+      --g5: #bbf7d0;
+      --blue: #0ea5e9;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+      --surface: #ffffff;
+      --bg: #f0f7f0;
+      --bg2: #e8f3e8;
+      --border: rgba(10,107,26,.1);
+      --border-m: rgba(10,107,26,.22);
+      --text-1: #0a1f0d;
+      --text-2: #3d6645;
+      --text-3: #7aab82;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 20px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.05);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,.1), 0 4px 12px rgba(0,0,0,.06);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --font: 'Plus Jakarta Sans', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    .dash-wrap {
+      font-family: var(--font);
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text-1);
+    }
+
+    /* ── TOPBAR ── */
+    .dash-topbar {
+      background: linear-gradient(135deg, var(--g1) 0%, #0d5214 40%, var(--g2) 100%);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 20px rgba(6,64,14,.4);
+    }
+
+    .topbar-left {
+      display: flex; align-items: center; gap: 16px;
+    }
+
+    .topbar-logo {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--g4);
+    }
+
+    .topbar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.01em;
+    }
+
+    .topbar-sub {
+      font-size: .72rem;
+      color: rgba(255,255,255,.5);
+      font-weight: 400;
+    }
+
+    .topbar-right {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* back-to-capteurs button — prominent */
+    .btn-back-capteurs {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px;
+      background: rgba(74,222,128,.15);
+      border: 1.5px solid rgba(74,222,128,.35);
+      border-radius: 10px;
+      color: var(--g4);
+      font-size: .8rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all .22s;
+      white-space: nowrap;
+    }
+
+    .btn-back-capteurs:hover {
+      background: rgba(74,222,128,.28);
+      border-color: var(--g4);
+      color: #fff;
+      transform: translateX(-2px);
+    }
+
+    /* live badge */
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 100px;
+      font-size: .72rem;
+      color: rgba(255,255,255,.8);
+      font-weight: 600;
+      letter-spacing: .03em;
+    }
+
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--g4);
+      animation: livePulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,.5); }
+      50%      { opacity: .5; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+    }
+
+    /* ── QUICK ACTIONS STRIP ── */
+    .qa-strip {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .qa-strip::-webkit-scrollbar { display: none; }
+
+    .qa-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 14px 14px;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-2);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all .2s;
+      font-family: var(--font);
+    }
+
+    .qa-btn:hover {
+      color: var(--g2);
+      border-bottom-color: var(--g3);
+    }
+
+    .qa-btn.qa-highlight {
+      color: var(--blue);
+    }
+
+    .qa-btn.qa-highlight:hover { border-bottom-color: var(--blue); }
+
+    .qa-btn i { font-size: .82rem; }
+
+    .qa-badge {
+      background: var(--red);
+      color: #fff;
+      border-radius: 100px;
+      padding: 1px 7px;
+      font-size: .65rem;
+      font-weight: 700;
+    }
+
+    /* ── PAGE CONTENT ── */
+    .dash-content {
+      padding: 28px 32px 48px;
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .dash-topbar { padding: 0 16px; }
+      .qa-strip    { padding: 0 16px; }
+      .dash-content{ padding: 16px 16px 48px; }
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-3);
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    /* ── KPI GRID ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 22px 22px 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      position: relative; overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+      animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .kpi-card:nth-child(1) { animation-delay: .05s; }
+    .kpi-card:nth-child(2) { animation-delay: .1s; }
+    .kpi-card:nth-child(3) { animation-delay: .15s; }
+    .kpi-card:nth-child(4) { animation-delay: .2s; }
+
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .kpi-card.c-green::before  { background: linear-gradient(90deg, var(--g2), var(--g4)); }
+    .kpi-card.c-blue::before   { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+    .kpi-card.c-amber::before  { background: linear-gradient(90deg, #d97706, #fbbf24); }
+    .kpi-card.c-purple::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+
+    .kpi-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .kpi-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .c-green  .kpi-icon-wrap { background: rgba(10,107,26,.09); color: var(--g2); }
+    .c-blue   .kpi-icon-wrap { background: rgba(14,165,233,.1);  color: var(--blue); }
+    .c-amber  .kpi-icon-wrap { background: rgba(245,158,11,.1);  color: var(--amber); }
+    .c-purple .kpi-icon-wrap { background: rgba(139,92,246,.1);  color: var(--purple); }
+
+    .kpi-label-txt {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-3);
+      font-weight: 700;
+    }
+
+    .kpi-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-1);
+      line-height: 1;
+      margin-bottom: 5px;
+      letter-spacing: -.03em;
+    }
+
+    .kpi-trend-txt {
+      font-size: .72rem;
+      color: var(--text-3);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    .kpi-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: .75rem;
+      font-weight: 700;
+    }
+
+    .chip-ok  { background: rgba(10,107,26,.1); color: var(--g2); }
+    .chip-bad { background: rgba(239,68,68,.1); color: var(--red); }
+
+    .chip-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+
+    .chip-ok  .chip-dot { background: var(--g3); }
+    .chip-bad .chip-dot { background: var(--red); }
+
+    /* ── PANEL ── */
+    .pro-panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      animation: fadeUp .5s ease both;
+    }
+
+    .pro-panel:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .panel-head-title {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text-2);
+      display: flex; align-items: center; gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .panel-head-title i { color: var(--g3); font-size: .9rem; }
+
+    .panel-body { padding: 22px; }
+    .panel-body-flush { padding: 0; }
+
+    /* ── AI SECTIONS ── */
+    .ai-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 900px) { .ai-grid { grid-template-columns: 1fr; } }
+
+    /* irrigation decision block */
+    .irrig-decision-block {
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      border: 1px solid;
+      margin-bottom: 16px;
+      position: relative; overflow: hidden;
+    }
+
+    .irrig-decision-block::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: .04;
+      background: currentColor;
+      pointer-events: none;
+    }
+
+    .irrig-decision-block.irriguer-urgent { border-color: rgba(239,68,68,.4); color: var(--red); }
+    .irrig-decision-block.irriguer        { border-color: rgba(14,165,233,.35); color: var(--blue); }
+    .irrig-decision-block.surveiller      { border-color: rgba(245,158,11,.35); color: var(--amber); }
+    .irrig-decision-block.ne-pas-irriguer, .irrig-decision-block.ok { border-color: rgba(10,107,26,.3); color: var(--g2); }
+
+    .irrig-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .irrig-big-icon {
+      font-size: 2rem;
+      filter: drop-shadow(0 0 10px currentColor);
+      animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+
+    .irrig-action {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: -.01em;
+    }
+
+    .irrig-qty {
+      font-size: .82rem;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+
+    .irrig-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .irrig-metric {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .irrig-metric-label {
+      font-size: .65rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-3);
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+
+    .irrig-metric-val {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+
+    .prog-slim {
+      height: 4px; border-radius: 100px;
+      background: rgba(0,0,0,.08);
+      overflow: hidden; margin-top: 6px;
+    }
+
+    .prog-slim-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, var(--g2), var(--g4));
+      transition: width 1s cubic-bezier(.16,1,.3,1);
+    }
+
+    .irrig-expl {
+      font-size: .78rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      padding: 10px 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      display: flex; gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .irrig-expl i { color: var(--g3); flex-shrink: 0; margin-top: 2px; }
+
+    .ai-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 180px; text-align: center; gap: 10px;
+    }
+
+    .ai-placeholder i { color: var(--border-m); }
+    .ai-placeholder p { color: var(--text-3); font-size: .85rem; }
+
+    /* historique block */
+    .week-compare {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      gap: 12px; align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .week-block {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .week-block-label {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-3);
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .week-metric-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .85rem; font-weight: 600;
+      color: var(--text-1);
+      margin-bottom: 5px;
+    }
+
+    .week-metric-row i { font-size: .8rem; }
+
+    .week-arrow {
+      font-size: 1rem;
+      color: var(--border-m);
+      text-align: center;
+    }
+
+    .var-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .var-card {
+      border-radius: 10px; padding: 12px;
+      border: 1px solid;
+      text-align: center;
+    }
+
+    .var-card.hausse { border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.05); }
+    .var-card.baisse { border-color: rgba(10,107,26,.25); background: rgba(10,107,26,.05); }
+
+    .var-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); font-weight: 700; margin-bottom: 5px; }
+    .var-pct   { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; }
+    .var-card.hausse .var-pct { color: var(--red); }
+    .var-card.baisse .var-pct { color: var(--g2); }
+    .var-abs   { font-size: .72rem; color: var(--text-3); margin-top: 2px; }
+
+    .ai-analysis-note {
+      font-size: .78rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      padding: 10px 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      border-left: 3px solid var(--amber);
+      margin-bottom: 14px;
+    }
+
+    /* ── BLOCKCHAIN PANEL ── */
+    .blockchain-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .bc-metric {
+      display: flex; align-items: center; gap: 12px;
+      flex: 1; min-width: 160px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .bc-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(10,107,26,.1);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--g2); font-size: .95rem; flex-shrink: 0;
+    }
+
+    .bc-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); font-weight: 700; }
+    .bc-val   { font-family: var(--mono); font-size: .88rem; font-weight: 600; color: var(--text-1); margin-top: 2px; }
+
+    .bc-actions {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+
+    .btn-bc {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 10px;
+      font-size: .78rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: all .22s;
+      border: 1.5px solid;
+    }
+
+    .btn-bc-green {
+      border-color: var(--g3);
+      color: var(--g2);
+      background: transparent;
+    }
+    .btn-bc-green:hover { background: var(--g2); color: #fff; }
+
+    .btn-bc-blue {
+      border-color: rgba(14,165,233,.5);
+      color: var(--blue);
+      background: transparent;
+    }
+    .btn-bc-blue:hover { background: var(--blue); color: #fff; }
+
+    /* ── CHART PANELS ── */
+    .chart-wrap {
+      margin-bottom: 28px;
+    }
+
+    /* ── SENSOR LIST ── */
+    .sensor-list-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 22px;
+      border-bottom: 1px solid var(--border);
+      font-size: .83rem;
+      transition: background .15s;
+    }
+
+    .sensor-list-item:last-child { border-bottom: none; }
+    .sensor-list-item:hover { background: var(--bg); }
+
+    .sensor-item-name { font-weight: 600; color: var(--text-1); }
+    .sensor-item-loc  { font-size: .72rem; color: var(--text-3); margin-top: 1px; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: .68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    .sp-active  { background: rgba(10,107,26,.1); color: var(--g2); }
+    .sp-inactive{ background: rgba(0,0,0,.06); color: #6b7280; }
+    .sp-panne   { background: rgba(239,68,68,.1); color: var(--red); }
+
+    .sp-dot { width: 5px; height: 5px; border-radius: 50%; }
+    .sp-active  .sp-dot { background: var(--g3); }
+    .sp-inactive .sp-dot { background: #9ca3af; }
+    .sp-panne   .sp-dot { background: var(--red); }
+
+    /* ── NOTIFICATION ITEMS ── */
+    .notif-item {
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item:hover { background: var(--bg); }
+
+    .notif-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .notif-type { font-size: .82rem; font-weight: 700; color: var(--text-1); display: flex; align-items: center; gap: 7px; }
+    .notif-time { font-size: .7rem; color: var(--text-3); font-family: var(--mono); }
+    .notif-msg  { font-size: .78rem; color: var(--text-2); line-height: 1.4; margin-bottom: 10px; }
+
+    .notif-actions { display: flex; gap: 8px; }
+
+    .btn-notif {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 8px;
+      font-size: .72rem; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      transition: all .18s; border: 1px solid;
+      font-family: var(--font);
+    }
+
+    .btn-notif-green { border-color: var(--g3); color: var(--g2); background: transparent; }
+    .btn-notif-green:hover { background: var(--g2); color: #fff; }
+    .btn-notif-dark  { border-color: var(--border-m); color: var(--text-2); background: transparent; }
+    .btn-notif-dark:hover { background: var(--text-1); color: #fff; }
+
+    .sev-badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 6px;
+      font-size: .65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    .sev-danger   { background: rgba(239,68,68,.1); color: var(--red); }
+    .sev-warning  { background: rgba(245,158,11,.1); color: var(--amber); }
+    .sev-info     { background: rgba(14,165,233,.1); color: var(--blue); }
+    .sev-secondary{ background: rgba(0,0,0,.06); color: #6b7280; }
+
+    /* ── HEBDO SUMMARY ── */
+    .hebdo-nums {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .hebdo-num-block {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .hebdo-num-val   { font-size: 1.6rem; font-weight: 800; color: var(--text-1); font-family: var(--mono); }
+    .hebdo-num-label { font-size: .7rem; color: var(--text-3); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-top: 3px; }
+
+    /* ── RAPPORT TABLE ── */
+    .rapport-table {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      font-size: .83rem;
+    }
+
+    .rapport-table thead th {
+      padding: 10px 14px;
+      font-size: .65rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-3);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .rapport-table tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-2);
+      vertical-align: middle;
+    }
+
+    .rapport-table tbody tr:last-child td { border-bottom: none; }
+    .rapport-table tbody tr:hover td { background: var(--bg); }
+    .rapport-table tbody td:first-child { font-weight: 700; color: var(--text-1); }
+
+    .cond-badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px; border-radius: 7px;
+      font-size: .68rem; font-weight: 700;
+    }
+
+    .cond-success { background: rgba(10,107,26,.1); color: var(--g2); }
+    .cond-danger  { background: rgba(239,68,68,.1); color: var(--red); }
+    .cond-warning { background: rgba(245,158,11,.1); color: var(--amber); }
+
+    /* ── ACTION BTN ── */
+    .btn-pro {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px; border-radius: 11px;
+      font-size: .83rem; font-weight: 700;
+      text-decoration: none; cursor: pointer;
+      transition: all .22s; border: none;
+      font-family: var(--font);
+    }
+
+    .btn-pro-green {
+      background: linear-gradient(135deg, var(--g2), var(--g3));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(10,107,26,.3);
+    }
+
+    .btn-pro-green:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(10,107,26,.4);
+      color: #fff;
+    }
+
+    .btn-pro-amber {
+      background: linear-gradient(135deg, #d97706, var(--amber));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(245,158,11,.3);
+    }
+
+    .btn-pro-amber:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(245,158,11,.4);
+      color: #fff;
+    }
+
+    .btn-pro-outline {
+      background: transparent;
+      color: var(--g2);
+      border: 1.5px solid var(--border-m);
+    }
+
+    .btn-pro-outline:hover {
+      background: var(--g2);
+      color: #fff;
+      border-color: var(--g2);
+    }
+
+    .d-grid .btn-pro { width: 100%; justify-content: center; }
+
+    /* ── EMPTY ── */
+    .empty-note {
+      padding: 28px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: .83rem;
+    }
+
+    /* ── STAGGER ANIMATIONS ── */
+    .pro-panel:nth-child(1) { animation-delay: .1s; }
+    .pro-panel:nth-child(2) { animation-delay: .18s; }
+    .pro-panel:nth-child(3) { animation-delay: .26s; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-m); border-radius: 3px; }
+  </style>
 {% endblock %}
 
 {% block hide_preloader %}{% endblock %}
 
-{# ===============================
-   DATASETS CHART.JS (TON CODE)
-   =============================== #}
+{# ===== CHART DATASETS ===== #}
 {% set typesSeen = [] %}
 {% for m in dernieresMesures|default([]) %}
   {% if m.typeMesure not in typesSeen %}
@@ -24,38 +823,27 @@
   {% set points = [] %}
   {% for m in (dernieresMesures|default([]))|reverse %}
     {% if m.typeMesure == t %}
-      {% set points = points|merge([{
-        'x': m.dateHeure|date('Y-m-d H:i:s'),
-        'y': m.valeurMesuree
-      }]) %}
+      {% set points = points|merge([{'x': m.dateHeure|date('Y-m-d H:i:s'), 'y': m.valeurMesuree}]) %}
     {% endif %}
   {% endfor %}
-
   {% set color = '#089647' %}
   {% if 'TEMP' in t or 'Temp' in t %}{% set color = '#ef4444' %}{% endif %}
   {% if 'HUMIDITE' in t or 'Humid' in t %}{% set color = '#0ea5e9' %}{% endif %}
   {% if 'PH' in t or 'pH' in t %}{% set color = '#a855f7' %}{% endif %}
-  {% if 'PLUI' in t or 'PLUV' in t or 'Pluv' in t %}{% set color = '#22c55e' %}{% endif %}
-  {% if 'VENT' in t or 'Vent' in t %}{% set color = '#f59e0b' %}{% endif %}
-  {% if 'LUMIN' in t or 'Lum' in t %}{% set color = '#eab308' %}{% endif %}
-
+  {% if 'PLUI' in t or 'PLUV' in t %}{% set color = '#22c55e' %}{% endif %}
+  {% if 'VENT' in t %}{% set color = '#f59e0b' %}{% endif %}
+  {% if 'LUMIN' in t %}{% set color = '#eab308' %}{% endif %}
   {% set measureDatasets = measureDatasets|merge([{
-    'label': t,
-    'data': points,
-    'borderColor': color,
-    'backgroundColor': color,
-    'tension': 0.25,
-    'pointRadius': 2,
-    'borderWidth': 2
+    'label': t, 'data': points,
+    'borderColor': color, 'backgroundColor': color,
+    'tension': 0.25, 'pointRadius': 2, 'borderWidth': 2
   }]) %}
 {% endfor %}
 
-{# Rapport du jour #}
 {% set reportLabels = [] %}
 {% set reportAvg = [] %}
 {% set reportMin = [] %}
 {% set reportMax = [] %}
-
 {% for r in rapportsJour|default([]) %}
   {% set reportLabels = reportLabels|merge([r.typeMesure]) %}
   {% set reportAvg = reportAvg|merge([r.moyenne]) %}
@@ -64,635 +852,543 @@
 {% endfor %}
 
 {% block body %}
-<div class="iot-page dashboard-pro">
-  <div class="container-fluid py-4">
+<div class="dash-wrap">
 
-    {# ========== HERO (TON CODE) ========== #}
-    <div class="iot-hero hero-dash reveal mb-4">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-          <h2 class="iot-hero-title mb-0">
-            <i class="fas fa-chart-area me-2"></i>
-            Dashboard IoT — Projet #{{ idproject }}
-          </h2>
-          <div class="iot-hero-sub">Surveillance terrain + Intelligence artificielle</div>
-        </div>
-
-        <div class="quick-actions">
-          <a class="qa" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
-            <i class="fas fa-wave-square"></i> Relevés bruts
-          </a>
-
-          <a class="qa" href="{{ path('agriculteur_rapport_journalier', {idproject: idproject, date: 'now'|date('Y-m-d')}) }}">
-            <i class="fas fa-chart-bar"></i> Rapport journalier
-          </a>
-
-          <a class="qa" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
-            <i class="fas fa-calendar-week"></i> Relevé hebdo
-          </a>
-
-          <a class="qa" href="{{ path('capteur_index') }}">
-            <i class="fas fa-satellite-dish"></i> Mes capteurs
-          </a>
-
-          {# ✅ NOUVELLES ROUTES #}
-          <a class="qa qa-new" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
-            <i class="fas fa-droplet"></i> Irrigation IA
-          </a>
-
-          <a class="qa qa-new" href="{{ path('historique_compare', {idproject: idproject}) }}">
-            <i class="fas fa-chart-line"></i> Historique
-          </a>
-
-          <a class="qa" href="{{ path('meteo_projet', {idproject: idproject}) }}">
-            <i class="fas fa-cloud-sun"></i> Météo
-          </a>
-
-          <a class="qa" href="{{ path('maps_projet', {idproject: idproject}) }}">
-            <i class="fas fa-map-location-dot"></i> Carte
-          </a>
-
-          <a class="qa" href="{{ path('notif_project', {idproject: idproject}) }}">
-            <i class="fas fa-bell"></i> Notifications
-            {% if unreadCount|default(0) > 0 %}
-              <span class="badge bg-danger ms-1">{{ unreadCount }}</span>
-            {% endif %}
-          </a>
-        </div>
+  {# ══════════ TOPBAR ══════════ #}
+  <div class="dash-topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo"><i class="fas fa-chart-area"></i></div>
+      <div>
+        <div class="topbar-title">Dashboard IoT — Projet #{{ idproject }}</div>
+        <div class="topbar-sub">Surveillance terrain · Intelligence artificielle</div>
       </div>
     </div>
 
-    {# ========== KPI (TON CODE) ========== #}
+    <div class="topbar-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        Live · 15 min
+      </div>
+
+      {# ✅ BOUTON RETOUR CAPTEURS — bien visible #}
+      <a href="{{ path('capteur_index') }}" class="btn-back-capteurs">
+        <i class="fas fa-arrow-left"></i>
+        Mes capteurs
+      </a>
+    </div>
+  </div>
+
+  {# ══════════ QUICK ACTIONS STRIP ══════════ #}
+  <div class="qa-strip">
+    <a class="qa-btn" href="{{ path('agriculteur_releve_terrain', {idproject: idproject}) }}">
+      <i class="fas fa-wave-square"></i> Relevés bruts
+    </a>
+    <a class="qa-btn" href="{{ path('agriculteur_rapport_journalier', {idproject: idproject, date: 'now'|date('Y-m-d')}) }}">
+      <i class="fas fa-chart-bar"></i> Rapport journalier
+    </a>
+    <a class="qa-btn" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
+      <i class="fas fa-calendar-week"></i> Relevé hebdo
+    </a>
+    <a class="qa-btn qa-highlight" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
+      <i class="fas fa-droplet"></i> Irrigation IA
+    </a>
+    <a class="qa-btn qa-highlight" href="{{ path('historique_compare', {idproject: idproject}) }}">
+      <i class="fas fa-chart-line"></i> Historique
+    </a>
+    <a class="qa-btn" href="{{ path('meteo_projet', {idproject: idproject}) }}">
+      <i class="fas fa-cloud-sun"></i> Météo
+    </a>
+    <a class="qa-btn" href="{{ path('maps_projet', {idproject: idproject}) }}">
+      <i class="fas fa-map-location-dot"></i> Carte
+    </a>
+    <a class="qa-btn" href="{{ path('notif_project', {idproject: idproject}) }}">
+      <i class="fas fa-bell"></i> Notifications
+      {% if unreadCount|default(0) > 0 %}
+        <span class="qa-badge">{{ unreadCount }}</span>
+      {% endif %}
+    </a>
+  </div>
+
+  {# ══════════ MAIN CONTENT ══════════ #}
+  <div class="dash-content">
+
+    {# ── KPI ── #}
     {% set nbCapteurs = capteurs|length %}
     {% set nbMesures = dernieresMesures|length %}
     {% set nbTypes = rapportsJour|length %}
     {% set cond = releveHebdo ? releveHebdo.conditionDominante : 'N/A' %}
 
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro kpi-gradient-green">
-          <div class="panel-b">
-            <div class="kpi-icon">
-              <i class="fas fa-satellite-dish"></i>
-            </div>
-            <div class="kpi-content">
-              <div class="kpi-label">Capteurs actifs</div>
-              <div class="kpi-value">{{ nbCapteurs }}</div>
-              <div class="kpi-trend">
-                <i class="fas fa-arrow-up"></i> +2 cette semaine
-              </div>
-            </div>
-          </div>
+    <div class="section-label">Vue d'ensemble</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card c-green">
+        <div class="kpi-card-header">
+          <div class="kpi-icon-wrap"><i class="fas fa-satellite-dish"></i></div>
+          <span class="kpi-label-txt">Capteurs actifs</span>
         </div>
+        <div class="kpi-num">{{ nbCapteurs }}</div>
+        <div class="kpi-trend-txt"><i class="fas fa-arrow-up" style="color:var(--g3)"></i> +2 cette semaine</div>
       </div>
 
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro kpi-gradient-blue">
-          <div class="panel-b">
-            <div class="kpi-icon">
-              <i class="fas fa-database"></i>
-            </div>
-            <div class="kpi-content">
-              <div class="kpi-label">Mesures récentes</div>
-              <div class="kpi-value">{{ nbMesures }}</div>
-              <div class="kpi-trend">
-                <i class="fas fa-sync"></i> Temps réel
-              </div>
-            </div>
-          </div>
+      <div class="kpi-card c-blue">
+        <div class="kpi-card-header">
+          <div class="kpi-icon-wrap"><i class="fas fa-database"></i></div>
+          <span class="kpi-label-txt">Mesures récentes</span>
         </div>
+        <div class="kpi-num">{{ nbMesures }}</div>
+        <div class="kpi-trend-txt"><i class="fas fa-sync" style="color:var(--blue)"></i> Temps réel</div>
       </div>
 
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro kpi-gradient-orange">
-          <div class="panel-b">
-            <div class="kpi-icon">
-              <i class="fas fa-chart-pie"></i>
-            </div>
-            <div class="kpi-content">
-              <div class="kpi-label">Types mesurés</div>
-              <div class="kpi-value">{{ nbTypes }}</div>
-              <div class="kpi-trend">
-                <i class="fas fa-check-circle"></i> Aujourd'hui
-              </div>
-            </div>
-          </div>
+      <div class="kpi-card c-amber">
+        <div class="kpi-card-header">
+          <div class="kpi-icon-wrap"><i class="fas fa-chart-pie"></i></div>
+          <span class="kpi-label-txt">Types mesurés</span>
         </div>
+        <div class="kpi-num">{{ nbTypes }}</div>
+        <div class="kpi-trend-txt"><i class="fas fa-check-circle" style="color:var(--amber)"></i> Aujourd'hui</div>
       </div>
 
-      <div class="col-12 col-md-3 reveal">
-        <div class="panel kpi-pro kpi-gradient-purple">
-          <div class="panel-b">
-            <div class="kpi-icon">
-              <i class="fas fa-brain"></i>
-            </div>
-            <div class="kpi-content">
-              <div class="kpi-label">État IA</div>
-              <div class="kpi-value chip-mini">
-                <span class="{{ cond == 'NORMAL' ? 'dot active' : 'dot bad' }}"></span>
-                {{ cond }}
-              </div>
-              <div class="kpi-trend">
-                <i class="fas fa-calendar-week"></i> Synthèse 7j
-              </div>
-            </div>
-          </div>
+      <div class="kpi-card c-purple">
+        <div class="kpi-card-header">
+          <div class="kpi-icon-wrap"><i class="fas fa-brain"></i></div>
+          <span class="kpi-label-txt">État IA</span>
         </div>
+        <div class="kpi-num" style="font-size:1.1rem; margin-bottom:10px;">
+          <span class="kpi-chip {{ cond == 'NORMAL' ? 'chip-ok' : 'chip-bad' }}">
+            <span class="chip-dot"></span>
+            {{ cond }}
+          </span>
+        </div>
+        <div class="kpi-trend-txt"><i class="fas fa-calendar-week" style="color:var(--purple)"></i> Synthèse 7j</div>
       </div>
     </div>
 
-    {# ========== 🔥 NOUVELLES SECTIONS IA ========== #}
-    <div class="row g-3 mb-4">
+    {# ── IA SECTIONS ── #}
+    <div class="section-label">Intelligence artificielle</div>
 
-      {# 💧 IRRIGATION IA (PREVIEW) #}
-      <div class="col-12 col-lg-6 reveal">
-        <div class="panel panel-ai irrigation-preview">
-          <div class="panel-h">
-            <span>
-              <i class="fas fa-droplet me-2 text-info"></i> 
-              Irrigation Intelligente
-            </span>
-            <span class="badge bg-success">IA Active</span>
+    <div class="ai-grid">
+
+      {# Irrigation IA #}
+      <div class="pro-panel">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <i class="fas fa-droplet"></i> Irrigation Intelligente
           </div>
-
-          <div class="panel-b">
-            {% if irrigationDecision is defined %}
-              {# Décision IA #}
-              <div class="ai-decision {{ irrigationDecision.decision|lower|replace({'_': '-'}) }}">
-                <div class="ai-decision-header">
-                  <div class="ai-icon">
-                    {% if 'URGENT' in irrigationDecision.decision %}
-                      <i class="fas fa-circle-exclamation"></i>
-                    {% elseif 'IRRIGUER' in irrigationDecision.decision %}
-                      <i class="fas fa-droplet"></i>
-                    {% elseif 'SURVEILLER' in irrigationDecision.decision %}
-                      <i class="fas fa-eye"></i>
-                    {% else %}
-                      <i class="fas fa-check-circle"></i>
-                    {% endif %}
-                  </div>
-
-                  <div class="ai-content">
-                    <div class="ai-action">{{ irrigationDecision.decision|replace({'_': ' '}) }}</div>
-                    <div class="ai-quantity">{{ irrigationDecision.quantite }}</div>
-                  </div>
+          <span class="sev-badge sev-info">IA Active</span>
+        </div>
+        <div class="panel-body">
+          {% if irrigationDecision is defined %}
+            {% set dec = irrigationDecision.decision|lower|replace({'_': '-'}) %}
+            <div class="irrig-decision-block {{ dec }}">
+              <div class="irrig-header">
+                <div class="irrig-big-icon">
+                  {% if 'urgent' in dec %}<i class="fas fa-circle-exclamation"></i>
+                  {% elseif 'irriguer' in dec %}<i class="fas fa-droplet"></i>
+                  {% elseif 'surveiller' in dec %}<i class="fas fa-eye"></i>
+                  {% else %}<i class="fas fa-check-circle"></i>{% endif %}
                 </div>
-
-                {# Métriques #}
-                <div class="ai-metrics">
-                  <div class="metric">
-                    <div class="metric-label">
-                      <i class="fas fa-gauge-high"></i> Urgence
-                    </div>
-                    <div class="progress-bar-custom">
-                      <div class="progress-fill" style="width: {{ irrigationDecision.urgence }}%"></div>
-                    </div>
-                    <div class="metric-value">{{ irrigationDecision.urgence }}%</div>
-                  </div>
-
-                  <div class="metric">
-                    <div class="metric-label">
-                      <i class="fas fa-brain"></i> Confiance
-                    </div>
-                    <div class="metric-value-large">
-                      {{ (irrigationDecision.confidence * 100)|round }}%
-                    </div>
-                  </div>
-
-                  <div class="metric">
-                    <div class="metric-label">
-                      <i class="fas fa-water"></i> ET₀
-                    </div>
-                    <div class="metric-value-large">
-                      {{ irrigationDecision.et0 }} mm/j
-                    </div>
-                  </div>
-                </div>
-
-                {# Explication #}
-                <div class="ai-explanation">
-                  <i class="fas fa-lightbulb"></i>
-                  {{ irrigationDecision.explication }}
+                <div>
+                  <div class="irrig-action">{{ irrigationDecision.decision|replace({'_': ' '}) }}</div>
+                  <div class="irrig-qty">{{ irrigationDecision.quantite }}</div>
                 </div>
               </div>
 
-              <div class="d-grid">
-                <a class="btn btn-success btn-iot" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
-                  <i class="fas fa-arrow-right me-2"></i>
-                  Voir l'analyse complète
-                </a>
+              <div class="irrig-metrics">
+                <div class="irrig-metric">
+                  <div class="irrig-metric-label"><i class="fas fa-gauge-high"></i> Urgence</div>
+                  <div class="irrig-metric-val">{{ irrigationDecision.urgence }}%</div>
+                  <div class="prog-slim">
+                    <div class="prog-slim-fill" style="width:{{ irrigationDecision.urgence }}%"></div>
+                  </div>
+                </div>
+                <div class="irrig-metric">
+                  <div class="irrig-metric-label"><i class="fas fa-brain"></i> Confiance</div>
+                  <div class="irrig-metric-val">{{ (irrigationDecision.confidence * 100)|round }}%</div>
+                </div>
+                <div class="irrig-metric">
+                  <div class="irrig-metric-label"><i class="fas fa-water"></i> ET₀</div>
+                  <div class="irrig-metric-val">{{ irrigationDecision.et0 }}<small style="font-size:.6em"> mm/j</small></div>
+                </div>
               </div>
+            </div>
 
-            {% else %}
-              <div class="ai-placeholder">
-                <i class="fas fa-robot fa-3x text-muted mb-3"></i>
-                <p class="text-muted">Aucune analyse disponible</p>
-                <a class="btn btn-outline-success" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
-                  Lancer l'analyse IA
-                </a>
-              </div>
-            {% endif %}
-          </div>
+            <div class="irrig-expl">
+              <i class="fas fa-lightbulb"></i>
+              {{ irrigationDecision.explication }}
+            </div>
+
+            <div class="d-grid">
+              <a class="btn-pro btn-pro-green" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
+                <i class="fas fa-arrow-right"></i> Voir l'analyse complète
+              </a>
+            </div>
+
+          {% else %}
+            <div class="ai-placeholder">
+              <i class="fas fa-robot fa-3x"></i>
+              <p>Aucune analyse disponible</p>
+              <a class="btn-pro btn-pro-outline" href="{{ path('irrigation_decision', {idproject: idproject}) }}">
+                Lancer l'analyse IA
+              </a>
+            </div>
+          {% endif %}
         </div>
       </div>
 
-      {# 📈 HISTORIQUE COMPARATIF (PREVIEW) #}
-      <div class="col-12 col-lg-6 reveal">
-        <div class="panel panel-ai historique-preview">
-          <div class="panel-h">
-            <span>
-              <i class="fas fa-chart-line me-2 text-warning"></i>
-              Analyse Historique
-            </span>
-            <span class="badge bg-warning text-dark">2 Semaines</span>
+      {# Historique comparatif #}
+      <div class="pro-panel">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <i class="fas fa-chart-line"></i> Analyse Historique
           </div>
-
-          <div class="panel-b">
-            {% if historiqueData is defined and historiqueData.error is not defined %}
-              {# Comparaison semaines #}
-              <div class="week-comparison">
-                <div class="week-card current">
-                  <div class="week-label">
-                    <i class="fas fa-calendar"></i> Semaine actuelle
-                  </div>
-                  <div class="week-metrics">
-                    <div class="week-metric">
-                      <i class="fas fa-temperature-high text-danger"></i>
-                      <span class="value">{{ historiqueData.current.temperature }}°C</span>
-                    </div>
-                    <div class="week-metric">
-                      <i class="fas fa-droplet text-info"></i>
-                      <span class="value">{{ historiqueData.current.humidite }}%</span>
-                    </div>
-                  </div>
-                  <div class="week-trend">
-                    <span class="chip-mini">
-                      <span class="dot active"></span>
-                      {{ historiqueData.current.trend }}
-                    </span>
-                  </div>
+          <span class="sev-badge sev-warning">2 Semaines</span>
+        </div>
+        <div class="panel-body">
+          {% if historiqueData is defined and historiqueData.error is not defined %}
+            <div class="week-compare">
+              <div class="week-block">
+                <div class="week-block-label"><i class="fas fa-calendar"></i> Semaine actuelle</div>
+                <div class="week-metric-row">
+                  <i class="fas fa-temperature-high" style="color:var(--red)"></i>
+                  <span>{{ historiqueData.current.temperature }}°C</span>
                 </div>
-
-                <div class="week-divider">
-                  <i class="fas fa-arrow-right"></i>
+                <div class="week-metric-row">
+                  <i class="fas fa-droplet" style="color:var(--blue)"></i>
+                  <span>{{ historiqueData.current.humidite }}%</span>
                 </div>
-
-                <div class="week-card previous">
-                  <div class="week-label">
-                    <i class="fas fa-calendar-check"></i> Semaine précédente
-                  </div>
-                  <div class="week-metrics">
-                    <div class="week-metric">
-                      <i class="fas fa-temperature-high text-danger"></i>
-                      <span class="value">{{ historiqueData.previous.temperature }}°C</span>
-                    </div>
-                    <div class="week-metric">
-                      <i class="fas fa-droplet text-info"></i>
-                      <span class="value">{{ historiqueData.previous.humidite }}%</span>
-                    </div>
-                  </div>
-                  <div class="week-trend">
-                    <span class="chip-mini">
-                      <span class="dot"></span>
-                      {{ historiqueData.previous.trend }}
-                    </span>
-                  </div>
+                <div class="mt-2">
+                  <span class="status-pill sp-active">
+                    <span class="sp-dot"></span>
+                    {{ historiqueData.current.trend }}
+                  </span>
                 </div>
               </div>
 
-              {# Variations #}
-              <div class="variations-grid">
-                <div class="variation-card {{ historiqueData.variation.temperature.direction }}">
-                  <div class="variation-label">Température</div>
-                  <div class="variation-value">
-                    {% if historiqueData.variation.temperature.direction == 'hausse' %}
-                      <i class="fas fa-arrow-up"></i>
-                    {% else %}
-                      <i class="fas fa-arrow-down"></i>
-                    {% endif %}
-                    {{ historiqueData.variation.temperature.pourcentage }}%
-                  </div>
-                  <div class="variation-abs">
-                    {{ historiqueData.variation.temperature.valeur > 0 ? '+' : '' }}{{ historiqueData.variation.temperature.valeur }}°C
-                  </div>
-                </div>
+              <div class="week-arrow"><i class="fas fa-arrow-right"></i></div>
 
-                <div class="variation-card {{ historiqueData.variation.humidite.direction }}">
-                  <div class="variation-label">Humidité</div>
-                  <div class="variation-value">
-                    {% if historiqueData.variation.humidite.direction == 'hausse' %}
-                      <i class="fas fa-arrow-up"></i>
-                    {% else %}
-                      <i class="fas fa-arrow-down"></i>
-                    {% endif %}
-                    {{ historiqueData.variation.humidite.pourcentage }}%
-                  </div>
-                  <div class="variation-abs">
-                    {{ historiqueData.variation.humidite.valeur > 0 ? '+' : '' }}{{ historiqueData.variation.humidite.valeur }}%
-                  </div>
+              <div class="week-block">
+                <div class="week-block-label"><i class="fas fa-calendar-check"></i> Semaine préc.</div>
+                <div class="week-metric-row">
+                  <i class="fas fa-temperature-high" style="color:var(--red)"></i>
+                  <span>{{ historiqueData.previous.temperature }}°C</span>
+                </div>
+                <div class="week-metric-row">
+                  <i class="fas fa-droplet" style="color:var(--blue)"></i>
+                  <span>{{ historiqueData.previous.humidite }}%</span>
+                </div>
+                <div class="mt-2">
+                  <span class="status-pill sp-inactive">
+                    <span class="sp-dot"></span>
+                    {{ historiqueData.previous.trend }}
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {# Analyse #}
-              <div class="ai-analysis-box">
-                <i class="fas fa-microscope"></i>
-                {{ historiqueData.analyse }}
+            <div class="var-grid">
+              <div class="var-card {{ historiqueData.variation.temperature.direction }}">
+                <div class="var-label">Température</div>
+                <div class="var-pct">
+                  {% if historiqueData.variation.temperature.direction == 'hausse' %}
+                    <i class="fas fa-arrow-up"></i>
+                  {% else %}
+                    <i class="fas fa-arrow-down"></i>
+                  {% endif %}
+                  {{ historiqueData.variation.temperature.pourcentage }}%
+                </div>
+                <div class="var-abs">{{ historiqueData.variation.temperature.valeur > 0 ? '+' : '' }}{{ historiqueData.variation.temperature.valeur }}°C</div>
               </div>
+              <div class="var-card {{ historiqueData.variation.humidite.direction }}">
+                <div class="var-label">Humidité</div>
+                <div class="var-pct">
+                  {% if historiqueData.variation.humidite.direction == 'hausse' %}
+                    <i class="fas fa-arrow-up"></i>
+                  {% else %}
+                    <i class="fas fa-arrow-down"></i>
+                  {% endif %}
+                  {{ historiqueData.variation.humidite.pourcentage }}%
+                </div>
+                <div class="var-abs">{{ historiqueData.variation.humidite.valeur > 0 ? '+' : '' }}{{ historiqueData.variation.humidite.valeur }}%</div>
+              </div>
+            </div>
 
-              <div class="d-grid">
-                <a class="btn btn-warning btn-iot" href="{{ path('historique_compare', {idproject: idproject}) }}">
-                  <i class="fas fa-arrow-right me-2"></i>
-                  Voir l'historique complet
-                </a>
-              </div>
+            <div class="ai-analysis-note">{{ historiqueData.analyse }}</div>
 
-            {% else %}
-              <div class="ai-placeholder">
-                <i class="fas fa-chart-area fa-3x text-muted mb-3"></i>
-                <p class="text-muted">
-                  {{ historiqueData.message|default('Données insuffisantes') }}
-                </p>
-                <p class="small text-muted">Au moins 2 semaines de données requises</p>
-              </div>
-            {% endif %}
-          </div>
+            <div class="d-grid">
+              <a class="btn-pro btn-pro-amber" href="{{ path('historique_compare', {idproject: idproject}) }}">
+                <i class="fas fa-arrow-right"></i> Voir l'historique complet
+              </a>
+            </div>
+
+          {% else %}
+            <div class="ai-placeholder">
+              <i class="fas fa-chart-area fa-3x"></i>
+              <p>{{ historiqueData.message|default('Données insuffisantes') }}</p>
+              <p style="font-size:.75rem; color:var(--text-3)">Au moins 2 semaines requises</p>
+            </div>
+          {% endif %}
         </div>
       </div>
 
     </div>
 
-    {# ========== BLOCKCHAIN STATUS (NOUVELLE SECTION) ========== #}
-    <div class="row g-3 mb-4">
-      <div class="col-12 reveal">
-        <div class="panel panel-blockchain">
-          <div class="panel-h">
-            <span>
-              <i class="fas fa-shield-halved me-2"></i>
-              Sécurité Blockchain
-            </span>
-            <span class="badge bg-success">
-              <i class="fas fa-check-circle"></i> Chaîne vérifiée
-            </span>
-          </div>
+    {# ── BLOCKCHAIN ── #}
+    <div class="section-label">Sécurité & Intégrité</div>
 
-          <div class="panel-b">
-            <div class="blockchain-status">
-              {% if blockchainStatus is defined %}
-                <div class="blockchain-info">
-                  <div class="blockchain-metric">
-                    <i class="fas fa-cubes"></i>
-                    <div>
-                      <div class="label">Blocs enregistrés</div>
-                      <div class="value">{{ blockchainStatus.totalBlocks }}</div>
-                    </div>
-                  </div>
-
-                  <div class="blockchain-metric">
-                    <i class="fas fa-link"></i>
-                    <div>
-                      <div class="label">Dernier hash</div>
-                      <div class="value hash-preview">
-                        {{ blockchainStatus.lastHash|slice(0, 16) }}...
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="blockchain-metric">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                      <div class="label">Dernier bloc</div>
-                      <div class="value">{{ blockchainStatus.lastBlockDate|date('d/m/Y H:i') }}</div>
-                    </div>
-                  </div>
-
-                  <div class="blockchain-metric">
-                    <i class="fas fa-shield-check"></i>
-                    <div>
-                      <div class="label">Intégrité</div>
-                      <div class="value">
-                        {% if blockchainStatus.isValid %}
-                          <span class="text-success">✓ Valide</span>
-                        {% else %}
-                          <span class="text-danger">✗ Compromis</span>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </div>
+    <div class="pro-panel chart-wrap">
+      <div class="panel-head">
+        <div class="panel-head-title">
+          <i class="fas fa-shield-halved"></i> Sécurité Blockchain
+        </div>
+        <span class="sev-badge sev-info">
+          <i class="fas fa-check-circle me-1"></i> Chaîne vérifiée
+        </span>
+      </div>
+      <div class="panel-body">
+        {% if blockchainStatus is defined %}
+          <div class="blockchain-row">
+            <div class="bc-metric">
+              <div class="bc-icon"><i class="fas fa-cubes"></i></div>
+              <div>
+                <div class="bc-label">Blocs enregistrés</div>
+                <div class="bc-val">{{ blockchainStatus.totalBlocks }}</div>
+              </div>
+            </div>
+            <div class="bc-metric">
+              <div class="bc-icon"><i class="fas fa-link"></i></div>
+              <div>
+                <div class="bc-label">Dernier hash</div>
+                <div class="bc-val">{{ blockchainStatus.lastHash|slice(0,16) }}…</div>
+              </div>
+            </div>
+            <div class="bc-metric">
+              <div class="bc-icon"><i class="fas fa-clock"></i></div>
+              <div>
+                <div class="bc-label">Dernier bloc</div>
+                <div class="bc-val">{{ blockchainStatus.lastBlockDate|date('d/m/Y H:i') }}</div>
+              </div>
+            </div>
+            <div class="bc-metric">
+              <div class="bc-icon"><i class="fas fa-shield-check"></i></div>
+              <div>
+                <div class="bc-label">Intégrité</div>
+                <div class="bc-val" style="color:{{ blockchainStatus.isValid ? 'var(--g2)' : 'var(--red)' }}">
+                  {{ blockchainStatus.isValid ? '✓ Valide' : '✗ Compromis' }}
                 </div>
-
-                <div class="blockchain-actions">
-                  <button class="btn btn-sm btn-outline-success" onclick="verifyBlockchain()">
-                    <i class="fas fa-check-double"></i> Vérifier l'intégrité
-                  </button>
-
-                  <a class="btn btn-sm btn-outline-primary" href="{{ path('blockchain_view', {idproject: idproject}) }}">
-                    <i class="fas fa-cubes"></i> Voir la chaîne
-                  </a>
-                </div>
-
-              {% else %}
-                <div class="text-center text-muted">
-                  <i class="fas fa-cubes fa-3x mb-3"></i>
-                  <p>Aucun bloc enregistré</p>
-                </div>
-              {% endif %}
+              </div>
+            </div>
+            <div class="bc-actions ms-auto">
+              <button class="btn-bc btn-bc-green" onclick="verifyBlockchain()">
+                <i class="fas fa-check-double"></i> Vérifier
+              </button>
+              <a class="btn-bc btn-bc-blue" href="{{ path('blockchain_view', {idproject: idproject}) }}">
+                <i class="fas fa-cubes"></i> Voir la chaîne
+              </a>
             </div>
           </div>
-        </div>
+        {% else %}
+          <div class="empty-note"><i class="fas fa-cubes me-2"></i>Aucun bloc enregistré</div>
+        {% endif %}
       </div>
     </div>
 
-    {# ========== TON CODE ORIGINAL (GRAPHES + CAPTEURS + NOTIFICATIONS) ========== #}
-    <div class="row g-3">
+    {# ── GRAPHES + CAPTEURS + NOTIFS ── #}
+    <div class="section-label">Données terrain</div>
 
-      {# Graphe mesures (TON CODE) #}
-      <div class="col-12 col-xl-8 reveal">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-line text-success me-2"></i> Mesures récentes (par type)</span>
-            <span class="text-muted small">mise à jour 15 min</span>
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-xl-8">
+        <div class="pro-panel chart-wrap">
+          <div class="panel-head">
+            <div class="panel-head-title">
+              <i class="fas fa-chart-line"></i> Mesures récentes (par type)
+            </div>
+            <span style="font-size:.72rem; color:var(--text-3); font-family:var(--mono);">↻ 15 min</span>
           </div>
-          <div class="panel-b">
+          <div class="panel-body">
             {% if dernieresMesures|length > 0 %}
               <canvas id="chartMesures" height="110"></canvas>
             {% else %}
-              <div class="alert alert-light border mb-0">Aucune mesure disponible. Lance le simulateur.</div>
+              <div class="empty-note">Aucune mesure disponible. Lance le simulateur.</div>
             {% endif %}
           </div>
         </div>
       </div>
 
-      {# Col droite : capteurs + notifications + hebdo (TON CODE) #}
-      <div class="col-12 col-xl-4 reveal">
+      <div class="col-12 col-xl-4">
 
-        {# Capteurs du projet #}
-        <div class="panel mb-3">
-          <div class="panel-h">
-            <span><i class="fas fa-satellite-dish me-2"></i> Capteurs du projet</span>
-            <span class="text-muted small">{{ capteurs|length }}</span>
-          </div>
-          <div class="panel-b p-0">
-            <div class="list-group list-group-flush">
-              {% for c in capteurs %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                  <span class="small fw-semibold">{{ c.typeCapteur }} — {{ c.localisation }}</span>
-                  <span class="chip">
-                    <span class="{{ c.statut == 'ACTIF' ? 'dot active' : 'dot bad' }}"></span>
-                    {{ c.statut }}
-                  </span>
-                </div>
-              {% else %}
-                <div class="list-group-item text-muted text-center">Aucun capteur</div>
-              {% endfor %}
+        {# Capteurs #}
+        <div class="pro-panel mb-3">
+          <div class="panel-head">
+            <div class="panel-head-title">
+              <i class="fas fa-satellite-dish"></i> Capteurs du projet
             </div>
+            <span style="font-size:.72rem; font-family:var(--mono); color:var(--text-3);">{{ capteurs|length }}</span>
+          </div>
+          <div class="panel-body-flush">
+            {% for c in capteurs %}
+              {% set sp = c.statut == 'ACTIF' ? 'sp-active' : (c.statut == 'EN_PANNE' ? 'sp-panne' : 'sp-inactive') %}
+              <div class="sensor-list-item">
+                <div>
+                  <div class="sensor-item-name">{{ c.typeCapteur }}</div>
+                  <div class="sensor-item-loc">{{ c.localisation }}</div>
+                </div>
+                <span class="status-pill {{ sp }}">
+                  <span class="sp-dot"></span>
+                  {{ c.statut }}
+                </span>
+              </div>
+            {% else %}
+              <div class="empty-note">Aucun capteur</div>
+            {% endfor %}
           </div>
         </div>
 
-        {# Notifications (TON CODE) #}
-        <div class="panel mb-3">
-          <div class="panel-h">
-            <span><i class="fas fa-bell me-2"></i> Notifications</span>
-            <span class="text-muted small">{{ unreadCount|default(0) }} non lues</span>
-          </div>
-
-          <div class="panel-b p-0">
-            <div class="list-group list-group-flush">
-              {% for n in latestNotifs|default([]) %}
-                {% set badge = 'secondary' %}
-                {% if n.severity == 'CRITICAL' %}{% set badge = 'danger' %}{% endif %}
-                {% if n.severity == 'WARN' %}{% set badge = 'warning' %}{% endif %}
-                {% if n.severity == 'INFO' %}{% set badge = 'info' %}{% endif %}
-
-                <div class="list-group-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="small fw-semibold">
-                      <span class="badge bg-{{ badge }} me-2">{{ n.severity }}</span>
-                      {{ n.type }}
-                    </div>
-                    <div class="text-muted small">{{ n.createdAt|date('H:i') }}</div>
-                  </div>
-
-                  <div class="small text-muted mt-1">{{ n.message }}</div>
-
-                  <div class="d-flex gap-2 mt-2">
-                    <form method="post" action="{{ path('notif_read', {id: n.id}) }}" class="m-0">
-                      <input type="hidden" name="_token" value="{{ csrf_token('read' ~ n.id) }}">
-                      <button class="btn btn-sm btn-outline-success">Marquer lu</button>
-                    </form>
-
-                    <a class="btn btn-sm btn-outline-dark"
-                       href="{{ path('notif_project', {idproject: idproject}) }}">
-                      Voir tout
-                    </a>
-                  </div>
-                </div>
-              {% else %}
-                <div class="list-group-item text-muted text-center">
-                  Aucune notification
-                </div>
-              {% endfor %}
+        {# Notifications #}
+        <div class="pro-panel mb-3">
+          <div class="panel-head">
+            <div class="panel-head-title">
+              <i class="fas fa-bell"></i> Notifications
             </div>
+            {% if unreadCount|default(0) > 0 %}
+              <span class="qa-badge">{{ unreadCount }}</span>
+            {% else %}
+              <span style="font-size:.72rem; color:var(--text-3)">0 non lues</span>
+            {% endif %}
+          </div>
+          <div class="panel-body-flush">
+            {% for n in latestNotifs|default([]) %}
+              {% set sv = n.severity == 'CRITICAL' ? 'sev-danger' : (n.severity == 'WARN' ? 'sev-warning' : (n.severity == 'INFO' ? 'sev-info' : 'sev-secondary')) %}
+              <div class="notif-item">
+                <div class="notif-header">
+                  <div class="notif-type">
+                    <span class="sev-badge {{ sv }}">{{ n.severity }}</span>
+                    {{ n.type }}
+                  </div>
+                  <div class="notif-time">{{ n.createdAt|date('H:i') }}</div>
+                </div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-actions">
+                  <form method="post" action="{{ path('notif_read', {id: n.id}) }}" class="m-0">
+                    <input type="hidden" name="_token" value="{{ csrf_token('read' ~ n.id) }}">
+                    <button class="btn-notif btn-notif-green">
+                      <i class="fas fa-check"></i> Marquer lu
+                    </button>
+                  </form>
+                  <a class="btn-notif btn-notif-dark" href="{{ path('notif_project', {idproject: idproject}) }}">
+                    Voir tout
+                  </a>
+                </div>
+              </div>
+            {% else %}
+              <div class="empty-note">Aucune notification</div>
+            {% endfor %}
           </div>
         </div>
 
-        {# Synthèse hebdomadaire (TON CODE) #}
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-calendar-week me-2"></i> Synthèse hebdomadaire</span>
-            <span class="text-muted small">AI Ready</span>
+        {# Synthèse hebdo #}
+        <div class="pro-panel">
+          <div class="panel-head">
+            <div class="panel-head-title">
+              <i class="fas fa-calendar-week"></i> Synthèse hebdomadaire
+            </div>
+            <span class="sev-badge sev-info">AI Ready</span>
           </div>
-          <div class="panel-b text-center">
+          <div class="panel-body">
             {% if releveHebdo %}
-              <div class="row g-2">
-                <div class="col-6">
-                  <div class="fs-4 fw-bold">{{ releveHebdo.tempMoyenne }}°C</div>
-                  <div class="text-muted small">Température</div>
+              <div class="hebdo-nums">
+                <div class="hebdo-num-block">
+                  <div class="hebdo-num-val">{{ releveHebdo.tempMoyenne }}°C</div>
+                  <div class="hebdo-num-label">Température moy.</div>
                 </div>
-                <div class="col-6">
-                  <div class="fs-4 fw-bold">{{ releveHebdo.humiditeMoyenne }}%</div>
-                  <div class="text-muted small">Humidité sol</div>
+                <div class="hebdo-num-block">
+                  <div class="hebdo-num-val">{{ releveHebdo.humiditeMoyenne }}%</div>
+                  <div class="hebdo-num-label">Humidité sol moy.</div>
                 </div>
               </div>
-              <hr>
-              <span class="chip justify-content-center">
-                <span class="{{ releveHebdo.conditionDominante == 'NORMAL' ? 'dot active' : 'dot bad' }}"></span>
-                {{ releveHebdo.conditionDominante }}
-              </span>
-              <div class="text-muted small mt-2">{{ releveHebdo.nbMesuresTotal }} mesures (7 jours)</div>
-              <div class="d-grid mt-3">
-                <a class="btn btn-outline-success btn-iot" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
-                  Voir l'historique hebdo
-                </a>
+              <div class="mb-3 text-center">
+                <span class="kpi-chip {{ releveHebdo.conditionDominante == 'NORMAL' ? 'chip-ok' : 'chip-bad' }}">
+                  <span class="chip-dot"></span>
+                  {{ releveHebdo.conditionDominante }}
+                </span>
+                <div style="font-size:.72rem; color:var(--text-3); margin-top:6px;">
+                  {{ releveHebdo.nbMesuresTotal }} mesures (7 jours)
+                </div>
               </div>
+              <a class="btn-pro btn-pro-outline d-block text-center" href="{{ path('agriculteur_releve_hebdo', {idproject: idproject}) }}">
+                <i class="fas fa-arrow-right me-1"></i> Voir l'historique hebdo
+              </a>
             {% else %}
-              <div class="text-muted">Aucune synthèse hebdo.</div>
-              <div class="small text-muted">Génère-la depuis "Relevé hebdo".</div>
+              <div class="empty-note">Aucune synthèse hebdo.<br><span style="font-size:.75rem">Génère-la depuis "Relevé hebdo".</span></div>
             {% endif %}
           </div>
         </div>
 
       </div>
+    </div>
 
-      {# Rapport du jour (TON CODE) #}
-      <div class="col-12 reveal">
-        <div class="panel">
-          <div class="panel-h">
-            <span><i class="fas fa-chart-bar text-warning me-2"></i> Rapport journalier (aujourd'hui)</span>
-            <span class="text-muted small">{{ "now"|date('d/m/Y') }}</span>
-          </div>
-          <div class="panel-b">
-            {% if rapportsJour|length > 0 %}
-              <div class="row g-3">
-                <div class="col-12 col-xl-6">
-                  <canvas id="chartRapportJour" height="120"></canvas>
-                </div>
-                <div class="col-12 col-xl-6">
-                  <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                      <thead class="table-light">
-                        <tr>
-                          <th>Type</th>
-                          <th>Moy</th>
-                          <th>Min</th>
-                          <th>Max</th>
-                          <th>Nb</th>
-                          <th>Cond</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for r in rapportsJour %}
-                          {% set cond = r.conditionDominante %}
-                          {% set badge = 'success' %}
-                          {% if cond starts with 'ALERTE' %}{% set badge = 'danger' %}{% endif %}
-                          {% if cond != 'NORMAL' and not (cond starts with 'ALERTE') %}{% set badge = 'warning' %}{% endif %}
+    {# ── RAPPORT DU JOUR ── #}
+    <div class="section-label">Rapport journalier — {{ "now"|date('d/m/Y') }}</div>
 
-                          <tr>
-                            <td class="fw-semibold">{{ r.typeMesure }}</td>
-                            <td>{{ r.moyenne }}</td>
-                            <td>{{ r.min }}</td>
-                            <td>{{ r.max }}</td>
-                            <td>{{ r.nbMesures }}</td>
-                            <td><span class="badge bg-{{ badge }}">{{ cond }}</span></td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            {% else %}
-              <div class="alert alert-light border mb-0">
-                Rapport pas encore généré aujourd'hui. Va sur "Rapport journalier" et clique "Générer".
-              </div>
-            {% endif %}
-          </div>
+    <div class="pro-panel">
+      <div class="panel-head">
+        <div class="panel-head-title">
+          <i class="fas fa-chart-bar"></i> Rapport journalier (aujourd'hui)
         </div>
+        <span style="font-family:var(--mono); font-size:.72rem; color:var(--text-3);">{{ "now"|date('d/m/Y') }}</span>
       </div>
-
+      <div class="panel-body">
+        {% if rapportsJour|length > 0 %}
+          <div class="row g-3">
+            <div class="col-12 col-xl-5">
+              <canvas id="chartRapportJour" height="130"></canvas>
+            </div>
+            <div class="col-12 col-xl-7">
+              <div class="table-responsive">
+                <table class="rapport-table">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Moy.</th>
+                      <th>Min</th>
+                      <th>Max</th>
+                      <th>Nb</th>
+                      <th>Condition</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for r in rapportsJour %}
+                      {% set cond = r.conditionDominante %}
+                      {% set cc = 'cond-success' %}
+                      {% if cond starts with 'ALERTE' %}{% set cc = 'cond-danger' %}{% endif %}
+                      {% if cond != 'NORMAL' and not (cond starts with 'ALERTE') %}{% set cc = 'cond-warning' %}{% endif %}
+                      <tr>
+                        <td>{{ r.typeMesure }}</td>
+                        <td>{{ r.moyenne }}</td>
+                        <td>{{ r.min }}</td>
+                        <td>{{ r.max }}</td>
+                        <td>{{ r.nbMesures }}</td>
+                        <td><span class="cond-badge {{ cc }}">{{ cond }}</span></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="empty-note">
+            <i class="fas fa-info-circle me-2"></i>
+            Rapport pas encore généré. Allez dans "Rapport journalier" pour le générer.
+          </div>
+        {% endif %}
+      </div>
     </div>
 
   </div>
+  {# fin dash-content #}
+
 </div>
+{# fin dash-wrap #}
 {% endblock %}
 
 {% block javascripts %}
@@ -702,7 +1398,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
 
   <script>
-    // TON CODE CHARTS
+    /* ── Chart mesures ── */
     const datasets = {{ measureDatasets|json_encode|raw }};
     const canMes = document.getElementById('chartMesures');
     if (canMes && datasets.length > 0) {
@@ -710,48 +1406,60 @@
         type: 'line',
         data: { datasets },
         options: {
-          parsing: false,
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } },
-          scales: { x: { type: 'time' } }
+          parsing: false, responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11 } } } },
+          scales: {
+            x: { type: 'time', grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 } } },
+            y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 } } }
+          }
         }
       });
     }
 
+    /* ── Chart rapport jour ── */
     const canR = document.getElementById('chartRapportJour');
     if (canR) {
       const labels = {{ reportLabels|json_encode|raw }};
-      const avg = {{ reportAvg|json_encode|raw }};
-      const minv = {{ reportMin|json_encode|raw }};
-      const maxv = {{ reportMax|json_encode|raw }};
-
+      const avg    = {{ reportAvg|json_encode|raw }};
+      const minv   = {{ reportMin|json_encode|raw }};
+      const maxv   = {{ reportMax|json_encode|raw }};
       if (labels.length > 0) {
         new Chart(canR, {
           type: 'bar',
           data: {
             labels,
             datasets: [
-              { label: 'Moyenne', data: avg, backgroundColor: 'rgba(54, 162, 235, 0.5)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 },
-              { label: 'Min', data: minv, backgroundColor: 'rgba(255, 206, 86, 0.5)', borderColor: 'rgba(255, 206, 86, 1)', borderWidth: 1 },
-              { label: 'Max', data: maxv, backgroundColor: 'rgba(255, 99, 132, 0.5)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1 }
+              { label: 'Moyenne', data: avg, backgroundColor: 'rgba(10,107,26,.5)', borderColor: 'rgba(10,107,26,.9)', borderWidth: 1, borderRadius: 5 },
+              { label: 'Min',     data: minv, backgroundColor: 'rgba(245,158,11,.4)', borderColor: 'rgba(245,158,11,.9)', borderWidth: 1, borderRadius: 5 },
+              { label: 'Max',     data: maxv, backgroundColor: 'rgba(239,68,68,.4)', borderColor: 'rgba(239,68,68,.9)', borderWidth: 1, borderRadius: 5 }
             ]
           },
-          options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11 } } } },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+              y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 } } }
+            }
+          }
         });
       }
     }
 
-    // 🔥 NOUVEAU: Vérification blockchain
+    /* ── Blockchain verify ── */
     function verifyBlockchain() {
       fetch('/api/blockchain/verify')
         .then(r => r.json())
         .then(data => {
-          if (data.isValid) {
-            alert('✓ Chaîne blockchain valide');
-          } else {
-            alert('✗ Intégrité compromise!');
-          }
+          alert(data.isValid ? '✓ Chaîne blockchain valide' : '✗ Intégrité compromise !');
         });
     }
+
+    /* ── Animate progress bars ── */
+    document.querySelectorAll('.prog-slim-fill').forEach(el => {
+      const w = el.style.width;
+      el.style.width = '0';
+      setTimeout(() => { el.style.width = w; }, 400);
+    });
   </script>
 {% endblock %}
