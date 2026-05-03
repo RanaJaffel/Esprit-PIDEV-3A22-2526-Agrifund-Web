@@ -4,6 +4,8 @@
 
 {% block title %}Vérification à deux facteurs{% endblock %}
 
+{% block body_class %}verify-2fa-page{% endblock %}
+
 {% block stylesheets %}
     <style>
         :root {
@@ -17,16 +19,23 @@
             --vert-olive-fonce: #476C1A;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body.verify-2fa-page .verify-container,
+        body.verify-2fa-page .verify-container * {
+            box-sizing: border-box;
+        }
 
-        body {
+        body.verify-2fa-page {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f8faf5 0%, #e8f5e9 50%, #f1f8e9 100%);
             min-height: 100vh;
+        }
+
+        body.verify-2fa-page #main-content {
+            min-height: calc(100vh - 76px);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .verify-container {

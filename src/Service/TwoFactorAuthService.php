@@ -8,6 +8,7 @@ use App\Entity\Parametres2fa;
 use App\Entity\Utilisateur;
 use App\Repository\Code2faRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Psr\Log\LoggerInterface;
@@ -18,7 +19,9 @@ class TwoFactorAuthService
         private EntityManagerInterface $em,
         private MailerInterface $mailer,
         private Code2faRepository $code2faRepository,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        #[Autowire('%env(MAILER_2FA_FROM_ADDRESS)%')]
+        private string $fromAddress
     ) {}
 
     public function genererCode(): string
@@ -64,10 +67,12 @@ class TwoFactorAuthService
     private function envoyerCodeParEmail(Utilisateur $utilisateur, string $code): void
     {
         $email = (new Email())
-            ->from('noreply@agrifund.com')
+            ->from($this->fromAddress)
             ->to($utilisateur->getEmail())
             ->subject('🔐 Votre code de vérification AgriFund')
             ->html($this->getEmailTemplate($code, $utilisateur->getNomComplet()));
+
+        $email->getHeaders()->addTextHeader('X-Transport', 'gmail_2fa');
 
         $this->mailer->send($email);
     }

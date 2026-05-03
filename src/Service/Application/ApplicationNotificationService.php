@@ -39,7 +39,7 @@ class ApplicationNotificationService
                     'transaction' => $transaction,
                 ]));
 
-            $this->mailer->send($email);
+            $this->sendPaymentNotification($email);
         }
     }
 
@@ -60,7 +60,7 @@ class ApplicationNotificationService
                     'transaction' => $transaction,
                 ]));
 
-            $this->mailer->send($email);
+            $this->sendPaymentNotification($email);
         }
     }
 
@@ -81,7 +81,7 @@ class ApplicationNotificationService
                     'transaction' => $transaction,
                 ]));
 
-            $this->mailer->send($email);
+            $this->sendPaymentNotification($email);
         }
     }
 
@@ -102,7 +102,14 @@ class ApplicationNotificationService
                     'transaction' => $transaction,
                 ]));
 
-            $this->mailer->send($email);
+            $this->sendPaymentNotification($email);
         }
+    }
+
+    private function sendPaymentNotification(Email $email): void
+    {
+        $email->getHeaders()->addTextHeader('X-Transport', 'payment_notifications');
+
+        $this->mailer->send($email);
     }
 }

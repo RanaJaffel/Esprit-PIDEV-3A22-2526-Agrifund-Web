@@ -1,8 +1,6 @@
 framework:
     mailer:
-        dsn: '%env(MAILER_DSN)%'
-        envelope:
-            sender: 'souleimab945@gmail.com'
-        headers:
-            from: 'Gestion Utilisateurs <souleimab945@gmail.com>'
+        transports:
+            gmail_2fa: '%env(MAILER_DSN_2FA)%'
+            payment_notifications: '%env(MAILER_DSN_PAYMENT)%'
         message_bus: false
