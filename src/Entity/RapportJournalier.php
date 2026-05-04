@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RapportJournalierRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: RapportJournalierRepository::class)]
 #[ORM\Table(name: 'rapport_journalier')]
@@ -132,7 +133,7 @@ class RapportJournalier
     private ?int $idproject = null;
 
     #[Assert\Callback]
-    public function validateMinMaxLessThanOrEqual(Assert\ExecutionContextInterface $context): void
+    public function validateMinMaxLessThanOrEqual(ExecutionContextInterface $context): void
     {
         if ($this->min !== null && $this->max !== null && $this->min > $this->max) {
             $context->buildViolation('Le minimum ne peut pas être supérieur au maximum')

@@ -160,7 +160,7 @@
                                         <small class="text-muted">{{ produit.typeFinancement }} · {{ produit.tauxInteret }}%</small>
                                     </div>
                                     <span class="badge rounded-pill" style="background: #e8f5e9; color: var(--vert-vif); font-weight: 700;">
-                                        {{ produit.offres|length }} offre(s)
+                                        {{ dashboardStats.topProduitsOffresCount[produit.id]|default(0) }} offre(s)
                                     </span>
                                 </li>
                             {% endfor %}

@@ -20,6 +20,8 @@ class OffreFinanciereRepository extends ServiceEntityRepository
     public function findActiveOffers(): array
     {
         return $this->createQueryBuilder('o')
+            ->leftJoin('o.produitFinancier', 'p')
+            ->addSelect('p')
             ->andWhere('o.statut = :statut')
             ->setParameter('statut', 'Active')
             ->orderBy('o.nomOffre', 'ASC')
@@ -67,11 +69,11 @@ class OffreFinanciereRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findByProduit($produitId): array
+    public function findByProduit(int $produitId): array
     {
         return $this->createQueryBuilder('o')
-            ->andWhere('o.produitFinancier = :produit')
-            ->setParameter('produit', $produitId)
+            ->andWhere('IDENTITY(o.produitFinancier) = :produitId')
+            ->setParameter('produitId', $produitId)
             ->orderBy('o.nomOffre', 'ASC')
             ->getQuery()
             ->getResult();
@@ -80,9 +82,21 @@ class OffreFinanciereRepository extends ServiceEntityRepository
     public function findAll(): array
     {
         return $this->createQueryBuilder('o')
+            ->leftJoin('o.produitFinancier', 'p')
+            ->addSelect('p')
             ->orderBy('o.nomOffre', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function countActiveOffers(): int
+    {
+        return (int) $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->andWhere('o.statut = :statut')
+            ->setParameter('statut', 'Active')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**

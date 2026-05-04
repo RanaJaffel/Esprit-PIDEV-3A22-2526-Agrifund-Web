@@ -36,6 +36,65 @@ class ProduitFinancierRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return ProduitFinancier[]
+     */
+    public function findLimited(int $limit = 8): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.nomProduit', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOneByName(string $name): ?ProduitFinancier
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('LOWER(p.nomProduit) = :name')
+            ->setParameter('name', mb_strtolower(trim($name)))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function countAllProducts(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @param int[] $productIds
+     *
+     * @return array<int, int>
+     */
+    public function countOffersByProductIds(array $productIds): array
+    {
+        $productIds = array_values(array_unique(array_filter(array_map('intval', $productIds))));
+        if ($productIds === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('p')
+            ->select('p.id AS productId, COUNT(o.id) AS offerCount')
+            ->leftJoin('p.offres', 'o')
+            ->andWhere('p.id IN (:productIds)')
+            ->setParameter('productIds', $productIds)
+            ->groupBy('p.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = array_fill_keys($productIds, 0);
+        foreach ($rows as $row) {
+            $counts[(int) $row['productId']] = (int) $row['offerCount'];
+        }
+
+        return $counts;
+    }
+
+    /**
      * Recherche avancée avec filtres multiples
      */
     public function searchAndFilter(
@@ -48,9 +107,7 @@ class ProduitFinancierRepository extends ServiceEntityRepository
         string $sortBy = 'nomProduit',
         string $sortOrder = 'ASC'
     ): QueryBuilder {
-        $qb = $this->createQueryBuilder('p')
-            ->leftJoin('p.offres', 'o')
-            ->addSelect('o');
+        $qb = $this->createQueryBuilder('p');
 
         if ($keyword) {
             $qb->andWhere('p.nomProduit LIKE :keyword OR p.reglesFinancieres LIKE :keyword')
@@ -158,33 +215,27 @@ class ProduitFinancierRepository extends ServiceEntityRepository
 
     /**
      * Distribution des taux d'intérêt par tranche
+     *
+     * @return array<string, int>
      */
     public function getTauxDistribution(): array
     {
-        $results = $this->createQueryBuilder('p')
-            ->select('p.tauxInteret')
-            ->orderBy('p.tauxInteret', 'ASC')
+        $row = $this->createQueryBuilder('p')
+            ->select('SUM(CASE WHEN p.tauxInteret < 3 THEN 1 ELSE 0 END) AS range0')
+            ->addSelect('SUM(CASE WHEN p.tauxInteret >= 3 AND p.tauxInteret < 5 THEN 1 ELSE 0 END) AS range1')
+            ->addSelect('SUM(CASE WHEN p.tauxInteret >= 5 AND p.tauxInteret < 8 THEN 1 ELSE 0 END) AS range2')
+            ->addSelect('SUM(CASE WHEN p.tauxInteret >= 8 AND p.tauxInteret < 12 THEN 1 ELSE 0 END) AS range3')
+            ->addSelect('SUM(CASE WHEN p.tauxInteret >= 12 THEN 1 ELSE 0 END) AS range4')
             ->getQuery()
-            ->getResult();
+            ->getSingleResult();
 
-        $distribution = [
-            '0-3%' => 0,
-            '3-5%' => 0,
-            '5-8%' => 0,
-            '8-12%' => 0,
-            '12%+' => 0,
+        return [
+            '0-3%' => (int) ($row['range0'] ?? 0),
+            '3-5%' => (int) ($row['range1'] ?? 0),
+            '5-8%' => (int) ($row['range2'] ?? 0),
+            '8-12%' => (int) ($row['range3'] ?? 0),
+            '12%+' => (int) ($row['range4'] ?? 0),
         ];
-
-        foreach ($results as $row) {
-            $taux = $row['tauxInteret'];
-            if ($taux < 3) $distribution['0-3%']++;
-            elseif ($taux < 5) $distribution['3-5%']++;
-            elseif ($taux < 8) $distribution['5-8%']++;
-            elseif ($taux < 12) $distribution['8-12%']++;
-            else $distribution['12%+']++;
-        }
-
-        return $distribution;
     }
 
     /**

@@ -19,6 +19,8 @@ class DocumentRepository extends ServiceEntityRepository
 
     /**
      * Trouve les documents d'un utilisateur
+     *
+     * @return Document[]
      */
     public function findByUtilisateur(Utilisateur $utilisateur): array
     {
@@ -28,6 +30,43 @@ class DocumentRepository extends ServiceEntityRepository
             ->orderBy('d.dateUpload', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return Document[]
+     */
+    public function findRecentByUtilisateur(Utilisateur $utilisateur, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.utilisateur = :utilisateur')
+            ->setParameter('utilisateur', $utilisateur)
+            ->orderBy('d.dateUpload', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array{total: int, valides: int, en_attente: int, rejetes: int}
+     */
+    public function getDashboardStatsForUtilisateur(Utilisateur $utilisateur): array
+    {
+        $row = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id) AS total')
+            ->addSelect("SUM(CASE WHEN d.statut = 'valide' THEN 1 ELSE 0 END) AS valides")
+            ->addSelect("SUM(CASE WHEN d.statut = 'en_attente' THEN 1 ELSE 0 END) AS enAttente")
+            ->addSelect("SUM(CASE WHEN d.statut = 'rejete' THEN 1 ELSE 0 END) AS rejetes")
+            ->where('d.utilisateur = :utilisateur')
+            ->setParameter('utilisateur', $utilisateur)
+            ->getQuery()
+            ->getSingleResult();
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'valides' => (int) ($row['valides'] ?? 0),
+            'en_attente' => (int) ($row['enAttente'] ?? 0),
+            'rejetes' => (int) ($row['rejetes'] ?? 0),
+        ];
     }
 
     /**

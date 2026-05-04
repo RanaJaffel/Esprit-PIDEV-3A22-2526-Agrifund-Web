@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 use App\Service\FaceRecognitionService;
+use App\Repository\UtilisateurRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,7 +18,8 @@ class FaceRecognitionController extends AbstractController
 {
     public function __construct(
         private FaceRecognitionService $faceService,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private UtilisateurRepository $utilisateurRepository,
     ) {}
 
     /**
@@ -187,9 +189,7 @@ class FaceRecognitionController extends AbstractController
         }
 
         // Get user from database
-        $user = $this->getDoctrine()
-            ->getRepository(\App\Entity\Utilisateur::class)
-            ->find($userId);
+        $user = $this->utilisateurRepository->find((int) $userId);
 
         if (!$user) {
             return $this->safeJson([

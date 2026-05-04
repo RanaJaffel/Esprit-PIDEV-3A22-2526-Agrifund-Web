@@ -259,7 +259,7 @@ class AgriculteurChatbotController extends AbstractController
 
     private function buildProduitsDisponiblesAnswer(ProduitFinancierRepository $produitRepository): string
     {
-        $produits = array_slice($produitRepository->findAll(), 0, 8);
+        $produits = $produitRepository->findLimited(8);
         if ($produits === []) {
             return 'Aucun produit financier disponible pour le moment.';
         }
@@ -281,7 +281,7 @@ class AgriculteurChatbotController extends AbstractController
 
     private function buildOffresDisponiblesAnswer(OffreFinanciereRepository $offreRepository): string
     {
-        $offres = array_slice($offreRepository->findActiveOffers(), 0, 8);
+        $offres = $offreRepository->findActiveOffersLimited(8);
         if ($offres === []) {
             return 'Aucune offre active disponible actuellement.';
         }
@@ -308,16 +308,11 @@ class AgriculteurChatbotController extends AbstractController
     ): string {
         $offre = null;
         if ($contextType === 'offre' && $title !== '') {
-            foreach ($offreRepository->findActiveOffers() as $candidate) {
-                if (mb_strtolower((string) $candidate->getNomOffre()) === mb_strtolower($title)) {
-                    $offre = $candidate;
-                    break;
-                }
-            }
+            $offre = $offreRepository->findOneActiveOfferByName($title);
         }
 
         if (!$offre instanceof OffreFinanciere) {
-            $offre = $offreRepository->findActiveOffers()[0] ?? null;
+            $offre = $offreRepository->findFirstActiveOffer();
         }
 
         if (!$offre instanceof OffreFinanciere) {
@@ -353,16 +348,11 @@ class AgriculteurChatbotController extends AbstractController
     ): string {
         $produit = null;
         if ($contextType === 'produit' && $title !== '') {
-            foreach ($produitRepository->findAll() as $candidate) {
-                if (mb_strtolower((string) $candidate->getNomProduit()) === mb_strtolower($title)) {
-                    $produit = $candidate;
-                    break;
-                }
-            }
+            $produit = $produitRepository->findOneByName($title);
         }
 
         if (!$produit instanceof ProduitFinancier) {
-            $produit = $produitRepository->findAll()[0] ?? null;
+            $produit = $produitRepository->findLimited(1)[0] ?? null;
         }
 
         if (!$produit instanceof ProduitFinancier) {

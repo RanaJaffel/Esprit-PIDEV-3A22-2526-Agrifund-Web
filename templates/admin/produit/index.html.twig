@@ -569,7 +569,7 @@
                                             </div>
                                             <div>
                                                 <small class="text-muted text-uppercase fw-bold d-block">Taux d'intérêt</small>
-                                                <span class="text-dark fw-bold">{{ produit.offres|length }} offre(s)</span>
+                                                <span class="text-dark fw-bold">{{ offresCounts[produit.id]|default(0) }} offre(s)</span>
                                             </div>
                                         </div>
                                     </div>

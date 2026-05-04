@@ -812,15 +812,16 @@
                                 <td>{{ utilisateur.email }}</td>
                                 <td>{{ utilisateur.tel ?? 'N/A' }}</td>
                                 <td>
-                                    {% if utilisateur.admin %}
+                                    {% set role = role_by_user_id[utilisateur.id]|default(null) %}
+                                    {% if role == 'admin' %}
                                         <span class="badge bg-danger">
                                             <i class="fas fa-user-shield me-1"></i>Admin
                                         </span>
-                                    {% elseif utilisateur.agriculteur %}
+                                    {% elseif role == 'agriculteur' %}
                                         <span class="badge bg-success">
                                             <i class="fas fa-tractor me-1"></i>Agriculteur
                                         </span>
-                                    {% elseif utilisateur.banque %}
+                                    {% elseif role == 'banque' %}
                                         <span class="badge bg-warning">
                                             <i class="fas fa-university me-1"></i>Banque
                                         </span>

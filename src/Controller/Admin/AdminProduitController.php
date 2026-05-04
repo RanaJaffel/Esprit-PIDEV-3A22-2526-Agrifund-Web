@@ -60,6 +60,13 @@ class AdminProduitController extends AbstractController
             9,
             ['defaultSortFieldName' => null, 'sortFieldParameterName' => null]
         );
+        $productIds = [];
+        foreach ($produits as $produit) {
+            if ($produit instanceof ProduitFinancier && $produit->getId() !== null) {
+                $productIds[] = $produit->getId();
+            }
+        }
+        $offresCounts = $repository->countOffersByProductIds($productIds);
 
         // Statistiques
         $dashboardStats = $this->productService->getDashboardStatistics();
@@ -78,6 +85,7 @@ class AdminProduitController extends AbstractController
             'sortOrder' => $sortOrder,
             'dashboardStats' => $dashboardStats,
             'typesDisponibles' => $typesDisponibles,
+            'offresCounts' => $offresCounts,
         ]);
     }
 
@@ -128,7 +136,7 @@ class AdminProduitController extends AbstractController
                 if ($produitSelectionne) {
                     $simulation = $this->productService->simulerCredit(
                         $montant,
-                        $produitSelectionne->getTauxInteret(),
+                        $produitSelectionne->getTauxInteret() ?? 0.0,
                         $dureeMois
                     );
                 }
@@ -159,7 +167,7 @@ class AdminProduitController extends AbstractController
         if ($produitId > 0) {
             $produit = $repository->find($produitId);
             if ($produit) {
-                $taux = $produit->getTauxInteret();
+                $taux = $produit->getTauxInteret() ?? $taux;
             }
         }
 
@@ -266,7 +274,7 @@ class AdminProduitController extends AbstractController
         if ($produitId > 0) {
             $produit = $repository->find($produitId);
             if ($produit) {
-                $taux = $produit->getTauxInteret();
+                $taux = $produit->getTauxInteret() ?? $taux;
             }
         }
 

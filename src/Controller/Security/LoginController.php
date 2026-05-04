@@ -3,6 +3,7 @@
 
 namespace App\Controller\Security;
 
+use App\Entity\Utilisateur;
 use App\Service\TwoFactorAuthService;
 use App\Service\FaceRecognitionService;
 use App\Repository\UtilisateurRepository;
@@ -34,20 +35,19 @@ class LoginController extends AbstractController
         AuthenticationUtils $authenticationUtils,
         Request $request
     ): Response {
-        if ($this->getUser()) {
-            $user = $this->getUser();
-            if ($user->has2FAEnabled()) {
-                if (!$request->getSession()->get('2fa_verified')) {
-                    return $this->redirectToRoute('app_login_2fa');
-                }
+        $user = $this->currentUtilisateur();
+
+        if ($user !== null) {
+            if ($request->getSession()->get('2fa_pending_password_login') && !$request->getSession()->get('2fa_verified')) {
+                return $this->redirectToRoute('app_login_2fa');
             }
             return $this->redirectToRoute($this->getRedirectRoute());
         }
 
         if ($request->isMethod('POST')) {
-            $recaptchaResponse = $request->request->get('g-recaptcha-response');
+            $recaptchaResponse = $request->request->getString('g-recaptcha-response');
 
-            if (empty($recaptchaResponse)) {
+            if ($recaptchaResponse === '') {
                 $this->addFlash('error', 'Veuillez cocher la case "Je ne suis pas un robot"');
             } else {
                 $recaptcha = new ReCaptcha($this->getParameter('recaptcha_secret_key'));
@@ -136,7 +136,7 @@ class LoginController extends AbstractController
         // ---------------------------------------------------------
         // 3. Trouver l'utilisateur
         // ---------------------------------------------------------
-        $user = $userRepository->findOneBy(['email' => trim($email)]);
+        $user = $userRepository->findOneByEmail(trim($email));
 
         if (!$user) {
             $this->logger->warning("Face login: user not found", ['email' => $email]);
@@ -284,42 +284,26 @@ class LoginController extends AbstractController
             $user->setIsVerified(true);
         }
 
-        // Créer le token de session Symfony
-        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
-        $tokenStorage->setToken($token);
-
-        // ✅ Sauvegarder le token en session (important !)
-        $request->getSession()->set('_security_main', serialize($token));
-
-        // Mettre à jour les infos de connexion
         $user->setDerniereConnexion(new \DateTime());
         $user->setEstEnLigne(true);
         $em->flush();
 
-        // ---------------------------------------------------------
-        // 11. Vérifier si 2FA requis
-        // ---------------------------------------------------------
-        $require2FA = $user->has2FAEnabled();
-
-        if ($require2FA) {
-            $request->getSession()->set('2fa_verified', false);
-            $this->logger->info("2FA required after face login", [
-                'user_id' => $user->getId()
-            ]);
-        }
+        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
+        $tokenStorage->setToken($token);
+        $request->getSession()->set('_security_main', serialize($token));
+        $request->getSession()->remove('2fa_pending_password_login');
+        $request->getSession()->remove('2fa_verified');
 
         // ---------------------------------------------------------
         // 12. Retourner la réponse avec redirect
         // ---------------------------------------------------------
-        $redirectUrl = $this->generateUrl(
-            $require2FA ? 'app_login_2fa' : $this->getRedirectRoute()
-        );
+        $redirectUrl = $this->generateUrl($this->getRedirectRoute());
 
         return $this->safeJson([
             'success'    => true,
             'match'      => true,
             'confidence' => $result['confidence'] ?? 0,
-            'require2fa' => $require2FA,
+            'require2fa' => false,
             'redirect'   => $redirectUrl,
             'message'    => 'Connexion réussie ! Bienvenue ' . $user->getNomComplet()
         ]);
@@ -335,28 +319,30 @@ class LoginController extends AbstractController
         TwoFactorAuthService $twoFactorService,
         EntityManagerInterface $em
     ): Response {
-        $user = $this->getUser();
+        $user = $this->currentUtilisateur();
 
         if (!$user) {
             $this->addFlash('error', 'Veuillez vous connecter d\'abord.');
             return $this->redirectToRoute('app_login');
         }
 
-        if (!$user->has2FAEnabled()) {
+        if (!$request->getSession()->get('2fa_pending_password_login')) {
             return $this->redirectToRoute($this->getRedirectRoute());
         }
 
         if ($request->getSession()->get('2fa_verified')) {
+            $request->getSession()->remove('2fa_pending_password_login');
             return $this->redirectToRoute($this->getRedirectRoute());
         }
 
         $error = null;
 
         if ($request->isMethod('POST')) {
-            $code = $request->request->get('code');
+            $code = trim($request->request->getString('code'));
 
-            if ($twoFactorService->verifierCode($user, $code)) {
+            if ($code !== '' && $twoFactorService->verifierCode($user, $code)) {
                 $request->getSession()->set('2fa_verified', true);
+                $request->getSession()->remove('2fa_pending_password_login');
 
                 $user->setDerniereConnexion(new \DateTime());
                 $user->setEstEnLigne(true);
@@ -377,11 +363,11 @@ class LoginController extends AbstractController
     }
 
     #[Route('/login/2fa/resend', name: 'app_login_2fa_resend')]
-    public function resend2FA(TwoFactorAuthService $twoFactorService): Response
+    public function resend2FA(Request $request, TwoFactorAuthService $twoFactorService): Response
     {
-        $user = $this->getUser();
+        $user = $this->currentUtilisateur();
 
-        if (!$user || !$user->has2FAEnabled()) {
+        if (!$user || !$request->getSession()->get('2fa_pending_password_login')) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -412,6 +398,8 @@ class LoginController extends AbstractController
 
     /**
      * ✅ JSON response safe UTF-8
+     *
+     * @param array<string, mixed> $data
      */
     private function safeJson(array $data, int $status = 200): JsonResponse
     {
@@ -431,6 +419,13 @@ class LoginController extends AbstractController
         }
 
         return new JsonResponse($json, $status, [], true);
+    }
+
+    private function currentUtilisateur(): ?Utilisateur
+    {
+        $user = $this->getUser();
+
+        return $user instanceof Utilisateur ? $user : null;
     }
 
     /**

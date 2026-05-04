@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RessourceProjectRepository::class)]
 #[ORM\Table(name: 'ressourceproject')]
+#[ORM\Index(columns: ['idproject', 'dateajout', 'idressource'], name: 'idx_ressource_project_date')]
 class RessourceProject
 {
     #[ORM\Id]

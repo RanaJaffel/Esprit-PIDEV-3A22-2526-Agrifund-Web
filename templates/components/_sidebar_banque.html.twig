@@ -899,25 +899,49 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Update unread messages badge
-    function updateUnreadBadge() {
-        fetch('{{ path('banque_messagerie_unread_count') }}')
-            .then(response => response.json())
-            .then(data => {
-                const badge = document.getElementById('unread-messages-badge');
-                if (badge) {
-                    if (data.count > 0) {
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                        badge.style.display = 'inline-flex';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
-            })
-            .catch(err => console.log('Could not fetch unread count'));
+    let unreadBadgeRequestInFlight = false;
+
+    function renderUnreadBadge(count) {
+        const badge = document.getElementById('unread-messages-badge');
+        if (!badge) {
+            return;
+        }
+
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 
-    // Update badge periodically
+    function updateUnreadBadge() {
+        if (unreadBadgeRequestInFlight || document.hidden) {
+            return;
+        }
+
+        unreadBadgeRequestInFlight = true;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+
+        fetch('{{ path('api_messages_unread_count') }}', {
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+        })
+            .then(response => response.ok ? response.json() : { count: 0 })
+            .then(data => renderUnreadBadge(Number(data.count) || 0))
+            .catch(() => {})
+            .finally(() => {
+                clearTimeout(timeout);
+                unreadBadgeRequestInFlight = false;
+            });
+    }
+
+    if (window.banqueUnreadBadgeInterval) {
+        clearInterval(window.banqueUnreadBadgeInterval);
+         window.banqueUnreadBadgeInterval = null;
+    }
+
     updateUnreadBadge();
-    setInterval(updateUnreadBadge, 60000);
 });
 </script>

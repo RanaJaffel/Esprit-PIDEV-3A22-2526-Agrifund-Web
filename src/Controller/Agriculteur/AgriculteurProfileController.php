@@ -4,6 +4,8 @@
 namespace App\Controller\Agriculteur;
 
 use App\Entity\Agriculteur;
+use App\Entity\Parametres2fa;
+use App\Entity\Utilisateur;
 use App\Form\AgriculteurProfileType;
 use App\Form\Parametres2faType;
 use App\Service\TwoFactorAuthService;
@@ -22,7 +24,7 @@ class AgriculteurProfileController extends AbstractController
     #[Route('/', name: 'agriculteur_profile_show')]
     public function show(): Response
     {
-        $utilisateur = $this->getUser();
+        $utilisateur = $this->currentUser();
         
         return $this->render('agriculteur/profile/show.html.twig', [
             'utilisateur' => $utilisateur,
@@ -36,7 +38,7 @@ class AgriculteurProfileController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher
     ): Response {
-        $utilisateur = $this->getUser();
+        $utilisateur = $this->currentUser();
         
         // S'assurer que l'agriculteur existe
         if (!$utilisateur->getAgriculteur()) {
@@ -121,11 +123,11 @@ class AgriculteurProfileController extends AbstractController
         EntityManagerInterface $em,
         TwoFactorAuthService $twoFactorService
     ): Response {
-        $utilisateur = $this->getUser();
+        $utilisateur = $this->currentUser();
         $parametres = $utilisateur->getParametres2fa();
         
         if (!$parametres) {
-            $parametres = new \App\Entity\Parametres2fa();
+            $parametres = new Parametres2fa();
             $parametres->setUtilisateur($utilisateur);
         }
         
@@ -158,5 +160,16 @@ class AgriculteurProfileController extends AbstractController
             'parametres' => $parametres,
             'utilisateur' => $utilisateur
         ]);
+    }
+
+    private function currentUser(): Utilisateur
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $user;
     }
 }

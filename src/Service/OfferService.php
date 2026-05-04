@@ -5,14 +5,12 @@ namespace App\Service;
 use App\Entity\OffreFinanciere;
 use App\Entity\ProduitFinancier;
 use App\Repository\OffreFinanciereRepository;
-use App\Repository\ProduitFinancierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class OfferService
 {
     public function __construct(
         private OffreFinanciereRepository $repository,
-        private ProduitFinancierRepository $produitRepository,
         private EntityManagerInterface $entityManager
     ) {}
 
@@ -85,7 +83,7 @@ class OfferService
      */
     public function getActiveOffersCount(): int
     {
-        return count($this->repository->findActiveOffers());
+        return $this->repository->countActiveOffers();
     }
 
     // =====================================================
@@ -190,7 +188,12 @@ class OfferService
      */
     public function activerOffresParProduit(ProduitFinancier $produit): int
     {
-        $offres = $this->repository->findByProduit($produit->getId());
+        $produitId = $produit->getId();
+        if ($produitId === null) {
+            return 0;
+        }
+
+        $offres = $this->repository->findByProduit($produitId);
         $count = 0;
 
         foreach ($offres as $offre) {
@@ -212,7 +215,12 @@ class OfferService
      */
     public function annulerOffresParProduit(ProduitFinancier $produit): int
     {
-        $offres = $this->repository->findByProduit($produit->getId());
+        $produitId = $produit->getId();
+        if ($produitId === null) {
+            return 0;
+        }
+
+        $offres = $this->repository->findByProduit($produitId);
         $count = 0;
 
         foreach ($offres as $offre) {

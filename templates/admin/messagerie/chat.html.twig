@@ -34,7 +34,7 @@
                                 <div>
                                     <h5 class="mb-0">{{ other_user.nomComplet }}</h5>
                                     <small>
-                                        {% if other_user.admin %}
+                                        {% if other_user.hasRole('ROLE_ADMIN') %}
                                             <span class="badge bg-light text-dark">Admin</span>
                                         {% elseif other_user.agriculteur %}
                                             <span class="badge bg-light text-success">Agriculteur</span>

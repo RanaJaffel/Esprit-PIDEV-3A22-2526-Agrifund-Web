@@ -1,0 +1,21 @@
+doctrine_doctor:
+    enabled: true
+    profiler:
+        show_in_toolbar: true
+        show_debug_info: false
+    analyzers:
+        n_plus_one:
+            enabled: true
+            threshold: 3
+        slow_query:
+            enabled: true
+            threshold: 100
+        missing_index:
+            enabled: true
+            slow_query_threshold: 50
+            explain_queries: true
+        get_reference:
+            enabled: true
+            threshold: 3
+        join_optimization:
+            enabled: false

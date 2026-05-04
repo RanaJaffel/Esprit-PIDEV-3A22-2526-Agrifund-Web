@@ -8,6 +8,14 @@
     <title>{% block title %}AgriFund{% endblock %}</title>
     <meta name="description" content="Plateforme de financement agricole">
 
+    {% set currentRoute = app.request.attributes.get('_route')|default('') %}
+    {% set privateLayoutRoute =
+        currentRoute starts with 'admin_'
+        or currentRoute starts with 'agriculteur_'
+        or currentRoute starts with 'banque_'
+        or currentRoute starts with 'capteur_'
+    %}
+
     <!-- Favicons -->
     <link href="{{ asset('assets/img/log.png') }}" rel="icon">
     <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
@@ -23,9 +31,11 @@
     <!-- Vendor CSS -->
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+    {% if not privateLayoutRoute %}
+        <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+        <link href="{{ asset('assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+        <link href="{{ asset('assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+    {% endif %}
 
     <!-- Main CSS -->
     <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet">
@@ -753,6 +763,11 @@
        HEADER — rendered ONCE here in base.html.twig
        Child templates must NOT re-include a header.
        ═══════════════════════════════════════════ #}
+    {% if not privateLayoutRoute %}
+        {% include 'partials/_navbar.html.twig' %}
+    {% endif %}
+
+    {% if false %}
     <header id="header" role="banner">
         <div class="header-inner">
 
@@ -881,6 +896,7 @@
             </div>
         </div>
     </header>
+    {% endif %}
 
     {# ═══════════════════════════════════════════
        ACCESSIBILITY TOOLBAR
@@ -940,11 +956,13 @@
 
     {# ─── Vendor JS ─── #}
     <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/php-email-form/validate.js') }}"></script>
-    <script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
-    <script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
+    {% if not privateLayoutRoute %}
+        <script src="{{ asset('assets/vendor/php-email-form/validate.js') }}"></script>
+        <script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
+        <script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+        <script src="{{ asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+        <script src="{{ asset('assets/js/main.js') }}"></script>
+    {% endif %}
     <script defer src="{{ asset('ui/agrifund-iot.js') }}"></script>
 
     {# ─── Preloader hide ─── #}

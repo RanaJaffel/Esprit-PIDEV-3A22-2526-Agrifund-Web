@@ -104,7 +104,7 @@ class BanqueMessagerieController extends AbstractController
             return $this->redirectToRoute('banque_messagerie_index');
         }
 
-        if (!$otherUser->getAdmin() && !$otherUser->getAgriculteur()) {
+        if (!$otherUser->hasRole('ROLE_ADMIN') && !$otherUser->hasRole('ROLE_AGRICULTEUR')) {
             $this->addFlash('error', 'Vous ne pouvez contacter que les administrateurs et les agriculteurs.');
             return $this->redirectToRoute('banque_messagerie_index');
         }

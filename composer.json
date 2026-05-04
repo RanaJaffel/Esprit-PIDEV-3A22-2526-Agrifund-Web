@@ -99,7 +99,10 @@
     ],
     "post-update-cmd": [
       "@auto-scripts"
-    ]
+    ],
+    "phpstan:0": "phpstan analyse --configuration=phpstan.level0.neon --memory-limit=1G",
+    "phpstan:5": "phpstan analyse --configuration=phpstan.level5.neon --memory-limit=1G",
+    "phpstan:8": "phpstan analyse --configuration=phpstan.level8.neon --memory-limit=1G"
   },
   "conflict": {
     "symfony/symfony": "*"
@@ -114,6 +117,8 @@
     "ahmed-bhs/doctrine-doctor": "1.0",
     "doctrine/doctrine-fixtures-bundle": "*",
     "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-doctrine": "^2.0",
+    "phpstan/phpstan-symfony": "^2.0",
     "phpunit/phpunit": "^11.5",
     "symfony/browser-kit": "6.4.*",
     "symfony/css-selector": "6.4.*",

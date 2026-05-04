@@ -2,25 +2,23 @@
 
 namespace App\Command;
 
-use App\Entity\Product;
-use App\Entity\Offer;
+use App\Entity\OffreFinanciere;
+use App\Entity\ProduitFinancier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[AsCommand(
     name: 'app:seed-data',
-    description: 'Seed the database with sample products and offers',
+    description: 'Seed the database with sample financial products and offers',
 )]
 class SeedDataCommand extends Command
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private SluggerInterface $slugger
     ) {
         parent::__construct();
     }
@@ -28,119 +26,99 @@ class SeedDataCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Seeding Database with Sample Data');
+        $io->title('Seeding Database with Sample Financial Data');
 
-        // Sample Products
         $products = [
             [
-                'name' => 'Engrais Bio Premium',
-                'description' => 'Engrais organique 100% naturel riche en nutriments essentiels pour tous types de cultures. Améliore la structure du sol et favorise la croissance des plantes.',
-                'price' => 45.99,
+                'nomProduit' => 'Greenhouse Equipment Lease',
+                'typeFinancement' => 'Leasing',
+                'tauxInteret' => 6.5,
+                'montant' => 45000.0,
+                'prixFixe' => '450.00',
+                'reglesFinancieres' => 'For equipment modernization projects with a documented investment plan.',
             ],
             [
-                'name' => 'Semences Maïs Hybride',
-                'description' => 'Variété hybride haute performance avec rendement exceptionnel. Résistant aux maladies et aux conditions climatiques difficiles. Idéal pour les grandes exploitations.',
-                'price' => 120.50,
+                'nomProduit' => 'Solar Pump Subsidy',
+                'typeFinancement' => 'Subvention',
+                'tauxInteret' => 1.5,
+                'montant' => 25000.0,
+                'prixFixe' => '250.00',
+                'reglesFinancieres' => 'Reserved for farms adopting water-saving renewable-energy irrigation.',
             ],
             [
-                'name' => 'Pesticide Naturel F400',
-                'description' => 'Solution phytosanitaire naturelle sans résidu chimique. Efficace contre les insectes nuisibles tout en préservant les pollinisateurs et l\'environnement.',
-                'price' => 65.00,
-            ],
-            [
-                'name' => 'Kit Irrigation Goutte-à-Goutte',
-                'description' => 'Système d\'irrigation drip complet pour petites et moyennes surfaces. Économise jusqu\'à 60% d\'eau avec une distribution précise et uniforme.',
-                'price' => 189.99,
-            ],
-            [
-                'name' => 'Laboureur Professionnel 2000W',
-                'description' => 'Motoculteur puissant pour ameublir et préparer les sols. Largeur de travail ajustable de 30 à 60cm. Parfait pour légumes et cultures maraîchères.',
-                'price' => 599.00,
-            ],
-            [
-                'name' => 'Compost Premium 50kg',
-                'description' => 'Compost riche en matière organique, prêt à l\'emploi. Améliore la fertilité du sol et augmente la rétention d\'eau. Parfait pour tous les types de cultures.',
-                'price' => 35.50,
+                'nomProduit' => 'Small Farm Microcredit',
+                'typeFinancement' => 'Microfinance',
+                'tauxInteret' => 4.25,
+                'montant' => 12000.0,
+                'prixFixe' => '120.00',
+                'reglesFinancieres' => 'Designed for small farms needing short-term working capital.',
             ],
         ];
 
-        // Sample Offers
         $offers = [
             [
-                'title' => 'Promo Printemps 2026',
-                'description' => 'Profitez de -20% sur tous les engrais et semences jusqu\'à fin avril. Offre valable sur l\'ensemble du catalogue agricole.',
-                'discount' => 20,
-                'endDate' => '2026-04-30',
+                'productIndex' => 0,
+                'nomOffre' => 'Spring Equipment Boost',
+                'conditions' => 'Priority approval for greenhouse, pump, and irrigation equipment purchases.',
+                'statut' => 'Active',
+                'prix' => '399.00',
             ],
             [
-                'title' => 'Pack Irrigation Complet',
-                'description' => 'Achetez un kit d\'irrigation et recevez 1 tuyau gratuit + spray adapté. Économisez jusqu\'à 150€ sur votre installation.',
-                'discount' => 30,
-                'endDate' => '2026-04-15',
+                'productIndex' => 1,
+                'nomOffre' => 'Water Saver 2026',
+                'conditions' => 'Requires proof of drip irrigation or solar pump installation.',
+                'statut' => 'Active',
+                'prix' => '199.00',
             ],
             [
-                'title' => 'Offre Engrais & Protection',
-                'description' => 'Combo spécial: 1 sac engrais + 1 pesticide naturel à prix réduit. Retrouvez tous les nutriments essentiels pour une culture saine.',
-                'discount' => 15,
-                'endDate' => '2026-05-31',
-            ],
-            [
-                'title' => 'Week-end Promo Matériel',
-                'description' => 'Gros réductions sur tous les équipements de jardinage et d\'agriculture. Ce week-end uniquement: -25% sur les motoculteurs!',
-                'discount' => 25,
-                'endDate' => '2026-04-06',
+                'productIndex' => 2,
+                'nomOffre' => 'Young Farmer Starter Pack',
+                'conditions' => 'Available for first-time applicants with a validated farm profile.',
+                'statut' => 'En attente',
+                'prix' => '99.00',
             ],
         ];
 
-        // Clear existing data (optional)
-        $io->writeln('🗑️  Clearing existing data...');
-        $this->entityManager->getConnection()->executeStatement('DELETE FROM products');
-        $this->entityManager->getConnection()->executeStatement('DELETE FROM offers');
+        $connection = $this->entityManager->getConnection();
+        $connection->executeStatement('DELETE FROM offre_financiere');
+        $connection->executeStatement('DELETE FROM produit_financier');
 
-        // Insert Products
-        $io->writeln("\n📦 Adding products...");
+        $createdProducts = [];
         foreach ($products as $productData) {
-            $product = new Product();
-            $product->setName($productData['name']);
-            $product->setDescription($productData['description']);
-            $product->setPrice($productData['price']);
-            $product->setSlug($this->slugger->slug($productData['name'])->lower()->toString());
-            $product->setIsActive(true);
+            $product = new ProduitFinancier();
+            $product->setNomProduit($productData['nomProduit']);
+            $product->setTypeFinancement($productData['typeFinancement']);
+            $product->setTauxInteret($productData['tauxInteret']);
+            $product->setMontant($productData['montant']);
+            $product->setPrixFixe($productData['prixFixe']);
+            $product->setReglesFinancieres($productData['reglesFinancieres']);
 
             $this->entityManager->persist($product);
-            $io->writeln("  ✓ Added: {$productData['name']} ({$productData['price']}€)");
+            $createdProducts[] = $product;
+
+            $io->writeln(sprintf('Added product: %s', $productData['nomProduit']));
         }
 
-        // Insert Offers
-        $io->writeln("\n🎁 Adding offers...");
         foreach ($offers as $offerData) {
-            $offer = new Offer();
-            $offer->setTitle($offerData['title']);
-            $offer->setDescription($offerData['description']);
-            $offer->setDiscount($offerData['discount']);
-            $offer->setEndDate(new \DateTime($offerData['endDate']));
-            $offer->setSlug($this->slugger->slug($offerData['title'])->lower()->toString());
-            $offer->setIsActive(true);
+            $offer = new OffreFinanciere();
+            $offer->setNomOffre($offerData['nomOffre']);
+            $offer->setConditions($offerData['conditions']);
+            $offer->setStatut($offerData['statut']);
+            $offer->setPrix($offerData['prix']);
+            $offer->setProduitFinancier($createdProducts[$offerData['productIndex']]);
 
             $this->entityManager->persist($offer);
-            $io->writeln("  ✓ Added: {$offerData['title']} (-{$offerData['discount']}%)");
+
+            $io->writeln(sprintf('Added offer: %s', $offerData['nomOffre']));
         }
 
         $this->entityManager->flush();
 
-        $io->success('✅ Database seeded successfully!');
-        $io->writeln([
-            '',
-            '📊 Summary:',
-            "   • " . count($products) . " products added",
-            "   • " . count($offers) . " offers added",
-            '',
-            '🔗 Access your data:',
-            '   • Admin Panel: http://localhost:8000/admin/produits/',
-            '   • Products: http://localhost:8000/admin/produits/',
-            '   • Offers: http://localhost:8000/admin/offres/',
-            '   • Dashboard: http://localhost:8000/admin/produits/',
-        ]);
+        $io->success(sprintf(
+            'Database seeded successfully: %d products, %d offers.',
+            count($products),
+            count($offers),
+        ));
 
         return Command::SUCCESS;
     }

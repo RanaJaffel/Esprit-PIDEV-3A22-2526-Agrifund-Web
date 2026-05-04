@@ -128,7 +128,7 @@
                                         {% else %}
                                             {{ otherUser.nomComplet }}
                                         {% endif %}
-                                        {% if otherUser.admin %}
+                                        {% if otherUser.hasRole('ROLE_ADMIN') %}
                                             <span class="badge bg-danger ms-2">Admin</span>
                                         {% elseif otherUser.banque %}
                                             <span class="badge bg-warning ms-2">Banque</span>

@@ -20,8 +20,18 @@ class ApiProduitController extends AbstractController
     public function index(ProduitFinancierRepository $repository): JsonResponse
     {
         $produits = $repository->findAll();
+        $productIds = [];
+        foreach ($produits as $produit) {
+            if ($produit instanceof ProduitFinancier && $produit->getId() !== null) {
+                $productIds[] = $produit->getId();
+            }
+        }
+        $offresCounts = $repository->countOffersByProductIds($productIds);
 
-        $data = array_map(fn (ProduitFinancier $produit) => $this->serializeProduct($produit, false), $produits);
+        $data = array_map(
+            fn (ProduitFinancier $produit) => $this->serializeProduct($produit, false, $offresCounts[$produit->getId()] ?? 0),
+            $produits
+        );
 
         return $this->json(['data' => $data]);
     }
@@ -234,7 +244,7 @@ class ApiProduitController extends AbstractController
         return $errors;
     }
 
-    private function serializeProduct(ProduitFinancier $produit, bool $withOffers): array
+    private function serializeProduct(ProduitFinancier $produit, bool $withOffers, ?int $offresCount = null): array
     {
         $data = [
             'id' => $produit->getId(),
@@ -243,7 +253,7 @@ class ApiProduitController extends AbstractController
             'tauxInteret' => $produit->getTauxInteret(),
             'montant' => $produit->getMontant(),
             'reglesFinancieres' => $produit->getReglesFinancieres(),
-            'offresCount' => $produit->getOffres()->count(),
+            'offresCount' => $offresCount ?? $produit->getOffres()->count(),
         ];
 
         if ($withOffers) {

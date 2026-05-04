@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ReleveHebdomadaireRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: ReleveHebdomadaireRepository::class)]
 #[ORM\Table(name: 'releve_hebdomadaire')]
@@ -106,7 +107,7 @@ class ReleveHebdomadaire
     private ?\DateTimeInterface $dateGeneration = null;
 
     #[Assert\Callback]
-    public function validatePeriode(Assert\ExecutionContextInterface $context): void
+    public function validatePeriode(ExecutionContextInterface $context): void
     {
         if ($this->dateDebut !== null && $this->dateFin !== null) {
             $interval = $this->dateDebut->diff($this->dateFin);

@@ -117,7 +117,7 @@
                 <div class="users-list" id="usersList">
 
                     {# Admins #}
-                    {% set admins = available_users|filter(u => u.admin is not null) %}
+                    {% set admins = available_users|filter(u => u.hasRole('ROLE_ADMIN')) %}
                     {% if admins|length > 0 %}
                         <div class="px-3 py-2 bg-light border-bottom user-group-header">
                             <small class="fw-bold text-uppercase text-danger">

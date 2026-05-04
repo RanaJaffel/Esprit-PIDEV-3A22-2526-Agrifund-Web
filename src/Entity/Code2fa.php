@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: Code2faRepository::class)]
 #[ORM\Table(name: 'code2fa')]
+#[ORM\Index(name: 'idx_code2fa_lookup', columns: ['utilisateur_id', 'code', 'est_utilise', 'date_expiration', 'date_creation'])]
 class Code2fa
 {
     #[ORM\Id]

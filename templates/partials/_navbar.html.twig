@@ -230,6 +230,39 @@
         border-left: 2px solid #eee;
     }
 
+    .nav2-lang-switcher {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        padding: 4px;
+        background: #f4f8f2;
+        border: 1px solid #e3eddc;
+        border-radius: 999px;
+    }
+
+    .nav2-lang-switcher a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: #56615a;
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        transition: all 0.2s ease;
+    }
+
+    .nav2-lang-switcher a:hover,
+    .nav2-lang-switcher a.active {
+        background: #2e7d32;
+        color: #fff;
+    }
+
     .btn-nav-login {
         padding: 10px 24px;
         background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
@@ -339,6 +372,13 @@
 
     @media (max-width: 1199px) {
         .auth-buttons {
+            display: flex;
+            margin-left: auto;
+            padding-left: 0;
+            border-left: 0;
+        }
+
+        .btn-nav-login {
             display: none;
         }
     }
@@ -348,6 +388,10 @@
         font-size: 28px;
         cursor: pointer;
         color: #333;
+        background: transparent;
+        border: 0;
+        padding: 8px;
+        line-height: 1;
         transition: all 0.3s ease;
     }
 
@@ -355,10 +399,19 @@
         color: #4caf50;
         transform: scale(1.1);
     }
-</style>
 
-<!-- Barre de progression -->
-<div class="scroll-progress" id="scrollProgress"></div>
+    @media (max-width: 480px) {
+        .nav2-lang-switcher {
+            display: flex;
+        }
+
+        .nav2-lang-switcher a {
+            min-width: 30px;
+            padding: 6px 7px;
+            font-size: 0.66rem;
+        }
+    }
+</style>
 
 <header id="header" class="header d-flex align-items-center position-relative">
     <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
@@ -370,19 +423,25 @@
         <nav id="navmenu" class="navmenu">
             <ul>
                 <li>
-                    <a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
+                    <a href="{{ path('app_home') }}"
+                       class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}"
+                       {% if app.request.attributes.get('_route') == 'app_home' %}aria-current="page"{% endif %}>
                         <i class="bi bi-house-door-fill"></i>
                         {{ 'home'|trans }}
                     </a>
                 </li>
                 <li>
-                    <a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">
+                    <a href="{{ path('app_about') }}"
+                       class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}"
+                       {% if app.request.attributes.get('_route') == 'app_about' %}aria-current="page"{% endif %}>
                         <i class="bi bi-info-circle-fill"></i>
                         {{ 'about'|trans }}
                     </a>
                 </li>
                 <li>
-                    <a href="{{ path('app_contact') }}" class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}">
+                    <a href="{{ path('app_contact') }}"
+                       class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}"
+                       {% if app.request.attributes.get('_route') == 'app_contact' %}aria-current="page"{% endif %}>
                         <i class="bi bi-envelope-fill"></i>
                         {{ 'contact'|trans }}
                     </a>
@@ -421,28 +480,32 @@
 
             <!-- Bouton Connexion -->
             <div class="auth-buttons">
+                <nav class="lang-switcher nav2-lang-switcher" role="navigation" aria-label="{{ 'language'|trans }}" data-no-translate>
+                    <a href="{{ path('app_locale', {locale: 'fr'}) }}"
+                       class="{{ app.session.get('_locale', 'fr') == 'fr' ? 'active' : '' }}"
+                       lang="fr" hreflang="fr" aria-label="FranÃ§ais">FR</a>
+                    <a href="{{ path('app_locale', {locale: 'en'}) }}"
+                       class="{{ app.session.get('_locale', 'fr') == 'en' ? 'active' : '' }}"
+                       lang="en" hreflang="en" aria-label="English">EN</a>
+                    <a href="{{ path('app_locale', {locale: 'ar'}) }}"
+                       class="{{ app.session.get('_locale', 'fr') == 'ar' ? 'active' : '' }}"
+                       lang="ar" hreflang="ar" aria-label="Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©">AR</a>
+                </nav>
+
                 <a href="{{ path('app_login') }}" class="btn-nav-login">
                     <i class="bi bi-box-arrow-in-right"></i>
                     {{ 'login'|trans }}
                 </a>
             </div>
 
-            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+            <button type="button"
+                    class="mobile-nav-toggle d-xl-none"
+                    aria-label="Ouvrir le menu de navigation"
+                    aria-expanded="false"
+                    aria-controls="navmenu">
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
         </nav>
 
     </div>
 </header>
-
-<script>
-    // Barre de progression
-    window.addEventListener('scroll', () => {
-        const winScroll = document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        document.getElementById('scrollProgress').style.width = scrolled + '%';
-
-        // Header scroll effect
-        const header = document.getElementById('header');
-        header.classList.toggle('scrolled', window.scrollY > 50);
-    });
-</script>

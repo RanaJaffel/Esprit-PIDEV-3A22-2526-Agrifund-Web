@@ -4,16 +4,12 @@
 namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class TwoFactorSubscriber implements EventSubscriberInterface
 {
-    public function __construct(
-        private TokenStorageInterface $tokenStorage
-    ) {}
-
     public static function getSubscribedEvents(): array
     {
         return [
@@ -34,21 +30,14 @@ class TwoFactorSubscriber implements EventSubscriberInterface
         $publicRoutes = ['app_login', 'app_logout', 'app_login_2fa', 'app_login_2fa_resend', 'app_register'];
         $currentRoute = $request->attributes->get('_route');
         
-        if (in_array($currentRoute, $publicRoutes)) {
+        if (is_string($currentRoute) && in_array($currentRoute, $publicRoutes, true)) {
             return;
         }
 
-        $token = $this->tokenStorage->getToken();
-        if (!$token || !$token->getUser()) {
-            return;
-        }
-
-        $user = $token->getUser();
-        
         // Si l'utilisateur a la 2FA activée mais n'a pas vérifié son code
-        if ($user->has2FAEnabled() && !$session->get('2fa_verified')) {
+        if ($session->get('2fa_pending_password_login') && !$session->get('2fa_verified')) {
             // Rediriger vers la page de vérification 2FA
-            $event->setResponse(new \Symfony\Component\HttpFoundation\RedirectResponse('/login/2fa'));
+            $event->setResponse(new RedirectResponse('/login/2fa'));
         }
     }
 }

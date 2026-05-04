@@ -28,19 +28,23 @@ class AdminUserController extends AbstractController
     ): Response {
         $search = $request->query->get('search');
         $type = $request->query->get('type');
+        $search = is_string($search) && trim($search) !== '' ? trim($search) : null;
+        $type = is_string($type) && in_array($type, ['admin', 'agriculteur', 'banque'], true) ? $type : null;
 
-        $utilisateurs = $utilisateurRepository->searchUtilisateurs($search, $type);
+        $queryBuilder = $utilisateurRepository->createAdminUsersQueryBuilder($search, $type);
 
         $pagination = $paginator->paginate(
-            $utilisateurs,
+            $queryBuilder,
             $request->query->getInt('page', 1),
             10
         );
+        $roleByUserId = $utilisateurRepository->getRoleByUserIdForUsers($pagination->getItems());
 
         return $this->render('admin/utilisateurs/index.html.twig', [
             'pagination' => $pagination,
             'search' => $search,
             'type' => $type,
+            'role_by_user_id' => $roleByUserId,
         ]);
     }
 

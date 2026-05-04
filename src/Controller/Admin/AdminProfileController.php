@@ -3,6 +3,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Parametres2fa;
+use App\Entity\Utilisateur;
 use App\Form\Parametres2faType;
 use App\Form\UtilisateurProfileType;
 use App\Service\TwoFactorAuthService;
@@ -21,8 +23,10 @@ class AdminProfileController extends AbstractController
     #[Route('/', name: 'admin_profile_show')]
     public function show(): Response
     {
+        $utilisateur = $this->currentUser();
+
         return $this->render('admin/profile/show.html.twig', [
-            'utilisateur' => $this->getUser(),
+            'utilisateur' => $utilisateur,
         ]);
     }
 
@@ -32,7 +36,7 @@ class AdminProfileController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher
     ): Response {
-        $utilisateur = $this->getUser();
+        $utilisateur = $this->currentUser();
         
         $form = $this->createForm(UtilisateurProfileType::class, $utilisateur);
         $form->handleRequest($request);
@@ -89,11 +93,11 @@ class AdminProfileController extends AbstractController
         EntityManagerInterface $em,
         TwoFactorAuthService $twoFactorService
     ): Response {
-        $utilisateur = $this->getUser();
+        $utilisateur = $this->currentUser();
         $parametres = $utilisateur->getParametres2fa();
         
         if (!$parametres) {
-            $parametres = new \App\Entity\Parametres2fa();
+            $parametres = new Parametres2fa();
             $parametres->setUtilisateur($utilisateur);
         }
         
@@ -126,5 +130,16 @@ class AdminProfileController extends AbstractController
             'parametres' => $parametres,
             'utilisateur' => $utilisateur
         ]);
+    }
+
+    private function currentUser(): Utilisateur
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $user;
     }
 }

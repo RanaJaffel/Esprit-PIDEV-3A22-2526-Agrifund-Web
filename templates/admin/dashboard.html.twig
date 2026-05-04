@@ -1035,7 +1035,7 @@
                                 </td>
                                 <td>{{ utilisateur.email }}</td>
                                 <td>
-                                    {% if utilisateur.admin %}
+                                    {% if utilisateur.hasRole('ROLE_ADMIN') %}
                                         <span class="badge bg-danger">Admin</span>
                                     {% elseif utilisateur.agriculteur %}
                                         <span class="badge bg-success">Agriculteur</span>

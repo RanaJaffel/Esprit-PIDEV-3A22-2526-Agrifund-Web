@@ -4,6 +4,7 @@ namespace App\Controller\Agriculteur;
 
 use App\Entity\ProduitFinancier;
 use App\Entity\TransactionPaiement;
+use App\Entity\Utilisateur;
 use App\Payment\PaymentProvider;
 use App\Repository\DocumentRepository;
 use App\Repository\MessageRepository;
@@ -31,15 +32,14 @@ class AgriculteurDashboardController extends AbstractController
         MessageRepository $messageRepository
     ): Response {
         $currentUser = $this->getUser();
+        if (!$currentUser instanceof Utilisateur) {
+            throw $this->createAccessDeniedException('Vous devez etre connecte.');
+        }
+
         $agriculteur = $currentUser->getAgriculteur();
 
-        $documents = $documentRepository->findByUtilisateur($currentUser);
-        $documentsStats = [
-            'total' => count($documents),
-            'valides' => count(array_filter($documents, fn($d) => $d->getStatut() === 'valide')),
-            'en_attente' => count(array_filter($documents, fn($d) => $d->getStatut() === 'en_attente')),
-            'rejetes' => count(array_filter($documents, fn($d) => $d->getStatut() === 'rejete')),
-        ];
+        $documentsStats = $documentRepository->getDashboardStatsForUtilisateur($currentUser);
+        $documentsRecents = $documentRepository->findRecentByUtilisateur($currentUser, 5);
 
         $messagesNonLus = $messageRepository->countAllUnreadMessages($currentUser->getId());
 
@@ -53,7 +53,7 @@ class AgriculteurDashboardController extends AbstractController
             'compte_statut' => $compteStatut,
             'documents_stats' => $documentsStats,
             'messages_non_lus' => $messagesNonLus,
-            'documents_recents' => array_slice($documents, 0, 5),
+            'documents_recents' => $documentsRecents,
         ]);
     }
 
@@ -77,7 +77,7 @@ class AgriculteurDashboardController extends AbstractController
     public function browseOffers(OffreFinanciereRepository $offreRepository): Response
     {
         return $this->render('agriculteur/offres.html.twig', [
-            'offres' => $offreRepository->findBy(['statut' => 'Active']),
+            'offres' => $offreRepository->findActiveOffers(),
         ]);
     }
 

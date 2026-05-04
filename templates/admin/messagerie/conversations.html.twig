@@ -120,7 +120,7 @@
                                 <div class="conversation-info ms-3">
                                     <div class="conversation-name">
                                         {{ otherUser.nomComplet }}
-                                        {% if otherUser.admin %}
+                                        {% if otherUser.hasRole('ROLE_ADMIN') %}
                                             <span class="badge bg-danger ms-2">Admin</span>
                                         {% elseif otherUser.agriculteur %}
                                             <span class="badge bg-success ms-2">Agriculteur</span>

@@ -5,6 +5,10 @@ projects: Projets
 login: Connexion
 logout: Déconnexion
 register: Inscription
+farmer: Agriculteur
+bank: Banque
+ask_financing: Demander un financement
+offer_services: Proposer des services
 search: Rechercher
 theme: Thème
 language: Langue

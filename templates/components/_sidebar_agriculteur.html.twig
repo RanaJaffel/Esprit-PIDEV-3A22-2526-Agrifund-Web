@@ -207,10 +207,17 @@
                 <span class="section-line"></span>
             </div>
             <ul class="nav-list">
-                <li class="{{ app.request.get('_route') starts with 'agriculteur_profile' ? 'active' : '' }}">
+                <li class="{{ app.request.get('_route') in ['agriculteur_profile_show', 'agriculteur_profile_edit'] ? 'active' : '' }}">
                     <a href="{{ path('agriculteur_profile_show') }}" class="nav-item" data-tooltip="Mon Profil">
                         <div class="nav-item-icon"><i class="fas fa-user-cog"></i></div>
                         <span class="nav-item-text">Mon Profil</span>
+                        <div class="nav-active-bar"></div>
+                    </a>
+                </li>
+                <li class="{{ app.request.get('_route') == 'agriculteur_profile_2fa' ? 'active' : '' }}">
+                    <a href="{{ path('agriculteur_profile_2fa') }}" class="nav-item" data-tooltip="Sécurité 2FA">
+                        <div class="nav-item-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span class="nav-item-text">Sécurité 2FA</span>
                         <div class="nav-active-bar"></div>
                     </a>
                 </li>
@@ -674,23 +681,53 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Unread messages badge
-    function updateUnreadBadge() {
-        fetch('/api/messages/unread-count')
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                var badge = document.getElementById('unread-messages-badge');
-                if (badge) {
-                    if (data.count > 0) {
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                        badge.style.display = 'inline-flex';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
-            }).catch(function () {});
+    var unreadBadgeRequestInFlight = false;
+
+    function renderUnreadBadge(count) {
+        var badge = document.getElementById('unread-messages-badge');
+        if (!badge) {
+            return;
+        }
+
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 
-    updateUnreadBadge();
-    setInterval(updateUnreadBadge, 60000);
+    function updateUnreadBadge() {
+        if (unreadBadgeRequestInFlight || document.hidden) {
+            return;
+        }
+
+        unreadBadgeRequestInFlight = true;
+        var controller = new AbortController();
+        var timeout = setTimeout(function () { controller.abort(); }, 8000);
+
+        fetch('{{ path('api_messages_unread_count') }}', {
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+        })
+            .then(function (r) { return r.ok ? r.json() : { count: 0 }; })
+            .then(function (data) { renderUnreadBadge(Number(data.count) || 0); })
+            .catch(function () {})
+            .finally(function () {
+                clearTimeout(timeout);
+                unreadBadgeRequestInFlight = false;
+            });
+    }
+
+    if (window.agriUnreadBadgeInterval) {
+        clearInterval(window.agriUnreadBadgeInterval);
+        window.agriUnreadBadgeInterval = null;
+    }
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(updateUnreadBadge, { timeout: 3000 });
+    } else {
+        setTimeout(updateUnreadBadge, 1500);
+    }
 });
 </script>

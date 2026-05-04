@@ -53,6 +53,13 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($this->urlGenerator->generate(self::LOGIN_ROUTE));
         }
 
+        if ($this->requiresPasswordTwoFactor($user)) {
+            $request->getSession()->set('2fa_pending_password_login', true);
+            $request->getSession()->set('2fa_verified', false);
+
+            return new RedirectResponse($this->urlGenerator->generate('app_login_2fa'));
+        }
+
         $user->setDerniereConnexion(new \DateTime());
         $user->setEstEnLigne(true);
         $this->entityManager->flush();
@@ -77,5 +84,11 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     protected function getLoginUrl(Request $request): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+    }
+
+    private function requiresPasswordTwoFactor(Utilisateur $user): bool
+    {
+        return in_array('ROLE_AGRICULTEUR', $user->getRoles(), true)
+            || $user->has2FAEnabled();
     }
 }

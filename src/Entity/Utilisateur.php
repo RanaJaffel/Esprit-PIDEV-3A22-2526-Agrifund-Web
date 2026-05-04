@@ -41,6 +41,12 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
+    /**
+     * @var list<string>
+     */
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
     #[ORM\Column(length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     private ?string $tel = null;
@@ -73,7 +79,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     // ===== RELATIONS =====
 
-    #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Admin::class, cascade: ['persist', 'remove'])]
     private ?Admin $admin = null;
 
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Agriculteur::class, cascade: ['persist', 'remove'])]
@@ -85,15 +90,27 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Parametres2fa::class, cascade: ['persist', 'remove'])]
     private ?Parametres2fa $parametres2fa = null;
 
+    /**
+     * @var Collection<int, Document>
+     */
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Document::class, cascade: ['remove'])]
     private Collection $documents;
 
+    /**
+     * @var Collection<int, Message>
+     */
     #[ORM\OneToMany(mappedBy: 'expediteur', targetEntity: Message::class)]
     private Collection $messagesEnvoyes;
 
+    /**
+     * @var Collection<int, TokenReinitialisation>
+     */
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: TokenReinitialisation::class, cascade: ['remove'])]
     private Collection $tokensReinitialisation;
 
+    /**
+     * @var Collection<int, FaceRecognitionLog>
+     */
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: FaceRecognitionLog::class, cascade: ['remove'])]
     private Collection $faceRecognitionLogs;
 
@@ -292,6 +309,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $admin->setUtilisateur($this);
         }
         $this->admin = $admin;
+        $this->setRoleEnabled('ROLE_ADMIN', $admin !== null);
+
         return $this;
     }
 
@@ -309,6 +328,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $agriculteur->setUtilisateur($this);
         }
         $this->agriculteur = $agriculteur;
+        $this->setRoleEnabled('ROLE_AGRICULTEUR', $agriculteur !== null);
+
         return $this;
     }
 
@@ -326,6 +347,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $banque->setUtilisateur($this);
         }
         $this->banque = $banque;
+        $this->setRoleEnabled('ROLE_BANQUE', $banque !== null);
+
         return $this;
     }
 
@@ -346,6 +369,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Document>
+     */
     public function getDocuments(): Collection
     {
         return $this->documents;
@@ -370,16 +396,25 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Message>
+     */
     public function getMessagesEnvoyes(): Collection
     {
         return $this->messagesEnvoyes;
     }
 
+    /**
+     * @return Collection<int, TokenReinitialisation>
+     */
     public function getTokensReinitialisation(): Collection
     {
         return $this->tokensReinitialisation;
     }
 
+    /**
+     * @return Collection<int, FaceRecognitionLog>
+     */
     public function getFaceRecognitionLogs(): Collection
     {
         return $this->faceRecognitionLogs;
@@ -417,9 +452,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getRoles(): array
     {
-        $roles = ['ROLE_USER'];
+        $roles = array_filter(
+            $this->roles,
+            static fn (string $role): bool => $role !== ''
+        );
 
         if ($this->admin !== null) {
             $roles[] = 'ROLE_ADMIN';
@@ -431,7 +472,43 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $roles[] = 'ROLE_BANQUE';
         }
 
-        return array_unique($roles);
+        $roles[] = 'ROLE_USER';
+
+        return array_values(array_unique($roles));
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = array_values(array_unique(array_filter(
+            $roles,
+            static fn (string $role): bool => $role !== '' && str_starts_with($role, 'ROLE_')
+        )));
+
+        return $this;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->getRoles(), true);
+    }
+
+    private function setRoleEnabled(string $role, bool $enabled): void
+    {
+        if ($enabled) {
+            if (!in_array($role, $this->roles, true)) {
+                $this->roles[] = $role;
+            }
+
+            return;
+        }
+
+        $this->roles = array_values(array_filter(
+            $this->roles,
+            static fn (string $currentRole): bool => $currentRole !== $role
+        ));
     }
 
     public function eraseCredentials(): void
@@ -453,15 +530,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getTypeUtilisateur(): string
     {
-        if ($this->admin !== null) {
+        if ($this->hasRole('ROLE_ADMIN')) {
             return 'Admin';
         }
-        if ($this->agriculteur !== null) {
+        if ($this->hasRole('ROLE_AGRICULTEUR')) {
             return 'Agriculteur';
         }
-        if ($this->banque !== null) {
+        if ($this->hasRole('ROLE_BANQUE')) {
             return 'Banque';
         }
+
         return 'Utilisateur';
     }
 

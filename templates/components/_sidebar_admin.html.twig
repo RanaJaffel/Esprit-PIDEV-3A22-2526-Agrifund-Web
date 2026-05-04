@@ -1173,29 +1173,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Update unread messages badge
+ // Update unread messages badge
+    var unreadBadgeRequestInFlight = false;
+
+    function renderUnreadBadge(count) {
+        var badge = document.getElementById('unread-messages-badge');
+        if (!badge) {
+            return;
+        }
+
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
     function updateUnreadBadge() {
-        fetch('/api/messages/unread-count')
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-                var badge = document.getElementById('unread-messages-badge');
-        fetch('{{ path('admin_messagerie_unread_count') }}')
-            .then(response => response.json())
-            .then(data => {
-                const badge = document.getElementById('unread-messages-badge');
-                if (badge) {
-                    if (data.count > 0) {
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                        badge.style.display = 'inline-flex';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
-            })
-            .catch(function() {});
+        if (unreadBadgeRequestInFlight || document.hidden) {
+            return;
+        }
+
+        unreadBadgeRequestInFlight = true;
+        var controller = new AbortController();
+        var timeout = setTimeout(function() { controller.abort(); }, 8000);
+
+        fetch('{{ path('api_messages_unread_count') }}', {
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+        })
+            .then(function(response) { return response.ok ? response.json() : { count: 0 }; })
+            .then(function(data) { renderUnreadBadge(Number(data.count) || 0); })
+            .catch(function() {})
+            .finally(function() {
+                clearTimeout(timeout);
+                unreadBadgeRequestInFlight = false;
+            });
+    }
+
+    if (window.adminUnreadBadgeInterval) {
+        clearInterval(window.adminUnreadBadgeInterval);
     }
 
     updateUnreadBadge();
-    setInterval(updateUnreadBadge, 60000);
+    window.adminUnreadBadgeInterval = setInterval(updateUnreadBadge, 60000);
 });
 </script>

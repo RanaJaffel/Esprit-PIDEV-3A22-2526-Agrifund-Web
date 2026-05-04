@@ -22,13 +22,8 @@ class BanqueDashboardController extends AbstractController
         $banque = $currentUser->getBanque();
 
         // Statistiques documents
-        $documents = $documentRepository->findByUtilisateur($currentUser);
-        $documentsStats = [
-            'total' => count($documents),
-            'valides' => count(array_filter($documents, fn($d) => $d->getStatut() === 'valide')),
-            'en_attente' => count(array_filter($documents, fn($d) => $d->getStatut() === 'en_attente')),
-            'rejetes' => count(array_filter($documents, fn($d) => $d->getStatut() === 'rejete')),
-        ];
+        $documentsStats = $documentRepository->getDashboardStatsForUtilisateur($currentUser);
+        $documentsRecents = $documentRepository->findRecentByUtilisateur($currentUser, 5);
 
         // Messages non lus
         $messagesNonLus = $messageRepository->countAllUnreadMessages($currentUser->getId());
@@ -44,7 +39,7 @@ class BanqueDashboardController extends AbstractController
             'compte_statut' => $compteStatut,
             'documents_stats' => $documentsStats,
             'messages_non_lus' => $messagesNonLus,
-            'documents_recents' => array_slice($documents, 0, 5),
+            'documents_recents' => $documentsRecents,
         ]);
     }
 }

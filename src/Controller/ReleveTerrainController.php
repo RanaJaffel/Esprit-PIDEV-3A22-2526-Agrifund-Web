@@ -17,6 +17,11 @@ use App\Service\SensorAiAnalysisService;
 
 class ReleveTerrainController extends AbstractController
 {
+    public function __construct(
+        private SensorAiAnalysisService $sensorAiAnalysisService,
+    ) {
+    }
+
     // ===========================
     // Helpers sécurité
     // ===========================

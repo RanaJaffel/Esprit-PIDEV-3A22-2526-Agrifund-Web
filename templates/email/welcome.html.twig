@@ -339,7 +339,7 @@
                 <p><strong>Téléphone :</strong> {{ utilisateur.tel ?? 'Non renseigné' }}</p>
                 <p>
                     <strong>Type de compte :</strong>
-                    {% if utilisateur.admin %}
+                    {% if utilisateur.hasRole('ROLE_ADMIN') %}
                         <span class="role-badge role-admin">👨‍💼 Administrateur</span>
                     {% elseif utilisateur.agriculteur %}
                         <span class="role-badge role-agriculteur">🌾 Agriculteur</span>
@@ -366,7 +366,7 @@
                 </h3>
                 
                 <div class="features-grid">
-                    {% if utilisateur.admin %}
+                    {% if utilisateur.hasRole('ROLE_ADMIN') %}
                         <div class="feature-card">
                             <div class="icon">👥</div>
                             <h4>Gestion des utilisateurs</h4>

@@ -45,7 +45,7 @@
                                         {% endif %}
                                     </h5>
                                     <small>
-                                        {% if other_user.admin %}
+                                        {% if other_user.hasRole('ROLE_ADMIN') %}
                                             <span class="badge bg-light text-danger">Admin</span>
                                         {% elseif other_user.banque %}
                                             <span class="badge bg-light text-warning">Banque</span>

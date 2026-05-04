@@ -93,7 +93,7 @@ class ProductService
      */
     public function getActiveProductsCount(): int
     {
-        return count($this->repository->findAll());
+        return $this->repository->countAllProducts();
     }
 
     // =====================================================
@@ -164,6 +164,13 @@ class ProductService
     public function comparerProduits(ProduitFinancier $produit1, ProduitFinancier $produit2): array
     {
         $diffTaux = $produit1->getTauxInteret() - $produit2->getTauxInteret();
+        $productIds = [];
+        foreach ([$produit1, $produit2] as $produit) {
+            if ($produit->getId() !== null) {
+                $productIds[] = $produit->getId();
+            }
+        }
+        $offresCounts = $this->repository->countOffersByProductIds($productIds);
 
         return [
             'produit1' => [
@@ -172,7 +179,7 @@ class ProductService
                 'type' => $produit1->getTypeFinancement(),
                 'taux' => $produit1->getTauxInteret(),
                 'montant' => $produit1->getMontant(),
-                'nbOffres' => $produit1->getOffres()->count(),
+                'nbOffres' => $offresCounts[$produit1->getId()] ?? 0,
             ],
             'produit2' => [
                 'id' => $produit2->getId(),
@@ -180,7 +187,7 @@ class ProductService
                 'type' => $produit2->getTypeFinancement(),
                 'taux' => $produit2->getTauxInteret(),
                 'montant' => $produit2->getMontant(),
-                'nbOffres' => $produit2->getOffres()->count(),
+                'nbOffres' => $offresCounts[$produit2->getId()] ?? 0,
             ],
             'differencesTaux' => round($diffTaux, 2),
             'meilleureOption' => $diffTaux <= 0 ? $produit1->getNomProduit() : $produit2->getNomProduit(),
@@ -196,12 +203,20 @@ class ProductService
         $byType = $this->repository->countByType();
         $tauxDist = $this->repository->getTauxDistribution();
         $popular = $this->repository->findMostPopular(5);
+        $popularIds = [];
+        foreach ($popular as $produit) {
+            if ($produit instanceof ProduitFinancier && $produit->getId() !== null) {
+                $popularIds[] = $produit->getId();
+            }
+        }
+        $popularCounts = $this->repository->countOffersByProductIds($popularIds);
 
         return [
             'stats' => $stats,
             'byType' => $byType,
             'tauxDistribution' => $tauxDist,
             'topProduits' => $popular,
+            'topProduitsOffresCount' => $popularCounts,
         ];
     }
 
@@ -228,7 +243,7 @@ class ProductService
         // Suggestion de simulation si éligible
         $simulation = null;
         if ($eligible) {
-            $simulation = $this->simulerCredit($montantDemande, $produit->getTauxInteret(), 60);
+            $simulation = $this->simulerCredit($montantDemande, $produit->getTauxInteret() ?? 0.0, 60);
             unset($simulation['tableau']); // Pas besoin du tableau complet ici
         }
 
@@ -247,6 +262,13 @@ class ProductService
     public function getExportData(): array
     {
         $produits = $this->repository->findAll();
+        $productIds = [];
+        foreach ($produits as $produit) {
+            if ($produit->getId() !== null) {
+                $productIds[] = $produit->getId();
+            }
+        }
+        $offresCounts = $this->repository->countOffersByProductIds($productIds);
         $data = [];
 
         foreach ($produits as $produit) {
@@ -256,7 +278,7 @@ class ProductService
                 'Type' => $produit->getTypeFinancement(),
                 'Taux' => $produit->getTauxInteret() . '%',
                 'Montant' => number_format((float) $produit->getMontant(), 0, ',', ' ') . ' DT',
-                'Nb Offres' => $produit->getOffres()->count(),
+                'Nb Offres' => $offresCounts[$produit->getId()] ?? 0,
                 'Règles' => $produit->getReglesFinancieres() ?? 'N/A',
             ];
         }

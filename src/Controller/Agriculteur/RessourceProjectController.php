@@ -10,6 +10,7 @@ use App\Repository\ProjectAgricoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,8 @@ class RessourceProjectController extends AbstractController
     public function index(
         Request $request,
         RessourceProjectRepository $repo,
-        ProjectAgricoleRepository $projectRepo
+        ProjectAgricoleRepository $projectRepo,
+        PaginatorInterface $paginator
     ): Response {
         $agriculteur   = $this->getAgriculteur();
 
@@ -41,6 +43,7 @@ class RessourceProjectController extends AbstractController
         $typeFilter    = $request->query->get('type', '');
         $statutFilter  = $request->query->get('statut', '');
         $projectFilter = $request->query->getInt('project', 0);
+        $page          = max(1, $request->query->getInt('page', 1));
 
         $myProjects = $projectRepo->createQueryBuilder('p')
             ->where('p.agriculteur = :agriculteur')
@@ -52,9 +55,12 @@ class RessourceProjectController extends AbstractController
         $ressources = [];
         if (!empty($myProjectIds)) {
             $qb = $repo->createQueryBuilder('r')
+                ->addSelect('project')
+                ->innerJoin('r.project', 'project')
                 ->where('r.project IN (:ids)')
                 ->setParameter('ids', $myProjectIds)
-                ->orderBy('r.dateajout', 'DESC');
+                ->orderBy('r.dateajout', 'DESC')
+                ->addOrderBy('r.idressource', 'DESC');
 
             if ($search !== '') {
                 $qb->andWhere('r.nomressource LIKE :search OR r.fournisseur LIKE :search')
@@ -73,13 +79,23 @@ class RessourceProjectController extends AbstractController
                    ->setParameter('project', $projectFilter);
             }
 
-            $ressources = $qb->getQuery()->getResult();
+            $ressources = $paginator->paginate(
+                $qb->getQuery(),
+                $page,
+                12,
+                [
+                    'defaultSortFieldName' => null,
+                    'sortFieldParameterName' => null,
+                    'distinct' => false,
+                ]
+            );
         }
 
         return $this->render('agriculteur/ressource_project/index.html.twig', [
             'ressources'    => $ressources,
             'projects'      => $myProjects,
             'search'        => $search,
+            'type'          => $typeFilter,
             'typeFilter'    => $typeFilter,
             'statutFilter'  => $statutFilter,
             'projectFilter' => $projectFilter,

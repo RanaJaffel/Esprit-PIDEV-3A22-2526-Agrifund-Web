@@ -3,6 +3,7 @@
 
 namespace App\EventListener;
 
+use App\Entity\Utilisateur;
 use App\Service\TwoFactorAuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -27,9 +28,16 @@ class LoginListener
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {
         $user = $event->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            return;
+        }
         
         // Vérifier si l'utilisateur a activé la 2FA
-        if ($user->has2FAEnabled()) {
+        if ($this->requiresPasswordTwoFactor($user)) {
+            $event->getRequest()->getSession()->set('2fa_pending_password_login', true);
+            $event->getRequest()->getSession()->set('2fa_verified', false);
+
             // Ne pas mettre à jour derniereConnexion et estEnLigne pour l'instant
             // Car l'utilisateur n'est pas encore complètement authentifié
             
@@ -76,6 +84,11 @@ class LoginListener
         $token = $event->getToken();
         if ($token && $token->getUser()) {
             $user = $token->getUser();
+
+            if (!$user instanceof Utilisateur) {
+                return;
+            }
+
             $user->setEstEnLigne(false);
             $this->entityManager->flush();
             
@@ -84,9 +97,16 @@ class LoginListener
             if ($request->hasSession()) {
                 $session = $request->getSession();
                 $session->remove('2fa_verified');
+                $session->remove('2fa_pending_password_login');
             }
             
             $this->logger->info('Déconnexion de l\'utilisateur : ' . $user->getEmail());
         }
+    }
+
+    private function requiresPasswordTwoFactor(Utilisateur $user): bool
+    {
+        return in_array('ROLE_AGRICULTEUR', $user->getRoles(), true)
+            || $user->has2FAEnabled();
     }
 }

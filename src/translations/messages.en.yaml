@@ -5,6 +5,10 @@ projects: Projects
 login: Login
 logout: Logout
 register: Register
+farmer: Farmer
+bank: Bank
+ask_financing: Request financing
+offer_services: Offer services
 search: Search
 theme: Theme
 language: Language

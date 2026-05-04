@@ -41,9 +41,10 @@ class TwoFactorAuthService
         }
 
         // Créer un nouveau code
+        $code = $this->genererCode();
         $code2fa = new Code2fa();
         $code2fa->setUtilisateur($utilisateur);
-        $code2fa->setCode($this->genererCode());
+        $code2fa->setCode($code);
         $code2fa->setTypeEnvoi($methode);
 
         $this->em->persist($code2fa);
@@ -52,9 +53,9 @@ class TwoFactorAuthService
         // Envoyer le code
         try {
             if ($methode === 'email') {
-                $this->envoyerCodeParEmail($utilisateur, $code2fa->getCode());
+                $this->envoyerCodeParEmail($utilisateur, $code);
             } elseif ($methode === 'sms') {
-                $this->envoyerCodeParSMS($utilisateur, $code2fa->getCode());
+                $this->envoyerCodeParSMS($utilisateur, $code);
             }
         } catch (\Exception $e) {
             $this->logger->error('Erreur envoi code 2FA: ' . $e->getMessage());
@@ -66,9 +67,15 @@ class TwoFactorAuthService
 
     private function envoyerCodeParEmail(Utilisateur $utilisateur, string $code): void
     {
+        $emailAddress = $utilisateur->getEmail();
+
+        if ($emailAddress === null || $emailAddress === '') {
+            throw new \RuntimeException('Adresse email utilisateur manquante pour la 2FA');
+        }
+
         $email = (new Email())
             ->from($this->fromAddress)
-            ->to($utilisateur->getEmail())
+            ->to($emailAddress)
             ->subject('🔐 Votre code de vérification AgriFund')
             ->html($this->getEmailTemplate($code, $utilisateur->getNomComplet()));
 

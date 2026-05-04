@@ -3,6 +3,9 @@
 
 namespace App\Controller\Banque;
 
+use App\Entity\Banque;
+use App\Entity\Parametres2fa;
+use App\Entity\Utilisateur;
 use App\Form\BanqueProfileType;
 use App\Form\Parametres2faType;
 use App\Service\TwoFactorAuthService;
@@ -21,9 +24,11 @@ class BanqueProfileController extends AbstractController
     #[Route('/', name: 'banque_profile_show')]
     public function show(): Response
     {
+        $utilisateur = $this->currentUser();
+
         return $this->render('banque/profile/show.html.twig', [
-            'utilisateur' => $this->getUser(),
-            'banque' => $this->getUser()->getBanque(),
+            'utilisateur' => $utilisateur,
+            'banque' => $this->currentBanque($utilisateur),
         ]);
     }
 
@@ -33,8 +38,8 @@ class BanqueProfileController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher
     ): Response {
-        $utilisateur = $this->getUser();
-        $banque = $utilisateur->getBanque();
+        $utilisateur = $this->currentUser();
+        $banque = $this->currentBanque($utilisateur);
         
         $banqueData = [
             'addresseSiege' => $banque->getAddresseSiege(),
@@ -124,11 +129,11 @@ class BanqueProfileController extends AbstractController
         EntityManagerInterface $em,
         TwoFactorAuthService $twoFactorService
     ): Response {
-        $utilisateur = $this->getUser();
+        $utilisateur = $this->currentUser();
         $parametres = $utilisateur->getParametres2fa();
         
         if (!$parametres) {
-            $parametres = new \App\Entity\Parametres2fa();
+            $parametres = new Parametres2fa();
             $parametres->setUtilisateur($utilisateur);
         }
         
@@ -161,5 +166,27 @@ class BanqueProfileController extends AbstractController
             'parametres' => $parametres,
             'utilisateur' => $utilisateur
         ]);
+    }
+
+    private function currentUser(): Utilisateur
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $user;
+    }
+
+    private function currentBanque(Utilisateur $utilisateur): Banque
+    {
+        $banque = $utilisateur->getBanque();
+
+        if (!$banque instanceof Banque) {
+            throw $this->createNotFoundException('Profil banque introuvable.');
+        }
+
+        return $banque;
     }
 }

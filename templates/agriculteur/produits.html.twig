@@ -203,11 +203,9 @@
         {% for p in produits %}
             <div class="product-card animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.1 }}s">
                 <div class="card-accent"></div>
-
                 <span class="product-type-badge badge-{{ p.typeFinancement|lower|replace({'é': 'e'}) }}">
                     {{ p.typeFinancement }}
                 </span>
-
                 <div class="card-inner">
                     <div class="product-icon-box">
                         {% if p.typeFinancement|lower == 'crédit' %}
@@ -220,20 +218,13 @@
                             <i class="fas fa-seedling"></i>
                         {% endif %}
                     </div>
-
                     <h3 class="product-title">{{ p.nomProduit }}</h3>
-
                     <div class="product-stats">
                         <div class="stat-box">
                             <span class="stat-label">Taux d'intérêt</span>
                             <span class="stat-val taux">{{ p.tauxInteret }}%</span>
                         </div>
-                        <div class="stat-box">
-                            <span class="stat-label">Prix Payable</span>
-                            <span class="stat-val">{{ p.prixFixe|number_format(2, ',', ' ') }} DT</span>
-                        </div>
                     </div>
-
                     <div class="product-actions">
                         <a href="{{ path('agriculteur_produit_show', {id: p.id}) }}" class="btn-details">
                             Voir les détails
@@ -244,7 +235,7 @@
                             title="Demander une explication de ce produit"
                             data-context-type="produit"
                             data-title="{{ p.nomProduit|e('html_attr') }}"
-                            data-summary="Type: {{ p.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ p.tauxInteret }}%. Prix fixe: {{ p.prixFixe|number_format(2, ',', ' ') }} DT."
+                            data-summary="Type: {{ p.typeFinancement|replace({'"': '', "'": ''})|e('html_attr') }}. Taux: {{ p.tauxInteret }}%."
                         >
                             <i class="fas fa-comments"></i>
                         </button>
@@ -268,6 +259,6 @@
     {% include 'agriculteur/components/_chatbot_widget.html.twig' with {
         chatbot_context_type: 'produit',
         chatbot_title: 'Catalogue des produits',
-        chatbot_summary: 'Liste des produits financiers pour agriculteurs avec taux et prix fixe payable.'
+        chatbot_summary: 'Liste des produits financiers pour agriculteurs avec taux d\'intérêt.'
     } %}
 {% endblock %}
